@@ -10,6 +10,9 @@ and this project adheres to
 
 ### Added
 
+- S0-T02 complete 20-scalar `$defs` library and six deterministic author-source
+  JSON Schemas.
+- Fail-closed visual-token definitions pending acceptance of their catalogs.
 - S0-T01 repository scaffold with pinned Node.js and npm toolchains.
 - JavaScript ESM package entry point with checked JSDoc and emitted
   declarations.
