@@ -26,6 +26,21 @@ test('package metadata pins the accepted runtime and package manager', async () 
   });
   assert.equal(packageDefinition.packageManager, 'npm@11.16.0');
   assert.equal(packageDefinition.bin, undefined);
+  assert.ok(packageDefinition.files.includes('schemas/'));
+  assert.deepEqual(packageDefinition.exports, {
+    '.': {
+      types: './types/index.d.ts',
+      import: './src/index.js',
+    },
+    './schemas/appearance.schema.json': './schemas/appearance.schema.json',
+    './schemas/author.schema.json': './schemas/author.schema.json',
+    './schemas/content-frontmatter.schema.json':
+      './schemas/content-frontmatter.schema.json',
+    './schemas/navigation.schema.json': './schemas/navigation.schema.json',
+    './schemas/publication.schema.json': './schemas/publication.schema.json',
+    './schemas/repository.schema.json': './schemas/repository.schema.json',
+    './package.json': './package.json',
+  });
 });
 
 test('declaration output matches the intentionally empty runtime surface', async () => {

@@ -5,9 +5,10 @@ the OpenAPI contract, generated validators, and generated consumer types. It
 does not contain API business behavior, UI code, publication rendering, or
 infrastructure configuration.
 
-This repository is currently at the S0-T01 scaffold stage. Contract schemas and
-generated validators arrive in later S0 increments; the empty runtime entry
-point deliberately exposes no provisional contract.
+This repository currently contains the S0-T02 author-source contracts. The six
+committed schemas embed the same complete 20-scalar `$defs` library. Generated
+runtime validators arrive in S0-T05; the empty runtime entry point deliberately
+exposes no provisional validator contract.
 
 ## Prerequisites
 
@@ -22,27 +23,30 @@ the same Node pin.
 ```sh
 npm ci
 npm run verify
+npm run schemas:generate
 npm run declarations:generate
 npm run licenses:check
 npm run sbom:check
 npm pack --dry-run
 ```
 
-`npm run verify` builds declarations and runs formatting, lint, type,
-architecture, duplication, workflow-pin, and test gates.
+`npm run verify` checks deterministic schema generation, builds declarations,
+and runs formatting, lint, type, architecture, duplication, workflow-pin, and
+test gates.
 
 ## Package layout
 
 - `src/` — JavaScript ESM runtime package surface, checked from JSDoc.
 - `types/` — declaration output emitted from `src/`.
+- `schemas/` — committed Draft 2020-12 author-source contracts.
 - `codegen/` — TypeScript-only deterministic generation code (introduced by
   later S0 tasks).
 - `scripts/` — repository verification and supply-chain tooling.
 - `test/` — Node native tests.
 
-Future S0 tasks add `schemas/`, `openapi/`, `examples/`, `fixtures/`,
-`generated/`, `docs/`, and `compatibility/` as their contracts are materialized.
-Empty directories are not committed as evidence.
+Future S0 tasks add `openapi/`, `examples/`, `fixtures/`, `generated/`, `docs/`,
+and `compatibility/` as their contracts are materialized. Empty directories are
+not committed as evidence.
 
 ## Architecture sources
 

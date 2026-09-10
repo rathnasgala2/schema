@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gala:schema:appearance:2.0.0",
+  "title": "Gala appearance contract",
+  "type": "object",
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "theme",
+    "colorMode",
+    "headerComposition",
+    "footerComposition",
+    "typeScale",
+    "fontAssetRefs",
+    "tokens",
+    "extensions"
+  ],
+  "properties": {
+    "schemaId": { "const": "urn:gala:schema:appearance:2.0.0" },
+    "schemaVersion": { "const": "2.0.0" },
+    "theme": { "$ref": "#/$defs/packageRange" },
+    "colorMode": { "$ref": "#/$defs/colorMode" },
+    "brandMark": { "$ref": "#/$defs/repoRelativePath" },
+    "wordmark": { "$ref": "#/$defs/repoRelativePath" },
+    "headerComposition": {
+      "enum": ["mark-and-name", "name-only", "mark-only"]
+    },
+    "footerComposition": { "enum": ["profile", "compact", "minimal"] },
+    "typeScale": { "enum": ["compact", "standard", "spacious"] },
+    "fontAssetRefs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/repoRelativePath" },
+      "minItems": 0,
+      "maxItems": 8
+    },
+    "tokens": { "$ref": "#/$defs/semanticTokens" },
+    "extensions": { "$ref": "#/$defs/extensionMap" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "Lowercase canonical UUIDv7. Once published, it is immutable; its time ordering conveys neither chronology nor authority."
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "repoRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*\\u0000).+$",
+      "format": "gala-repository-relative-path",
+      "x-gala-utf8ByteLength": { "maximum": 512 },
+      "description": "NFC UTF-8 repository-relative path using slash separators, with no leading slash, dot segment, NUL, backslash, or percent-decoded traversal."
+    },
+    "canonicalRoute": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^/(?!/)(?!.*//)(?!.*[?#]).*$",
+      "format": "gala-canonical-route",
+      "description": "Absolute normalized route with no query, fragment, dot segment, double slash, or non-normalized percent encoding."
+    },
+    "gitObjectId": {
+      "type": "string",
+      "pattern": "^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$"
+    },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "urlHttps": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://(?![^/?#]*@)",
+      "description": "Absolute HTTPS URL without embedded credentials."
+    },
+    "bcp47": {
+      "type": "string",
+      "format": "gala-bcp47",
+      "description": "Structurally valid canonical BCP-47 language tag."
+    },
+    "isoCountry": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "format": "gala-iso-country",
+      "description": "ISO 3166-1 alpha-2 country code; admission remains subject to the active policy profile."
+    },
+    "plainLabel": {
+      "type": "string",
+      "format": "gala-plain-label",
+      "x-gala-graphemeLength": { "minimum": 1, "maximum": 80 },
+      "description": "Normalized Unicode plain text without markup, controls, or bidi overrides."
+    },
+    "plainText": {
+      "type": "string",
+      "format": "gala-plain-text",
+      "description": "NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls."
+    },
+    "rfc3339": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*)?$",
+      "description": "Canonical SemVer 2.0.0 without build metadata."
+    },
+    "semverRange": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "format": "gala-semver-range",
+      "description": "Whitespace-free npm-compatible exact, caret, or bounded comparator-set range; tags and URLs are invalid."
+    },
+    "packageRange": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^(?:@[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?|[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)@\\S+$",
+      "format": "gala-package-range",
+      "description": "Lowercase npm package identity and admitted semver range; Git, file, URL, and alias sources are invalid."
+    },
+    "packageExact": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^(?:@[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?|[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)@\\S+$",
+      "format": "gala-package-exact",
+      "description": "Lowercase npm package identity and exact canonical semantic version; aliases are invalid."
+    },
+    "urn": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 255,
+      "format": "uri",
+      "pattern": "^urn:gala:[\\x21-\\x7E]+$",
+      "description": "Absolute ASCII URN in the schema-declared Gala namespace."
+    },
+    "glob": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "format": "gala-repository-glob",
+      "x-gala-utf8ByteLength": { "maximum": 256 },
+      "description": "Repository-relative POSIX glob using only star, globstar, and question-mark operators; braces, extglobs, negation, absolute paths, and parent traversal are invalid."
+    },
+    "passiveVisualToken": false,
+    "extensionKey": {
+      "type": "string",
+      "format": "gala-extension-key",
+      "description": "Reverse-DNS extension namespace that cannot shadow a core key."
+    },
+    "colorMode": {
+      "type": "object",
+      "required": ["allowed", "default"],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": { "enum": ["light", "dark", "system"] },
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "default": { "enum": ["light", "dark", "system"] }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": { "default": { "const": "light" } },
+            "required": ["default"]
+          },
+          "then": {
+            "properties": {
+              "allowed": { "type": "array", "contains": { "const": "light" } }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "default": { "const": "dark" } },
+            "required": ["default"]
+          },
+          "then": {
+            "properties": {
+              "allowed": { "type": "array", "contains": { "const": "dark" } }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "default": { "const": "system" } },
+            "required": ["default"]
+          },
+          "then": {
+            "properties": {
+              "allowed": { "type": "array", "contains": { "const": "system" } }
+            }
+          }
+        }
+      ],
+      "$comment": "The appearance validator requires default to be a member of allowed."
+    },
+    "semanticTokens": {
+      "type": "object",
+      "required": [],
+      "properties": {},
+      "additionalProperties": false,
+      "maxProperties": 0,
+      "$comment": "Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted."
+    },
+    "extensionMap": {
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": { "$ref": "#/$defs/extensionKey" },
+      "additionalProperties": { "x-gala-maxCanonicalBytes": 16384 },
+      "x-gala-maxCanonicalBytes": 131072
+    }
+  }
+}
