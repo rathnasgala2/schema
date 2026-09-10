@@ -1,0 +1,85 @@
+{
+  "name": "@rathnasgala2/schemas",
+  "version": "2.0.0",
+  "description": "Executable JSON Schema and OpenAPI contracts for Galascribe",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rathnasgala2/schema.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rathnasgala2/schema/issues"
+  },
+  "homepage": "https://github.com/rathnasgala2/schema#readme",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./types/index.d.ts",
+  "files": [
+    "src/",
+    "types/",
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "THIRD_PARTY_LICENSES.json",
+    "sbom.cdx.json"
+  ],
+  "engines": {
+    "node": "24.18.0",
+    "npm": "11.16.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "11.16.0",
+      "onFail": "error"
+    }
+  },
+  "packageManager": "npm@11.16.0",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "npm run declarations:check",
+    "declarations:generate": "tsc --project tsconfig.declarations.json",
+    "declarations:check": "node scripts/check-declarations.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "tsc --project tsconfig.json",
+    "architecture": "depcruise --validate .dependency-cruiser.cjs src scripts test eslint.config.js",
+    "duplication": "jscpd src scripts test eslint.config.js",
+    "workflows:check": "node scripts/check-workflow-pins.mjs",
+    "test": "node --test",
+    "licenses:generate": "node scripts/generate-license-inventory.mjs",
+    "licenses:check": "node scripts/generate-license-inventory.mjs --check",
+    "sbom:generate": "node scripts/generate-sbom.mjs",
+    "sbom:check": "node scripts/generate-sbom.mjs --check",
+    "audit": "npm audit --audit-level=critical",
+    "verify": "npm run build && npm run format:check && npm run lint && npm run typecheck && npm run architecture && npm run duplication && npm run workflows:check && npm test && npm run licenses:check && npm run sbom:check && npm run audit"
+  },
+  "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "6.0.1",
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.4",
+    "dependency-cruiser": "18.2.0",
+    "eslint": "10.10.0",
+    "eslint-plugin-jsdoc": "64.3.9",
+    "globals": "17.12.0",
+    "jscpd": "5.2.0",
+    "prettier": "3.9.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0"
+  }
+}
