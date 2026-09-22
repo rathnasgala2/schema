@@ -1,0 +1,18 @@
+# Fingerprints of gitleaks findings that are benign false positives, not
+# real secrets. gitleaks scans the full commit history
+# (--log-opts="--all"), so fixing the current file does not silence the
+# commit that originally introduced a line; these fingerprints do that
+# instead, scoped to the exact historical commit, file, rule and line so a
+# real secret added anywhere else still fails the scan.
+#
+# 53682bc2af26f6a32d565bfbb76fe2904ef028c3:openapi/openapi.yaml:11008 --
+# `VerificationSubmissionFit`, a generated OpenAPI schema component name
+# (authored in openapi/source/components.yaml), not a credential.
+53682bc2af26f6a32d565bfbb76fe2904ef028c3:openapi/openapi.yaml:generic-api-key:11008
+#
+# c66ebd3bf774d9e3513dadb92433f8b59d711e55:openapi/openapi.yaml:13566 --
+# a hex-looking example `token` value in the invitation-creation response
+# doc example (openapi/source/organizations.yaml). Replaced at the source
+# with a plainly fake placeholder going forward; this entry only silences
+# the immutable historical commit that carried the old example value.
+c66ebd3bf774d9e3513dadb92433f8b59d711e55:openapi/openapi.yaml:generic-api-key:13566
