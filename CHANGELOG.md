@@ -16,11 +16,10 @@ Tooling only; no schema, OpenAPI, generated-output or package-version change.
   (build/codegen drift, format, lint, typecheck, architecture, duplication,
   workflow pins, Java parity supply chain, tests, validator parity, license
   inventory, SBOM, audit) before `npm publish` can proceed, so a broken or
-  unverified package can never be published under the new `@rathnasgala2`
-  scope. This is the first manual publish of `@rathnasgala2/schemas`
-  (`npm` trusted-publisher OIDC can only be configured against an
-  already-existing package), so this gate is the sole guard on that first,
-  irreversible release.
+  unverified package can never be published under the new `@rathnasgala2` scope.
+  This is the first manual publish of `@rathnasgala2/schemas` (`npm`
+  trusted-publisher OIDC can only be configured against an already-existing
+  package), so this gate is the sole guard on that first, irreversible release.
 - `publish:dry-run` script (`npm publish --dry-run --access public`) so the
   exact packed file list and size can be inspected before the real publish.
 
