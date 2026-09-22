@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "2.0.0",
+  "components": [
+    {
+      "componentId": "AppShell",
+      "semantics": "skip link, landmark structure, account and environment identity, responsive primary navigation, route-level heading",
+      "requiredStates": ["ready", "degraded"],
+      "keyboardContract": "The skip link is the first focusable element in the document and moves focus to the main landmark.",
+      "focusContract": "A route change moves focus to the route-level heading.",
+      "announcementContract": "A route change announces the new route title through a polite live region.",
+      "contentKeyPrefix": "component.app-shell"
+    },
+    {
+      "componentId": "ContextHeader",
+      "semantics": "organization and publication, lifecycle, entitlement or gate state, exact source and live revision where consequential, permitted actions",
+      "requiredStates": ["ready", "loading", "stale", "degraded"],
+      "keyboardContract": "Permitted actions are real buttons reachable in standard tab order.",
+      "focusContract": "The region does not steal focus when its data refreshes.",
+      "announcementContract": "Rendered as a labelled region; revision identities are conveyed as text, never by colour alone.",
+      "contentKeyPrefix": "component.context-header"
+    },
+    {
+      "componentId": "Breadcrumbs",
+      "semantics": "current hierarchy using real links",
+      "requiredStates": ["ready"],
+      "keyboardContract": "Each hierarchy level is a real, independently focusable link.",
+      "focusContract": "Breadcrumbs never trap or redirect focus.",
+      "announcementContract": "Rendered as a `nav` with an accessible name; the current page is marked `aria-current=\"page\"`; breadcrumbs are never the only indicator of current context.",
+      "contentKeyPrefix": "component.breadcrumbs"
+    },
+    {
+      "componentId": "StatePanel",
+      "semantics": "typed empty, loading, stale, offline, forbidden, not-found, gated, provider-unavailable and final-failure states with exact safe recovery",
+      "requiredStates": [
+        "ready",
+        "loading",
+        "empty",
+        "refreshing",
+        "offline",
+        "forbidden",
+        "not-found",
+        "capability-unavailable",
+        "reconciling",
+        "terminal-failure",
+        "dirty",
+        "validating",
+        "submitting",
+        "conflicted",
+        "rate-limited",
+        "success"
+      ],
+      "keyboardContract": "The recovery action is focusable and reachable by keyboard alone.",
+      "focusContract": "On a terminal-failure transition, focus moves to the alert region.",
+      "announcementContract": "Status text is rendered in a `status` live region for non-urgent states and an `alert` live region for terminal failure.",
+      "contentKeyPrefix": "component.state-panel"
+    },
+    {
+      "componentId": "CapabilityGate",
+      "semantics": "the controlling entitlement, policy or evidence requirement, preserved data, available alternatives",
+      "requiredStates": ["gated", "available"],
+      "keyboardContract": "The disabled action remains present in tab order with its reason programmatically associated.",
+      "focusContract": "Gating never removes the control from the document; it disables it in place.",
+      "announcementContract": "Never renders a misleadingly enabled control; the reason is programmatically associated with the disabled action, not colour or tooltip only.",
+      "contentKeyPrefix": "component.capability-gate"
+    },
+    {
+      "componentId": "AsyncCommand",
+      "semantics": "idle, submitting, accepted, reconciling, succeeded, rejected, final-failed and cancel-boundary presentation sourced from the server operation",
+      "requiredStates": [
+        "idle",
+        "submitting",
+        "accepted",
+        "reconciling",
+        "succeeded",
+        "rejected",
+        "final-failed",
+        "cancel-boundary"
+      ],
+      "keyboardContract": "The triggering control remains focusable during submission.",
+      "focusContract": "Focus is not moved away from the command during submission.",
+      "announcementContract": "The control uses `aria-disabled` during submit rather than removal; the outcome is announced through a live region; the cancel boundary is stated before it closes.",
+      "contentKeyPrefix": "component.async-command"
+    },
+    {
+      "componentId": "OperationTimeline",
+      "semantics": "ordered stages and attempts, current truth, safe evidence references, ambiguity and recovery",
+      "requiredStates": ["loading", "ready", "reconciling", "terminal"],
+      "keyboardContract": "Stages are reachable in document order without a keyboard trap.",
+      "focusContract": "The timeline does not steal focus when it polls for an update.",
+      "announcementContract": "Rendered as an ordered list with a per-stage accessible name; attempt status is text; no credential or raw provider payload is rendered.",
+      "contentKeyPrefix": "component.operation-timeline"
+    },
+    {
+      "componentId": "SemanticDiffReview",
+      "semantics": "base, local and remote or source and candidate identity, keyboard navigation, non-colour insert and delete semantics, warnings, exact acceptance target",
+      "requiredStates": ["loading", "ready", "empty", "conflicted"],
+      "keyboardContract": "Per-hunk keyboard navigation follows a documented key map.",
+      "focusContract": "Navigating between hunks moves focus to the active hunk.",
+      "announcementContract": "Insert and delete carry text or `ins`/`del` semantics as well as colour; the acceptance target is named in the confirm control.",
+      "contentKeyPrefix": "component.semantic-diff-review"
+    },
+    {
+      "componentId": "ConsequentialConfirmation",
+      "semantics": "effect, consequences, immutable target and version, required typed acknowledgement or recent-auth step, cancel path",
+      "requiredStates": [
+        "idle",
+        "awaiting-acknowledgement",
+        "awaiting-reauth",
+        "submitting"
+      ],
+      "keyboardContract": "Escape cancels; the destructive action is never the default focus.",
+      "focusContract": "Focus is trapped inside the modal dialog and restored to the triggering control on close.",
+      "announcementContract": "Rendered as a modal dialog with `aria-modal`.",
+      "contentKeyPrefix": "component.consequential-confirmation"
+    },
+    {
+      "componentId": "SecretOrTokenDisplay",
+      "semantics": "one-time disclosure with no DOM, log or telemetry persistence beyond the ceremony, explicit copy acknowledgement, safe expiry",
+      "requiredStates": ["disclosed", "acknowledged", "expired"],
+      "keyboardContract": "The value is selectable text reachable by keyboard with an accessible name.",
+      "focusContract": "The value is removed from the DOM on acknowledgement or navigation.",
+      "announcementContract": "The copy result is announced through a live region.",
+      "contentKeyPrefix": "component.secret-or-token-display"
+    },
+    {
+      "componentId": "DataTable",
+      "semantics": "caption and heading association, stable column semantics, keyset pagination, responsive alternative, preserved sort and filter URL state",
+      "requiredStates": ["loading", "ready", "empty", "refreshing", "offline"],
+      "keyboardContract": "Pagination controls are links or buttons with accessible names reachable by keyboard.",
+      "focusContract": "Refreshing does not move focus off the table.",
+      "announcementContract": "Rendered as a real `table` with `caption` and `th` scope; the responsive alternative preserves reading order.",
+      "contentKeyPrefix": "component.data-table"
+    },
+    {
+      "componentId": "FormField",
+      "semantics": "persistent label, help and error association, input purpose and autocomplete, retained value",
+      "requiredStates": ["pristine", "dirty", "validating", "invalid", "valid"],
+      "keyboardContract": "Paste and password managers are permitted; there is no keyboard trap on validation.",
+      "focusContract": "The field retains focus while it validates.",
+      "announcementContract": "The label is persistent and programmatically associated; `aria-describedby` links help and error; there is no colour-only validity.",
+      "contentKeyPrefix": "component.form-field"
+    },
+    {
+      "componentId": "ValidationSummary",
+      "semantics": "focusable submission result linking to every invalid field while preserving inline errors",
+      "requiredStates": ["hidden", "present"],
+      "keyboardContract": "Each entry is a link that moves focus to its field.",
+      "focusContract": "Receives focus on a failed submit.",
+      "announcementContract": "Uses `alert` so the summary is announced immediately on a failed submit.",
+      "contentKeyPrefix": "component.validation-summary"
+    },
+    {
+      "componentId": "Notification",
+      "semantics": "inline or announced outcome with urgency-appropriate live-region behaviour",
+      "requiredStates": ["info", "success", "warning", "error"],
+      "keyboardContract": "A dismissible notification exposes a focusable dismiss control.",
+      "focusContract": "A notification never steals focus from the current task.",
+      "announcementContract": "A toast never carries the sole error or recovery information; urgency-appropriate live-region politeness is used.",
+      "contentKeyPrefix": "component.notification"
+    },
+    {
+      "componentId": "Status",
+      "semantics": "semantic text plus optional icon or token",
+      "requiredStates": ["any"],
+      "keyboardContract": "Status text carries no interactive semantics of its own.",
+      "focusContract": "Status never receives focus.",
+      "announcementContract": "Never renders a raw provider status where Gala owns the user-facing state.",
+      "contentKeyPrefix": "component.status"
+    }
+  ]
+}

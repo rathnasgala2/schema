@@ -1,0 +1,744 @@
+paths:
+  /v2/workloads/deployment-receipts:
+    post:
+      operationId: postWorkloadsDeploymentReceipts
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  adapterId: example
+                  adapterVersion: example
+                  artifactByteCount: 1
+                  artifactFileCount: 1
+                  artifactManifestDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  kernelJournal:
+                    attempts:
+                      - causationId: 018f0000-0000-7000-8000-000000000001
+                        destinationChanged: no
+                        evidenceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                        inputDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                        kernelSequence: 1
+                        outcome: skipped
+                        resultDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                        retryable: false
+                        stage: staging
+                        stageAttemptId: 018f0000-0000-7000-8000-000000000001
+                    observations:
+                      - destinationChanged: no
+                        evidenceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                        kernelSequence: 1
+                        observationClass: request-not-started
+                        observationId: 018f0000-0000-7000-8000-000000000001
+                        observedAt: 2026-09-06T00:00:00.000Z
+                        outcome: rejected
+                        stageAttemptId: 018f0000-0000-7000-8000-000000000001
+                  observedRoutes: []
+                  operationId: 018f0000-0000-7000-8000-000000000001
+                  provenanceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  publicBaseUrl: https://example.com/example
+                  publisherPackage: '@rathnasgala2/publish-action'
+                  publisherVersion: example
+                  repositoryId: '1'
+                  runAttempt: 1
+                  runId: '1'
+                  sbomDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  sourceCommit: sha1:0000000000000000000000000000000000000000
+                  workflowCompletedAt: 2026-09-06T00:00:00.000Z
+                  workflowStartedAt: 2026-09-06T00:00:00.000Z
+            schema:
+              $ref: '#/components/schemas/PostWorkloadsDeploymentReceiptsRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    activationDetectionObservationCount: 0
+                    activationDetectionPlanDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                    attempts: []
+                    blockers: []
+                    commandId: 018f0000-0000-7000-8000-000000000001
+                    managedReceiptSnapshotCount: 0
+                    managedReceiptSnapshots: []
+                    operationId: 018f0000-0000-7000-8000-000000000001
+                    phase: accepted
+                    recoveryActions: []
+                    resourceVersion: 0
+                    statusUrl: /example
+              schema:
+                $ref: '#/components/schemas/PostWorkloadsDeploymentReceiptsResponse'
+          description:
+            submit bounded preliminary deployment evidence for reconciliation
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                REPORTING_CAPABILITY_INVALID:
+                  summary: REPORTING_CAPABILITY_INVALID
+                  value:
+                    code: REPORTING_CAPABILITY_INVALID
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REPORTING_CAPABILITY_INVALID
+                    type: urn:gala:problem:reporting-capability-invalid
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REPORTING_CAPABILITY_INVALID
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - REPORTING_CAPABILITY_INVALID
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: INVALID_SOURCE_STATE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - INVALID_SOURCE_STATE
+        '413':
+          $ref: '#/components/responses/RequestTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '500':
+          content:
+            application/problem+json:
+              examples:
+                RESPONSE_REPRESENTATION_LIMIT_EXCEEDED:
+                  summary: RESPONSE_REPRESENTATION_LIMIT_EXCEEDED
+                  value:
+                    code: RESPONSE_REPRESENTATION_LIMIT_EXCEEDED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 500
+                    title: RESPONSE_REPRESENTATION_LIMIT_EXCEEDED
+                    type: urn:gala:problem:response-representation-limit-exceeded
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESPONSE_REPRESENTATION_LIMIT_EXCEEDED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESPONSE_REPRESENTATION_LIMIT_EXCEEDED
+        '503':
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CAPABILITY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+      security:
+        - galaReceipt: []
+      summary: submit bounded preliminary deployment evidence for reconciliation
+      tags:
+        - workloads
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - One-use reporting capability, bound operation/run attempt, unexpired
+          report fence, and exact retained intent equality
+      x-gala-capability-key: null
+      x-gala-concurrency: consume-before-body-capability-generation
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        submit bounded preliminary deployment evidence for reconciliation
+      x-gala-reachable-problems:
+        - CAPABILITY_UNAVAILABLE
+        - INVALID_SOURCE_STATE
+        - REPORTING_CAPABILITY_INVALID
+        - REQUEST_FIELD_UNKNOWN
+        - RESPONSE_REPRESENTATION_LIMIT_EXCEEDED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: one-use-reporting-capability
+      x-gala-state-guards:
+        - PublicationOperation:EXECUTING|RECONCILING
+        - DeploymentGeneration:STAGED|ACTIVE_VERIFYING|PROPAGATION_DEGRADED|UNKNOWN_RECONCILING
+      x-gala-success-category: async
+      x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION
+  /v2/workloads/github/receipt-exchanges:
+    post:
+      operationId: postWorkloadsGithubReceiptExchanges
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  attemptId: 018f0000-0000-7000-8000-000000000001
+                  intentDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  operationId: 018f0000-0000-7000-8000-000000000001
+                  purpose: deployment-receipt
+                  reportChallengeId: 018f0000-0000-7000-8000-000000000001
+            schema:
+              $ref: '#/components/schemas/PostWorkloadsGithubReceiptExchangesRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    deploymentIntent:
+                      activationDetectionIntervalSeconds: 60
+                      activationDetectionPlanDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      activationDetectionProfile: gala-public-activation-detection-v2
+                      adapter:
+                        adapterDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        adapterId: fixture-1
+                        adapterVersion: 2.0.0
+                      approvedOverrides: []
+                      artifactByteCount: '1'
+                      artifactDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      artifactFileCount: '1'
+                      artifactId: 019c0000-0000-7000-8000-000000000001
+                      attemptId: 019c0000-0000-7000-8000-000000000001
+                      audience: urn:gala:deployment-kernel:v2
+                      authorizedAt: 2026-09-13T12:00:00.000Z
+                      capability: deploy
+                      capabilityDecisionDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      destination:
+                        adapterId: fixture-1
+                        adapterVersion: 2.0.0
+                        baseUrl: https://fixture-1.example.com/
+                        environment: local-directory
+                        targetDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      destinationMutationAuthority:
+                        attemptId: 019c0000-0000-7000-8000-000000000001
+                        authorityId: 019c0000-0000-7000-8000-000000000001
+                        destination:
+                          adapterId: fixture-1
+                          adapterVersion: 2.0.0
+                          baseUrl: https://fixture-1.example.com/
+                          environment: local-directory
+                          targetDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        destinationMutationKeyDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        epoch: '1'
+                        expiresAt: 2026-09-13T12:00:00.000Z
+                        mode: normal
+                        operationId: 019c0000-0000-7000-8000-000000000001
+                        profile: gala-destination-mutation-authority-v2
+                        proposedGenerationId: 019c0000-0000-7000-8000-000000000001
+                      effectiveArtifactExpiresAt: 2026-09-13T12:00:00.000Z
+                      expiresAt: 2026-09-13T12:00:00.000Z
+                      finalizationDeadlineLimit: 2026-09-13T12:00:00.000Z
+                      frozenEnvelopeByteCount: '1'
+                      frozenEnvelopeDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      frozenHandoffArtifactId: '1'
+                      frozenHandoffName: fixture-1
+                      idempotencyKey: 019c0000-0000-7000-8000-000000000001
+                      intentDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      issuer: https://fixture-1.example.com/
+                      lockDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      manifestDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      marker:
+                        artifactDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        artifactId: 019c0000-0000-7000-8000-000000000001
+                        generationId: 019c0000-0000-7000-8000-000000000001
+                        schemaId: urn:gala:schema:public-generation-marker:2.0.0
+                        schemaVersion: 2.0.0
+                      maximumActivationDetectionAttempts: 91
+                      maximumFinalizationDelaySeconds: 300
+                      maximumPublicVerificationSeconds: 1
+                      maximumReportRequestByteCount: '1'
+                      networkBoundaryProfileDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      operationDeadline: 2026-09-13T12:00:00.000Z
+                      operationId: 019c0000-0000-7000-8000-000000000001
+                      policyDecisionDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      policyProfile: fixture-1
+                      policyReleaseId: 019c0000-0000-7000-8000-000000000001
+                      policyVersion: 2.0.0
+                      proposedGenerationId: 019c0000-0000-7000-8000-000000000001
+                      provenanceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      publicTlsProfileDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      publicTlsRevocationSetDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      publicTlsTrustStoreDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      publisher:
+                        integrity: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        package: '@rathnasgala2/publish-action'
+                        registry: https://fixture-1.example.com/
+                        version: 2.0.0
+                      rebuildRecord:
+                        basePath: /fixture-1
+                        baseUrl: https://fixture-1.example.com/
+                        buildEpoch: 2026-09-13T12:00:00.000Z
+                        buildInputDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        buildPolicyDecisionDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        builder:
+                          integrity: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                          package: '@rathnasgala2/publish-action'
+                          registry: https://fixture-1.example.com/
+                          version: 2.0.0
+                        contractVersion: 2.0.0
+                        dependencyLockDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        destinationCapabilityDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        packageReleaseCatalogDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        policyReleaseId: 019c0000-0000-7000-8000-000000000001
+                        renderPolicy:
+                          digest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                          name: fixture-1
+                          version: 2.0.0
+                        repositoryId: '1'
+                        repositoryRootDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        schemas:
+                          integrity: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                          package: '@rathnasgala2/schemas'
+                          registry: https://fixture-1.example.com/
+                          version: 2.0.0
+                        sourceCommit: sha1:0000000000000000000000000000000000000001
+                        sourceTree: sha1:0000000000000000000000000000000000000001
+                        stylingContractDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                        template:
+                          integrity: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                          package: '@rathnasgala2/template'
+                          registry: https://fixture-1.example.com/
+                          version: 2.0.0
+                        theme:
+                          integrity: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                          package: '@rathnasgala2/theme-default'
+                          registry: https://fixture-1.example.com/
+                          version: 2.0.0
+                        workflowIdentity: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      requestedArtifactRetentionDays: 1
+                      sbomDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      schemaId: urn:gala:schema:deployment-intent:2.0.0
+                      schemaVersion: 2.0.0
+                      sourceCommit: sha1:0000000000000000000000000000000000000001
+                      subject: urn:gala:fixture:value-1
+                      verificationDeadlineLimit: 2026-09-13T12:00:00.000Z
+                      verificationOrigins:
+                        - https://fixture-1.example.com
+                      verificationPlanDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                      verificationTier: provider-complete-digest
+                      workflowTriggerCommit: sha1:0000000000000000000000000000000000000001
+                      workloadBindingDigest: sha256:0000000000000000000000000000000000000000000000000000000000000001
+                    purpose: deployment-intent
+                    reportChallengeExpiresAt: 2026-09-06T00:00:00.000Z
+                    reportChallengeId: 018f0000-0000-7000-8000-000000000001
+              schema:
+                $ref: '#/components/schemas/PostWorkloadsGithubReceiptExchangesResponse'
+          description:
+            authorize deployment intent or one-use deployment-receipt reporting
+            capability succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                WORKLOAD_BINDING_INVALID:
+                  summary: WORKLOAD_BINDING_INVALID
+                  value:
+                    code: WORKLOAD_BINDING_INVALID
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: WORKLOAD_BINDING_INVALID
+                    type: urn:gala:problem:workload-binding-invalid
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: WORKLOAD_BINDING_INVALID
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - WORKLOAD_BINDING_INVALID
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                DESTINATION_MUTATION_IN_PROGRESS:
+                  summary: DESTINATION_MUTATION_IN_PROGRESS
+                  value:
+                    code: DESTINATION_MUTATION_IN_PROGRESS
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: DESTINATION_MUTATION_IN_PROGRESS
+                    type: urn:gala:problem:destination-mutation-in-progress
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+                WORKLOAD_REPLAYED:
+                  summary: WORKLOAD_REPLAYED
+                  value:
+                    code: WORKLOAD_REPLAYED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: WORKLOAD_REPLAYED
+                    type: urn:gala:problem:workload-replayed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description:
+            DESTINATION_MUTATION_IN_PROGRESS, INVALID_SOURCE_STATE,
+            WORKLOAD_REPLAYED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - DESTINATION_MUTATION_IN_PROGRESS
+            - INVALID_SOURCE_STATE
+            - WORKLOAD_REPLAYED
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_EXPIRED:
+                  summary: CAPABILITY_EXPIRED
+                  value:
+                    code: CAPABILITY_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: CAPABILITY_EXPIRED
+                    type: urn:gala:problem:capability-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CAPABILITY_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CAPABILITY_EXPIRED
+        '413':
+          $ref: '#/components/responses/RequestTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+                VERIFICATION_EVIDENCE_LIMIT_EXCEEDED:
+                  summary: VERIFICATION_EVIDENCE_LIMIT_EXCEEDED
+                  value:
+                    code: VERIFICATION_EVIDENCE_LIMIT_EXCEEDED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VERIFICATION_EVIDENCE_LIMIT_EXCEEDED
+                    type: urn:gala:problem:verification-evidence-limit-exceeded
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED, VERIFICATION_EVIDENCE_LIMIT_EXCEEDED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+            - VERIFICATION_EVIDENCE_LIMIT_EXCEEDED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        '503':
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - githubOidc: []
+      summary:
+        authorize deployment intent or one-use deployment-receipt reporting
+        capability
+      tags:
+        - workloads
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Verified GitHub OIDC repository/ref/workflow/run claims, current
+          operation/binding/policy epochs, and admitted adapter/destination
+          capability decision
+      x-gala-capability-key: null
+      x-gala-concurrency: operation-attempt-destination-and-capability-generation-fences
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        authorize deployment intent or one-use deployment-receipt reporting
+        capability
+      x-gala-reachable-problems:
+        - CAPABILITY_EXPIRED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - DESTINATION_MUTATION_IN_PROGRESS
+        - INVALID_SOURCE_STATE
+        - RATE_LIMITED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+        - VERIFICATION_EVIDENCE_LIMIT_EXCEEDED
+        - WORKLOAD_BINDING_INVALID
+        - WORKLOAD_REPLAYED
+      x-gala-replay-identity: oidc-jti-and-bound-workload-tuple
+      x-gala-state-guards:
+        - PublicationOperation:ACCEPTED|EXECUTING|RECONCILING
+      x-gala-success-category: receipt-exchange
+      x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION

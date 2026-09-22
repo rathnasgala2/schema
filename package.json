@@ -1,0 +1,178 @@
+{
+  "name": "@rathnasgala2/schemas",
+  "version": "2.11.0",
+  "description": "Executable JSON Schema and OpenAPI contracts for Galascribe",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rathnasgala2/schema.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rathnasgala2/schema/issues"
+  },
+  "homepage": "https://github.com/rathnasgala2/schema#readme",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./runtime-origins": {
+      "types": "./types/runtime-origins.d.ts",
+      "import": "./src/runtime-origins.js"
+    },
+    "./digest-profiles": {
+      "types": "./types/digest-profiles.d.ts",
+      "import": "./src/digest-profiles.js"
+    },
+    "./frozen-envelope": {
+      "types": "./types/frozen-envelope.d.ts",
+      "import": "./src/frozen-envelope.js"
+    },
+    "./schemas/adapter-capability.schema.json": "./schemas/adapter-capability.schema.json",
+    "./schemas/appearance.schema.json": "./schemas/appearance.schema.json",
+    "./schemas/artifact-manifest.schema.json": "./schemas/artifact-manifest.schema.json",
+    "./schemas/author.schema.json": "./schemas/author.schema.json",
+    "./schemas/build-input.schema.json": "./schemas/build-input.schema.json",
+    "./schemas/build-provenance.schema.json": "./schemas/build-provenance.schema.json",
+    "./schemas/content-frontmatter.schema.json": "./schemas/content-frontmatter.schema.json",
+    "./schemas/deployment-intent.schema.json": "./schemas/deployment-intent.schema.json",
+    "./schemas/deployment-observation.schema.json": "./schemas/deployment-observation.schema.json",
+    "./schemas/deployment-receipt.schema.json": "./schemas/deployment-receipt.schema.json",
+    "./schemas/event-envelope.schema.json": "./schemas/event-envelope.schema.json",
+    "./schemas/lock.schema.json": "./schemas/lock.schema.json",
+    "./schemas/navigation.schema.json": "./schemas/navigation.schema.json",
+    "./schemas/problem.schema.json": "./schemas/problem.schema.json",
+    "./schemas/public-generation-marker.schema.json": "./schemas/public-generation-marker.schema.json",
+    "./schemas/public-runtime-origins.schema.json": "./schemas/public-runtime-origins.schema.json",
+    "./schemas/publication.schema.json": "./schemas/publication.schema.json",
+    "./schemas/repository.schema.json": "./schemas/repository.schema.json",
+    "./schemas/template-composition.schema.json": "./schemas/template-composition.schema.json",
+    "./schemas/theme-contract.schema.json": "./schemas/theme-contract.schema.json",
+    "./generated/typescript": {
+      "types": "./generated/typescript/index.d.ts",
+      "import": "./generated/typescript/index.js"
+    },
+    "./compatibility/compatibility.json": "./compatibility/compatibility.json",
+    "./parity/digest-record-vectors.json": "./parity/digest-record-vectors.json",
+    "./catalog-sources/internal-event-actions.json": "./catalog-sources/internal-event-actions.json",
+    "./docs/catalogs/app-components.json": "./docs/catalogs/app-components.json",
+    "./docs/catalogs/app-routes.json": "./docs/catalogs/app-routes.json",
+    "./docs/catalogs/internal-event-actions.json": "./docs/catalogs/internal-event-actions.json",
+    "./docs/catalogs/schema-inventory.json": "./docs/catalogs/schema-inventory.json",
+    "./openapi/openapi.yaml": "./openapi/openapi.yaml",
+    "./openapi/http-catalog.json": "./openapi/http-catalog.json",
+    "./package.json": "./package.json"
+  },
+  "types": "./types/index.d.ts",
+  "files": [
+    "src/",
+    "schemas/",
+    "diagnostics/diagnostic-map.json",
+    "diagnostics/diagnostic-map.public-runtime-origins.json",
+    "types/",
+    "examples/",
+    "fixtures/",
+    "generated/",
+    "openapi/",
+    "catalog-sources/internal-event-actions.json",
+    "docs/catalogs/internal-event-actions.json",
+    "docs/catalogs/schema-inventory.json",
+    "docs/catalogs/app-routes.json",
+    "docs/catalogs/app-components.json",
+    "compatibility/compatibility.json",
+    "parity/digest-record-vectors.json",
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "THIRD_PARTY_LICENSES.json",
+    "sbom.cdx.json"
+  ],
+  "engines": {
+    "node": "24.18.0",
+    "npm": "11.16.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "11.16.0",
+      "onFail": "error"
+    }
+  },
+  "packageManager": "npm@11.16.0",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run compatibility:check && npm run app-catalogs:check && npm run browser-safety:check",
+    "schemas:generate": "node scripts/generate-author-source-schemas.mjs",
+    "schemas:check": "node scripts/generate-author-source-schemas.mjs --check",
+    "fixtures:generate": "node scripts/generate-fixture-corpus.mjs",
+    "fixtures:check": "node scripts/generate-fixture-corpus.mjs --check",
+    "diagnostics:generate": "node scripts/generate-diagnostic-map.mjs",
+    "diagnostics:check": "node scripts/generate-diagnostic-map.mjs --check",
+    "parity-expectations:generate": "node scripts/generate-parity-expectations.mjs",
+    "parity-expectations:check": "node scripts/generate-parity-expectations.mjs --check",
+    "parity:check": "node scripts/validator-parity.mjs",
+    "parity:supply-chain:check": "node scripts/check-java-parity-supply-chain.mjs",
+    "source-data:check": "node scripts/verify-pinned-source-data.mjs",
+    "tables:generate": "node scripts/generate-portable-data-tables.mjs",
+    "tables:check": "node scripts/generate-portable-data-tables.mjs --check",
+    "declarations:generate": "tsc --project tsconfig.declarations.json",
+    "declarations:check": "node scripts/check-declarations.mjs",
+    "codegen:compile": "tsc --project tsconfig.codegen.json",
+    "codegen:generate": "npm run codegen:compile && node .build/codegen/generate-contracts.js",
+    "codegen:check": "npm run codegen:compile && node .build/codegen/generate-contracts.js --check",
+    "compatibility:check": "node scripts/check-compatibility.mjs",
+    "openapi:generate": "node scripts/generate-openapi.mjs",
+    "openapi:check": "node scripts/generate-openapi.mjs --check",
+    "events:generate": "node scripts/generate-internal-event-actions.mjs",
+    "events:check": "node scripts/generate-internal-event-actions.mjs --check",
+    "app-catalogs:generate": "node scripts/generate-app-catalogs.mjs",
+    "app-catalogs:check": "node scripts/generate-app-catalogs.mjs --check",
+    "browser-safety:check": "node scripts/check-browser-safety.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "tsc --project tsconfig.json",
+    "architecture": "depcruise --validate .dependency-cruiser.cjs src codegen scripts test eslint.config.js",
+    "duplication": "jscpd src codegen scripts test eslint.config.js",
+    "workflows:check": "node scripts/check-workflow-pins.mjs",
+    "test": "node --test",
+    "licenses:generate": "node scripts/generate-license-inventory.mjs",
+    "licenses:check": "node scripts/generate-license-inventory.mjs --check",
+    "sbom:generate": "node scripts/generate-sbom.mjs",
+    "sbom:check": "node scripts/generate-sbom.mjs --check",
+    "audit": "npm audit --audit-level=critical",
+    "verify": "npm run build && npm run format:check && npm run lint && npm run typecheck && npm run architecture && npm run duplication && npm run workflows:check && npm run parity:supply-chain:check && npm test && npm run parity:check && npm run licenses:check && npm run sbom:check && npm run audit",
+    "prepublishOnly": "npm run verify",
+    "publish:dry-run": "npm publish --dry-run --access public"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
+  "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "6.0.1",
+    "@eslint/js": "10.0.1",
+    "@types/jsdom": "30.0.0",
+    "@types/node": "24.13.4",
+    "dependency-cruiser": "18.2.0",
+    "eslint": "10.10.0",
+    "eslint-plugin-jsdoc": "64.3.9",
+    "globals": "17.12.0",
+    "jscpd": "5.2.0",
+    "jsdom": "30.0.1",
+    "prettier": "3.9.6",
+    "semver": "7.8.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0",
+    "yaml": "2.9.0"
+  }
+}

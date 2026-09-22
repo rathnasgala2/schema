@@ -1,0 +1,553 @@
+[
+  {
+    "caseId": "deployment-observation-invalid-0859b6caea754b57",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity/allOf/5/then/properties/providerBinding:false"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity/allOf/5/then/properties/providerBinding",
+    "keyword": "false",
+    "instance": { "providerBinding": null },
+    "validationPointer": "#/$defs/destinationIdentity/allOf/5/then",
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-13789e1b5c762546",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/activationDetectionProbe:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/activationDetectionProbe",
+    "keyword": "additionalProperties",
+    "instance": {
+      "targetId": 1,
+      "hopNumber": 0,
+      "origin": "https://fixture-1.example.com",
+      "route": "/fixture-1",
+      "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+      "probeRegion": "region-1",
+      "requestStartedAt": "2026-09-13T12:00:00.000Z",
+      "observedAt": "2026-09-13T12:00:00.000Z",
+      "expectedCandidateDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "responseHeadState": "not-received",
+      "observedLocationState": "absent",
+      "observedHeaders": [],
+      "bodyState": "not-read",
+      "classification": "inconclusive",
+      "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-1e2daed83dd0e6ac",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/packageIdentity:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/packageIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "package": "fixture-1",
+      "version": "2.0.0",
+      "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "registry": "https://fixture-1.example.com/",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-2f23ccd38d8c2c14",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "environment": "github-pages",
+      "adapterId": "fixture-1",
+      "adapterVersion": "2.0.0",
+      "targetDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "baseUrl": "https://fixture-1.example.com/",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-33eff192f9dcb133",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationProviderCoordinates:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationProviderCoordinates",
+    "keyword": "additionalProperties",
+    "instance": { "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-3bb194fc65b37633",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/verificationPlanTarget:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/verificationPlanTarget",
+    "keyword": "additionalProperties",
+    "instance": {
+      "targetId": 1,
+      "origin": "https://fixture-1.example.com",
+      "route": "/fixture-1",
+      "requiredProbeRegions": ["region-1"],
+      "redirectChain": [
+        {
+          "hopNumber": 0,
+          "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+          "expectedStatus": 301,
+          "expectedLocation": "https://fixture-1.example.com/.well-known/gala"
+        }
+      ],
+      "terminalRequestUrl": "https://fixture-1.example.com/.well-known/gala",
+      "expectedTerminalStatus": 200,
+      "expectedByteLength": "1",
+      "maximumResponseBytes": "1",
+      "maximumResponseWireBytes": "1",
+      "requestTimeoutSeconds": 1,
+      "requestProfile": "gala-public-verifier-v2",
+      "retryProfile": "gala-public-probe-retry-v2",
+      "maximumAttempts": 1,
+      "maximumConcurrentStreams": 1,
+      "expectedHeaders": [{ "name": "fixture-1", "value": "fixture-1" }],
+      "expectedCandidateDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "recognizedPriorContracts": [
+        {
+          "generationId": "019c0000-0000-7000-8000-000000000001",
+          "redirectChain": [
+            {
+              "hopNumber": 0,
+              "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+              "expectedStatus": 301,
+              "expectedLocation": "https://fixture-1.example.com/.well-known/gala"
+            }
+          ],
+          "terminalRequestUrl": "https://fixture-1.example.com/.well-known/gala",
+          "expectedTerminalStatus": 200,
+          "expectedByteLength": "1",
+          "expectedHeaders": [{ "name": "fixture-1", "value": "fixture-1" }],
+          "expectedDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+        }
+      ],
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-44e85f1c2b57f89c",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding/properties/servedBucket:false"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding/properties/servedBucket",
+    "keyword": "false",
+    "instance": { "owner": null, "repository": null, "servedBucket": null },
+    "validationPointer": "#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding",
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-452a638b1f3bdbe1",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/observedVerificationHeader:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/observedVerificationHeader",
+    "keyword": "additionalProperties",
+    "instance": {
+      "name": "fixture-1",
+      "state": "present",
+      "value": "fixture-1",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-485665a4a074de1c",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/deadlineFinalizationEvidence:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/deadlineFinalizationEvidence",
+    "keyword": "additionalProperties",
+    "instance": {
+      "profile": "gala-deadline-finalization-evidence-v2",
+      "operationId": "019c0000-0000-7000-8000-000000000001",
+      "attemptId": "019c0000-0000-7000-8000-000000000001",
+      "intentDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "verificationPlanDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "verificationDeadlineAt": "2026-09-13T12:00:00.000Z",
+      "finalizationDeadlineAt": "2026-09-13T12:00:00.000Z",
+      "cutoffEvidenceJournalEntryCount": 0,
+      "cutoffEvidenceJournalHeadDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "finalizationKind": "propagation-degraded",
+      "selectedStreams": [
+        {
+          "targetId": 1,
+          "probeRegion": "region-1",
+          "state": "terminal",
+          "observationId": "019c0000-0000-7000-8000-000000000001",
+          "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+        }
+      ],
+      "finalizedAt": "2026-09-13T12:00:00.000Z",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-4959aef3a6310342",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/verificationHeaderExpectation:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/verificationHeaderExpectation",
+    "keyword": "additionalProperties",
+    "instance": {
+      "name": "fixture-1",
+      "value": "fixture-1",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-520f0842a9ac227e",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/adapterIdentity:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/adapterIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "adapterId": "fixture-1",
+      "adapterVersion": "2.0.0",
+      "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-5a70f8f30c9f919f",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/renderPolicyIdentity:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/renderPolicyIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "name": "fixture-1",
+      "version": "2.0.0",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-6691f179d2f7a2fa",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding/properties/stagingBucket:false"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding/properties/stagingBucket",
+    "keyword": "false",
+    "instance": { "owner": null, "repository": null, "stagingBucket": null },
+    "validationPointer": "#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding",
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-6c662cac7f846faa",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/expectedRedirectHop:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/expectedRedirectHop",
+    "keyword": "additionalProperties",
+    "instance": {
+      "hopNumber": 0,
+      "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+      "expectedStatus": 301,
+      "expectedLocation": "https://fixture-1.example.com/.well-known/gala",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-6fb4c3a7a72fd5ac",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/deadlineFinalizationStream:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/deadlineFinalizationStream",
+    "keyword": "additionalProperties",
+    "instance": {
+      "targetId": 1,
+      "probeRegion": "region-1",
+      "state": "terminal",
+      "observationId": "019c0000-0000-7000-8000-000000000001",
+      "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-731740bc87767929",
+    "coveredRuleIds": ["deployment-observation:#:additionalProperties"],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#",
+    "keyword": "additionalProperties",
+    "instance": {
+      "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+      "schemaVersion": "2.0.0",
+      "observationId": "019c0000-0000-7000-8000-000000000001",
+      "operationId": "019c0000-0000-7000-8000-000000000001",
+      "attemptId": "019c0000-0000-7000-8000-000000000001",
+      "stageAttemptId": "019c0000-0000-7000-8000-000000000001",
+      "sequence": 1,
+      "intentDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "artifactId": "019c0000-0000-7000-8000-000000000001",
+      "artifactDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "adapter": {
+        "adapterId": "fixture-1",
+        "adapterVersion": "2.0.0",
+        "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "destination": {
+        "environment": "github-pages",
+        "adapterId": "fixture-1",
+        "adapterVersion": "2.0.0",
+        "targetDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+        "baseUrl": "https://fixture-1.example.com/"
+      },
+      "observationClass": "public-state",
+      "outcome": "succeeded",
+      "destinationChanged": "yes",
+      "observedAt": "2026-09-13T12:00:00.000Z",
+      "receivedAt": "2026-09-13T12:00:00.000Z",
+      "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "probes": [
+        {
+          "targetId": 1,
+          "attemptNumber": 1,
+          "hopNumber": 0,
+          "origin": "https://fixture-1.example.com",
+          "route": "/fixture-1",
+          "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+          "probeRegion": "region-1",
+          "requestStartedAt": "2026-09-13T12:00:00.000Z",
+          "observedAt": "2026-09-13T12:00:00.000Z",
+          "expectedCandidateDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+          "responseHeadState": "not-received",
+          "observedLocationState": "absent",
+          "observedHeaders": [],
+          "bodyState": "not-read",
+          "classification": "inconclusive",
+          "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+        }
+      ],
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-79e51c0592a6a5d9",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding/properties/owner:false"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding/properties/owner",
+    "keyword": "false",
+    "instance": {
+      "region": null,
+      "servedBucket": null,
+      "stagingBucket": null,
+      "owner": null
+    },
+    "validationPointer": "#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding",
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-8876c90befec9057",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/cancellationFinalizationEvidence:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/cancellationFinalizationEvidence",
+    "keyword": "additionalProperties",
+    "instance": {
+      "profile": "gala-cancellation-finalization-evidence-v2",
+      "operationId": "019c0000-0000-7000-8000-000000000001",
+      "attemptId": "019c0000-0000-7000-8000-000000000001",
+      "intentDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "destinationKeyDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "authorityEpoch": "1",
+      "fenceEvidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "cancellationCommandId": "019c0000-0000-7000-8000-000000000001",
+      "cancellationActorId": "019c0000-0000-7000-8000-000000000001",
+      "activationDetectionObservationCount": 0,
+      "precedingEvidenceJournalEntryCount": 0,
+      "precedingEvidenceJournalHeadDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "finalizedAt": "2026-09-13T12:00:00.000Z",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-a46f91666f0837d6",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/recognizedPriorRouteContract:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/recognizedPriorRouteContract",
+    "keyword": "additionalProperties",
+    "instance": {
+      "generationId": "019c0000-0000-7000-8000-000000000001",
+      "redirectChain": [
+        {
+          "hopNumber": 0,
+          "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+          "expectedStatus": 301,
+          "expectedLocation": "https://fixture-1.example.com/.well-known/gala"
+        }
+      ],
+      "terminalRequestUrl": "https://fixture-1.example.com/.well-known/gala",
+      "expectedTerminalStatus": 200,
+      "expectedByteLength": "1",
+      "expectedHeaders": [{ "name": "fixture-1", "value": "fixture-1" }],
+      "expectedDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-a60a3593da23f01c",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding/properties/repository:false"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding/properties/repository",
+    "keyword": "false",
+    "instance": {
+      "region": null,
+      "servedBucket": null,
+      "stagingBucket": null,
+      "repository": null
+    },
+    "validationPointer": "#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding",
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-b0ec6bacddd77c1a",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/supersessionFinalizationEvidence:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/supersessionFinalizationEvidence",
+    "keyword": "additionalProperties",
+    "instance": {
+      "profile": "gala-supersession-finalization-evidence-v2",
+      "supersededOperationId": "019c0000-0000-7000-8000-000000000001",
+      "supersededAttemptId": "019c0000-0000-7000-8000-000000000001",
+      "supersededIntentDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "destinationKeyDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "authorityEpoch": "1",
+      "fenceTerminalState": "terminal-no-change",
+      "fenceEvidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "supersededByOperationId": "019c0000-0000-7000-8000-000000000001",
+      "supersededByGenerationId": "019c0000-0000-7000-8000-000000000001",
+      "finalizationOutcome": "before-mutation",
+      "activationDetectionObservationCount": 0,
+      "precedingEvidenceJournalEntryCount": 0,
+      "precedingEvidenceJournalHeadDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "finalizedAt": "2026-09-13T12:00:00.000Z",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-be515b63ab8b1047",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding/properties/region:false"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding/properties/region",
+    "keyword": "false",
+    "instance": { "owner": null, "repository": null, "region": null },
+    "validationPointer": "#/$defs/destinationIdentity/allOf/3/then/properties/providerBinding",
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-f0b5f990b2997683",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/publicProbeObservation:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/publicProbeObservation",
+    "keyword": "additionalProperties",
+    "instance": {
+      "targetId": 1,
+      "attemptNumber": 1,
+      "hopNumber": 0,
+      "origin": "https://fixture-1.example.com",
+      "route": "/fixture-1",
+      "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+      "probeRegion": "region-1",
+      "requestStartedAt": "2026-09-13T12:00:00.000Z",
+      "observedAt": "2026-09-13T12:00:00.000Z",
+      "expectedCandidateDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "responseHeadState": "not-received",
+      "observedLocationState": "absent",
+      "observedHeaders": [],
+      "bodyState": "not-read",
+      "classification": "inconclusive",
+      "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-observation-invalid-fbea186131a5d0a4",
+    "coveredRuleIds": [
+      "deployment-observation:#/$defs/activationDetectionObservation:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
+    "schemaPointer": "#/$defs/activationDetectionObservation",
+    "keyword": "additionalProperties",
+    "instance": {
+      "profile": "gala-public-activation-detection-observation-v2",
+      "operationId": "019c0000-0000-7000-8000-000000000001",
+      "attemptId": "019c0000-0000-7000-8000-000000000001",
+      "planDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "detectionAttemptNumber": 1,
+      "eligibleAt": "2026-09-13T12:00:00.000Z",
+      "probes": [
+        {
+          "targetId": 1,
+          "hopNumber": 0,
+          "origin": "https://fixture-1.example.com",
+          "route": "/fixture-1",
+          "requestUrl": "https://fixture-1.example.com/.well-known/gala",
+          "probeRegion": "region-1",
+          "requestStartedAt": "2026-09-13T12:00:00.000Z",
+          "observedAt": "2026-09-13T12:00:00.000Z",
+          "expectedCandidateDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+          "responseHeadState": "not-received",
+          "observedLocationState": "absent",
+          "observedHeaders": [],
+          "bodyState": "not-read",
+          "classification": "inconclusive",
+          "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+        }
+      ],
+      "receivedAt": "2026-09-13T12:00:00.000Z",
+      "evidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  }
+]

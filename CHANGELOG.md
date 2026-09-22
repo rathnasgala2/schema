@@ -1,0 +1,1580 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+Tooling only; no schema, OpenAPI, generated-output or package-version change.
+
+### Added
+
+- `prepublishOnly` script: runs the repository's full `verify` gate
+  (build/codegen drift, format, lint, typecheck, architecture, duplication,
+  workflow pins, Java parity supply chain, tests, validator parity, license
+  inventory, SBOM, audit) before `npm publish` can proceed, so a broken or
+  unverified package can never be published under the new `@rathnasgala2`
+  scope. This is the first manual publish of `@rathnasgala2/schemas`
+  (`npm` trusted-publisher OIDC can only be configured against an
+  already-existing package), so this gate is the sole guard on that first,
+  irreversible release.
+- `publish:dry-run` script (`npm publish --dry-run --access public`) so the
+  exact packed file list and size can be inspected before the real publish.
+
+## [2.11.0] - 2026-09-19
+
+SCHEMA-2.11.0-INSTALLATION-EVENTS (backlog follow-up recorded at
+`scrap/implementer-rules.md` line 129 / W1-06). One additive minor: a new
+`github_installation` internal-event transition family so the api's worker-only
+compare-and-set writer for `github_installation` (which today writes outside the
+sealed aggregate gateway) can retire into that gateway, satisfying
+`AGGREGATE_DML_USES_THE_SOLE_GATEWAY`. The api half — routing the writer through
+the gateway and emitting the catalogued transitions — lands in a follow-up
+packet; this schema change only admits the catalog family. Every 2.10.0 digest
+is byte-identical and every 2.10.0-valid body is still valid.
+
+### Added
+
+- `catalog-sources/internal-event-actions.json`: `github_installation` family
+  (`aggregateType: GithubInstallation`, `scope: GLOBAL_IDENTITY` — the table
+  carries no `organization_id`/tenant scoping), producer
+  `api.transition-outbox`, consumer `api.transition-audit-projector`. Three
+  arrows, matching exactly the states and transitions the api's
+  `github_installation` table (`state` CHECK `ACTIVE|SUSPENDED|DELETED`) and its
+  `JdbcGithubInstallationObservationGateway`/
+  `GithubInstallationReconciliationService` CAS writer actually produce:
+  `ACTIVE -> SUSPENDED`, `SUSPENDED -> ACTIVE`, and
+  `{ACTIVE, SUSPENDED} -> DELETED`. The writer's first-observation
+  `INSERT ... ON CONFLICT DO NOTHING` (LOCAL-24) is row creation, not a
+  catalogued transition, matching the convention already used by every other
+  family (no family emits an event for its initial state).
+- `docs/catalogs/internal-event-actions.json` regenerated: 19 families (was 18),
+  77 admitted transition actions (was 74); digest, `families`, and `actions` all
+  changed accordingly. No other family's rows changed.
+
+### Changed
+
+- `test/t08-internal-event-actions.test.js`: pinned counts moved from 18
+  families/74 actions to 19 families/77 actions; `github_installation` added to
+  `EXPECTED_TARGETS` and to the test's `GLOBAL_IDENTITY_FAMILIES` set.
+- README.md catalog counts updated (18 → 19 families, 74 → 77 actions).
+
+## [2.10.0] - 2026-09-18
+
+SCHEMA-2.10.0-DESTINATION (LOCAL-63, plan
+`scrap/20260918_c2-publication-destination-plan.md` §2, packet 1 of 5). One
+additive minor: two new operations, a `postPublishes` state guard, five new
+DEC-097 record digest vectors, the LOCAL-62 `capabilityDecision` phase
+annotation deferred from 2.9.1, and the `build-provenance` root also deferred
+from 2.9.1. Every 2.9.1 digest is byte-identical and every 2.9.1-valid body is
+still valid.
+
+### Added
+
+- `GET`/`PUT /v2/organizations/{organizationId}/publications/{publicationId}/destination`
+  (LOCAL-63): the publication's deployment destination as a versioned
+  sub-resource. `state: UNSET|SET|LOCKED`; `version: 0` with `PUT If-Match: "0"`
+  is the uniform create path.
+  `GetOrganizationsByOrganizationIdPublicationsByPublicationIdDestinationResponse`
+  and the `PUT` request/response carry a `providerBinding` discriminated union
+  keyed on `adapterId` (modeled on
+  `PortableDeploymentIntentDestinationIdentity`): `github-pages` (`owner`,
+  `repository`, `repositoryId`, derived from the live repository binding),
+  `do-spaces` (the complete DEC-097 provider binding: `region`, `servedBucket`,
+  `stagingBucket`, `basePath`, `websiteOrigin`, `servedApiOrigin`,
+  `stagingApiOrigin`, `targetDigest`, `mutationKeyDigest`,
+  `regionCatalogDigest`, `websiteConfigurationDigest`,
+  `controlPlaneBindingDigest`), and `local-directory` (absent). `GET` also
+  returns `admittedRegions[]`, the accepted DigitalOcean Spaces region catalog,
+  so no client hard-codes provider facts. `x-gala-capability-key`:
+  `publication.view` (`GET`), `publication.settings.manage` (`PUT`). Declared
+  problems include a pointed `409 INVALID_SOURCE_STATE` for a served/staging
+  bucket already bound to another destination (`/providerBinding/servedBucket`
+  or `/providerBinding/stagingBucket`) and `422 VALIDATION_FAILED` for pattern
+  violations, `servedBucket == stagingBucket`, and a `providerBinding` present
+  for `github-pages`/ `local-directory`. No `DELETE`: unsetting is a `PUT` of a
+  different adapter while `UNSET`/`SET`; nothing changes once `LOCKED`.
+- `postPublishes` gains the `PublicationDestination:SET|LOCKED`
+  `x-gala-state-guards` entry, next to the existing `Publication:ACTIVE`,
+  `RepositoryBinding:ACTIVE` and `Review:APPROVED` guards.
+- Five new DEC-097 record digest vectors in `parity/digest-record-vectors.json`
+  (sixteen total, up from eleven): `spaces-website-configuration-root` and
+  `spaces-website-configuration-docs-base-path` (`spacesWebsiteConfiguration`,
+  DEC-097 lines 7370-7391, `errorDocumentKey` `404.html` vs `docs/404.html`),
+  `spaces-control-plane-binding` (`spacesControlPlaneBinding`, lines 7370-7396),
+  `spaces-region-catalog` (`spacesRegionCatalog`, lines 7328-7335, eight
+  ASCII-sorted DigitalOcean regions), and
+  `destination-provider-binding-do-spaces-realistic`
+  (`destinationProviderBinding`, lines 7292-7340), chained on the first three
+  vectors' digests and using DEC-097's exact virtual-host origin spellings,
+  unlike the 2.9.0 `destination-provider-binding-do-spaces` vector, which used
+  path-style fixture origins. All five generated with the file's independent
+  byte-level oracle and independently re-verified with a second, standalone
+  oracle during review; `t05-parity-corpus.test.js`'s digest-domain parity test
+  and record-stem count updated (11 to 16 stems, 192 total accepted/tampered
+  cases).
+- `schemas/build-provenance.schema.json`: the `buildProvenance` closed record
+  (DEC-097 "Build provenance and verified workload binding", lines 2198-2228)
+  published as its own root under the DEC-097 metadata namespace
+  `urn:gala:metadata:build-provenance:2.0.0` -- the one root identity that is
+  not `urn:gala:schema:<contract>:2.0.0`, because it is a metadata record
+  embedded in a build envelope rather than an author-portable content contract.
+  A pure addition: byte-identical in shape to, and published alongside (not
+  instead of), the existing internal nesting at `artifact-manifest`'s
+  `#/$defs/buildProvenance`, which stays the copy the frozen-envelope validator
+  enforces at runtime. Registered in `src/internal/schema-validator.js`,
+  `package.json` exports (`./schemas/build-provenance.schema.json`), the codegen
+  contract list and consumers (`api`, `publish`), and the compatibility catalog
+  (now 21 contracts/46 pairings; `compatibility/compatibility.schema.json`'s
+  `contracts` array bound widened from a fixed 20 to 21 and its `contractId`
+  pattern now accepts both the `urn:gala:schema:` and `urn:gala:metadata:`
+  namespaces). Valid/invalid fixtures generated alongside the other nineteen
+  roots' corpus.
+
+### Changed
+
+- `adapter-capability` `$defs.capabilityDecision` (LOCAL-62, deferred from
+  2.9.1): every member now carries `x-gala-decision-phase`
+  (`issuance`|`deploy`). `issuance` members are fixed at authorization time,
+  before any deploy job runs, and are exactly what the intent's
+  `capabilityDecisionDigest` commits to; `deploy` members are evidence only a
+  deploy job can produce. `pagesActionsArtifactByteCount` and
+  `pagesActionsArtifactDigest` are the only `deploy`-phase members (the Pages
+  Actions artifact is built after authorization completes) and move out of the
+  `github-pages` branch's `required` set, staying optional on the shared record
+  shape. **Review correction**: the record's `description` originally claimed
+  `decisionDigest` "is computed over the issuance-phase record only" with
+  deploy-phase members "never part of that digest input" -- this was false: the
+  reference `capabilityDecision` digest projector
+  (`src/internal/digest-profiles.js`) excludes only `decisionDigest` itself, not
+  deploy-phase members, and the pre-existing `capability-decision-github-pages`
+  parity vector's own digest is computed over a record that includes both
+  deploy-phase members. The description now states this accurately: a deploy job
+  that later builds a record including deploy-phase evidence produces a
+  _different_ `decisionDigest` for the same underlying facts than the
+  issuance-time value, and must project its own record down to issuance-phase
+  members before comparing (LOCAL-62 option (a)) -- this projection is not yet a
+  schema- or code-enforced guarantee (LOCAL-62 (b), still open; tracked as a
+  follow-up, not closed by the `x-gala-decision-phase` annotation alone). **This
+  is a MINOR change, not a MAJOR one**, even though it relaxes a `required` set
+  on a record root: this repository's compatibility policy (stated in the 2.6.0
+  entry below) is that Semantic Versioning reserves PATCH for
+  backward-compatible fixes and classifies _added, backward-compatible_
+  functionality as MINOR. A `required`-set relaxation is exactly that kind of
+  addition here -- every payload a 2.9.1 validator accepted is still accepted,
+  and a payload a 2.9.1 validator rejected only for omitting one or both
+  now-optional fields is newly accepted. Nothing a client may send or a server
+  may return is narrowed. (A MAJOR bump is reserved for the reverse: adding a
+  new required member, or removing/ narrowing an existing one, either of which
+  would reject a previously accepted payload.)
+
+### Fixed (independent review)
+
+- `PUT .../destination`'s operation description now states explicitly that a
+  `servedBucket == stagingBucket` request is refused `422 VALIDATION_FAILED`
+  with pointer `/providerBinding/stagingBucket` (this inequality cannot be
+  expressed as a JSON Schema pattern, so only the description documented it, and
+  previously did not name the pointer).
+- `README.md`'s compatibility-catalog summary corrected from the stale
+  "20-contract, 44-pairing" figure (last true at 2.9.1) to "21-contract,
+  46-pairing" to match the `build-provenance` root added in this release.
+- See the `capabilityDecision` LOCAL-62 entry above for the digest-scope
+  description correction.
+
+### Consumer follow-ups
+
+Pinned at schema 2.10.0 (packet order per the plan, LOCAL-39 serialization;
+packets 3 and 4 may run in parallel after packet 2 merges):
+
+- **api** (API-PUBLICATION-DESTINATION-1): release
+  `0046-publication-destination` (`publication_destination` table, one row per
+  publication for all three adapters, Pages coordinates derived from the live
+  binding and never stored; `spaces_region_catalog` platform table);
+  `PublicationDestinationService` (`GET`/`PUT`, versioned CAS, digest derivation
+  and drift detection at issuance, lock write in the publish-acceptance
+  transaction including scheduled publishes);
+  `PublishService.requireDestination` precondition; `ReceiptExchangeService`'s
+  Spaces branch of `deriveProviderBinding` plus
+  `adapterId`/`baseUrl`/`rebuildRecord.basePath` equality checks against the
+  record; capability catalog source gains `publication.settings.manage`
+  `protectedActions` += `put…Destination`, `publication.view` `protectedActions`
+  += `get…Destination`; `DigestRecordVectorsContractTest` extended over the five
+  new vectors; integration tests for destination CRUD/lock/cross-tenant bucket
+  uniqueness and Spaces issuance end to end.
+- **app** (APP-DESTINATION-1): Settings screen gains a Destination `SectionCard`
+  (adapter picker, per-adapter fields, lock-state read-only rendering,
+  `If-Match`/Idempotency-Key save via new `organizations-client.ts` wrappers);
+  Overview screen and `PublishCommandCard` gain a destination-aware row/branch;
+  new copy keys under the `app.publication-destination.*` namespace (heading,
+  chip states, per-adapter help text, validation, lock body/warning, pointed
+  409/422 failure copy) follow the existing authored-message conventions in
+  `catalog-sources/app-routes.json`'s screen copy, not a new catalog file;
+  regenerate the client and catalogs against this tarball.
+- **publish** (PUBLISH-S4-7): `verify-spaces-configuration.mjs` recomputes the
+  DEC-097 `spacesWebsiteConfiguration`/`spacesControlPlaneBinding` records from
+  the intent (not `capability.js`'s differently-shaped adapter-internal records
+  of the same name) and requires equality with the capability decision's
+  pre-authorized digests before the two live `GetBucketWebsite` calls;
+  `test/fixtures/fake-gala-api.mjs` seeds a `destination` block and derives the
+  ten-member Spaces binding the same way the api does, refusing disagreement
+  with the same pointers.
+- **infra** (INFRA-E2E-8): the local journey exercises `local-directory` and
+  `github-pages` destinations (`PUT .../destination` before `postPublishes`,
+  asserting the `409 INVALID_SOURCE_STATE` beforehand and `state: LOCKED` with
+  the publish operation id after); Spaces coverage stays out of the journey
+  (DEC-097 forbids an endpoint override, so a real Spaces intent can only target
+  `*.digitaloceanspaces.com`) and is covered instead by publish's MinIO
+  conformance suite, publish's fake-api path, and the api's own Spaces issuance
+  integration test.
+
+## [2.9.1] - 2026-09-18
+
+SCHEMA-2.9.1 (patch). One new package export and its tests. No root schema,
+digest-domain, golden-vector, `required`-set or catalog change; every 2.9.0
+digest is byte-identical and every 2.9.0-valid body is still valid. The two
+other items in the packet -- the LOCAL-62 phase-one `capabilityDecision`
+annotation and a `build-provenance` root -- were found to be more than a patch
+and are deferred to 2.10.0 (see the packet report), so nothing about
+`$defs.capabilityDecision` or the 19-root inventory moves here.
+
+### Added
+
+- New public subpath export `@rathnasgala2/schemas/frozen-envelope`
+  (`src/frozen-envelope.js`, declarations in `types/frozen-envelope.d.ts`)
+  exposing `validateFrozenEnvelope`, the `gala-frozen-envelope-v2` byte-string
+  validator that until now lived only in `src/internal/frozen-envelope.js`. A
+  consumer such as `publish` imports it by the subpath instead of by a file path
+  inside the package that no `exports` map admits. The export is the identical
+  function (the ESM namespace is sealed; there is no copy), so the projection
+  and every `FROZEN_ENVELOPE_*` rejection code are the ones the `.` export's
+  build-artifact semantics apply.
+- The entry point is Node-only (the validator compares and decodes byte strings
+  through `Buffer`), so it is deliberately not added to the browser-safety
+  gate's walked subpaths. `test/t12-frozen-envelope-export.test.js` pins its
+  package-owned closure instead (seven files: the entry, the internal validator,
+  `bytes.js`, `canonical-jcs.js`, `sha256.js`, `unicode17.js` and the Unicode 17
+  table), pins the export-name set, asserts the surface is read-only, validates
+  one minimal coherent envelope and three rejections, and -- new for this
+  package -- runs `npm pack`, extracts the tarball under a scratch consumer's
+  `node_modules`, resolves `@rathnasgala2/schemas/frozen-envelope` from there,
+  and asserts the packed function returns the same projection and rejection
+  codes as the in-repo one.
+- `test/scaffold.test.js` pins the new `exports` entry; `.prettierignore` skips
+  the emitted declaration like the other subpath declarations.
+
+## [2.9.0] - 2026-09-18
+
+SCHEMA-2.9.0-INTENT-REQUEST (LOCAL-60, design
+`scrap/20260918_intent-request-derivation-design.md` section 3 packet 1, DEC-097
+sections 5-8). The workload deployment-intent request carries only what the
+workflow can honestly hold; the api derives the destination, policy and
+capability-decision members from what it owns and refuses a present value that
+disagrees (the LOCAL-57 pattern). One additive minor on the request side, one
+closed vocabulary on the retained side, eleven cross-language golden vectors,
+and three carry-overs from the API-CONSUME-2.8 / 2.8.1 reviews. The 80-domain
+digest inventory and every existing golden vector are unchanged.
+
+### Changed
+
+- **`ReceiptExchangeDeploymentIntentRequest` no longer requires what the
+  workflow has no honest source for.** Exact request/retained diff:
+  - `destination` is now the request-side
+    `ReceiptExchangeIntentRequestDestination` (was the retained
+    `destinationIdentity`): `adapterId`, `adapterVersion`, `baseUrl` required
+    (lock-derived adapter, publication canonical base -- both
+    workflow-verifiable); `environment` and `targetDigest` **optional**,
+    api-derived (`environment` is the adapter constant, `targetDigest` the
+    digest of the api's retained provider binding under
+    `GALA-DESTINATION-PROVIDER-BINDING-V2`); `providerBinding` is the new
+    request-side `ReceiptExchangeIntentRequestProviderBinding`, admitted per
+    adapter: `github-pages` names `owner`/`repository` (same spellings as the
+    retained `destinationProviderCoordinates`, checked against the api's
+    repository binding); `local-directory` supplies `rootIdentityDigest` and
+    `mutationSurfaceDigest` (DEC-097 lines 7295-7297, the two evidence digests
+    the api has no other source for); `do-spaces` may not carry a
+    `providerBinding` on the request until C2 (the buckets and region are bound
+    to the author destination, never proposed by a deploy job).
+  - `rebuildRecord` is now the request-side
+    `ReceiptExchangeIntentRequestRebuildRecord` (was the retained
+    `reproducibleBuildRecord`): the same 21 members by the same definitions,
+    with `policyReleaseId`, `buildPolicyDecisionDigest`,
+    `packageReleaseCatalogDigest` and `destinationCapabilityDigest` **optional**
+    and api-derived (accepted policy decisions, server-selected catalog, owning
+    validated destination record -- DEC-097 lines 2355-2369). A test pins the
+    request variant's every member byte-equal to the retained definition and its
+    `required` equal to the retained list minus exactly those four.
+  - `capabilityDecisionDigest` is **optional**, api-derived (server-owned
+    decision, DEC-097 line 7289).
+  - `ReceiptExchangeIntentRequestDestination.adapterId` is the closed enum
+    `github-pages` | `do-spaces` | `local-directory` (review finding): the
+    per-adapter `providerBinding`/`environment` branches key on it, and a bare
+    `plainLabel` let an identity outside the vocabulary fall through every
+    branch with any binding member mix. The retained
+    `destinationIdentity.adapterId` stays a `plainLabel` (fixture adapters).
+  - Unchanged: `provenanceDigest`/`sbomDigest` stay required (they digest
+    records the workflow authors); every other member, the three
+    adapter-conditional branches and the `pagesBuildVersion`/`spacesStagePrefix`
+    rule are as in 2.8.x. Every member description states "the API derives ...
+    and refuses a disagreement with `422 VALIDATION_FAILED`".
+  - The retained `deployment-intent` root, its `reproducibleBuildRecord` (every
+    member required) and `destinationIdentity` (five required members) are
+    unchanged, apart from the `environment` vocabulary below.
+  - Compatibility: every 2.8.x request body whose retained members carry the
+    values the api derives is still valid (a test validates a complete 2.8.1
+    body for each adapter, then the reduced 2.9.0 body). The one 2.8.x body that
+    is no longer valid is a `do-spaces` request carrying
+    `destination.providerBinding` -- deliberate per LOCAL-60 (Spaces is not
+    authorizable until C2 supplies the destination record). The publish
+    `fake-gala-api.mjs` and the infra journey fixtures, which send Pages or
+    local-directory destinations with api-agreeing values, remain valid.
+- **`destinationIdentity.environment` is one constant per adapter (LOCAL-60a).**
+  Document 23 inherited the member as a free `plainLabel` and DEC-097 pins only
+  the Pages binding's `environment: github-pages`; neither side could derive it.
+  It is now the closed enum `github-pages` | `do-spaces` | `local-directory`,
+  and an `adapterId` `if`/`then` branch pins it to the adapter's constant, in
+  every root that carries `destinationIdentity`: `deployment-intent`,
+  `deployment-receipt`, `deployment-observation` and `adapter-capability`. This
+  narrows what the retained roots accept: a 2.8.x document with
+  `environment: production` (or the generated `fixture-1`) is no longer valid.
+  The fixture corpus, the canonical examples, the `fixtures/s4` destination
+  family (now `local-directory`/`github-pages`/`do-spaces` per adapter, where
+  they were `fixture-1..3`) and the receipt-exchange response example were
+  regenerated/updated accordingly; a test walks every committed valid document
+  and consumer fixture and asserts compliance. A fixture-only `adapterId` (not
+  one of the three) may carry any member of the vocabulary. Consumers: the api
+  renders the constant; publish binds to the intent's value as before.
+- **Intent `subject` decision (item 3 of the packet).** DEC-097 lines 3258-3260
+  and 6898-6900 say the intent `subject` is Gala's stable workload URN
+  `urn:gala:workload:github:<repositoryId>:<runId>:<runAttempt>`, "not a copy of
+  GitHub's rename-sensitive `sub` string", and the root types it `urn`. The api
+  today renders the OIDC `repo:<owner>/<repo>:ref:<ref>` form and publish binds
+  to it. Decision: **keep the root's URN; no ref-binding member is added.** The
+  ref is already bound: `workloadBindingDigest` (required in the intent) commits
+  the retained `verifiedWorkloadBinding`, whose closed members include `ref`,
+  `repository`, `repositoryId`, `runId` and `runAttempt` (DEC-097 lines
+  2451-2476), so an explicit ref member would be a second, rename- sensitive
+  spelling of a fence the digest already carries. The root's `urn` pattern is
+  unchanged and now pinned by a test that also shows the OIDC form does not
+  match it. **Consumer follow-up (api + publish):** the api renders `subject` as
+  the DEC-097 URN from the verified binding's immutable ids; publish binds to
+  `subject` + `workloadBindingDigest`, not to the `sub` string. Neither is a
+  schema change.
+
+### Added
+
+- `parity/digest-record-vectors.json` (shipped in `files`, exported as
+  `@rathnasgala2/schemas/parity/digest-record-vectors.json`): eleven DEC-097
+  record golden vectors, generated once with an independent byte-level oracle,
+  for the four domains the api implements in API-INTENT-DERIVATION-1 --
+  `destinationProviderBinding` (Pages, Spaces and local bindings, DEC-097
+  7292-7322; the Pages/Spaces/local `targetDigest`), `destinationMutationKey`
+  (the three fence-key materials, 3295-3317), `capabilityDecision` (one closed
+  record per adapter, 8378-8419, embedding the matching binding's digest as
+  `destination.targetDigest` and the adapter's `environment` constant) and
+  `buildPolicyDecision` (`pass` with no findings and `pass-with-warnings` with
+  one finding, 1909-1935). Each entry carries the complete record, the exact
+  domain-separated JCS preimage and its SHA-256; records that carry their own
+  `decisionDigest` name it as `selfMember`. All four profiles already existed in
+  the 80-domain inventory (checked before adding; nothing duplicated), so
+  `ACTIVE_DIGEST_DOMAIN_COUNT` stays **80**. Every vector is also a
+  cross-language parity case (`digest:record:<vectorId>:valid|tampered`, 22
+  cases, 182 digest cases in all) in `diagnostics/parity-expectations.json`,
+  which the Java harness reproduces from the preimage bytes.
+- `defineProfile` freezes the four function members of every profile (`project`,
+  `preimage`, `digest`, `digestBytes`), not only the profile object, so a
+  consumer cannot attach state to a shared projector.
+- `test/t08-schema-290.test.js`: every change above asserted both ways, plus
+  2.8.1 bodies still valid.
+
+### Fixed (carry-overs)
+
+- **`POST .../reviews` no longer requires `sourceRevision` when
+  `repositoryChangeId` is present** (INFRA-E2E-7 finding, infra `0248a03`; the
+  LOCAL-57 pattern). The api requires the revision to equal the named confirmed
+  change's candidate commit, which no read exposes to the App, so the App's
+  branch-head value was refused 409. The `if`/`then` that already makes the two
+  digests server-derived now covers `sourceRevision` too: when
+  `repositoryChangeId` is absent (the 2.7.1 workload shape) `sourceRevision`,
+  `policyDigest` and `validationEvidenceDigest` are all required; when it is
+  present, `sourceRevision` is optional and the api derives it, refusing a
+  present disagreeing value with `422 VALIDATION_FAILED` naming
+  `/sourceRevision`. Every 2.8.1 body is still valid. Consumer follow-up: the
+  api derives it; the App stops sending it.
+- The reviews list and single read
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdReviews`,
+  `...ReviewsByReviewId`) carry `publication.view` as a `read-only` conditional
+  capability key (LOCAL-45/50 pattern), so the HTTP catalog describes the
+  admission the api makes; the conjunction pin in `t07` grows from four to six.
+- `POST .../publishes`' `409 INVALID_SOURCE_STATE` example names `/scheduledFor`
+  in `errors[]` (INFRA-E2E-6 finding: a scheduled publish refused with an empty
+  `errors[]`).
+- README counts: 73 MVP operations plus health (74 catalog rows), 22 App routes;
+  the OpenAPI bundle, HTTP catalog and route catalog digests change.
+
+## [2.8.1] - 2026-09-18
+
+SCHEMA-2.8.1 (PUBLISH-S4-4b, plus two App-consumer corrections): one new package
+export and two additive OpenAPI/catalog corrections. No root schema,
+digest-domain or golden-vector change; every digest a 2.8.0 consumer computes is
+byte-identical, and every 2.8.0-valid body is still valid.
+
+### Fixed
+
+- **The managed-deployment operation read no longer drops `kind`/`subject`.**
+  `GET .../operations/{operationId}`'s response is a `oneOf` whose
+  `ManagedDeploymentOperationResponse` arm restates the operation-detail members
+  inline under `additionalProperties: false` and had not been given the optional
+  `kind` and `subject` that SCHEMA-2.8.0 added to `OperationDetailResponse`. A
+  2.8.0 api that answers a managed deployment operation with `kind`/`subject`
+  was therefore rejected by a strict validator, and a generated parser silently
+  dropped both members. The arm now carries `kind` (`OperationKind`) and
+  `subject` (`OperationSubject`) by the same references as
+  `OperationDetailResponse`, still optional and still closed; the cancel
+  response was already an `OperationDetailResponse` reference and is unchanged.
+  A `t08` test validates one detail body carrying `kind` + `subject` against
+  `OperationDetailResponse`, `ManagedDeploymentOperationResponse`, the operation
+  read's `oneOf` and the cancel response, and pins the two members as
+  byte-identical between the arms.
+- **`getDeploymentsByGenerationId` is bound to the Releases route.** The single
+  deployment read SCHEMA-2.8.0 added
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId`)
+  was on no `docs/catalogs/app-routes.json` route. It is now on
+  `/organizations/{organizationId}/publications/{publicationId}/releases`, where
+  the App mounts it via `?generation=`; the route's `capabilityKeys` are
+  unchanged (`publication.view` was already present). The route catalog digest,
+  the OpenAPI bundle digest and the HTTP catalog digest change accordingly. A
+  `t09` test asserts the binding and that the only operations bound to no route
+  are the four no App screen can call (`getInternalHealth`,
+  `postCallbacksGithubApp`, `postWorkloadsDeploymentReceipts`,
+  `postWorkloadsGithubReceiptExchanges`).
+
+### Added
+
+- New public subpath export `@rathnasgala2/schemas/digest-profiles`
+  (`src/digest-profiles.js`, declarations in `types/digest-profiles.d.ts`)
+  exposing the active DEC-097/098 digest profiles that until now lived only in
+  the internal `src/internal/digest-profiles.js`: `ACTIVE_DIGEST_DOMAIN_COUNT`,
+  `ACTIVE_DIGEST_DOMAINS`, `ACTIVE_DIGEST_PROFILES`, `digestDomainSeparatedJcs`
+  and `domainSeparatedJcsPreimage`. A consumer such as `publish` now computes
+  `callClassBindingDigest` / `requestTemplateCatalogDigest` through
+  `ACTIVE_DIGEST_PROFILES.providerCallClassBinding.digest(rows)` (or the bare
+  domain helper) instead of re-deriving the terminal-NUL domain and the JCS
+  preimage by hand. The objects are the validator's own frozen inventory, so a
+  consumer cannot mutate a domain or a projector, and the result is the one the
+  contract checks.
+- `test/t11-digest-profiles-export.test.js` pins the export-name set, pins the
+  80-profile inventory and asserts every profile is reachable through the public
+  subpath as the identical frozen object, that the surface is read-only, that a
+  JCS profile's digest equals
+  `digestDomainSeparatedJcs(domain, project(value))`, and that the entry point's
+  closure is exactly the four browser-safe internal modules.
+- `scripts/check-browser-safety.mjs` walks `./digest-profiles` alongside `.` and
+  `./runtime-origins`; `test/scaffold.test.js` pins the new `exports` entry.
+
+## [2.8.0] - 2026-09-17
+
+SCHEMA-2.8.0 (LOCAL-51, LOCAL-52, LOCAL-54 through LOCAL-57): one additive
+minor. Two new read operations, evidence and identity added to existing bodies,
+one new closed `$defs` vocabulary, one new optional adapter block with its own
+digest domain, three generator-shape fixes, and the App route catalog moved to
+where the App actually mounts each command. Every body a 2.7.1 consumer can
+produce is still accepted on every read this release touches, and every
+2.7.1-valid request body is still a valid request.
+
+### Added
+
+- **The receipt-exchange intent request stops _requiring_ what a workflow may
+  not be able to compute** (LOCAL-57, amending LOCAL-55 (1)).
+  `pagesBuildVersion` and `spacesStagePrefix` become optional on
+  `ReceiptExchangeDeploymentIntentRequest`. The API derives the same two values
+  deterministically from identifiers it mints, so a workflow that cannot compute
+  them omits them and one that can may send them; a sent value that does not
+  equal the derived one is refused `422 VALIDATION_FAILED`, because that is a
+  disagreement about what is being deployed rather than a formatting error. Each
+  member is still confined to the adapter it belongs to by the request's
+  adapter-conditional branches, and the retained deployment-intent document
+  still carries both as required, server-derived members. Additive: every
+  2.7.1-valid request body is still valid.
+- **A destination can name its provider coordinates** (LOCAL-55 (2)).
+  `destinationIdentity` gains an optional closed `providerBinding`:
+  `{owner, repository}` for `github-pages`,
+  `{region, servedBucket, stagingBucket}` for `do-spaces`, and forbidden
+  entirely for `local-directory`, enforced by `adapterId`-conditional branches.
+  A reader can now tell which repository or bucket a generation was served from
+  without resolving `targetDigest` against a provider. Optional and additive: a
+  document that omits it is byte-identical to its 2.7.x self, and `targetDigest`
+  is unchanged either way.
+- **`repository-changes:plan` names what it planned** (LOCAL-56 (1)). The `202`
+  gains required `diffDigest` and `managedPathSetDigest`. Those are the two
+  digests the confirm step is fenced on, so a client can show the reader exactly
+  what they are about to confirm, and confirm the same thing it planned, rather
+  than confirming an operation id and hoping.
+- **`POST .../publishes` names the publish it accepted.** The `202` gains a
+  required `publishId`. A publish is a resource in its own right --
+  `.../publishes/{publishId}:cancel` addresses it -- and the acceptance
+  previously named only the operation, so a client had to carry the publication
+  and the publish it had just started in its own navigation state in order to be
+  able to cancel it. Additive to the response: a generated client pinned to
+  2.7.x ignores the member; a consumer that validates the `202` body against the
+  closed 2.7.x schema re-pins.
+- **`POST .../reviews` names the review it created**, and states the identity
+  the API already guarantees: `reviewId` is byte-equal to `operationId` and to
+  `commandId`, the same convention retire and `repository-changes:plan` follow
+  (LOCAL-16). The id is carried anyway so a client reads it instead of knowing a
+  convention.
+- **An operation says what it acts on and what kind of work it is.**
+  `OperationDetailResponse` and `OperationSummary` gain an optional closed
+  `subject` (`{publicationId?, publishId?, reviewId?, generationId?}`, at least
+  one member) and an optional closed `kind`. The `kind` vocabulary is exactly
+  the organization-scoped operations that answer `202` and therefore create an
+  operation row, spelled the way the API's own `operation_type` column is
+  (`^[a-z][a-z0-9_]*$`): `deployment_reconcile`, `deployment_rollback`,
+  `publication_import`, `publication_retirement`, `publish`,
+  `repository_change_commit`, `repository_change_plan`, `review_request`. Both
+  are optional, so a 2.7.1-era operation body still validates.
+- **`DeploymentSummary` carries activation and public-verification evidence.**
+  Two optional blocks: `activation {state, detectedAt?, method?}` and
+  `verification {state, verifiedAt?, publicVerificationUrl?}`. Both enums are
+  closed and map one-for-one onto DEC-097's deployment generation machine --
+  `NOT_DETECTED`/`DETECTED`/`ABANDONED` against the activation edge, and
+  `NOT_STARTED`/`IN_PROGRESS`/`VERIFIED`/`DEGRADED`/`RECONCILING`/
+  `INCONCLUSIVE` against `CANDIDATE|STAGED`, `ACTIVE_VERIFYING`,
+  `ACTIVE_VERIFIED`, `PROPAGATION_DEGRADED`, `UNKNOWN_RECONCILING` and section
+  6's `verification-inconclusive` finalization. `method` is exactly DEC-097's
+  two `activationBasis` sources. `publicVerificationUrl` is the public address
+  the verification actually fetched, so a reader can see what Galascribe saw.
+- **`GET .../deployments/{generationId}`** -- the single deployment read, with
+  the same body the history list carries for that row. A reader who arrives on a
+  link to one generation cannot page a keyset list to it.
+- **`GET .../publications/{publicationId}/reviews`** -- a keyset list of this
+  publication's reviews, newest first, optionally narrowed by `state`. Rows are
+  `ReviewSummary`, which is now also exactly what the single review read returns
+  (that response is `allOf: [ReviewSummary]`), so a list row and a read of that
+  row can never disagree. Without this read a Reviews screen could only show
+  reviews whose ids the reader already held, and the approved review a publish
+  consumes could not be offered as a choice (LOCAL-51).
+- **A review can be requested from a confirmed repository change.**
+  `POST .../reviews` gains an optional `repositoryChangeId`, and
+  `validationEvidenceDigest`/`policyDigest` become optional: when the change is
+  named, the server already holds both inputs and derives both digests, because
+  a browser client never constructs a digest it cannot compute from what it was
+  given (LOCAL-36 G-01). A caller that does send them -- a workload holding the
+  inputs itself -- must send both, and both are now documented as `sha256` over
+  the RFC 8785 canonical JSON of their named input. Every 2.7.1-valid request
+  body is still valid.
+- **Per-operation assurance.** Two optional operation-level vendor extensions,
+  `x-gala-assurance-class` (`SESSION` | `RECENT_AUTHENTICATION`) and
+  `x-gala-action-grant` (`none` | `required`), projected onto every
+  `openapi/http-catalog.json` row as `assuranceClass`/`actionGrant` (defaults
+  `SESSION`/`none`). Assurance is per operation while a capability key can cover
+  several: `publication.review` admits the read, the request and the decision,
+  and only the decision is a step-up. Declared on the three review operations;
+  `:decide` is `RECENT_AUTHENTICATION` with `required`.
+- `test/t08-schema-280.test.js` -- one test per change above, each asserting
+  both the new shape and that a 2.7.1-era body is still accepted.
+
+### Changed
+
+- **The activation fence is one definition, referenced (LOCAL-52).** All five
+  carriers of `expectedGenerationId` -- `deployment-intent` (document and
+  `destinationMutationAuthority`), `deployment-receipt`
+  (`destinationMutationAuthority`) and `adapter-capability`
+  (`localFilesystemControlRow`, `localFilesystemObservationEvidence`) -- now
+  `$ref` a single `$defs/generationFence` in their own root instead of repeating
+  the two-member `oneOf` inline. The admitted value set is unchanged; what
+  changes is that the vocabulary can no longer drift between carriers, and that
+  a rejected value is reported as **`EXPECTED_GENERATION_FENCE_INVALID`** -- the
+  same finding code `@rathnasgala2/adapter-protocol` 2.1.0 raises -- rather than
+  as a bare `SCHEMA_UNION_INVALID`/`SCHEMA_CONSTANT_INVALID`. The field stays
+  optional on the wire: the kernel requires a fence only under the
+  `expected-generation` and `provider-etag` concurrency classes, and the schema
+  remains the permissive superset of the in-process protocol.
+- **The observation side keeps its nullability, and says so.**
+  `observedGenerationId` gains a `description` stating the asymmetry explicitly:
+  an observation reports what is there, so "nothing served" is a truthful
+  absence (and is modelled as `string | null` by the in-process adapter
+  protocol), while an _expectation_ of nothing must be the explicit sentinel and
+  can never be an omission. (`currentGenerationId` is named by LOCAL-52 but is
+  carried by no contract in this repository; there was nothing to annotate.)
+- **`:decide` takes `If-Match`.** It declares `review-version` concurrency and
+  maps `STALE_AGGREGATE_VERSION`, but took no precondition header, so there was
+  no way for a caller to state the version it decided against.
+- **The review read stops claiming a stale-version refusal.**
+  `GET .../reviews/{reviewId}` declared `STALE_AGGREGATE_VERSION` and a `412`
+  response. It is a safe query with no precondition header; nothing could ever
+  raise it. Both are gone.
+- **The App route catalog says where each command actually is** (LOCAL-51).
+  `postPublishes` and `postPublishesByPublishIdCancel` move off the Reviews
+  route onto Source and the publication Overview, which are where the App mounts
+  `PublishCommandCard`; the catalog admits an operation on more than one route,
+  as several already are. Reviews gains the new list read. The Reviews and
+  Releases summaries stop saying their job is not available yet: Reviews is "ask
+  for a review of a confirmed change, see every review this publication has, and
+  approve or reject the one in front of you", Releases is the generation history
+  with reconcile and rollback. The Overview route becomes a mutating route,
+  because it mounts the publish card.
+
+- **Creating an organization declares the conflict it can answer** (LOCAL-54).
+  `POST /v2/organizations` now maps `INVALID_SOURCE_STATE` on its existing
+  `409`, with an example whose `errors[0]` is
+  `{code: INVALID_SOURCE_STATE, pointer: /slug}`, and a state guard naming the
+  slug's global uniqueness. A duplicate slug was already refused; the contract
+  simply did not say so, while `POST .../publications` -- the same shape of
+  create -- did. Additive: a new reachable problem on an existing status.
+
+### Changed (generator-shape fixes reported by the API's 2.7.1 consumer)
+
+These three change how OpenAPI Generator 7.25 (Spring and TypeScript-Fetch)
+renders the receipt-exchange contract. None changes which documents are
+accepted.
+
+- **The activation fence is one string schema, not a union of two.**
+  `$defs/generationFence` is now
+  `{type: "string", pattern: "^(?:gala:expect-nothing-served|<the stableId pattern>)$"}`
+  rather than `oneOf: [stableId, const sentinel]`. Two string members give the
+  generator nothing to distinguish, so it emits an empty marker interface a
+  caller cannot put a value in. The admitted value set is byte-for-byte the same
+  -- a test compiles the definition and pins the pattern against the contract's
+  own `stableId` so the two cannot drift -- and it is still defined exactly once
+  and referenced at all five carriers.
+- **`verificationSubmission` has two named arms.**
+  `ReceiptExchangeDeploymentIntentRequest.verificationSubmission` was a
+  two-member `oneOf` of anonymous objects keyed on a `state` constant with no
+  discriminator. The arms are now the components `VerificationSubmissionFit` and
+  `VerificationSubmissionUnfit`, referenced by bare `$ref`, under
+  `discriminator: {propertyName: state, mapping: {fit, unfit}}`.
+- **The receipt-exchange response union is three flat members.** It was two
+  members discriminated on `purpose`, whose `deployment-receipt` value mapped to
+  an intermediate `ReceiptExchangeDeploymentReceiptResponse` carrying a second,
+  nested `state` discriminator -- which the generator renders as an interface a
+  reader cannot resolve past. The intermediate schema is gone. The union is now
+  `ReceiptExchangeDeploymentIntentResponse`,
+  `ReceiptExchangeCapabilityIssuedResponse` and
+  `ReceiptExchangeSubmissionRecordedResponse`, discriminated on a new
+  **optional** `kind` constant (`deployment-intent`,
+  `deployment-receipt-capability-issued`,
+  `deployment-receipt-submission-recorded`). `purpose` is untouched on the wire.
+
+  `kind` is optional on purpose, and that is a deliberate deviation: OpenAPI
+  requires a discriminator property to be required, but a required
+  server-produced constant would reject every 2.7.x-era body against this union.
+  The three arms stay mutually exclusive on `purpose` and `state` without it,
+  and a test proves a `kind`-less 2.7.x body still selects exactly one arm. A
+  generated client that resolves this union through `kind` alone must tolerate
+  its absence from an older server.
+
+### Deliberately not changed
+
+- **`REQUEST_CHANGES` is not a review decision.** The review state machine is
+  `REQUESTED -> APPROVED | REJECTED | INVALIDATED`; there is no non-terminal
+  "changes requested" state, and adding one is a state-machine change no
+  decision record admits. `REJECT` is therefore terminal: a rejected review is
+  finished, and a new review is requested from the next confirmed change. A test
+  pins the enum, the decision vocabulary and the transition guard so this stays
+  a deliberate choice rather than an oversight.
+- **No `format: date-time` member in the OpenAPI bundle carries a `pattern` any
+  more** (LOCAL-56 (2)). OpenAPI Generator 7.25 emits a Jakarta `@Pattern` on
+  the generated `OffsetDateTime` getter, and Hibernate Validator has no
+  `@Pattern` validator for `OffsetDateTime`; the constraint cannot be resolved,
+  so every request carrying such a member fails with a **500 before any handler
+  runs** -- observed on `POST .../publishes` with `scheduledFor`. The bundler
+  now drops the pattern from every `format: date-time` node and states the
+  requirement in that member's `description` instead: "the UTC millisecond
+  subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`".
+
+  This is a real, deliberate loosening of what the _OpenAPI contract_
+  mechanically rejects: a generated client or server binding to the bundle alone
+  will now accept a second-precision or offset instant. It is not a loosening of
+  the contract's truth. The nineteen JSON Schema roots are untouched --
+  `$defs/rfc3339` still carries `format` **and** the pattern -- so
+  `validateGalaDocument` and every document validator still refuse a
+  non-canonical instant, and the API must keep emitting and requiring the
+  canonical subset. A test walks the whole bundle and fails on any `date-time`
+  node that carries a pattern or whose description does not state the subset.
+
+- **The publisher package was already pinned.** LOCAL-55 (3) asks for
+  `publisher.package` / `publisherPackages[0]` to be
+  `const "@rathnasgala2/publish-action"`. It already is, in `deployment-intent`,
+  `deployment-receipt`, `artifact-manifest`, `build-input` and `lock`. A test
+  now pins all five so it stays that way. The OpenAPI bundle additionally
+  carries `x-gala-const: "@rathnasgala2/publish-action"` on
+  `PortableDeploymentIntentPackageIdentity.package`, so the contract states what
+  the API enforces. It is metadata, not a second validation rule: that portable
+  definition also describes the kernel, protocol and adapter packages, so a
+  `const` there would be wrong for every slot but the publisher's.
+- **`requestTemplateCatalogDigest`'s input is unchanged.** LOCAL-52 (2) asks
+  that `callClassBinding` participate in it. `adapter-capability` now admits an
+  optional `callClassBinding` block -- one row per `(stage, callClass)` with
+  `pagesDeploymentIdSource` and `recoveryOnly`, exactly the side table
+  `v2/publish`'s `CALL_CLASS_ID_BINDING` keeps in
+  `packages/adapter-github-pages/src/request-catalog.js` because
+  `providerRequestTemplate` is closed -- but it is bound by its **own**
+  `callClassBindingDigest` under a **new** domain
+  `GALA-PROVIDER-CALL-CLASS-BINDING-V2\0`, not folded into the template catalog
+  digest. Justification: `GALA-PROVIDER-REQUEST-TEMPLATES-V2\0` is one of the
+  exact set of terminal-NUL domains DEC-097 section 8 closes, every member is
+  `-V2`, and `src/internal/digest-profiles.js` asserts the exact count.
+  Re-versioning it to `-V3` is not this repository's to do, and it would
+  invalidate every `requestTemplateCatalogDigest` already computed -- the
+  opposite of "2.7.x digests stay valid". A new, additive domain leaves the
+  template preimage byte-identical (domain count 79 -> 80). The two members are
+  optional and travel together (`dependentRequired` both ways), so an
+  adapter-capability document that omits them projects byte-identically to 2.7.x
+  and its `capabilityDigest` is unchanged.
+
+### Consumer follow-up
+
+- `v2/api`: emit `publishId` on the publish `202` and `reviewId` on the review
+  `202`; populate `subject`/`kind` on both operation reads; fill
+  `activation`/`verification` on `DeploymentSummary`; serve `GET .../reviews`
+  and `GET .../deployments/{generationId}`; accept `repositoryChangeId` on
+  `POST .../reviews` and derive the two digests from it; honour `If-Match` on
+  `:decide`; consume `assuranceClass`/`actionGrant` from the HTTP catalog when
+  generating its action-grant catalog rows (the catalog is keyed by operation,
+  this contract is now too).
+- `v2/app`: list reviews from the new read instead of asking for a typed review
+  id; take `publishId` from the `202` instead of carrying the publication in
+  navigation state; the publish card's placement on Source and Overview is now
+  what the route catalog says.
+- `v2/api`: emit `diffDigest`/`managedPathSetDigest` on the plan `202`, and keep
+  validating instants against the canonical subset in the application layer now
+  that the generated `OffsetDateTime` binding no longer carries the pattern.
+  Regenerate the Spring models -- the fence is a plain `String`, the
+  verification submission has two bound subtypes, and the receipt-exchange
+  response has three flat subtypes keyed on `kind`; emit `kind` on every
+  receipt-exchange response.
+- `v2/publish`: `pagesBuildVersion` and `spacesStagePrefix` are optional on the
+  intent request now -- omit them where the workflow cannot compute them rather
+  than guessing, and expect a `422` on a value that disagrees with the API's own
+  derivation. Populate `destination.providerBinding` where the adapter knows its
+  coordinates. Move `CALL_CLASS_ID_BINDING` into the declared `callClassBinding`
+  block and compute `callClassBindingDigest` under
+  `GALA-PROVIDER-CALL-CLASS-BINDING-V2\0`; the existing
+  `requestTemplateCatalogDigest` computation does not change.
+
+## [2.7.1] - 2026-09-17
+
+SCHEMA-2.7.1 (LOCAL-50): additive metadata patch, no wire change.
+
+### Added
+
+- New optional operation-level vendor extension
+  `x-gala-conditional-capability-keys`: an array of `{capabilityKey, condition}`
+  pairs naming an alternate capability key that also admits the operation,
+  alongside its primary `x-gala-capability-key`, under one closed `condition`
+  from `field:desiredState` or `read-only`. It is additive to, and distinct
+  from, the existing required `x-gala-conditional-capabilities` extension
+  (free-text `when`); both project into the same generated
+  `conditionalCapabilityKeys` array on the operation's
+  `openapi/http-catalog.json` row.
+- Applied the new extension to two operations so the contract describes
+  admissions the API already makes (LOCAL-44, LOCAL-45):
+  - `getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent`
+    gains `publication.view` (`read-only`) -- the read is admitted by the view
+    capability; bind and revoke stay gated by `publication.integrations.manage`.
+  - `patchOrganizationsByOrganizationId` gains `organization.lifecycle.manage`
+    (`field:desiredState`) -- `organization.settings.manage` stays the primary
+    key governing `name`/`slug`.
+- `scripts/generate-openapi.mjs` exports `CONDITIONAL_CAPABILITY_KEY_CONDITIONS`
+  (the closed condition vocabulary) and `CAPABILITY_KEY_PATTERN` (the mechanical
+  capability-key shape) so tests and future consumers can validate against the
+  same closed set without re-deriving it.
+- A dedicated test asserts every `x-gala-conditional-capability-keys` entry uses
+  a condition from the closed vocabulary and names a capability key that is
+  mechanically well-formed and either already bound as a primary capability key
+  somewhere in the catalog, or is the one reviewed forward reference
+  (`organization.lifecycle.manage`, pending the companion `v2/api` catalog
+  change).
+
+### Consumer follow-up
+
+- `v2/api`'s HTTP-catalog projection script must tolerate and consume the new
+  `conditionalCapabilityKeys` contributions (it already reads the field; no
+  change is required unless it assumed the field's contents came only from the
+  legacy free-text extension).
+
+## [2.7.0] - 2026-09-17
+
+SCHEMA-2.7.0 (LOCAL-49): three contract changes plus one copy fix. **One of them
+changes the wire** -- read the Changed section before pinning this release.
+
+### Changed
+
+- **WIRE CHANGE.**
+  `POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings`
+  now answers `201 Created` with the created repository binding and a `Location`
+  header. It previously answered `202 Accepted` with
+  `{commandId, operationId, phase, resourceVersion, statusUrl}`. That was a lie
+  in the contract: binding is a synchronous write, no operation row is ever
+  created for it, and the `statusUrl` it advertised pointed at an operation that
+  does not exist -- a client that followed it got a 404. The `201` body is
+  exactly the shape `GET .../repository-bindings/current` returns
+  (`repositoryBindingId`, `version`, `state`, `repositoryId`, `installationId`,
+  `defaultBranch` required; `observedHead`, `repositoryFullName` optional), so a
+  client can render the result of the bind without a second read.
+  `x-gala-success-category` moves from `async` to `create`. Admitted inside a
+  minor under the LOCAL-37 rationale: `v2/api` and the App are the only
+  consumers of this operation and both move in the same wave. **A consumer
+  pinned to 2.6.x must update its response binding before pinning 2.7.0**; there
+  is no compatibility window in which both statuses are served.
+- Both `POST /v2/workloads/github/receipt-exchanges` `purpose` unions (request
+  and `200` response) now carry an explicit `discriminator` with a `mapping`,
+  and every union member is a named component referenced by `$ref`
+  (`ReceiptExchangeDeploymentIntentRequest`,
+  `ReceiptExchangeDeploymentReceiptRequest`,
+  `ReceiptExchangeDeploymentIntentResponse`,
+  `ReceiptExchangeDeploymentReceiptResponse`,
+  `ReceiptExchangeCapabilityIssuedResponse`,
+  `ReceiptExchangeSubmissionRecordedResponse`). **No wire change**: `purpose`
+  was already present, required, and pinned to a constant in every member; this
+  release only names the members and states the value-to-schema binding that was
+  previously implicit. Without it OpenAPI Generator 7.25 emits `@JsonSubTypes`
+  keyed by generated class names rather than by the wire value, which is why
+  `v2/api`'s routes hand-map these bodies today (API-RECEIPTS-1 follow-up 1).
+
+  The response union has three states but only two `purpose` values --
+  `deployment-receipt` covers both `capability-issued` and `submission-recorded`
+  -- and a discriminator mapping key must name exactly one schema. The two
+  same-purpose states are therefore grouped under
+  `ReceiptExchangeDeploymentReceiptResponse`, which carries its own nested
+  `state` discriminator and mapping. The set of accepted documents is unchanged;
+  the outer `oneOf` is now two members instead of three.
+
+- The adapter protocol's activation fence gains an explicit "expect nothing
+  served" sentinel (LOCAL-47). `expectedGenerationId` is no longer `stableId`
+  alone but `oneOf: [stableId, const "gala:expect-nothing-served"]`, at all five
+  places it is carried: `deployment-intent` (document and
+  `destinationMutationAuthority`), `deployment-receipt`
+  (`destinationMutationAuthority`), and `adapter-capability`
+  (`localFilesystemControlRow`, `localFilesystemObservationEvidence`). `null`
+  was never valid and still is not; the point is that "this is a first publish,
+  refuse if anything is already served" is now a value in the fence vocabulary
+  rather than the absence of one, so it can never be confused with "no
+  expectation, do not fence me". The sentinel's bytes cannot collide with a
+  generation identity, which is always a lowercase UUIDv7. **Additive and
+  wire-compatible**: every document valid under 2.6.x is still valid.
+
+  The exact constant is coordinated with `v2/publish` PUBLISH-S4-2, which
+  implements it as `EXPECT_NOTHING_SERVED` in `@rathnasgala2/adapter-protocol`
+  behind a protocol bump to `2.1.0`, where the in-process `activate` input is
+  mandatory and `null`/`undefined` are refused outright. This repository keeps
+  `expectedGenerationId` optional on the wire, because the kernel only requires
+  a fence under the `expected-generation` and `provider-etag` concurrency
+  classes; what it closes is the _value_ vocabulary.
+
+### Fixed
+
+- `/account/security`'s `screenJob` summary now says the screen shows when each
+  passkey was added and last used. `AuthenticatorSummary.createdAt` and
+  `lastUsedAt` shipped in 2.6.0 and `v2/api`'s `SelfAuthenticatorController`
+  serves them, so the previous summary understated the screen. The remaining
+  "Viewing your session history and recovery codes is not available yet" is
+  still true: `getSelfSessions` and `postSelfRecoveryCodeSets` are contract
+  surface with no controller behind them. The Members and Source summaries were
+  re-checked against `v2/api` at 2.6.0 (membership-invitations list, the
+  `publicationId` membership filter) and are already truthful as reworded in
+  2.6.1; no change was needed. Regenerated `docs/catalogs/app-components.json`
+  (one `defaultMessage` changed).
+
+### Added
+
+- `test/t03-activation-fence.test.js` -- proves all five fence sites are the
+  same closed two-member union and that the compiled validator accepts a
+  generation identity and the sentinel while refusing `null`, `''`, `none`,
+  `__none__`, a trailing-space variant and a non-string.
+- `t07-openapi.test.js` gains a discriminator-binding test: both workload unions
+  declare `propertyName: purpose` with a `mapping` that covers exactly the union
+  members; every member is a bare `$ref` (the precondition for a named generated
+  subtype); every mapped schema pins `purpose` to the mapping key it is reached
+  by, directly or in every nested arm; and a conforming example binds -- the
+  schema the mapping names accepts the document, and the union as a whole
+  selects exactly one member.
+
+  Note on scope: this repository does not run OpenAPI Generator (it serializes
+  the reviewed 7.25.0 option sets in `openapi/generator/` and generates its own
+  TypeScript/Java from the 19 JSON Schema roots), so the test asserts the
+  binding _contract_ the generator consumes, executed against the real bundle,
+  rather than compiling emitted Java. Running the emitted Spring models is
+  `v2/api`'s gate when it re-pins.
+
+## [2.6.1] - 2026-09-17
+
+SCHEMA-2.6.1: copy-only patch, no shape change. The App reviewer reported that
+several `catalog-sources/app-routes.json` `screenJob` summaries promised
+features the API does not implement yet -- Publication Settings claimed
+module/appearance/membership editing and transfer when only name/slug/metadata
+edits and owner retirement exist; Home (signed out) claimed plan comparison and
+a choice of sign-in methods when the page is one GitHub button; the Publications
+screen claimed import and restore when only create exists. Every one of the 22
+MVP routes was re-audited against what `v2/api`'s controllers actually implement
+today (not just what the OpenAPI contract admits), and every summary that named
+a capability the API does not yet expose was reworded to state what the screen
+does today, with "is not available yet" for a feature that is designed but
+unimplemented rather than listing it as though it were live. This also caught
+screens where the whole job is unimplemented (Content, Reviews, Releases,
+Export, Closure -- no controller exists for any of them yet) and narrower gaps
+inside otherwise-live screens (Security has no session-list or recovery-code
+read/write path; Connections has no identity-link read/write path; account
+recovery has no recovery-code verification path). Regenerated
+`docs/catalogs/app-components.json` (only `<screenId>.ready.summary`
+`defaultMessage` values changed; content-key count, route count, route shape and
+`authoredMessageCount` are unaffected). `docs/catalogs/app-routes.json` is
+unchanged.
+
+Also rewrote the `CAPABILITY_UNAVAILABLE` route-state's default recovery message
+in `scripts/generate-app-catalogs.mjs`'s `ROUTE_STATES` ledger: "Review the
+available alternative; do not retry automatically." was engineer voice
+describing internal retry semantics, not a reader-facing instruction. It is now
+"This isn't available yet. Check back later, or contact support if you need it
+now." -- plain voice with a concrete next step, consistent with every other
+state's authored recovery copy since SCHEMA-STATE-COPY (2.4.2).
+
+Checked whether to add a capability key `organization.lifecycle.manage`
+(LOCAL-44): this repository's OpenAPI source annotates every operation with
+`x-gala-capability-key`, but the schema validates that field only as
+`string | null` (`scripts/generate-openapi.mjs`) -- there is no closed
+capability-key vocabulary here for the API to validate against. The 23-row
+closed catalog that does constrain capability/operation/resource combinations
+(`action-grant-catalog.source.json`, `GeneratedActionGrantCatalog`) is owned and
+reviewed in `v2/api`, not here. Adding a capability key is therefore an
+`api`-repository change, not a `schema`-repository one; nothing was added in
+this release.
+
+### Fixed
+
+- Reworded thirteen `app-routes.json` `screenJob` summaries (`/`,
+  `/organizations/{organizationId}`,
+  `/organizations/{organizationId}/publications`,
+  `/organizations/{organizationId}/publications/{publicationId}`,
+  `/organizations/{organizationId}/publications/{publicationId}/content`,
+  `/organizations/{organizationId}/publications/{publicationId}/reviews`,
+  `/organizations/{organizationId}/publications/{publicationId}/releases`,
+  `/organizations/{organizationId}/publications/{publicationId}/settings`,
+  `/account/security`, `/account/connections`, `/account/recover`, and
+  `/account/export`, `/account/closure`) to stop naming modules, appearance,
+  membership editing, publication transfer, import, restore, scheduling,
+  rollback, review workflows, session history, recovery codes, or account
+  linking as available today, since the API implements none of them yet.
+- Reworded the `CAPABILITY_UNAVAILABLE` route-state's default recovery message
+  from engineer voice to user voice with a concrete next step.
+
+## [2.6.0] - 2026-09-17
+
+Wave-2 contract corrections, collected as LOCAL-40 directs. LOCAL-40 named the
+collection "2.5.1", when its first entries were two missing problem
+declarations. The collection grew past what a patch can honestly carry, so this
+ships as a minor: it adds an operation, a package export subpath
+(`./runtime-origins`), two optional response fields, an optional query
+parameter, and three declared problem responses, and it widens two response
+shapes so that payloads a 2.5.0 validator rejects are now admitted. Semantic
+Versioning reserves PATCH for backward-compatible fixes; every one of those is
+added, backward-compatible functionality, which is MINOR. Consumers that need
+only the corrections may still treat the upgrade as a drop-in: nothing this
+release changes narrows what a client may send or what a server may return.
+
+### Added
+
+- `401 REAUTH_REQUIRED` is declared on `GET /v2/github/installations` and
+  `GET /v2/github/installations/{installationId}/repositories`. The API has
+  answered it since API-IDENTITY-1 — a stored GitHub user access token can be
+  stale or revoked while the Gala session is perfectly valid — but the contract
+  only declared `AUTHENTICATION_REQUIRED`, so a client generated from it had no
+  reason to distinguish "sign in again" from "reconnect GitHub" (LOCAL-40).
+- `503 CAPABILITY_UNAVAILABLE` is declared on `GET /v2/github/app`. A deployment
+  that has not been told which GitHub App it fronts answers 503 rather than
+  inventing a slug, so the operation's `x-gala-activation-guards` moves from
+  `NONE` to "Configured GitHub App identity for this deployment" and the install
+  link becomes an optionally available affordance rather than a promise
+  (LOCAL-36 G-05, API-CONTRACT-2.5.0 follow-up (2)).
+- `AuthenticatorSummary` gains optional, nullable `createdAt` and `lastUsedAt`,
+  both carrying the canonical Gala RFC 3339 millisecond pattern. The account
+  Security screen showed a passkey table with no dates because the contract
+  carried only id/version/state/kind/label. Rows that predate the columns carry
+  no instant, so both fields are nullable as well as optional and a client shows
+  nothing rather than guessing (API-CONTRACT-2.5.0 identity-stream follow-up).
+- `GET /v2/organizations/{organizationId}/memberships` gains an optional
+  `publicationId` query filter. `organization.members.view` granted to
+  `publication_admin` has been catalog truth and inert since API-CONTRACT-2.5.0,
+  because the only membership read was organization-wide. With the filter that
+  grant becomes meaningful, and the operation documents the rule that makes it
+  safe: an unfiltered call from a publication-scoped caller is refused with
+  `AUTHORIZATION_DENIED`, never quietly widened to the whole member list
+  (LOCAL-41 (2)).
+- `GET /v2/organizations/{organizationId}/membership-invitations` (keyset), the
+  list behind the Members screen's pending-invitation section, taking the MVP
+  surface from 70 operations to 71. The single-invitation read needs an id the
+  screen does not have, so before this a client could only show the invitation a
+  person happened to create in the current session. The optional `state` query
+  filter defaults to `PENDING`, because outstanding invitations are what the
+  screen exists to show. Items use the new `MembershipInvitationSummary`, which
+  carries exactly the single-invitation read's fields — `invitationId`,
+  `version`, `state`, `roleId`, `expiresAt` — so a row and a detail view can
+  never disagree, and, like that read, it omits `recipient` because acceptance
+  is possession-based and the label an inviter typed is never a verified
+  identity (LOCAL-34 G6). Capability `organization.members.view` (LOCAL-34 G3).
+  The App route catalog's Members route gains the operation.
+- New package export `@rathnasgala2/schemas/runtime-origins`: a narrow browser
+  entry point carrying the `urn:gala:schema:public-runtime-origins:2.0.0`
+  validator, that one schema, and that one contract's 92-rule slice of the
+  diagnostic map. The `.` export binds all 19 contracts, which transitively pins
+  the 4.5 MB SPDX licence list, the Unicode 17 tables, the IANA language subtag
+  registry and the whole 7,804-rule diagnostic map; the App measured a 6.9 MB
+  first-load chunk, 97% of it this package (APP-TAILWIND-SHADCN-2a follow-up
+  (1)). The narrow export's package-owned module closure is 1,166,709 bytes
+  against the root export's 7,423,201 — an 84% reduction — and
+  `scripts/check-browser-safety.mjs` now caps it at 1,250,000 bytes and walks it
+  for browser safety alongside `.`. The cap is deliberately not the 200 kB the
+  report suggested: this contract genuinely uses `gala-bcp47`,
+  `gala-plain-label` and `gala-plain-text`, whose committed invalid fixtures are
+  only rejected by consulting the Unicode 17 tables (504 kB) and the IANA
+  registry (344 kB). Dropping them would make the narrow export accept documents
+  the full validator rejects, which the new fixture-parity test forbids. What it
+  does drop is SPDX, the other eighteen contracts, and 7,712 of the 7,804
+  diagnostic rules. **The `.` export is unchanged**, in shape, behaviour and
+  weight.
+- `diagnostics/diagnostic-map.public-runtime-origins.json`, generated by
+  `npm run diagnostics:generate` and drift-checked by
+  `npm run diagnostics:check` exactly as the shared map is. It is a projection,
+  never an independent authority: keyword fallbacks, cascade keywords,
+  validators and the code catalog are carried whole and only the
+  contract-prefixed rule tables are narrowed.
+
+### Changed
+
+- `nextCursor` is now `type: [string, "null"]` on all ten collection responses
+  and the conditional keyset fragment they share. The contract previously
+  required `nextCursor` to be _absent_ when `hasMore` is false while every API
+  list read emits an explicit `"nextCursor": null` on the last page, so a strict
+  validator rejected a correct response (INFRA-E2E-2 follow-up). Absent and null
+  now mean the same thing on the last page, `null` is still refused while
+  `hasMore` is true, and the length bounds constrain the string branch only. No
+  API change is required, and a client that already treated absent as
+  end-of-list needs no change either.
+- `PrincipalSummary.displayName` stays nullable but is no longer `required`. It
+  was required-and-nullable while the generated Java serializer omits a null
+  member, so the API's own response failed its own contract. Absence and an
+  explicit `null` now carry the same meaning — this principal has no display
+  name — and a client falls back to `login` for both (API-CONTRACT-2.5.0
+  identity-stream follow-up).
+- Every `statusUrl` description — on `OperationResponse`,
+  `OperationDetailResponse`, `OperationSummary` and the operation-lookup
+  representation — now says that the value is an API path under `/v2/...` rather
+  than a client route, and that a browser client resolves it through its own
+  routing table (the App maps
+  `/v2/organizations/{organizationId}/operations/{operationId}` onto
+  `/organizations/{organizationId}/operations/{operationId}`) instead of
+  following it as a link. 2.5.0 said "navigate to this URL verbatim", which a
+  client could read as "send the browser to this path", and one did. Wording
+  only; no shape, pattern or required-member change.
+- Route copy in `catalog-sources/app-routes.json`, regenerated into
+  `docs/catalogs/app-components.json` (only `<screenId>.ready.summary` default
+  messages move; route count, content-key count and route shape are unaffected,
+  and `docs/catalogs/app-routes.json` is unchanged):
+  - Source now says how a repository is actually chosen — pick one of your
+    GitHub App installations, then a repository it grants, installing the
+    Galascribe GitHub App first if you have not already — instead of the bare
+    "connect this publication to a GitHub repository" that predates the pickers
+    and the install link (LOCAL-33, LOCAL-36 G-05).
+  - Members now says that anyone holding an invitation link can accept it, so a
+    link goes only to the person you mean to invite. Acceptance is
+    possession-based and `recipient` is a label, never a verified identity; the
+    screen copy now says so rather than leaving the reader to assume otherwise
+    (LOCAL-34 G6).
+  - Security now names the passkeys registered on the account, which
+    `GET /v2/self/authenticators` genuinely returns (LOCAL-36 G-06). No copy in
+    this repository claimed passkeys cannot be read back — the 2.5.0 catalog
+    text was simply silent about what the table contains.
+- `src/internal/schema-validator.js` is now a thin binding over a new
+  `src/internal/validator-core.js`, which holds the whole registry,
+  normalization and diagnostic pipeline and imports no schema, no diagnostic map
+  and no pinned source-data table. `src/internal/format-validators.js` is
+  likewise a thin binding that adds the one `gala-spdx-expression` branch over a
+  new `src/internal/format-validators-core.js`. This is what lets a narrow entry
+  point exist at all, and it is pure factoring: the `.` export binds exactly the
+  same 19 schemas, the same diagnostic map and the same format dispatcher, and
+  every committed fixture produces byte-identical diagnostics.
+
+### Fixed
+
+- `scripts/generate-openapi.mjs` enforces the corrected keyset contract:
+  `nextCursor` must be string-or-null, the `hasMore: true` branch must require
+  it _and_ pin it to `string`, and the else branch must pin it to `null` rather
+  than merely forbidding it.
+
+### Tests
+
+- `test/t07-openapi.test.js`: every collection response admits
+  `{hasMore: false, nextCursor: null}` and refuses
+  `{hasMore: true, nextCursor: null}` and an empty-string cursor; the three new
+  problem declarations carry matching reachable-problem entries, statuses and
+  examples; `PrincipalSummary` validates with `displayName` omitted, null and
+  present, and still refuses a missing `login`; `AuthenticatorSummary` validates
+  a 2.5.0-era body, null instants and present instants, and refuses a
+  non-instant; the memberships read carries the optional `publicationId` filter
+  and documents the refusal.
+- `test/t07-openapi.test.js` also gains a standing gate that all ten keyset list
+  reads answer a bad cursor or limit with `400 VALIDATION_FAILED` and declare no
+  `422` at all — the alignment API-CONTRACT-2.5.0 follow-up (2) asked for. The
+  contract designates 400 for query-parameter validation on every operation
+  (`422` is reserved for semantic request-body failures on `POST`/`PATCH`), so
+  the two new GitHub list reads and the pre-existing publications list were
+  already aligned in the contract; the gate keeps them so.
+- `test/t07-openapi.test.js`: the membership-invitation list is a keyset query
+  under `organization.members.view` with `cursor`, `limit` and a `state` filter
+  defaulting to `PENDING` and closed to the invitation lifecycle enum, its rows
+  carry exactly the single-invitation read's properties and required members and
+  no `recipient`, and it appears in the HTTP catalog; and every `statusUrl`
+  description in the bundle states the `/v2/...` API-path rule and the client's
+  own-route mapping.
+- `test/t10-runtime-origins-export.test.js`: the narrow export accepts exactly
+  one identity and fails closed on every other; it returns byte-identical
+  results to the full validator across every committed valid, boundary,
+  unknown-field and invalid public-runtime-origins fixture; its format
+  dispatcher agrees with the full dispatcher on every format this contract
+  declares, over 24 vectors, while SPDX remains the one deliberate difference;
+  its module closure stays under the declared cap, is at least four times
+  smaller than the root closure, and demonstrably no longer reaches the SPDX
+  table, `src/internal/spdx.js`, the whole diagnostic map or another contract's
+  schema; and the narrow diagnostic map carries only its own contract's rules
+  with the shared vocabulary intact.
+
+## [2.5.0] - 2026-09-16
+
+### Added
+
+- SCHEMA-2.5.0-CONTRACT: five operations, bringing the MVP surface from 65 to 70
+  operations plus `/internal/health`.
+  - `getGithubApp` (`GET /v2/github/app`) returns `{slug, installUrl}` so a
+    client can send an owner to GitHub's installation flow without assembling a
+    GitHub URL of its own (LOCAL-36 G-05).
+  - `getGithubInstallationsByInstallationIdRepositories`
+    (`GET /v2/github/installations/{installationId}/repositories`, keyset)
+    returns
+    `{repositoryId, ownerId, ownerLogin, name, fullName, defaultBranch, private}`
+    so the Source screen can offer an installation picker and a repository
+    picker instead of asking a person for numeric GitHub identifiers (LOCAL-33).
+  - `getOrganizationsByOrganizationIdOperations`
+    (`GET /v2/organizations/{organizationId}/operations`, keyset, newest first)
+    is the list behind the operation URL that every `202` hands out (LOCAL-36
+    G-15). Capability `organization.view`.
+  - `getOrganizationsByOrganizationIdRoles`
+    (`GET /v2/organizations/{organizationId}/roles`, keyset) returns the seeded
+    role definitions with display name, scope and capability keys, retiring the
+    LOCAL-12 exception that left the roles route without a backing operation
+    (LOCAL-34 G15, LOCAL-36 G-16). Capability `organization.members.view`.
+  - `postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement`
+    (`POST /v2/organizations/{organizationId}/publications/{publicationId}:previewRetirement`)
+    returns the persisted
+    `{consequencePreviewId, consequenceDigest, consequences[], expiresAt}` that
+    the retirement command must quote back, so a client never fabricates an
+    acknowledgement token (LOCAL-36 G-17). Capability `publication.retire`.
+- Optional response fields, all additive and absent-tolerant so a 2.5.0
+  validator still accepts a 2.4.2-era response:
+  - repository-binding read gains `observedHead` (nullable, carrying the same
+    `sha1:`/`sha256:` digest profile as `expectedHead`, which a client pre-fills
+    from it) and `repositoryFullName` (LOCAL-36 G-01, LOCAL-33).
+  - `GithubInstallationSummary` gains
+    `observation: {status: OBSERVED|PENDING|FAILED, reason?}` (LOCAL-36 G-11).
+  - `MembershipSummary` and the session read gain
+    `principal: {login, displayName}` through the new `PrincipalSummary`
+    component, so people are named rather than shown as UUIDs (LOCAL-34 G7).
+  - organization and publication reads gain `callerCapabilities[]` so a client
+    can gate controls without guessing (LOCAL-34 G15/G16).
+- `catalog-sources/internal-event-actions.json` is published in `files` and
+  `exports` (LOCAL-35 section 0.1 (i)), and `docs/catalogs/app-routes.json` and
+  `docs/catalogs/app-components.json` — already shipped in `files` — are now
+  declared in `exports` so consumers can import them by subpath instead of
+  reaching through the package root.
+- App route catalog: new route `organizations.by-organization-id.operations`
+  (list), taking the catalog from 21 to 22 routes. The Source route's
+  `apiOperationIds` gain `getGithubApp`, `getGithubInstallations` and the new
+  repositories read, and the route becomes a collection; the roles route gains
+  `getOrganizationsByOrganizationIdRoles`; the Connections route gains
+  `getGithubApp`; the publication Settings route gains the retirement preview,
+  which is what supplies the acknowledgement the retire `DELETE` quotes back.
+
+### Changed
+
+- `If-Match` is now required on
+  `DELETE /v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings/current`
+  and its `x-gala-concurrency` moves from `binding-version` to
+  `if-match-and-binding-version` (LOCAL-36 G-20). Revoking a live binding is a
+  destructive edit of shared state, so the API refuses it without a precondition
+  rather than guessing. This is the one wire-affecting change in this release.
+- Membership and invitation _reads_ move from `organization.members.manage` to
+  the new `organization.members.view` capability
+  (`getOrganizationsByOrganizationIdMemberships`,
+  `getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId`);
+  mutations keep `organization.members.manage` (LOCAL-34 G3).
+- `statusUrl` on `OperationResponse`, `OperationDetailResponse` and the new
+  `OperationSummary` is documented as exactly
+  `/v2/organizations/{organizationId}/operations/{operationId}` for every
+  organization-scoped operation, and every `202` example in
+  `openapi/source/organizations.yaml` now shows that URL instead of `/example`
+  (LOCAL-36 G-14). Shape unchanged. The two account-scoped `202` examples in
+  `openapi/source/self.yaml` show their own resource URLs.
+- Invitation wording is corrected to describe what the code actually does:
+  acceptance is possession-based, and `recipient` is a label for the inviter's
+  benefit, never a verified identity and never an authorization input (LOCAL-34
+  G6). The invitation-create summary and `x-gala-purpose` move from "create
+  invitation bound to recipient, scope, role and epoch" to "create invitation
+  bound to scope, role and epoch".
+- `scripts/generate-app-catalogs.mjs` now rejects an empty `apiOperationIds` on
+  any route other than `/`, because the LOCAL-12 roles exception is retired.
+- W1-07: `repository_change.enter_failed_no_change` accepts `COMMITTING` as well
+  as `UNKNOWN_RECONCILING` in `fromStates`, so a hard refusal detected before
+  the commit can terminate the aggregate as `FAILED_NO_CHANGE` without first
+  asserting `UNKNOWN_RECONCILING`, which would claim the outcome is unknown when
+  it is known. `docs/catalogs/internal-event-actions.json` regenerated (18
+  families, 74 actions — unchanged counts; only the transition's `fromStates`
+  enum and the catalog digest move).
+
+## [2.4.2] - 2026-09-16
+
+### Fixed
+
+- SCHEMA-STATE-COPY: rewrote the default `recovery` message for every one of the
+  closed 16-member route-state vocabulary in
+  `scripts/generate-app-catalogs.mjs`'s `ROUTE_STATES` ledger (the source for
+  the generated `<screenId>.<state>.recovery` content keys), fixing an
+  owner-reported defect where the sign-in screen's `SUBMITTING` state rendered
+  "Submitting…" followed by "Contact support with the displayed correlation ID."
+  — a support instruction during a normal in-progress state. Previously 12 of
+  the 16 states used one blanket fallback recovery string verbatim ("Contact
+  support with the displayed correlation ID."), which was wrong on two counts:
+  it told the reader a correlation ID is always displayed (the App shows one
+  only when present, never unconditionally), and it appeared on transient
+  in-progress states (`LOADING`, `VALIDATING`, `SUBMITTING`, `REFRESHING`) and
+  on calm resting/terminal states (`READY`, `EMPTY`, `FORBIDDEN`, `NOT_FOUND`,
+  `DIRTY`, `SUCCESS`) that have no support-worthy failure to report. Every
+  state's `recovery` message is now individually authored: the five transient
+  states (`LOADING`, `VALIDATING`, `SUBMITTING`, `RECONCILING`, `REFRESHING`)
+  get calm progress copy ("This usually takes a moment." for the four that
+  previously used the fallback; `RECONCILING`'s existing authored copy was
+  already calm and unchanged); `TERMINAL_FAILURE` is now the only state whose
+  recovery may reference support, and only conditionally ("Try again. If it
+  keeps failing, contact support." — no claim that a correlation ID is shown);
+  every other state (`READY`, `EMPTY`, `OFFLINE`, `FORBIDDEN`, `NOT_FOUND`,
+  `CAPABILITY_UNAVAILABLE`, `DIRTY`, `CONFLICTED`, `RATE_LIMITED`, `SUCCESS`)
+  gets a plain, state-specific, user-facing sentence (for example `OFFLINE` is
+  now "Check your internet connection and try again." and `NOT_FOUND` is now
+  "Check the link, or return to the previous page."). No `status` message
+  changed, and the four previously-authored recovery strings
+  (`CAPABILITY_UNAVAILABLE`, `RECONCILING`, `CONFLICTED`, `RATE_LIMITED`) are
+  unchanged. Removed the now-unused `fallbackRecovery()` helper and its blanket
+  fallback string. Regenerated `docs/catalogs/app-components.json` (only
+  `<screenId>.<state>.recovery` content-key `defaultMessage` values changed for
+  the 12 affected states; content-key count, route count and route shape are
+  unaffected; `docs/catalogs/app-routes.json` is unchanged). The generator's
+  `authoredMessageCount` counter (every state's recovery is now authored, not a
+  corpus fallback) moved from 78 to 282 across the 21 MVP routes; updated the
+  corresponding assertion in `test/t09-app-catalogs.test.js`. This is a
+  backward-compatible, user-visible catalog content change, so the package
+  version moves from `2.4.1` to `2.4.2` per this repository's Semantic
+  Versioning policy; regenerated the license inventory and SBOM to match.
+
+## [2.4.1] - 2026-09-16
+
+### Changed
+
+- SCHEMA-TAB-TITLES: shortened four route titles in
+  `catalog-sources/app-routes.json` to be more concise for navigation and UI
+  display: `/organizations/{organizationId}` title changed from "Organization
+  overview" to "Overview"; `/organizations/{organizationId}/settings` title
+  changed from "Organization settings" to "Settings";
+  `/organizations/{organizationId}/publications/{publicationId}` title changed
+  from "Publication overview" to "Overview";
+  `/organizations/{organizationId}/publications/{publicationId}/settings` title
+  changed from "Publication settings" to "Settings". Route summaries (text after
+  the first `;` in `screenJob`) remain unchanged. Regenerated catalogs to match.
+  This is a backward-compatible, user-visible catalog content change.
+
+## [Unreleased]
+
+### Added
+
+- SCHEMA-ROUTE-SUMMARIES: the summary half of every `screenJob` entry in
+  `catalog-sources/app-routes.json` (the text after the first `;`, rendered
+  end-user-facing under each screen's title) is rewritten from the internal
+  design-brief spec prose (for example `/sign-in` was previously "universal
+  GitHub/passkey/FedCM-capability sign-in and safe resumption") into one plain,
+  user-facing sentence in product voice, with no implementation jargon (`FedCM`,
+  `principal`, `capability`, `fence`, `epoch`, etc.). For example `/sign-in` is
+  now "Sign in with your GitHub account to manage your organizations and
+  publications.", `/organizations` is "Organizations you belong to, and where to
+  create a new one.", `/organizations/{organizationId}/members` is "People in
+  this organization, their roles, and pending invitations.", `/account/security`
+  is "Your sessions, passkeys and recovery codes.", and `/invitations/accept` is
+  "Accept an invitation to join an organization.". All 21 MVP routes' summaries
+  were rewritten this way, checked against each route's `apiOperationIds` for
+  accuracy. The title half of every `screenJob` (the text before the first `;`,
+  from SCHEMA-ROUTE-TITLES) is unchanged, as is every route's `pathTemplate`,
+  `originClass`, `authenticationClass`, `mutation`, `collection` and
+  `apiOperationIds`. Regenerated `docs/catalogs/app-components.json` (only the
+  `<screenId>.ready.summary` content-key `defaultMessage` values changed;
+  content-key count, route count and route shape are unaffected);
+  `docs/catalogs/app-routes.json` is unchanged. This is a backward-compatible,
+  user-visible catalog content change, so the package version moves from `2.3.0`
+  to `2.4.0` per this repository's Semantic Versioning policy; regenerated the
+  license inventory and SBOM to match.
+- SCHEMA-ROUTE-TITLES: every entry in `catalog-sources/app-routes.json` now
+  states its `screenJob` as
+  `<short human title>; <existing descriptive sentence>` (for example `/` is
+  `Home; product ownership, portability, pricing/capability and sign-in choices`),
+  so the generated `<screenId>.ready.title` content key is a short
+  human-readable label fit for an H1, breadcrumb or nav item instead of the full
+  descriptive sentence. `generate-app-catalogs.mjs` already split `screenJob` on
+  the first `;` for `title`; it now also derives `<screenId>.ready.summary` as
+  the text after that first `;` (previously the summary duplicated the whole
+  `screenJob`, so it always began by repeating the title). Regenerated
+  `docs/catalogs/app-components.json`; `docs/catalogs/app-routes.json` is
+  unchanged (route shape, `contentKeyIds` and counts are unaffected — only the
+  content-key `defaultMessage` values moved). No route's `routeId`,
+  `pathTemplate`, `screenId`, `authenticationClass`, `apiOperationIds`,
+  `requiredStates` or `componentIds` changed.
+- LOCAL-21 (App route): `catalog-sources/app-routes.json` admits a 21st MVP App
+  route, `/invitations/accept` (derived `routeId` `invitations.accept`,
+  `screenId` `invitations.accept.screen`), so the invitee's one-time accept link
+  (`https://localhost:5173/invitations/accept?token=...`, App origin, never the
+  API origin) resolves to a registered App screen. `originClass` is `APP` (not
+  `TRANSACTIONAL_LINK`: unlike the deferred `/t/**` template family, this route
+  is served by the App after the invitee signs in, so `pathTemplate` carries no
+  `{token}` path segment and `tokenBearing` is `false`; the token travels as a
+  query parameter the App reads client-side and never as part of the routed
+  path). `authenticationClass` is `SESSION_REQUIRED`: the invitee must sign in
+  first, and the App preserves `/invitations/accept?token=...` as the
+  post-sign-in return route. `apiOperationIds` is exactly
+  `["postMembershipInvitationsByTokenAccept"]` (verified against
+  `openapi/openapi.yaml`); that operation's `x-gala-capability-key` is `null`,
+  so `capabilityKeys` is empty. `mutation` is `true` and `collection` is
+  `false`, so the generator assigns the closed 13-state required set (`LOADING`,
+  `READY`, `FORBIDDEN`, `NOT_FOUND`, `CAPABILITY_UNAVAILABLE`, `RECONCILING`,
+  `TERMINAL_FAILURE`, `DIRTY`, `VALIDATING`, `SUBMITTING`, `CONFLICTED`,
+  `RATE_LIMITED`, `SUCCESS`) and the document 07 ordered component set
+  `AppShell`, `Breadcrumbs`, `ContextHeader`, `StatePanel`, `FormField`,
+  `ValidationSummary`, `AsyncCommand` (no `ConsequentialConfirmation`: the
+  operation is `POST`, not `DELETE`, and its path carries none of the
+  destructive-consequence tokens). The screen's pending/submitting state is
+  `SUBMITTING`, its accepted state (linking to the destination organization) is
+  `SUCCESS`, and its failed state is `TERMINAL_FAILURE`; the operation's
+  non-enumerating design declares only one reachable failure problem,
+  `INVALID_SOURCE_STATE` (alongside `AUTHENTICATION_REQUIRED`,
+  `REQUEST_FIELD_UNKNOWN` and `VALIDATION_FAILED`, none of them
+  route-screen-specific), so an expired token, an already-used token and an
+  unrecognized token are indistinguishable at the API and are presented
+  identically by the failed state. No new App component or content key shape was
+  needed; the generator projects the existing 15-component, closed 16-state
+  vocabulary onto the new route mechanically. Regenerated
+  `docs/catalogs/app-routes.json` and `docs/catalogs/app-components.json` (route
+  count 20 -> 21, content-key count 578 -> 606, both digest-bound and
+  cross-validated against `openapi/openapi.yaml` and `openapi/http-catalog.json`
+  by `npm run app-catalogs:check`). This is a backward-compatible additive
+  change (no existing route, component or content key changed), so the package
+  version moves from `2.1.0` to `2.2.0` per this repository's Semantic
+  Versioning policy; regenerated the schema inventory digest, license inventory
+  and SBOM to match.
+
+- LOCAL-21: `PostOrganizationsByOrganizationIdMembershipInvitationsResponse`
+  (the 201 response of
+  `POST /v2/organizations/{organizationId}/membership-invitations`) gains an
+  optional `token` string property: the plaintext single-use invitation token,
+  present exactly once on the response that creates the invitation, absent on an
+  idempotent replay of the same request and absent from every read of an
+  invitation (`GET .../membership-invitations/{invitationId}` uses its own
+  unchanged read schema, which never carried a `token` field). The invitee
+  redeems it with the existing `POST /v2/membership-invitations/{token}:accept`
+  operation; `token` reuses that operation's already-declared `{token}` path
+  parameter length bounds (`minLength: 32`, `maxLength: 256`, plain string, no
+  new pattern) rather than inventing a stricter format, even though the API
+  currently generates 32 random bytes hex-encoded (64 lowercase hex characters)
+  into that range. `token` is documented as a credential that must never be
+  logged. This is a backward-compatible additive change (no other schema,
+  operation, or problem catalog changed), so the package version moves from
+  `2.0.0` to `2.1.0` per this repository's Semantic Versioning policy; the
+  `urn:gala:schema:openapi:2.0.0` contract identity, `openapi/source/root.yaml`
+  design revision, `docs/catalogs/schema-inventory.json`'s `version` field, and
+  `compatibility/compatibility.json` are unchanged because none of them are
+  keyed to the npm package version and no gate ties them together
+  (`docs/catalogs/schema-inventory.json`'s `sourceDigest` for the `openapi`
+  contract regenerates with the new bundle content, as expected).
+
+- S4-T01: added the separately bound, generated `fixtures/s4/` deployment/
+  certification consumer-fixture family (`deployment-intent-destinations`,
+  `deployment-observation-matrix`, `deployment-receipt-no-signatures`,
+  `public-generation-marker-closed`, `adapter-capability-destinations`) and its
+  `fixtures/s4/manifest.json`, mirroring the `fixtures/s2/` precedent. It covers
+  `local-directory`/`github-pages`/`do-spaces` deployment-intent and
+  adapter-capability rows, the deployment-observation class/outcome/
+  destinationChanged matrix, the managed `deployment-receipt` with no
+  `signatures` member (and its rejection when one is added), and the closed
+  `public-generation-marker` root, each with positive and adversarial cases and
+  cross-runtime (Ajv/Networknt) semantic parity through the existing shared
+  `validateGalaDocument` engine. No eleventh schema root was added; the five S4
+  problem codes (`VERIFICATION_EVIDENCE_LIMIT_EXCEEDED`,
+  `DESTINATION_MUTATION_IN_PROGRESS`, `RATE_LIMITED`,
+  `REPORTING_CAPABILITY_INVALID`, `RESPONSE_REPRESENTATION_LIMIT_EXCEEDED`) and
+  the two workload operations (`POST /v2/workloads/github/receipt-exchanges`,
+  `POST /v2/workloads/deployment-receipts`) were already frozen and required no
+  change. The pre-S2 766-file legacy corpus and the existing S2 family remain
+  byte-identical.
+
+### Fixed
+
+- SCHEMA-BROWSER-SAFE (2.2.2): the App's Vite dev server crashed at module load
+  (`Module "node:util" has been externalized for browser compatibility... TextDecoder is not a constructor`)
+  because `@rathnasgala2/schemas`'s "." export (`src/index.js`, the only runtime
+  import the App uses — `validateGalaDocument`) transitively imported
+  `node:util`'s `TextDecoder` in `src/internal/canonical-jcs.js` and
+  `src/internal/public-verification- semantics.js`. `TextDecoder`/`TextEncoder`
+  are standard globals in every browser and in Node >= 11, so both files (and,
+  for consistency, the three other `node:util`-importing files outside the
+  browser-reachable graph — `frozen-envelope.js`,
+  `theme-composition-semantics.js`, `build-artifact-semantics.js`) now use the
+  global directly. Independently re-derived the exact static ESM import graph
+  reachable from `src/index.js` (own resolver script, not just inspection) and
+  found two further genuine browser blockers in that graph, fixed for real
+  browser-safety rather than only the reported crash: (1)
+  `src/internal/schema-validator.js` read the 19 JSON Schema files eagerly at
+  import time with `node:fs`'s `readFileSync`, which has no browser equivalent —
+  replaced with 19 static
+  `import ... from '../../schemas/*.schema.json' with { type: 'json' }` imports
+  (the pattern already used by `unicode17.js`), same registration order, same
+  registry semantics. (2) `Buffer` (not a browser global) was used pervasively
+  across `canonical-jcs.js`, `schema-validator.js`, `digest-profiles.js`,
+  `public-verification-semantics.js`, `portable-scalars.js`, `spdx.js`,
+  `verification-origin.js`, `format-validators.js`, and `idna.js` — replaced
+  every reference with a new browser-safe `src/internal/bytes.js` helper module
+  (UTF-8/ASCII encode, hex encode/decode, byte-lexicographic compare and
+  equality, concatenation, big-endian u32/u64 reads, ASCII substring search,
+  Latin-1 decode; no `node:*` imports). `createHash('sha256')` (also
+  `node:crypto`, also not a browser global, and needed synchronously throughout
+  — Web Crypto's `crypto.subtle.digest` is Promise-only) was replaced with a new
+  pure-JS synchronous SHA-256 module, `src/internal/sha256.js` (no dependency,
+  no `node:*` import), verified byte-identical to `node:crypto`'s
+  `createHash('sha256')` across 214 cases (empty input, 1 byte, the SHA-256
+  padding block boundaries at 55/56/57, 63/64/65, 119/120/121, 127/128/129
+  bytes, and 200 random buffers up to 5000 bytes) before wiring it in; this
+  package's own existing digest/parity test suite (hundreds of known-good
+  fixture digests) remained green, unchanged, as the real regression gate —
+  canonical bytes are byte-for-byte identical to before this change.
+  `public-verification-semantics.js` turned out to use `createHash` only for one
+  raw certificate digest (no `createPublicKey` or signature `verify` anywhere in
+  the browser-reachable graph — those live only in
+  `build-artifact-semantics.js`, which is not reachable from "."), so no module
+  split was needed there. `frozen-envelope.js`, `build-artifact-semantics.js`,
+  `theme-composition-semantics.js`, and `deployment-record-semantics.js` are
+  confirmed unreachable from the "." export and keep their existing
+  `node:*`/`Buffer` usage (legitimately Node-only per this repository's
+  CLAUDE.md boundary). Added two permanent gates: `browser-safety:check` (new
+  `scripts/check-browser-safety.mjs`, wired into `npm run build` and therefore
+  `npm run verify`) statically walks the "." export's import graph and fails on
+  any reachable `node:*`/bare Node-builtin import or `Buffer`/`process`
+  reference (`./generated/typescript` is a declared JS export subpath but is
+  deliberately excluded from the walk: it is generated output that intentionally
+  loads a CommonJS structural- validator core via `node:module`'s
+  `createRequire`, every consumer today reaches it only through `import type`
+  which never enters a runtime browser bundle, and making it genuinely
+  browser-safe is a separate codegen change out of this fix's scope); and a new
+  `node --test` smoke test (`test/browser-smoke.test.js` /
+  `scripts/browser-smoke.mjs`, spawned under `node --experimental-vm-modules` so
+  it can link real ESM inside a genuine jsdom-realm `vm` context with no
+  `Buffer`/`process`/`require`) that actually executes `validateGalaDocument`
+  against a real fixture inside that realm and fails if any reachable module
+  imports a Node builtin or the fixture fails to validate — verified this smoke
+  test actually fails when a `node:util` import is reintroduced and passes again
+  once removed. Added `jsdom` as a devDependency (no existing bundler/DOM
+  devDependency was available to reuse; jsdom is the smallest dependency that
+  provides a genuine, purpose-built browser-shaped global realm). No public
+  schema, wire format, or canonical byte semantics changed. Package version
+  moves from `2.2.1` to `2.2.2` (patch bug fix).
+- 2.2.1 SBOM regeneration: `sbom.cdx.json` was stale after the version bump and
+  is now current.
+- S5-T00b: added `docs/catalogs/app-routes.json` and
+  `docs/catalogs/app-components.json` to the `files` array in `package.json`;
+  S5-T00 generated both catalogs but omitted them from the published package
+  payload.
+- S3-T02: verified the section 7 managed-GitHub-binding routes, their reachable
+  problem codes, and the `repository_binding`/`repository_change` event-catalog
+  families against the S3 slice brief; the frozen 65-operation surface,
+  problem-code catalog, and 18-family/74-action event catalog already satisfy S3
+  exactly, so no operation, schema root, or problem code was added. Repaired two
+  pre-existing build-gate defects found during verification: a missing committed
+  `types/internal/http-problem-contract.d.ts` declaration, and a stale
+  `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
+
+### Added
+
+- S5-T00 reviewed `catalog-sources/app-components.json` and
+  `catalog-sources/app-routes.json` source ledgers plus the deterministic
+  `generate-app-catalogs.mjs` generator (with a `--check` drift mode wired into
+  `build`), materializing `docs/catalogs/app-components.json` (15 closed
+  document 07 semantic components and 578 generated title/summary/status/
+  recovery content keys) and `docs/catalogs/app-routes.json` (the 20-entry S5
+  brief MVP route registry), both digest-bound under the shared DEC-091
+  `sourceDesignRevision`. Every `apiOperationIds` entry is validated against
+  `openapi/openapi.yaml`; every `componentIds`/`contentKeyIds` entry is
+  validated against the component catalog; `capabilityKeys` are projected from
+  `openapi/http-catalog.json`. 74 of the 578 content-key default messages (all
+  `recovery` messages for the `CAPABILITY_UNAVAILABLE`, `RECONCILING`,
+  `CONFLICTED`, and `RATE_LIMITED` states) are authored from document 32 section
+  6's client-behaviour table, because the corpus gives implementer guidance
+  there rather than literal reader-facing copy; every other message is copied
+  verbatim from the corpus.
+- Corrected the recovery event authority by separating the recovery-code-set
+  `ACTIVE -> SUPERSEDED|REVOKED` lifecycle from each recovery code's
+  `AVAILABLE -> CONSUMED|REVOKED` lifecycle, yielding 18 families and 74
+  independently identified actions.
+- Self-contained OpenAPI bundle schemas for deterministic OpenAPI Generator
+  consumption; reviewed source fragments retain canonical portable-schema
+  references while the published bundle materializes them and quotes YAML 1.1
+  boolean-like strings without changing validation semantics.
+- S0-T08 reviewed 18-family transition source ledger and deterministic 74-action
+  internal-event catalog with exact aggregate scope, predecessor and target
+  states, unique payload identities, closed DEC-101 payload schemas, registered
+  producers/consumers, and RFC 8785 digest binding.
+- S0-T07 complete OpenAPI 3.1 source fragments and deterministic bundle for the
+  exact 65-operation MVP projection plus `/internal/health`, with mechanical
+  operation/component names, explicit success/replay/concurrency/problem rules,
+  capability annotations, and a digest-bound generated HTTP catalog.
+- DEC-097's closed synchronous receipt-exchange union, bounded preliminary
+  deployment-receipt transport, and five exact new problem-code mappings.
+- Reviewed OpenAPI Generator 7.25.0 Spring and TypeScript Fetch option files.
+- S0-T06 deterministic TypeScript and Java code generation for all 19 public
+  roots, including the Ajv standalone CommonJS core, strict ESM validation API,
+  196 Java records, exact schema resources, and Networknt registry wiring.
+- DEC-091 design manifest and `sourceDesignRevision`, exact 20-contract schema
+  inventory, closed 44-pairing compatibility authority, and byte-identical
+  two-clean-build drift gate.
+- Full-SHA-pinned single-run npm trusted-provenance release workflow with
+  immutable version-reuse rejection.
+- S0-T05 fail-closed public schema validation API with stable, non-value-leaking
+  diagnostics and an exact immutable 19-schema registry.
+- Deterministic shared diagnostic map and complete Ajv 8.20.0/Networknt 2.0.1
+  parity gate over all structural, adversarial-semantic, and digest fixtures.
+- Committed exact whole-result parity expectations, 1,995 shared DEC-099 scalar
+  cases, all 766 pinned grapheme rows, and raw RFC 8785 number/string byte-limit
+  vectors.
+- Checksum-pinned Gradle 8.8 Java 21 test harness with locked Java dependencies.
+- S0-T04 platform schemas for RFC 9457 problems, internal event envelopes, and
+  public runtime origins under the accepted DEC-100 through DEC-102 closures.
+- Deterministic valid, boundary, invalid-with-code, unknown-field, and
+  adversarial fixtures covering every executable rule across all 19 roots.
+- S0-T03's ten closed composition, build, deployment, public-marker, and
+  adapter-capability schemas, their internal semantic validators, and every
+  active DEC-097 through DEC-099 digest profile.
+- Deterministic pinned-data verification, portable scalar algorithms, complete
+  T03 contract vectors, and generated internal declaration output.
+- S0-T02 complete 20-scalar `$defs` library and six deterministic author-source
+  JSON Schemas.
+- Fail-closed visual-token definitions pending acceptance of their catalogs.
+- S0-T01 repository scaffold with pinned Node.js and npm toolchains.
+- JavaScript ESM package entry point with checked JSDoc and emitted
+  declarations.
+- Required JSDoc linting for exported JavaScript functions and isolated
+  declaration drift detection.
+- Formatting, lint, type, architecture, duplication, test, workflow-pin,
+  license-inventory, and reproducible-SBOM gates.
+- Full-SHA-pinned continuous-integration workflow and dependency update policy.

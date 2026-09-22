@@ -1,0 +1,49 @@
+{
+  "schemaId": "urn:gala:schema:adapter-capability:2.0.0",
+  "schemaVersion": "2.0.0",
+  "adapter": {
+    "adapterId": "local-directory",
+    "adapterVersion": "2.0.0",
+    "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+  },
+  "contractVersion": "2.0.0",
+  "protocolRange": "^2.0.0",
+  "destinationKinds": ["local-directory"],
+  "operations": [
+    "activate",
+    "cleanup-staged",
+    "inspect",
+    "observe",
+    "rollback",
+    "stage"
+  ],
+  "staging": "unreachable-generation",
+  "activation": "pointer-swap",
+  "concurrency": "expected-generation",
+  "idempotencyClass": "observable-identity",
+  "rollback": "reupload",
+  "verification": ["artifact-digest", "generation-marker", "provider-state"],
+  "providerInventoryAssurance": "complete-artifact-digest",
+  "configuration": {
+    "redirects": false,
+    "headers": false,
+    "customDomains": false,
+    "notFoundBehavior": false,
+    "immutableCaching": false
+  },
+  "cacheInvalidation": "none",
+  "limits": {
+    "transport": "filesystem",
+    "filesystemProfile": "gala-local-directory-filesystem-v2",
+    "filesystemAllowlistDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+    "maximumFiles": "1",
+    "maximumFileBytes": "1",
+    "maximumArtifactBytes": "1",
+    "maximumProviderCallSeconds": 1,
+    "maximumPathBytes": 1,
+    "pathRuleProfile": "gala-portable-v2"
+  },
+  "capabilityDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+  "filesystemEvidenceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+  "unexpected": true
+}

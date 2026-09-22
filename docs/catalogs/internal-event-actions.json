@@ -1,0 +1,4716 @@
+{
+  "schemaVersion": "2.0.0",
+  "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
+  "families": [
+    "authentication_transaction",
+    "deployment_generation",
+    "external_identity",
+    "github_installation",
+    "membership",
+    "membership_invitation",
+    "operation",
+    "organization",
+    "owner_transfer",
+    "passkey",
+    "principal",
+    "publication",
+    "publish_schedule",
+    "recovery_code",
+    "recovery_code_set",
+    "repository_binding",
+    "repository_change",
+    "review",
+    "session_family"
+  ],
+  "components": [
+    {
+      "componentId": "api.provider-observation-ingress",
+      "kind": "PRODUCER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.ProviderObservationIngress"
+    },
+    {
+      "componentId": "api.public-projection",
+      "kind": "CONSUMER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.PublicProjection"
+    },
+    {
+      "componentId": "api.transition-audit-projector",
+      "kind": "CONSUMER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.TransitionAuditProjector"
+    },
+    {
+      "componentId": "api.transition-outbox",
+      "kind": "PRODUCER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.infrastructure.TransitionOutboxPublisher"
+    },
+    {
+      "componentId": "api.work-dispatcher",
+      "kind": "CONSUMER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.WorkDispatcher"
+    }
+  ],
+  "actions": [
+    {
+      "eventType": "authentication_transaction.entered_callback_received",
+      "family": "authentication_transaction",
+      "action": "entered_callback_received",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:authentication_transaction:entered_callback_received:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:authentication_transaction:entered_callback_received:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PRESENTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CALLBACK_RECEIVED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "authentication_transaction.entered_cancelled",
+      "family": "authentication_transaction",
+      "action": "entered_cancelled",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:authentication_transaction:entered_cancelled:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:authentication_transaction:entered_cancelled:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CREATED", "PRESENTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CANCELLED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "authentication_transaction.entered_consumed",
+      "family": "authentication_transaction",
+      "action": "entered_consumed",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:authentication_transaction:entered_consumed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:authentication_transaction:entered_consumed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CALLBACK_RECEIVED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CONSUMED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "authentication_transaction.entered_expired",
+      "family": "authentication_transaction",
+      "action": "entered_expired",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:authentication_transaction:entered_expired:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:authentication_transaction:entered_expired:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CREATED", "PRESENTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "EXPIRED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "authentication_transaction.entered_presented",
+      "family": "authentication_transaction",
+      "action": "entered_presented",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:authentication_transaction:entered_presented:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:authentication_transaction:entered_presented:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CREATED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "PRESENTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "authentication_transaction.entered_rejected",
+      "family": "authentication_transaction",
+      "action": "entered_rejected",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:authentication_transaction:entered_rejected:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:authentication_transaction:entered_rejected:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CALLBACK_RECEIVED", "PRESENTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REJECTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_abandoned",
+      "family": "deployment_generation",
+      "action": "entered_abandoned",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_abandoned:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_abandoned:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CANDIDATE", "STAGED", "UNKNOWN_RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ABANDONED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_active_verified",
+      "family": "deployment_generation",
+      "action": "entered_active_verified",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_active_verified:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_active_verified:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE_VERIFYING", "UNKNOWN_RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE_VERIFIED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_active_verifying",
+      "family": "deployment_generation",
+      "action": "entered_active_verifying",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_active_verifying:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_active_verifying:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              {
+                "enum": [
+                  "PROPAGATION_DEGRADED",
+                  "STAGED",
+                  "UNKNOWN_RECONCILING"
+                ]
+              }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE_VERIFYING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_propagation_degraded",
+      "family": "deployment_generation",
+      "action": "entered_propagation_degraded",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_propagation_degraded:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_propagation_degraded:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE_VERIFYING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "PROPAGATION_DEGRADED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_staged",
+      "family": "deployment_generation",
+      "action": "entered_staged",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_staged:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_staged:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CANDIDATE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "STAGED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_superseded",
+      "family": "deployment_generation",
+      "action": "entered_superseded",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_superseded:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_superseded:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE_VERIFIED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "SUPERSEDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "deployment_generation.entered_unknown_reconciling",
+      "family": "deployment_generation",
+      "action": "entered_unknown_reconciling",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:deployment_generation:entered_unknown_reconciling:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:deployment_generation:entered_unknown_reconciling:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE_VERIFYING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "UNKNOWN_RECONCILING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "external_identity.entered_compromised",
+      "family": "external_identity",
+      "action": "entered_compromised",
+      "aggregateType": "ExternalIdentity",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:external_identity:entered_compromised:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:external_identity:entered_compromised:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMPROMISED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "external_identity.entered_revoked",
+      "family": "external_identity",
+      "action": "entered_revoked",
+      "aggregateType": "ExternalIdentity",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:external_identity:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:external_identity:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "external_identity.entered_unlinked",
+      "family": "external_identity",
+      "action": "entered_unlinked",
+      "aggregateType": "ExternalIdentity",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:external_identity:entered_unlinked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:external_identity:entered_unlinked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "UNLINKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "github_installation.entered_active",
+      "family": "github_installation",
+      "action": "entered_active",
+      "aggregateType": "GithubInstallation",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:github_installation:entered_active:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:github_installation:entered_active:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "github_installation.entered_deleted",
+      "family": "github_installation",
+      "action": "entered_deleted",
+      "aggregateType": "GithubInstallation",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:github_installation:entered_deleted:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:github_installation:entered_deleted:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "DELETED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "github_installation.entered_suspended",
+      "family": "github_installation",
+      "action": "entered_suspended",
+      "aggregateType": "GithubInstallation",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:github_installation:entered_suspended:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:github_installation:entered_suspended:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "SUSPENDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership.entered_active",
+      "family": "membership",
+      "action": "entered_active",
+      "aggregateType": "Membership",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership:entered_active:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership:entered_active:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PLAN_SUSPENDED", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership.entered_ended",
+      "family": "membership",
+      "action": "entered_ended",
+      "aggregateType": "Membership",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership:entered_ended:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership:entered_ended:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "PLAN_SUSPENDED", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ENDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership.entered_plan_suspended",
+      "family": "membership",
+      "action": "entered_plan_suspended",
+      "aggregateType": "Membership",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership:entered_plan_suspended:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership:entered_plan_suspended:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "PLAN_SUSPENDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership.entered_suspended",
+      "family": "membership",
+      "action": "entered_suspended",
+      "aggregateType": "Membership",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership:entered_suspended:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership:entered_suspended:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "SUSPENDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership_invitation.entered_accepted",
+      "family": "membership_invitation",
+      "action": "entered_accepted",
+      "aggregateType": "MembershipInvitation",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership_invitation:entered_accepted:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership_invitation:entered_accepted:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PENDING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACCEPTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership_invitation.entered_expired",
+      "family": "membership_invitation",
+      "action": "entered_expired",
+      "aggregateType": "MembershipInvitation",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership_invitation:entered_expired:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership_invitation:entered_expired:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PENDING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "EXPIRED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "membership_invitation.entered_revoked",
+      "family": "membership_invitation",
+      "action": "entered_revoked",
+      "aggregateType": "MembershipInvitation",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:membership_invitation:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:membership_invitation:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PENDING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "operation.entered_cancelled_no_effect",
+      "family": "operation",
+      "action": "entered_cancelled_no_effect",
+      "aggregateType": "PublicationOperation",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:operation:entered_cancelled_no_effect:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:operation:entered_cancelled_no_effect:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACCEPTED", "EXECUTING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CANCELLED_NO_EFFECT" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "operation.entered_completed",
+      "family": "operation",
+      "action": "entered_completed",
+      "aggregateType": "PublicationOperation",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:operation:entered_completed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:operation:entered_completed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["EXECUTING", "RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMPLETED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "operation.entered_executing",
+      "family": "operation",
+      "action": "entered_executing",
+      "aggregateType": "PublicationOperation",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:operation:entered_executing:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:operation:entered_executing:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACCEPTED", "RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "EXECUTING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "operation.entered_failed_no_effect",
+      "family": "operation",
+      "action": "entered_failed_no_effect",
+      "aggregateType": "PublicationOperation",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:operation:entered_failed_no_effect:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:operation:entered_failed_no_effect:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACCEPTED", "EXECUTING", "RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "FAILED_NO_EFFECT" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "operation.entered_reconciling",
+      "family": "operation",
+      "action": "entered_reconciling",
+      "aggregateType": "PublicationOperation",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:operation:entered_reconciling:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:operation:entered_reconciling:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["EXECUTING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "RECONCILING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "organization.entered_active",
+      "family": "organization",
+      "action": "entered_active",
+      "aggregateType": "Organization",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:organization:entered_active:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:organization:entered_active:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CLOSING", "PROVISIONING", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "organization.entered_closed",
+      "family": "organization",
+      "action": "entered_closed",
+      "aggregateType": "Organization",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:organization:entered_closed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:organization:entered_closed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CLOSING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CLOSED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "organization.entered_closing",
+      "family": "organization",
+      "action": "entered_closing",
+      "aggregateType": "Organization",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:organization:entered_closing:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:organization:entered_closing:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "PROVISIONING", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CLOSING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "organization.entered_suspended",
+      "family": "organization",
+      "action": "entered_suspended",
+      "aggregateType": "Organization",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:organization:entered_suspended:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:organization:entered_suspended:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "SUSPENDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "owner_transfer.entered_accepted",
+      "family": "owner_transfer",
+      "action": "entered_accepted",
+      "aggregateType": "OwnerTransfer",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:owner_transfer:entered_accepted:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:owner_transfer:entered_accepted:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PENDING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACCEPTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "owner_transfer.entered_expired",
+      "family": "owner_transfer",
+      "action": "entered_expired",
+      "aggregateType": "OwnerTransfer",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:owner_transfer:entered_expired:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:owner_transfer:entered_expired:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PENDING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "EXPIRED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "owner_transfer.entered_revoked",
+      "family": "owner_transfer",
+      "action": "entered_revoked",
+      "aggregateType": "OwnerTransfer",
+      "scope": "ORGANIZATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:owner_transfer:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:owner_transfer:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PENDING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "passkey.entered_compromised",
+      "family": "passkey",
+      "action": "entered_compromised",
+      "aggregateType": "Passkey",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:passkey:entered_compromised:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:passkey:entered_compromised:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMPROMISED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "passkey.entered_revoked",
+      "family": "passkey",
+      "action": "entered_revoked",
+      "aggregateType": "Passkey",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:passkey:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:passkey:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "passkey.entered_unlinked",
+      "family": "passkey",
+      "action": "entered_unlinked",
+      "aggregateType": "Passkey",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:passkey:entered_unlinked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:passkey:entered_unlinked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "UNLINKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "principal.entered_active",
+      "family": "principal",
+      "action": "entered_active",
+      "aggregateType": "Principal",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:principal:entered_active:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:principal:entered_active:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CLOSING", "RESTRICTED", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "principal.entered_closed",
+      "family": "principal",
+      "action": "entered_closed",
+      "aggregateType": "Principal",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:principal:entered_closed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:principal:entered_closed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["CLOSING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CLOSED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "principal.entered_closing",
+      "family": "principal",
+      "action": "entered_closing",
+      "aggregateType": "Principal",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:principal:entered_closing:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:principal:entered_closing:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "RESTRICTED", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CLOSING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "principal.entered_restricted",
+      "family": "principal",
+      "action": "entered_restricted",
+      "aggregateType": "Principal",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:principal:entered_restricted:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:principal:entered_restricted:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "SUSPENDED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "RESTRICTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "principal.entered_suspended",
+      "family": "principal",
+      "action": "entered_suspended",
+      "aggregateType": "Principal",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:principal:entered_suspended:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:principal:entered_suspended:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "RESTRICTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "SUSPENDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publication.entered_active",
+      "family": "publication",
+      "action": "entered_active",
+      "aggregateType": "Publication",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publication:entered_active:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publication:entered_active:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PAUSED", "PROVISIONING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.public-projection", "api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publication.entered_paused",
+      "family": "publication",
+      "action": "entered_paused",
+      "aggregateType": "Publication",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publication:entered_paused:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publication:entered_paused:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "PAUSED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.public-projection", "api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publication.entered_provisioning",
+      "family": "publication",
+      "action": "entered_provisioning",
+      "aggregateType": "Publication",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publication:entered_provisioning:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publication:entered_provisioning:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["RETIRED", "RETIRING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "PROVISIONING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.public-projection", "api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publication.entered_retired",
+      "family": "publication",
+      "action": "entered_retired",
+      "aggregateType": "Publication",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publication:entered_retired:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publication:entered_retired:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["RETIRING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "RETIRED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.public-projection", "api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publication.entered_retiring",
+      "family": "publication",
+      "action": "entered_retiring",
+      "aggregateType": "Publication",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publication:entered_retiring:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publication:entered_retiring:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "PAUSED", "PROVISIONING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "RETIRING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.public-projection", "api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publish_schedule.entered_cancelled",
+      "family": "publish_schedule",
+      "action": "entered_cancelled",
+      "aggregateType": "PublishSchedule",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publish_schedule:entered_cancelled:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publish_schedule:entered_cancelled:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["SCHEDULED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CANCELLED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publish_schedule.entered_dispatched",
+      "family": "publish_schedule",
+      "action": "entered_dispatched",
+      "aggregateType": "PublishSchedule",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publish_schedule:entered_dispatched:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publish_schedule:entered_dispatched:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["SCHEDULED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "DISPATCHED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "publish_schedule.entered_final_failed",
+      "family": "publish_schedule",
+      "action": "entered_final_failed",
+      "aggregateType": "PublishSchedule",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:publish_schedule:entered_final_failed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:publish_schedule:entered_final_failed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["SCHEDULED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "FINAL_FAILED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "recovery_code.entered_consumed",
+      "family": "recovery_code",
+      "action": "entered_consumed",
+      "aggregateType": "RecoveryCode",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:recovery_code:entered_consumed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:recovery_code:entered_consumed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["AVAILABLE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CONSUMED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "recovery_code.entered_revoked",
+      "family": "recovery_code",
+      "action": "entered_revoked",
+      "aggregateType": "RecoveryCode",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:recovery_code:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:recovery_code:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["AVAILABLE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "recovery_code_set.entered_revoked",
+      "family": "recovery_code_set",
+      "action": "entered_revoked",
+      "aggregateType": "RecoveryCodeSet",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:recovery_code_set:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:recovery_code_set:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "recovery_code_set.entered_superseded",
+      "family": "recovery_code_set",
+      "action": "entered_superseded",
+      "aggregateType": "RecoveryCodeSet",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:recovery_code_set:entered_superseded:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:recovery_code_set:entered_superseded:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "SUPERSEDED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_binding.entered_active",
+      "family": "repository_binding",
+      "action": "entered_active",
+      "aggregateType": "RepositoryBinding",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_binding:entered_active:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_binding:entered_active:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["AUTHORITY_LOST", "PENDING", "TRANSFERRING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ACTIVE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_binding.entered_authority_lost",
+      "family": "repository_binding",
+      "action": "entered_authority_lost",
+      "aggregateType": "RepositoryBinding",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_binding:entered_authority_lost:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_binding:entered_authority_lost:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "TRANSFERRING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "AUTHORITY_LOST" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_binding.entered_revoked",
+      "family": "repository_binding",
+      "action": "entered_revoked",
+      "aggregateType": "RepositoryBinding",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_binding:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_binding:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              {
+                "enum": ["ACTIVE", "AUTHORITY_LOST", "PENDING", "TRANSFERRING"]
+              }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_binding.entered_transferring",
+      "family": "repository_binding",
+      "action": "entered_transferring",
+      "aggregateType": "RepositoryBinding",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_binding:entered_transferring:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_binding:entered_transferring:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "AUTHORITY_LOST"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "TRANSFERRING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_awaiting_confirmation",
+      "family": "repository_change",
+      "action": "entered_awaiting_confirmation",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_awaiting_confirmation:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_awaiting_confirmation:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["PLANNED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "AWAITING_CONFIRMATION" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_cancelled",
+      "family": "repository_change",
+      "action": "entered_cancelled",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_cancelled:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_cancelled:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["AWAITING_CONFIRMATION", "PLANNED", "REQUESTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "CANCELLED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_commit_requested",
+      "family": "repository_change",
+      "action": "entered_commit_requested",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_commit_requested:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_commit_requested:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["AWAITING_CONFIRMATION"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMMIT_REQUESTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_committed",
+      "family": "repository_change",
+      "action": "entered_committed",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_committed:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_committed:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["COMMITTING", "UNKNOWN_RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMMITTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_committing",
+      "family": "repository_change",
+      "action": "entered_committing",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_committing:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_committing:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["COMMIT_REQUESTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMMITTING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_failed_no_change",
+      "family": "repository_change",
+      "action": "entered_failed_no_change",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_failed_no_change:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_failed_no_change:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["COMMITTING", "UNKNOWN_RECONCILING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "FAILED_NO_CHANGE" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_planned",
+      "family": "repository_change",
+      "action": "entered_planned",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_planned:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_planned:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["REQUESTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "PLANNED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "repository_change.entered_unknown_reconciling",
+      "family": "repository_change",
+      "action": "entered_unknown_reconciling",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:repository_change:entered_unknown_reconciling:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:repository_change:entered_unknown_reconciling:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["COMMITTING"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "UNKNOWN_RECONCILING" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "review.entered_approved",
+      "family": "review",
+      "action": "entered_approved",
+      "aggregateType": "Review",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:review:entered_approved:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:review:entered_approved:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["REQUESTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "APPROVED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "review.entered_invalidated",
+      "family": "review",
+      "action": "entered_invalidated",
+      "aggregateType": "Review",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:review:entered_invalidated:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:review:entered_invalidated:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["APPROVED", "REJECTED", "REQUESTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "INVALIDATED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "review.entered_rejected",
+      "family": "review",
+      "action": "entered_rejected",
+      "aggregateType": "Review",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:review:entered_rejected:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:review:entered_rejected:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["REQUESTED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REJECTED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "session_family.entered_compromised",
+      "family": "session_family",
+      "action": "entered_compromised",
+      "aggregateType": "SessionFamily",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:session_family:entered_compromised:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:session_family:entered_compromised:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "ROTATED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "COMPROMISED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "session_family.entered_expired",
+      "family": "session_family",
+      "action": "entered_expired",
+      "aggregateType": "SessionFamily",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:session_family:entered_expired:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:session_family:entered_expired:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "ROTATED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "EXPIRED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "session_family.entered_revoked",
+      "family": "session_family",
+      "action": "entered_revoked",
+      "aggregateType": "SessionFamily",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:session_family:entered_revoked:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:session_family:entered_revoked:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE", "ROTATED"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "REVOKED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    },
+    {
+      "eventType": "session_family.entered_rotated",
+      "family": "session_family",
+      "action": "entered_rotated",
+      "aggregateType": "SessionFamily",
+      "scope": "GLOBAL_IDENTITY",
+      "eventVersion": 1,
+      "payloadVersion": 1,
+      "payloadSchemaId": "urn:gala:event-payload:session_family:entered_rotated:1",
+      "payloadSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:gala:event-payload:session_family:entered_rotated:1",
+        "type": "object",
+        "required": [
+          "transitionId",
+          "commandId",
+          "fromState",
+          "toState",
+          "transitionedAt"
+        ],
+        "properties": {
+          "transitionId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "commandId": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/stableId"
+          },
+          "fromState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "enum": ["ACTIVE"] }
+            ]
+          },
+          "toState": {
+            "allOf": [
+              {
+                "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+              },
+              { "const": "ROTATED" }
+            ]
+          },
+          "transitionedAt": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/rfc3339"
+          },
+          "reasonCode": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/plainLabel"
+          },
+          "evidenceDigest": {
+            "$ref": "urn:gala:schema:event-envelope:2.0.0#/$defs/digest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "introducedIn": "2.0.0",
+      "retiredIn": null
+    }
+  ],
+  "digest": "sha256:fd73ab8ca3e87924fa1ac62e82ceddc8c3ff2c9ddf1680c08c1f8918c15f3fbe"
+}

@@ -1,0 +1,297 @@
+{
+  "schemaVersion": "1.0.0",
+  "cases": [
+    {
+      "vectorId": "plain-text-lone-high-surrogate",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/plainText",
+      "instance": "\ud800",
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "plain-text-lone-low-surrogate",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/plainText",
+      "instance": "\udfff",
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "plain-text-valid-surrogate-pair",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/plainText",
+      "instance": "\ud83d\ude00",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "plain-label-lone-high-surrogate",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/plainLabel",
+      "instance": "\ud800",
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "plain-label-lone-low-surrogate",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/plainLabel",
+      "instance": "\udfff",
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "canonical-route-unicode17-todhri-decomposed",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/canonicalRoute",
+      "instance": "/%F0%90%97%92%CC%87",
+      "expectedValid": false,
+      "expectedCodes": ["CANONICAL_ROUTE_INVALID"]
+    },
+    {
+      "vectorId": "canonical-route-unicode17-todhri-composed",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/canonicalRoute",
+      "instance": "/%F0%90%97%89",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "verification-origin-malformed-ace-letter",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://xn--a",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-malformed-ace-digit",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://xn--0",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-malformed-ace-label",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://xn--a.com",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-canonical-ace",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://xn--bcher-kva.example",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "verification-origin-ipv4-loopback",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://127.0.0.1",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-ipv4-private-10",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://10.0.0.1",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-ipv4-private-192",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://192.168.1.1",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-ipv6-loopback",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://[::1]",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-ipv6-unique-local",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://[fc00::1]",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-ipv6-translation-prefix",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://[64:ff9b::1]",
+      "expectedValid": false,
+      "expectedCodes": ["SCHEMA_FORMAT_INVALID"]
+    },
+    {
+      "vectorId": "verification-origin-public-ipv4",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://8.8.8.8",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "verification-origin-public-ipv6",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/verificationOrigin",
+      "instance": "https://[2606:4700:4700::1111]",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "observed-redirect-private-ipv4",
+      "contract": "deployment-intent",
+      "schemaPointer": "#/$defs/observedRedirectLocation",
+      "instance": "http://127.0.0.1/path",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "max-canonical-bytes-lone-surrogate",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/extensionMap",
+      "instance": { "vendor.test": { "x": "\ud800" } },
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "uri-ipvfuture",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/urlHttps",
+      "instance": "https://[v1.fe]/",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "uri-ipvfuture-uppercase-version",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/urlHttps",
+      "instance": "https://[V1.fe]/",
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "uri-ipvfuture-malformed-percent",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/urlHttps",
+      "instance": "https://[v1.fe]/%zz",
+      "expectedValid": false,
+      "expectedCodes": ["HTTPS_URL_INVALID"]
+    },
+    {
+      "vectorId": "uri-ipvfuture-illegal-bracket",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/urlHttps",
+      "instance": "https://[v1.fe]/[",
+      "expectedValid": false,
+      "expectedCodes": ["HTTPS_URL_INVALID"]
+    },
+    {
+      "vectorId": "uri-ipvfuture-illegal-backslash",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/urlHttps",
+      "instance": "https://[v1.fe]/\\",
+      "expectedValid": false,
+      "expectedCodes": ["HTTPS_URL_INVALID"]
+    },
+    {
+      "vectorId": "max-canonical-bytes-deep-accepted",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/extensionMap/additionalProperties",
+      "recipe": { "kind": "deep-object", "depth": 2000 },
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "max-canonical-bytes-deep-rejected",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/extensionMap/additionalProperties",
+      "recipe": { "kind": "deep-object", "depth": 3000 },
+      "expectedValid": false,
+      "expectedCodes": ["CANONICAL_BYTE_LENGTH_INVALID"]
+    },
+    {
+      "vectorId": "plain-text-long-single-cluster",
+      "contract": "author",
+      "schemaPointer": "#/properties/biography",
+      "recipe": { "kind": "long-combining-cluster", "count": 130000 },
+      "expectedValid": true,
+      "expectedCodes": []
+    },
+    {
+      "vectorId": "ijson-build-input-body-lone-surrogate",
+      "contract": "build-input",
+      "schemaPointer": "#",
+      "recipe": {
+        "kind": "root-lone-surrogate",
+        "file": "examples/valid/build-input/canonical.json",
+        "instancePointer": "/content/0/body"
+      },
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "ijson-artifact-finding-pointer-lone-surrogate",
+      "contract": "artifact-manifest",
+      "schemaPointer": "#",
+      "recipe": {
+        "kind": "root-lone-surrogate",
+        "file": "examples/valid/artifact-manifest/canonical.json",
+        "instancePointer": "/findings/0/pointer"
+      },
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "ijson-problem-error-pointer-lone-surrogate",
+      "contract": "problem",
+      "schemaPointer": "#",
+      "recipe": {
+        "kind": "root-lone-surrogate",
+        "file": "examples/valid/problem/canonical.json",
+        "instancePointer": "/errors/0/pointer"
+      },
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "ijson-adapter-request-target-lone-surrogate",
+      "contract": "adapter-capability",
+      "schemaPointer": "#/$defs/providerRequestTemplate/properties/requestTargetTemplate",
+      "instance": "\ud800",
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "ijson-adapter-spaces-prefix-lone-surrogate",
+      "contract": "adapter-capability",
+      "schemaPointer": "#/$defs/capabilityDecision/properties/spacesStagePrefix",
+      "instance": "\ud800",
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    },
+    {
+      "vectorId": "ijson-property-name-lone-surrogate",
+      "contract": "repository",
+      "schemaPointer": "#/$defs/extensionMap",
+      "recipe": { "kind": "lone-surrogate-property-name" },
+      "expectedValid": false,
+      "expectedCodes": ["UNICODE_SCALAR_INVALID"]
+    }
+  ]
+}

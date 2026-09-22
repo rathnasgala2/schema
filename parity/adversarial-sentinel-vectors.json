@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractVersion": "2.0.0",
+  "cases": [
+    {
+      "vectorId": "path-traversal-non-nfc",
+      "category": "path-traversal",
+      "expectedCode": "PATH_TRAVERSAL",
+      "validator": "repository-loader",
+      "instance": "é"
+    },
+    {
+      "vectorId": "unsafe-url-malformed-ace-letter",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "portable-scalar",
+      "instance": "https://xn--a/path"
+    },
+    {
+      "vectorId": "unsafe-url-malformed-ace-digit",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "portable-scalar",
+      "instance": "https://xn--0/path"
+    },
+    {
+      "vectorId": "unsafe-url-ipv4-loopback",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "network-boundary",
+      "instance": "https://127.0.0.1/path"
+    },
+    {
+      "vectorId": "unsafe-url-ipv4-private-10",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "network-boundary",
+      "instance": "https://10.0.0.1/path"
+    },
+    {
+      "vectorId": "unsafe-url-ipv4-private-192",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "network-boundary",
+      "instance": "https://192.168.1.1/path"
+    },
+    {
+      "vectorId": "unsafe-url-ipv6-loopback",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "network-boundary",
+      "instance": "https://[::1]/path"
+    },
+    {
+      "vectorId": "unsafe-url-ipv6-unique-local",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "network-boundary",
+      "instance": "https://[fc00::1]/path"
+    },
+    {
+      "vectorId": "unsafe-url-ipv6-translation-prefix",
+      "category": "unsafe-urls",
+      "expectedCode": "HTTPS_URL_INVALID",
+      "validator": "network-boundary",
+      "instance": "https://[64:ff9b::1]/path"
+    },
+    {
+      "vectorId": "active-content-dotted-i-scheme-control",
+      "category": "active-content",
+      "expectedValid": true,
+      "validator": "active-content",
+      "instance": { "content": "javascrİpt:" }
+    },
+    {
+      "vectorId": "active-content-dotless-i-scheme-control",
+      "category": "active-content",
+      "expectedValid": true,
+      "validator": "active-content",
+      "instance": { "content": "javascrıpt:" }
+    },
+    {
+      "vectorId": "active-content-dotted-i-tag-control",
+      "category": "active-content",
+      "expectedValid": true,
+      "validator": "active-content",
+      "instance": { "content": "<scrİpt>" }
+    },
+    {
+      "vectorId": "active-content-dotless-i-tag-control",
+      "category": "active-content",
+      "expectedValid": true,
+      "validator": "active-content",
+      "instance": { "content": "<scrıpt>" }
+    },
+    {
+      "vectorId": "active-content-long-s-scheme-control",
+      "category": "active-content",
+      "expectedValid": true,
+      "validator": "active-content",
+      "instance": { "content": "javaſcript:" }
+    },
+    {
+      "vectorId": "active-content-long-s-tag-control",
+      "category": "active-content",
+      "expectedValid": true,
+      "validator": "active-content",
+      "instance": { "content": "<ſcript>" }
+    },
+    {
+      "vectorId": "duplicate-keys-nel-control",
+      "category": "duplicate-keys",
+      "expectedValid": true,
+      "validator": "frontmatter-parser",
+      "instance": "a: 1a: 2"
+    },
+    {
+      "vectorId": "yaml-alias-space",
+      "category": "yaml-aliases",
+      "expectedCode": "YAML_ALIAS_FORBIDDEN",
+      "validator": "frontmatter-parser",
+      "instance": "value: *alias"
+    },
+    {
+      "vectorId": "yaml-alias-nbsp-control",
+      "category": "yaml-aliases",
+      "expectedValid": true,
+      "validator": "frontmatter-parser",
+      "instance": "value: *alias"
+    }
+  ]
+}

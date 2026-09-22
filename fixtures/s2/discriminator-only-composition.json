@@ -1,0 +1,26 @@
+{
+  "family": "discriminator-only-composition",
+  "cases": [
+    {
+      "caseId": "composition-valid-discriminator-only",
+      "schemaId": "urn:gala:schema:template-composition:2.0.0",
+      "instance": {
+        "schemaId": "urn:gala:schema:template-composition:2.0.0",
+        "schemaVersion": "2.0.0"
+      },
+      "expectedDiagnostics": []
+    },
+    {
+      "caseId": "composition-rejects-unknown-field",
+      "schemaId": "urn:gala:schema:template-composition:2.0.0",
+      "instance": {
+        "schemaId": "urn:gala:schema:template-composition:2.0.0",
+        "schemaVersion": "2.0.0",
+        "newsletter": {}
+      },
+      "expectedDiagnostics": [
+        { "code": "REQUEST_FIELD_UNKNOWN", "instancePointer": "/newsletter" }
+      ]
+    }
+  ]
+}

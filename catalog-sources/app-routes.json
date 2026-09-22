@@ -1,0 +1,296 @@
+{
+  "schemaVersion": "2.0.0",
+  "routes": [
+    {
+      "pathTemplate": "/",
+      "originClass": "APP",
+      "authenticationClass": "PUBLIC",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Home; See what Galascribe offers and sign in with GitHub.",
+      "apiOperationIds": []
+    },
+    {
+      "pathTemplate": "/sign-in",
+      "originClass": "APP",
+      "authenticationClass": "PUBLIC",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Sign in; Sign in with your GitHub account to manage your organizations and publications.",
+      "apiOperationIds": [
+        "getCallbacksGithubOauth",
+        "postAuthenticationGithubTransactions",
+        "postAuthenticationPasskeyAssertionOptions",
+        "postAuthenticationPasskeyAssertions",
+        "postAuthenticationRecoveryCode"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Organizations; Organizations you belong to, and where to create a new one.",
+      "apiOperationIds": ["getOrganizations", "postOrganizations"]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Overview; This organization's name and status.",
+      "apiOperationIds": ["getOrganizationsByOrganizationId"]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Publications; Your publications, and where to create a new one. Importing or restoring a publication is not available yet.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationImportsByImportId",
+        "getOrganizationsByOrganizationIdPublications",
+        "postOrganizationsByOrganizationIdPublicationImports",
+        "postOrganizationsByOrganizationIdPublications"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/members",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Members; People in this organization and their roles, plus pending invitations, which anyone holding the invitation link can accept, so send a link only to the person you mean to invite.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
+        "deleteOrganizationsByOrganizationIdMembershipsByMembershipId",
+        "getOrganizationsByOrganizationIdMembershipInvitations",
+        "getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
+        "getOrganizationsByOrganizationIdMemberships",
+        "getOrganizationsByOrganizationIdOwnerTransfersByTransferId",
+        "patchOrganizationsByOrganizationIdMembershipsByMembershipId",
+        "postOrganizationsByOrganizationIdMembershipInvitations",
+        "postOrganizationsByOrganizationIdOwnerTransfers",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/roles",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Roles; The roles available in this organization and what each one can do.",
+      "apiOperationIds": ["getOrganizationsByOrganizationIdRoles"]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/settings",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Settings; Update this organization's name and details, or close it.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationId",
+        "patchOrganizationsByOrganizationId"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Overview; This publication's name and status, its chosen deployment destination, and where a publish is started from an approved review.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/source",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Source; Connect this publication to a GitHub repository by choosing one of your GitHub App installations and then a repository it grants, install the Galascribe GitHub App first if you have not already, and review proposed changes before they apply.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getGithubApp",
+        "getGithubInstallations",
+        "getGithubInstallationsByInstallationIdRepositories",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindings",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlan"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/content",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Content; Browsing and editing this publication's content is not available yet.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/reviews",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Reviews; Ask for a review of a confirmed change, see every review this publication has, and approve or reject the one in front of you. An approved review is what a publish is started from.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/releases",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Releases; Every deployment generation this publication has had, newest first, with what was deployed and how it ended. Reconcile a generation whose outcome is unknown, or roll back to a named earlier one.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId",
+        "postOrganizationsByOrganizationIdOperationsByOperationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdReconcile",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/settings",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Settings; Update this publication's name and details, choose its deployment destination, or retire it. Changing its modules, appearance, and membership, and transferring it, are not available yet.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
+      ]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/operations",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Operations; Background work in this organization, newest first, so you can pick up anything that is still running or needs attention.",
+      "apiOperationIds": ["getOrganizationsByOrganizationIdOperations"]
+    },
+    {
+      "pathTemplate": "/organizations/{organizationId}/operations/{operationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Operation status; Track the progress of this operation, see what's blocking it, and cancel it if needed -- including cancelling the publish an accepted publish operation started.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "postOrganizationsByOrganizationIdOperationsByOperationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel"
+      ]
+    },
+    {
+      "pathTemplate": "/account/security",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Security; Manage the passkeys registered on your account, including when each one was added and last used, and sign out of your current session. Viewing your session history and recovery codes is not available yet.",
+      "apiOperationIds": [
+        "deleteSelfPasskeysByPasskeyId",
+        "deleteSelfSessionsBySessionFamilyId",
+        "deleteSession",
+        "getSelfAuthenticators",
+        "getSelfSessions",
+        "getSession",
+        "patchSelfPasskeysByPasskeyId",
+        "postSelfPasskeyRegistrationOptions",
+        "postSelfPasskeys",
+        "postSelfRecoveryCodeSets",
+        "postSessionReauthentication"
+      ]
+    },
+    {
+      "pathTemplate": "/account/connections",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Connections; The GitHub App installations linked to your profile. Linking other accounts is not available yet.",
+      "apiOperationIds": [
+        "deleteSelfIdentityLinksByIdentityLinkId",
+        "getGithubApp",
+        "getGithubInstallations",
+        "getSelfAuthenticators",
+        "postSelfIdentityLinks"
+      ]
+    },
+    {
+      "pathTemplate": "/account/export",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Export account data; Exporting a copy of your account data is not available yet.",
+      "apiOperationIds": ["getSelfExportsByExportId", "postSelfExports"]
+    },
+    {
+      "pathTemplate": "/account/closure",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Close account; Closing your account is not available yet.",
+      "apiOperationIds": ["getSelfClosure", "postSelfClosure"]
+    },
+    {
+      "pathTemplate": "/account/recover",
+      "originClass": "RECOVERY",
+      "authenticationClass": "PUBLIC",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Recover account; Regain access to your account using a passkey or your GitHub account. Recovery codes are not available yet.",
+      "apiOperationIds": [
+        "getCallbacksGithubOauth",
+        "postAuthenticationGithubTransactions",
+        "postAuthenticationPasskeyAssertionOptions",
+        "postAuthenticationPasskeyAssertions",
+        "postAuthenticationRecoveryCode"
+      ]
+    },
+    {
+      "pathTemplate": "/invitations/accept",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Accept invitation; Accept an invitation to join an organization.",
+      "apiOperationIds": ["postMembershipInvitationsByTokenAccept"]
+    }
+  ]
+}

@@ -1,0 +1,395 @@
+{
+  "schemaVersion": "2.0.0",
+  "components": [
+    {
+      "componentId": "api.provider-observation-ingress",
+      "kind": "PRODUCER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.ProviderObservationIngress"
+    },
+    {
+      "componentId": "api.public-projection",
+      "kind": "CONSUMER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.PublicProjection"
+    },
+    {
+      "componentId": "api.transition-audit-projector",
+      "kind": "CONSUMER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.TransitionAuditProjector"
+    },
+    {
+      "componentId": "api.transition-outbox",
+      "kind": "PRODUCER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.infrastructure.TransitionOutboxPublisher"
+    },
+    {
+      "componentId": "api.work-dispatcher",
+      "kind": "CONSUMER",
+      "implementationRepository": "api",
+      "implementationTarget": "io.gala.api.events.application.WorkDispatcher"
+    }
+  ],
+  "families": [
+    {
+      "family": "principal",
+      "aggregateType": "Principal",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        {
+          "toState": "ACTIVE",
+          "fromStates": ["CLOSING", "RESTRICTED", "SUSPENDED"]
+        },
+        {
+          "toState": "SUSPENDED",
+          "fromStates": ["ACTIVE", "RESTRICTED"]
+        },
+        {
+          "toState": "RESTRICTED",
+          "fromStates": ["ACTIVE", "SUSPENDED"]
+        },
+        {
+          "toState": "CLOSING",
+          "fromStates": ["ACTIVE", "RESTRICTED", "SUSPENDED"]
+        },
+        { "toState": "CLOSED", "fromStates": ["CLOSING"] }
+      ]
+    },
+    {
+      "family": "external_identity",
+      "aggregateType": "ExternalIdentity",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "UNLINKED", "fromStates": ["ACTIVE"] },
+        { "toState": "REVOKED", "fromStates": ["ACTIVE"] },
+        { "toState": "COMPROMISED", "fromStates": ["ACTIVE"] }
+      ]
+    },
+    {
+      "family": "authentication_transaction",
+      "aggregateType": "AuthenticationTransaction",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "transitions": [
+        { "toState": "PRESENTED", "fromStates": ["CREATED"] },
+        { "toState": "CALLBACK_RECEIVED", "fromStates": ["PRESENTED"] },
+        { "toState": "CONSUMED", "fromStates": ["CALLBACK_RECEIVED"] },
+        {
+          "toState": "CANCELLED",
+          "fromStates": ["CREATED", "PRESENTED"]
+        },
+        { "toState": "EXPIRED", "fromStates": ["CREATED", "PRESENTED"] },
+        {
+          "toState": "REJECTED",
+          "fromStates": ["CALLBACK_RECEIVED", "PRESENTED"]
+        }
+      ]
+    },
+    {
+      "family": "session_family",
+      "aggregateType": "SessionFamily",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "ROTATED", "fromStates": ["ACTIVE"] },
+        { "toState": "REVOKED", "fromStates": ["ACTIVE", "ROTATED"] },
+        { "toState": "EXPIRED", "fromStates": ["ACTIVE", "ROTATED"] },
+        {
+          "toState": "COMPROMISED",
+          "fromStates": ["ACTIVE", "ROTATED"]
+        }
+      ]
+    },
+    {
+      "family": "passkey",
+      "aggregateType": "Passkey",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "UNLINKED", "fromStates": ["ACTIVE"] },
+        { "toState": "REVOKED", "fromStates": ["ACTIVE"] },
+        { "toState": "COMPROMISED", "fromStates": ["ACTIVE"] }
+      ]
+    },
+    {
+      "family": "recovery_code_set",
+      "aggregateType": "RecoveryCodeSet",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "SUPERSEDED", "fromStates": ["ACTIVE"] },
+        { "toState": "REVOKED", "fromStates": ["ACTIVE"] }
+      ]
+    },
+    {
+      "family": "recovery_code",
+      "aggregateType": "RecoveryCode",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "CONSUMED", "fromStates": ["AVAILABLE"] },
+        { "toState": "REVOKED", "fromStates": ["AVAILABLE"] }
+      ]
+    },
+    {
+      "family": "github_installation",
+      "aggregateType": "GithubInstallation",
+      "scope": "GLOBAL_IDENTITY",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "SUSPENDED", "fromStates": ["ACTIVE"] },
+        { "toState": "ACTIVE", "fromStates": ["SUSPENDED"] },
+        {
+          "toState": "DELETED",
+          "fromStates": ["ACTIVE", "SUSPENDED"]
+        }
+      ]
+    },
+    {
+      "family": "organization",
+      "aggregateType": "Organization",
+      "scope": "ORGANIZATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        {
+          "toState": "ACTIVE",
+          "fromStates": ["CLOSING", "PROVISIONING", "SUSPENDED"]
+        },
+        { "toState": "SUSPENDED", "fromStates": ["ACTIVE"] },
+        {
+          "toState": "CLOSING",
+          "fromStates": ["ACTIVE", "PROVISIONING", "SUSPENDED"]
+        },
+        { "toState": "CLOSED", "fromStates": ["CLOSING"] }
+      ]
+    },
+    {
+      "family": "membership_invitation",
+      "aggregateType": "MembershipInvitation",
+      "scope": "ORGANIZATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "ACCEPTED", "fromStates": ["PENDING"] },
+        { "toState": "REVOKED", "fromStates": ["PENDING"] },
+        { "toState": "EXPIRED", "fromStates": ["PENDING"] }
+      ]
+    },
+    {
+      "family": "membership",
+      "aggregateType": "Membership",
+      "scope": "ORGANIZATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "SUSPENDED", "fromStates": ["ACTIVE"] },
+        { "toState": "PLAN_SUSPENDED", "fromStates": ["ACTIVE"] },
+        {
+          "toState": "ACTIVE",
+          "fromStates": ["PLAN_SUSPENDED", "SUSPENDED"]
+        },
+        {
+          "toState": "ENDED",
+          "fromStates": ["ACTIVE", "PLAN_SUSPENDED", "SUSPENDED"]
+        }
+      ]
+    },
+    {
+      "family": "owner_transfer",
+      "aggregateType": "OwnerTransfer",
+      "scope": "ORGANIZATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "ACCEPTED", "fromStates": ["PENDING"] },
+        { "toState": "REVOKED", "fromStates": ["PENDING"] },
+        { "toState": "EXPIRED", "fromStates": ["PENDING"] }
+      ]
+    },
+    {
+      "family": "publication",
+      "aggregateType": "Publication",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.public-projection", "api.transition-audit-projector"],
+      "transitions": [
+        { "toState": "ACTIVE", "fromStates": ["PAUSED", "PROVISIONING"] },
+        {
+          "toState": "RETIRING",
+          "fromStates": ["ACTIVE", "PAUSED", "PROVISIONING"]
+        },
+        { "toState": "PAUSED", "fromStates": ["ACTIVE"] },
+        {
+          "toState": "PROVISIONING",
+          "fromStates": ["RETIRED", "RETIRING"]
+        },
+        { "toState": "RETIRED", "fromStates": ["RETIRING"] }
+      ]
+    },
+    {
+      "family": "repository_binding",
+      "aggregateType": "RepositoryBinding",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "transitions": [
+        {
+          "toState": "ACTIVE",
+          "fromStates": ["AUTHORITY_LOST", "PENDING", "TRANSFERRING"]
+        },
+        {
+          "toState": "REVOKED",
+          "fromStates": ["ACTIVE", "AUTHORITY_LOST", "PENDING", "TRANSFERRING"]
+        },
+        {
+          "toState": "AUTHORITY_LOST",
+          "fromStates": ["ACTIVE", "TRANSFERRING"]
+        },
+        {
+          "toState": "TRANSFERRING",
+          "fromStates": ["ACTIVE", "AUTHORITY_LOST"]
+        }
+      ]
+    },
+    {
+      "family": "repository_change",
+      "aggregateType": "RepositoryChange",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "transitions": [
+        { "toState": "PLANNED", "fromStates": ["REQUESTED"] },
+        {
+          "toState": "AWAITING_CONFIRMATION",
+          "fromStates": ["PLANNED"]
+        },
+        {
+          "toState": "COMMIT_REQUESTED",
+          "fromStates": ["AWAITING_CONFIRMATION"]
+        },
+        { "toState": "COMMITTING", "fromStates": ["COMMIT_REQUESTED"] },
+        {
+          "toState": "COMMITTED",
+          "fromStates": ["COMMITTING", "UNKNOWN_RECONCILING"]
+        },
+        {
+          "toState": "UNKNOWN_RECONCILING",
+          "fromStates": ["COMMITTING"]
+        },
+        {
+          "toState": "FAILED_NO_CHANGE",
+          "fromStates": ["COMMITTING", "UNKNOWN_RECONCILING"]
+        },
+        {
+          "toState": "CANCELLED",
+          "fromStates": ["AWAITING_CONFIRMATION", "PLANNED", "REQUESTED"]
+        }
+      ]
+    },
+    {
+      "family": "review",
+      "aggregateType": "Review",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "transitions": [
+        { "toState": "APPROVED", "fromStates": ["REQUESTED"] },
+        { "toState": "REJECTED", "fromStates": ["REQUESTED"] },
+        {
+          "toState": "INVALIDATED",
+          "fromStates": ["APPROVED", "REJECTED", "REQUESTED"]
+        }
+      ]
+    },
+    {
+      "family": "publish_schedule",
+      "aggregateType": "PublishSchedule",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "transitions": [
+        { "toState": "DISPATCHED", "fromStates": ["SCHEDULED"] },
+        { "toState": "CANCELLED", "fromStates": ["SCHEDULED"] },
+        { "toState": "FINAL_FAILED", "fromStates": ["SCHEDULED"] }
+      ]
+    },
+    {
+      "family": "operation",
+      "aggregateType": "PublicationOperation",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": ["api.transition-audit-projector", "api.work-dispatcher"],
+      "transitions": [
+        {
+          "toState": "EXECUTING",
+          "fromStates": ["ACCEPTED", "RECONCILING"]
+        },
+        {
+          "toState": "COMPLETED",
+          "fromStates": ["EXECUTING", "RECONCILING"]
+        },
+        { "toState": "RECONCILING", "fromStates": ["EXECUTING"] },
+        {
+          "toState": "FAILED_NO_EFFECT",
+          "fromStates": ["ACCEPTED", "EXECUTING", "RECONCILING"]
+        },
+        {
+          "toState": "CANCELLED_NO_EFFECT",
+          "fromStates": ["ACCEPTED", "EXECUTING"]
+        }
+      ]
+    },
+    {
+      "family": "deployment_generation",
+      "aggregateType": "DeploymentGeneration",
+      "scope": "ORGANIZATION_AND_PUBLICATION",
+      "producer": "api.transition-outbox",
+      "consumers": [
+        "api.public-projection",
+        "api.transition-audit-projector",
+        "api.work-dispatcher"
+      ],
+      "transitions": [
+        { "toState": "STAGED", "fromStates": ["CANDIDATE"] },
+        {
+          "toState": "ACTIVE_VERIFYING",
+          "fromStates": [
+            "PROPAGATION_DEGRADED",
+            "STAGED",
+            "UNKNOWN_RECONCILING"
+          ]
+        },
+        {
+          "toState": "ACTIVE_VERIFIED",
+          "fromStates": ["ACTIVE_VERIFYING", "UNKNOWN_RECONCILING"]
+        },
+        {
+          "toState": "PROPAGATION_DEGRADED",
+          "fromStates": ["ACTIVE_VERIFYING"]
+        },
+        {
+          "toState": "ABANDONED",
+          "fromStates": ["CANDIDATE", "STAGED", "UNKNOWN_RECONCILING"]
+        },
+        {
+          "toState": "UNKNOWN_RECONCILING",
+          "fromStates": ["ACTIVE_VERIFYING"]
+        },
+        { "toState": "SUPERSEDED", "fromStates": ["ACTIVE_VERIFIED"] }
+      ]
+    }
+  ]
+}

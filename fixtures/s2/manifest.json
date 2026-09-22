@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractVersion": "2.0.0",
+  "fixtureScope": "S2 schema-owned consumer fixtures",
+  "coverageModel": "Family files contain only public registered-schema structural vectors. Cross-document semantic contexts are internal implementation coverage and are referenced by exact test file and test name; they are not a public serialized format.",
+  "families": [
+    {
+      "family": "discriminator-only-composition",
+      "file": "fixtures/s2/discriminator-only-composition.json",
+      "caseIds": [
+        "composition-valid-discriminator-only",
+        "composition-rejects-unknown-field"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-theme-composition-semantics.test.js",
+          "testName": "template-composition admits only its two exact discriminator fields"
+        }
+      ]
+    },
+    {
+      "family": "empty-modules-placements",
+      "file": "fixtures/s2/empty-modules-placements.json",
+      "caseIds": [
+        "build-input-valid-empty-modules-placements",
+        "build-input-rejects-nonempty-modules",
+        "build-input-rejects-nonempty-placements"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-build-artifact-semantics.test.js",
+          "testName": "accepts the complete minimal lock/build/artifact/provenance/SPDX closure"
+        }
+      ]
+    },
+    {
+      "family": "normalized-inputs",
+      "file": "fixtures/s2/normalized-inputs.json",
+      "caseIds": [
+        "normalized-build-input-valid",
+        "normalized-publication-missing-source-digest-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-build-artifact-semantics.test.js",
+          "testName": "fails closed on every exact root and context ledger"
+        },
+        {
+          "file": "test/t03-build-artifact-semantics.test.js",
+          "testName": "rejects independently substituted lock, package-byte, and source facts"
+        }
+      ]
+    },
+    {
+      "family": "unicode17-paths-routes",
+      "file": "fixtures/s2/unicode17-paths-routes.json",
+      "caseIds": [
+        "unicode17-nfc-repository-path-valid",
+        "unicode17-uppercase-percent-route-valid",
+        "unicode17-non-nfc-repository-path-invalid",
+        "unicode17-unencoded-route-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-unicode17.test.js",
+          "testName": "Unicode 17 NFC and default case folding use generated pinned data"
+        },
+        {
+          "file": "test/t03-portable-scalars.test.js",
+          "testName": "include/exclude selection deduplicates and sorts by unsigned UTF-8 bytes"
+        }
+      ]
+    },
+    {
+      "family": "artifact-static-redirects",
+      "file": "fixtures/s2/artifact-static-redirects.json",
+      "caseIds": [
+        "artifact-static-root-redirect-valid",
+        "artifact-static-non-root-redirect-valid",
+        "artifact-static-redirect-status-invalid",
+        "artifact-static-redirect-backing-path-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-build-artifact-semantics.test.js",
+          "testName": "rejects output, reproducibility, policy, theme-license, and SPDX substitutions"
+        }
+      ]
+    },
+    {
+      "family": "theme-contracts-digest-cycle",
+      "file": "fixtures/s2/theme-contracts-digest-cycle.json",
+      "caseIds": [
+        "theme-contract-valid-structural",
+        "theme-contract-unknown-field-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-theme-composition-semantics.test.js",
+          "testName": "the five identities and exact 35-token order, types, grammars, and palettes are closed"
+        },
+        {
+          "file": "test/t03-theme-composition-semantics.test.js",
+          "testName": "the template styling contract closes every catalog, hook atom, constant, digest, and byte copy"
+        },
+        {
+          "file": "test/t03-theme-composition-semantics.test.js",
+          "testName": "fixture release and conformance rows enforce sort, set equality, derived state, and self-excluding digests"
+        },
+        {
+          "file": "test/t03-theme-composition-semantics.test.js",
+          "testName": "the complete package and composition validate with acyclic distinct digest projections"
+        },
+        {
+          "file": "test/t03-theme-composition-semantics.test.js",
+          "testName": "fixture, conformance-input, evidence, and final integrity copies cannot substitute for one another"
+        }
+      ]
+    },
+    {
+      "family": "lowercase-capabilities",
+      "file": "fixtures/s2/lowercase-capabilities.json",
+      "caseIds": [
+        "capability-local-directory-valid-lowercase",
+        "capability-github-pages-valid-lowercase",
+        "capability-do-spaces-valid-lowercase",
+        "capability-uppercase-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "intent validates the full verified workload, source owners, plan, and digest"
+        }
+      ]
+    },
+    {
+      "family": "provider-identities",
+      "file": "fixtures/s2/provider-identities.json",
+      "caseIds": [
+        "provider-identity-valid-github",
+        "provider-identity-uppercase-invalid",
+        "provider-identity-unknown-field-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "provider activation and public verification validate against real stage evidence"
+        }
+      ]
+    },
+    {
+      "family": "deployment-records",
+      "file": "fixtures/s2/deployment-records.json",
+      "caseIds": [
+        "deployment-intent-valid",
+        "deployment-intent-operation-id-invalid",
+        "deployment-observation-valid",
+        "deployment-observation-operation-id-invalid",
+        "deployment-receipt-valid",
+        "deployment-receipt-operation-id-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "intent validates the full verified workload, source owners, plan, and digest"
+        },
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "provider activation and public verification validate against real stage evidence"
+        },
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "a candidate-complete receipt validates through operation journals and retained submission"
+        }
+      ]
+    }
+  ]
+}

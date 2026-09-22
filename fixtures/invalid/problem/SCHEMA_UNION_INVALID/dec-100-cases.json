@@ -1,0 +1,130 @@
+[
+  {
+    "caseId": "problem-type-relative",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "/problems/not-found",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-other-scheme",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "http://errors.example.com/not-found",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-other-gala-namespace",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "urn:gala:schema:not-found",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-uppercase-urn-name",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "urn:gala:problem:Not-Found",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-empty-urn-name",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "urn:gala:problem:",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-credentials",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "https://user:secret@errors.example.com/not-found",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-fragment",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "https://errors.example.com/not-found#details",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  },
+  {
+    "caseId": "problem-type-query-only",
+    "instance": {
+      "schemaId": "urn:gala:schema:problem:2.0.0",
+      "schemaVersion": "2.0.0",
+      "type": "?type=not-found",
+      "title": "fixture-1",
+      "status": 400,
+      "code": "FIXTURE",
+      "detail": "fixture-1",
+      "correlationId": "019c0000-0000-7000-8000-000000000001",
+      "retryable": false,
+      "errors": [{ "pointer": "fixture-1", "code": "FIXTURE" }]
+    },
+    "expectedCodes": ["SCHEMA_UNION_INVALID"]
+  }
+]

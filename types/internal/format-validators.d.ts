@@ -1,0 +1,14 @@
+/**
+ * Validate one custom Gala string format for fixture generation and audits.
+ * Unknown format names fail closed.
+ *
+ * The complete 19-contract surface needs `gala-spdx-expression`, so this
+ * module adds that one branch on top of the browser-light core dispatcher and
+ * delegates everything else unchanged. Importing this module pulls in the
+ * pinned SPDX licence list; importing the core does not.
+ *
+ * @param {string} formatName custom format name
+ * @param {string} value candidate string
+ * @returns {boolean} whether the value satisfies the format
+ */
+export function validateGalaFormat(formatName: string, value: string): boolean;

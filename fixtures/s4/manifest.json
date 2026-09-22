@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractVersion": "2.0.0",
+  "fixtureScope": "S4 schema-owned deployment/certification fixtures",
+  "coverageModel": "Family files contain only public registered-schema structural vectors. Cross-document semantic contexts are internal implementation coverage and are referenced by exact test file and test name; they are not a public serialized format.",
+  "families": [
+    {
+      "family": "deployment-intent-destinations",
+      "file": "fixtures/s4/deployment-intent-destinations.json",
+      "caseIds": [
+        "deployment-intent-local-directory-valid",
+        "deployment-intent-github-pages-valid",
+        "deployment-intent-do-spaces-valid",
+        "deployment-intent-activation-detection-profile-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "intent validates the full verified workload, source owners, plan, and digest"
+        }
+      ]
+    },
+    {
+      "family": "deployment-observation-matrix",
+      "file": "fixtures/s4/deployment-observation-matrix.json",
+      "caseIds": [
+        "deployment-observation-request-not-started-valid",
+        "deployment-observation-provider-state-valid",
+        "deployment-observation-class-outcome-matrix-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "provider activation and public verification validate against real stage evidence"
+        }
+      ]
+    },
+    {
+      "family": "deployment-receipt-no-signatures",
+      "file": "fixtures/s4/deployment-receipt-no-signatures.json",
+      "caseIds": [
+        "deployment-receipt-managed-no-signatures-valid",
+        "deployment-receipt-signatures-member-rejected"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-managed-evidence-journal.test.js",
+          "testName": "a complete mixed journal validates to its receipt-bound head"
+        }
+      ]
+    },
+    {
+      "family": "public-generation-marker-closed",
+      "file": "fixtures/s4/public-generation-marker-closed.json",
+      "caseIds": [
+        "public-generation-marker-valid",
+        "public-generation-marker-publication-id-rejected"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-public-verification-semantics.test.js",
+          "testName": "canonical origin-route joining enforces byte normalization and the 2048 bound"
+        }
+      ]
+    },
+    {
+      "family": "adapter-capability-destinations",
+      "file": "fixtures/s4/adapter-capability-destinations.json",
+      "caseIds": [
+        "adapter-capability-local-directory-valid",
+        "adapter-capability-github-pages-valid",
+        "adapter-capability-do-spaces-valid",
+        "adapter-capability-rollback-constant-invalid"
+      ],
+      "publicCoverage": "registered-schema-structural-vectors",
+      "internalSemanticCoverage": [
+        {
+          "file": "test/t03-deployment-record-semantics.test.js",
+          "testName": "intent reservation derives consumed attempts, slots, and stream count from retained owners"
+        }
+      ]
+    }
+  ]
+}

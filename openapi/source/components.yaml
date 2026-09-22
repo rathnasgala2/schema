@@ -1,0 +1,5670 @@
+components:
+  headers:
+    CacheControlNoStore:
+      required: true
+      schema:
+        const: no-store
+    ETag:
+      required: true
+      schema:
+        pattern: ^"[0-9]+"$
+        type: string
+    Location:
+      required: true
+      schema:
+        minLength: 1
+        pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+        type: string
+    RetryAfter:
+      required: true
+      schema:
+        maximum: 86400
+        minimum: 1
+        type: integer
+    XCorrelationId:
+      required: true
+      schema:
+        format: uuid
+        type: string
+  parameters:
+    Cursor:
+      example: example
+      in: query
+      name: cursor
+      required: false
+      schema:
+        maxLength: 2048
+        minLength: 1
+        type: string
+    IdempotencyKey:
+      example: 018f0000-0000-7000-8000-000000000001
+      in: header
+      name: Idempotency-Key
+      required: true
+      schema:
+        format: uuid
+        type: string
+    IfMatch:
+      example: '"0"'
+      in: header
+      name: If-Match
+      required: true
+      schema:
+        pattern: ^"[0-9]+"$
+        type: string
+    Limit:
+      example: 1
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 25
+        maximum: 100
+        minimum: 1
+        type: integer
+    XCorrelationId:
+      example: 018f0000-0000-7000-8000-000000000001
+      in: header
+      name: X-Correlation-Id
+      required: false
+      schema:
+        format: uuid
+        type: string
+    XCsrfToken:
+      example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+      in: header
+      name: X-CSRF-TOKEN
+      required: true
+      schema:
+        maxLength: 512
+        minLength: 32
+        type: string
+  responses:
+    RequestTooLarge:
+      content:
+        application/problem+json:
+          examples:
+            VALIDATION_FAILED:
+              summary: VALIDATION_FAILED
+              value:
+                code: VALIDATION_FAILED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 413
+                title: VALIDATION_FAILED
+                type: urn:gala:problem:validation-failed
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: VALIDATION_FAILED
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - VALIDATION_FAILED
+    UnsupportedMediaType:
+      content:
+        application/problem+json:
+          examples:
+            VALIDATION_FAILED:
+              summary: VALIDATION_FAILED
+              value:
+                code: VALIDATION_FAILED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 415
+                title: VALIDATION_FAILED
+                type: urn:gala:problem:validation-failed
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: VALIDATION_FAILED
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - VALIDATION_FAILED
+    ValidationFailed:
+      content:
+        application/problem+json:
+          examples:
+            VALIDATION_FAILED:
+              summary: VALIDATION_FAILED
+              value:
+                code: VALIDATION_FAILED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 400
+                title: VALIDATION_FAILED
+                type: urn:gala:problem:validation-failed
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: VALIDATION_FAILED
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - VALIDATION_FAILED
+  schemas:
+    ActivationDetectionEvidenceResponse:
+      additionalProperties: false
+      properties:
+        activationDetectionObservation:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/activationDetectionObservation
+        activationDetectionPlanDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        operationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        organizationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+      required:
+        - organizationId
+        - operationId
+        - activationDetectionPlanDigest
+        - activationDetectionObservation
+      type: object
+    AuthenticatorState:
+      enum:
+        - ACTIVE
+        - AVAILABLE
+        - COMPROMISED
+        - CONSUMED
+        - REVOKED
+        - UNLINKED
+      type: string
+    AuthenticatorSummary:
+      additionalProperties: false
+      properties:
+        authenticatorId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          description:
+            When this authenticator was registered. Optional and nullable,
+            because a row migrated from before the column existed carries no
+            registration instant, and a client shows nothing rather than
+            guessing one.
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type:
+            - string
+            - 'null'
+        kind:
+          enum:
+            - GITHUB
+            - PASSKEY
+            - RECOVERY_CODES
+          type: string
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+        lastUsedAt:
+          description:
+            When this authenticator last completed an authentication. Optional
+            and nullable, because an authenticator that has never been used, or
+            whose use predates this field, carries no instant.
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type:
+            - string
+            - 'null'
+        state:
+          $ref: '#/components/schemas/AuthenticatorState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - authenticatorId
+        - version
+        - state
+        - kind
+        - label
+      type: object
+    DeleteOrganizationsByOrganizationIdPublicationsByPublicationIdRequest:
+      additionalProperties: false
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        exportWindowAcknowledged:
+          const: true
+          type: boolean
+        irreversibleFenceAcknowledged:
+          const: true
+          type: boolean
+      required:
+        - consequencePreviewId
+        - consequenceDigest
+        - exportWindowAcknowledged
+        - irreversibleFenceAcknowledged
+      type: object
+    DeleteOrganizationsByOrganizationIdPublicationsByPublicationIdResponse:
+      $ref: '#/components/schemas/OperationResponse'
+    DeploymentActivationEvidence:
+      additionalProperties: false
+      description: |
+        What Galascribe knows about this generation becoming the served one.
+        Absent when the server has recorded nothing; present with `state` alone
+        while nothing has been detected yet. `detectedAt` and `method` are the
+        `activationBasis` DEC-097 section 6 installs exactly once, so they are
+        present together or not at all.
+      properties:
+        detectedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        method:
+          $ref: '#/components/schemas/DeploymentActivationMethod'
+        state:
+          $ref: '#/components/schemas/DeploymentActivationState'
+      required:
+        - state
+      type: object
+    DeploymentActivationMethod:
+      description: |
+        Which of DEC-097 section 6's two `activationBasis` sources proved
+        activation: the adapter's own provider observation, or Galascribe's
+        credential-free public generation-marker watch.
+      enum:
+        - KERNEL_PROVIDER_OBSERVATION
+        - GALA_PUBLIC_MARKER_DETECTION
+      type: string
+    DeploymentActivationState:
+      description: |
+        Where this generation stands against the deployment generation machine's
+        activation edge. `NOT_DETECTED` is CANDIDATE or STAGED with no basis
+        installed; `DETECTED` is a basis installed, which is what admits
+        ACTIVE_VERIFYING and every later state; `ABANDONED` is the machine's
+        `CANDIDATE | STAGED -> ABANDONED` arrow, taken only with proof of no
+        activation.
+      enum:
+        - NOT_DETECTED
+        - DETECTED
+        - ABANDONED
+      type: string
+    DeploymentVerificationEvidence:
+      additionalProperties: false
+      description: |
+        What Galascribe's public verification has established for this
+        generation. Absent when the server has recorded nothing. `verifiedAt` is
+        present only in the `VERIFIED` state; `publicVerificationUrl` is the
+        public address the verification actually fetched, so a reader can see
+        for themselves what Galascribe saw.
+      properties:
+        publicVerificationUrl:
+          description:
+            Absolute `https` URL the public verification fetched. Clients
+            navigate to it verbatim and never construct it (LOCAL-36 G-05).
+          maxLength: 2048
+          minLength: 1
+          pattern: ^https://[^\s?#]+$
+          type: string
+        state:
+          $ref: '#/components/schemas/DeploymentVerificationState'
+        verifiedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - state
+      type: object
+    DeploymentVerificationState:
+      description: |
+        Where this generation stands against the deployment generation machine's
+        verification arc, one member per reachable outcome: `NOT_STARTED` is
+        CANDIDATE or STAGED, `IN_PROGRESS` is ACTIVE_VERIFYING, `VERIFIED` is
+        ACTIVE_VERIFIED, `DEGRADED` is PROPAGATION_DEGRADED, `RECONCILING` is
+        UNKNOWN_RECONCILING, and `INCONCLUSIVE` is DEC-097 section 6's
+        `verification-inconclusive` finalization -- the deadline passed with at
+        least one required stream unread. A SUPERSEDED generation keeps the
+        state it last reached.
+      enum:
+        - NOT_STARTED
+        - IN_PROGRESS
+        - VERIFIED
+        - DEGRADED
+        - RECONCILING
+        - INCONCLUSIVE
+      type: string
+    DeploymentGenerationState:
+      enum:
+        - CANDIDATE
+        - STAGED
+        - ACTIVE_VERIFYING
+        - ACTIVE_VERIFIED
+        - PROPAGATION_DEGRADED
+        - ABANDONED
+        - UNKNOWN_RECONCILING
+        - SUPERSEDED
+      type: string
+    DeploymentSummary:
+      additionalProperties: false
+      properties:
+        activation:
+          $ref: '#/components/schemas/DeploymentActivationEvidence'
+        artifactDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        sourceCommit:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: '#/components/schemas/DeploymentGenerationState'
+        verification:
+          $ref: '#/components/schemas/DeploymentVerificationEvidence'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - generationId
+        - version
+        - state
+        - artifactDigest
+        - sourceCommit
+      type: object
+    GetGithubAppResponse:
+      additionalProperties: false
+      description:
+        Public identity of the Galascribe GitHub App, so that a client can send
+        an owner to GitHub's installation flow without ever asking a person for
+        a numeric identifier (LOCAL-36 G-05).
+      properties:
+        installUrl:
+          description:
+            Absolute GitHub URL that starts the installation flow for this App.
+            Clients navigate to it verbatim and never construct it.
+          maxLength: 2048
+          minLength: 1
+          pattern: ^https://github\.com/apps/[A-Za-z0-9][A-Za-z0-9-]{0,98}/installations/new$
+          type: string
+        slug:
+          description: GitHub App slug, as GitHub publishes it.
+          maxLength: 100
+          minLength: 1
+          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,98}$
+          type: string
+      required:
+        - slug
+        - installUrl
+      type: object
+    GetGithubInstallationsByInstallationIdRepositoriesResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/GithubRepositorySummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetGithubInstallationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/GithubInstallationSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetInternalHealthResponse:
+      additionalProperties: false
+      properties:
+        status:
+          const: UP
+      required:
+        - status
+      type: object
+    GetOrganizationsByOrganizationIdMembershipInvitationsByInvitationIdResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        invitationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/MembershipInvitationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - invitationId
+        - version
+        - state
+        - roleId
+        - expiresAt
+      type: object
+    GetOrganizationsByOrganizationIdMembershipInvitationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/MembershipInvitationSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdMembershipsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/MembershipSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdOperationsByOperationIdResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ManagedDeploymentOperationResponse'
+        - $ref: '#/components/schemas/ManagedReceiptEvidenceEntryResponse'
+        - $ref: '#/components/schemas/ActivationDetectionEvidenceResponse'
+    GetOrganizationsByOrganizationIdOperationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          description:
+            Operations of this organization, newest first, in a stable keyset
+            order.
+          items:
+            $ref: '#/components/schemas/OperationSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdOwnerTransfersByTransferIdResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          $ref: '#/components/schemas/OwnerTransferState'
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - state
+        - successorPrincipalId
+        - expiresAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationImportsByImportIdResponse:
+      additionalProperties: false
+      properties:
+        findingsDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        importId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/OperationPhase'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - importId
+        - version
+        - state
+        - operationId
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/DeploymentSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/DeploymentSummary'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDestinationResponse:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              adapterId:
+                pattern: ^github-pages$
+                type: string
+                x-gala-const: github-pages
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                pattern: ^github-pages$
+                type: string
+                x-gala-const: github-pages
+              providerBinding:
+                properties:
+                  basePath: false
+                  controlPlaneBindingDigest: false
+                  mutationKeyDigest: false
+                  region: false
+                  regionCatalogDigest: false
+                  servedApiOrigin: false
+                  servedBucket: false
+                  stagingApiOrigin: false
+                  stagingBucket: false
+                  targetDigest: false
+                  websiteConfigurationDigest: false
+                  websiteOrigin: false
+                required:
+                  - owner
+                  - repository
+                  - repositoryId
+            required:
+              - environment
+        - if:
+            properties:
+              adapterId:
+                pattern: ^do-spaces$
+                type: string
+                x-gala-const: do-spaces
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                pattern: ^do-spaces$
+                type: string
+                x-gala-const: do-spaces
+              providerBinding:
+                properties:
+                  owner: false
+                  repository: false
+                  repositoryId: false
+                required:
+                  - region
+                  - servedBucket
+                  - stagingBucket
+                  - basePath
+                  - websiteOrigin
+                  - servedApiOrigin
+                  - stagingApiOrigin
+                  - targetDigest
+                  - mutationKeyDigest
+                  - regionCatalogDigest
+                  - websiteConfigurationDigest
+                  - controlPlaneBindingDigest
+            required:
+              - environment
+              - providerBinding
+        - if:
+            properties:
+              adapterId:
+                pattern: ^local-directory$
+                type: string
+                x-gala-const: local-directory
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                pattern: ^local-directory$
+                type: string
+                x-gala-const: local-directory
+              providerBinding: false
+            required:
+              - environment
+      description:
+        'The publication''s deployment destination (SCHEMA-2.10.0, LOCAL-63).
+        `state: UNSET` with `version: 0` is the honest representation of no
+        destination chosen yet: the sub-resource exists for every publication,
+        and `PUT` uses the required `If-Match` header uniformly (`"0"` means
+        create). `adapterId`, `environment` and `providerBinding` are present
+        exactly when `state` is `SET` or `LOCKED`.'
+      properties:
+        adapterId:
+          description:
+            Present once the destination has been set (`state` `SET` or
+            `LOCKED`); absent while `UNSET`.
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        admittedRegions:
+          description:
+            The exact accepted DigitalOcean Spaces region catalog (server-owned
+            `spacesRegionCatalog`), so a client never hard-codes provider facts
+            (LOCAL-63c). ASCII-sorted, present regardless of the chosen adapter
+            so a Spaces picker can render before the author selects it.
+          items:
+            $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesRegion
+          maxItems: 64
+          minItems: 1
+          type: array
+          uniqueItems: true
+        callerCapabilities:
+          description:
+            Capability keys the calling principal holds on this resource, so
+            that a client can enable or hide controls without guessing (LOCAL-34
+            G15/G16). Absent means the server did not compute it; it is never an
+            authorization decision by itself.
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 200
+          type: array
+          uniqueItems: true
+        environment:
+          description:
+            Equals `adapterId`; present exactly when `adapterId` is present.
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        lockedAt:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/rfc3339
+          description:
+            'Present exactly when `state` is `LOCKED`: the instant the accepting
+            publish transaction fixed the destination.'
+        lockedByOperationId:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/stableId
+          description:
+            'Present exactly when `state` is `LOCKED`: the operation id of the
+            publish that fixed the destination.'
+        providerBinding:
+          additionalProperties: false
+          properties:
+            basePath:
+              default: /
+              maxLength: 512
+              minLength: 1
+              pattern: ^/$|^/(?:[A-Za-z0-9._-]+/)+$
+              type: string
+            controlPlaneBindingDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            mutationKeyDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            owner:
+              maxLength: 39
+              minLength: 1
+              pattern: ^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$
+              type: string
+            region:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesRegion
+            regionCatalogDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            repository:
+              maxLength: 100
+              minLength: 1
+              pattern: ^(?!\.{1,2}$)[A-Za-z0-9._-]{1,100}$
+              type: string
+            repositoryId:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/githubPositiveDecimal
+            servedApiOrigin:
+              allOf:
+                - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+              maxLength: 2048
+              type: string
+            servedBucket:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesBucket
+            stagingApiOrigin:
+              allOf:
+                - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+              maxLength: 2048
+              type: string
+            stagingBucket:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesBucket
+            targetDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            websiteConfigurationDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            websiteOrigin:
+              allOf:
+                - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+              maxLength: 2048
+              type: string
+          required: []
+          type: object
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          enum:
+            - UNSET
+            - SET
+            - LOCKED
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publicationId
+        - version
+        - state
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrentResponse:
+      additionalProperties: false
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        installationId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        observedHead:
+          description:
+            Commit the server last observed at the bound repository's default
+            branch, or `null` when nothing has been observed yet. A client
+            pre-fills `expectedHead` from it instead of asking a person to type
+            a commit (LOCAL-36 G-01). Same digest profile as `expectedHead`, so
+            a repository on Git's SHA-256 object format is representable.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type:
+            - string
+            - 'null'
+        repositoryBindingId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        repositoryFullName:
+          description:
+            GitHub's `owner/name` identity of the bound repository, for display.
+            A client shows this instead of numeric identifiers (LOCAL-33).
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,38}/[A-Za-z0-9._-]{1,100}$
+          type: string
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        state:
+          $ref: '#/components/schemas/RepositoryBindingState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - repositoryBindingId
+        - version
+        - state
+        - repositoryId
+        - installationId
+        - defaultBranch
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdResponse:
+      additionalProperties: false
+      properties:
+        callerCapabilities:
+          description:
+            Capability keys the calling principal holds on this resource, so
+            that a client can enable or hide controls without guessing (LOCAL-34
+            G15/G16). Absent means the server did not compute it; it is never an
+            authorization decision by itself.
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 200
+          type: array
+          uniqueItems: true
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/PublicationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publicationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/ReviewSummary'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/ReviewSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PublicationSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdResponse:
+      additionalProperties: false
+      properties:
+        callerCapabilities:
+          description:
+            Capability keys the calling principal holds on this resource, so
+            that a client can enable or hide controls without guessing (LOCAL-34
+            G15/G16). Absent means the server did not compute it; it is never an
+            authorization decision by itself.
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 200
+          type: array
+          uniqueItems: true
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/OrganizationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - organizationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    GetOrganizationsByOrganizationIdRolesResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          description:
+            Role definitions assignable in this organization. They are the
+            immutable seeded defaults; a client renders these instead of
+            carrying its own copy of the seed table.
+          items:
+            $ref: '#/components/schemas/RoleSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/OrganizationSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetSelfAuthenticatorsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/AuthenticatorSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetSelfClosureResponse:
+      additionalProperties: false
+      properties:
+        closureId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        irreversibleAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        recoveryActions:
+          items:
+            maxLength: 80
+            minLength: 1
+            type: string
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        state:
+          $ref: '#/components/schemas/PrincipalClosureState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - closureId
+        - version
+        - state
+      type: object
+    GetSelfExportsByExportIdResponse:
+      additionalProperties: false
+      properties:
+        downloadDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        downloadReady:
+          type: boolean
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        exportId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/OperationPhase'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - exportId
+        - version
+        - state
+        - downloadReady
+      type: object
+    GetSelfSessionsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/SessionSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetSessionResponse:
+      additionalProperties: false
+      properties:
+        assurance:
+          maxLength: 80
+          minLength: 1
+          type: string
+        authenticatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        authorizationEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        capabilities:
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 1000
+          type: array
+          uniqueItems: true
+        credentialEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        identityEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        organizations:
+          items:
+            additionalProperties: false
+            properties:
+              resourceId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              state:
+                $ref: '#/components/schemas/OrganizationState'
+              version:
+                format: int64
+                minimum: 0
+                type: integer
+            required:
+              - resourceId
+              - version
+              - state
+            type: object
+          maxItems: 100
+          type: array
+        principal:
+          $ref: '#/components/schemas/PrincipalSummary'
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - principalId
+        - assurance
+        - authenticatedAt
+        - identityEpoch
+        - authorizationEpoch
+        - credentialEpoch
+        - organizations
+        - capabilities
+      type: object
+    GithubInstallationObservation:
+      additionalProperties: false
+      description:
+        Whether this installation has been durably observed as a provider fact
+        that a repository binding may reference (LOCAL-24, LOCAL-36 G-11).
+      properties:
+        reason:
+          description:
+            Short, non-sensitive explanation, present only when the observation
+            is not OBSERVED.
+          maxLength: 160
+          minLength: 1
+          type: string
+        status:
+          enum:
+            - OBSERVED
+            - PENDING
+            - FAILED
+          type: string
+      required:
+        - status
+      type: object
+    GithubInstallationSummary:
+      additionalProperties: false
+      properties:
+        accountId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        accountLogin:
+          maxLength: 80
+          minLength: 1
+          type: string
+        installationId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        observation:
+          $ref: '#/components/schemas/GithubInstallationObservation'
+      required:
+        - installationId
+        - accountId
+        - accountLogin
+      type: object
+    GithubRepositorySummary:
+      additionalProperties: false
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        fullName:
+          description: GitHub's `owner/name` identity, for display.
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,38}/[A-Za-z0-9._-]{1,100}$
+          type: string
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        ownerId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        ownerLogin:
+          maxLength: 80
+          minLength: 1
+          type: string
+        private:
+          type: boolean
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+      required:
+        - repositoryId
+        - ownerId
+        - ownerLogin
+        - name
+        - fullName
+        - defaultBranch
+        - private
+      type: object
+    KernelAttemptSubmission:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              outcome:
+                const: skipped
+            required:
+              - outcome
+          then:
+            not:
+              anyOf:
+                - required:
+                    - failureCode
+                - required:
+                    - startedAt
+                - required:
+                    - completedAt
+            properties:
+              destinationChanged:
+                const: no
+              retryable:
+                const: false
+            required:
+              - resultDigest
+        - if:
+            properties:
+              outcome:
+                const: succeeded
+            required:
+              - outcome
+          then:
+            not:
+              required:
+                - failureCode
+            properties:
+              destinationChanged:
+                enum:
+                  - no
+                  - yes
+              retryable:
+                const: false
+            required:
+              - resultDigest
+              - startedAt
+              - completedAt
+        - if:
+            properties:
+              outcome:
+                enum:
+                  - failed
+                  - unknown
+            required:
+              - outcome
+          then:
+            oneOf:
+              - properties:
+                  destinationChanged:
+                    const: no
+                  failureCode:
+                    enum:
+                      - TARGET_CAPABILITY_UNAVAILABLE
+                      - ATOMIC_ACTIVATION_UNSUPPORTED
+                      - REJECTED
+                      - AUTHORIZATION_LOST
+                      - PROVIDER_CONTRACT_VIOLATION
+                  outcome:
+                    const: failed
+                  retryable:
+                    const: false
+                  stage:
+                    const: staging
+              - properties:
+                  destinationChanged:
+                    const: no
+                  failureCode:
+                    enum:
+                      - NOT_ATTEMPTED_RETRYABLE
+                      - RATE_LIMITED
+                  outcome:
+                    const: failed
+                  retryable:
+                    const: true
+                  stage:
+                    const: staging
+              - properties:
+                  destinationChanged:
+                    enum:
+                      - unknown
+                      - yes
+                  failureCode:
+                    const: OUTCOME_UNKNOWN_RECONCILING
+                  outcome:
+                    const: unknown
+                  retryable:
+                    const: false
+                  stage:
+                    const: staging
+              - properties:
+                  destinationChanged:
+                    const: no
+                  failureCode:
+                    enum:
+                      - REJECTED
+                      - AUTHORIZATION_LOST
+                      - PROVIDER_CONTRACT_VIOLATION
+                  outcome:
+                    const: failed
+                  retryable:
+                    const: false
+                  stage:
+                    const: activation
+              - properties:
+                  destinationChanged:
+                    const: no
+                  failureCode:
+                    enum:
+                      - NOT_ATTEMPTED_RETRYABLE
+                      - RATE_LIMITED
+                  outcome:
+                    const: failed
+                  retryable:
+                    const: true
+                  stage:
+                    const: activation
+              - properties:
+                  destinationChanged:
+                    enum:
+                      - unknown
+                      - yes
+                  failureCode:
+                    const: OUTCOME_UNKNOWN_RECONCILING
+                  outcome:
+                    const: unknown
+                  retryable:
+                    const: false
+                  stage:
+                    const: activation
+              - properties:
+                  destinationChanged:
+                    enum:
+                      - no
+                      - yes
+                  failureCode:
+                    enum:
+                      - REJECTED
+                      - AUTHORIZATION_LOST
+                      - PROVIDER_CONTRACT_VIOLATION
+                  outcome:
+                    const: failed
+                  retryable:
+                    const: false
+                  stage:
+                    const: cleanup
+              - properties:
+                  destinationChanged:
+                    enum:
+                      - no
+                      - yes
+                  failureCode:
+                    enum:
+                      - NOT_ATTEMPTED_RETRYABLE
+                      - RATE_LIMITED
+                  outcome:
+                    const: failed
+                  retryable:
+                    const: true
+                  stage:
+                    const: cleanup
+              - properties:
+                  destinationChanged:
+                    enum:
+                      - unknown
+                      - yes
+                  failureCode:
+                    const: OUTCOME_UNKNOWN_RECONCILING
+                  outcome:
+                    const: unknown
+                  retryable:
+                    const: false
+                  stage:
+                    const: cleanup
+            required:
+              - resultDigest
+              - failureCode
+              - startedAt
+              - completedAt
+      properties:
+        causationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        completedAt:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/rfc3339
+        destinationChanged:
+          enum:
+            - yes
+            - no
+            - unknown
+          type: string
+        evidenceDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        failureCode:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/managedFailureCode
+        inputDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        kernelSequence:
+          maximum: 100
+          minimum: 1
+          type: integer
+        outcome:
+          enum:
+            - succeeded
+            - failed
+            - skipped
+            - unknown
+          type: string
+        resultDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        retryable:
+          type: boolean
+        stage:
+          enum:
+            - staging
+            - activation
+            - cleanup
+          type: string
+        stageAttemptId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        startedAt:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/rfc3339
+      required:
+        - stageAttemptId
+        - causationId
+        - stage
+        - kernelSequence
+        - outcome
+        - destinationChanged
+        - inputDigest
+        - retryable
+        - evidenceDigest
+      type: object
+    KernelJournal:
+      additionalProperties: false
+      properties:
+        attempts:
+          items:
+            $ref: '#/components/schemas/KernelAttemptSubmission'
+          maxItems: 100
+          minItems: 1
+          type: array
+        observations:
+          items:
+            $ref: '#/components/schemas/KernelObservationSubmission'
+          maxItems: 100
+          minItems: 1
+          type: array
+      required:
+        - attempts
+        - observations
+      type: object
+    KernelObservationSubmission:
+      additionalProperties: false
+      allOf:
+        - oneOf:
+            - properties:
+                destinationChanged:
+                  enum:
+                    - no
+                    - yes
+                observationClass:
+                  const: request-not-started
+                outcome:
+                  enum:
+                    - rejected
+                    - not-attempted-retryable
+                    - authorization-lost
+                    - rate-limited
+                    - provider-contract-violation
+            - properties:
+                destinationChanged:
+                  enum:
+                    - unknown
+                    - yes
+                observationClass:
+                  const: request-accepted
+                outcome:
+                  const: outcome-unknown-reconciling
+            - properties:
+                destinationChanged:
+                  enum:
+                    - no
+                    - yes
+                observationClass:
+                  const: provider-state
+                outcome:
+                  const: succeeded
+            - properties:
+                destinationChanged:
+                  const: no
+                observationClass:
+                  const: provider-state
+                outcome:
+                  const: rejected
+            - properties:
+                destinationChanged:
+                  enum:
+                    - unknown
+                    - yes
+                observationClass:
+                  const: provider-state
+                outcome:
+                  const: outcome-unknown-reconciling
+            - properties:
+                destinationChanged:
+                  enum:
+                    - no
+                    - yes
+                    - unknown
+                observationClass:
+                  const: provider-state
+                outcome:
+                  const: provider-contract-violation
+            - properties:
+                destinationChanged:
+                  enum:
+                    - unknown
+                    - yes
+                observationClass:
+                  const: timeout
+                outcome:
+                  const: outcome-unknown-reconciling
+            - properties:
+                destinationChanged:
+                  enum:
+                    - no
+                    - yes
+                observationClass:
+                  const: provider-error
+                outcome:
+                  enum:
+                    - rejected
+                    - not-attempted-retryable
+                    - authorization-lost
+                    - rate-limited
+                    - provider-contract-violation
+            - properties:
+                destinationChanged:
+                  enum:
+                    - unknown
+                    - yes
+                observationClass:
+                  const: provider-error
+                outcome:
+                  const: outcome-unknown-reconciling
+        - else:
+            not:
+              anyOf:
+                - required:
+                    - generationId
+                - required:
+                    - observedArtifactDigest
+          if:
+            properties:
+              observationClass:
+                const: provider-state
+            required:
+              - observationClass
+        - else:
+            not:
+              anyOf:
+                - required:
+                    - providerObjectIdDigest
+                - required:
+                    - providerVersion
+          if:
+            properties:
+              observationClass:
+                enum:
+                  - request-accepted
+                  - provider-state
+                  - provider-error
+            required:
+              - observationClass
+      properties:
+        destinationChanged:
+          enum:
+            - yes
+            - no
+            - unknown
+          type: string
+        evidenceDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        generationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        kernelSequence:
+          maximum: 100
+          minimum: 1
+          type: integer
+        observationClass:
+          enum:
+            - request-not-started
+            - request-accepted
+            - provider-state
+            - timeout
+            - provider-error
+          type: string
+        observationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        observedArtifactDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        observedAt:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/rfc3339
+        outcome:
+          enum:
+            - succeeded
+            - rejected
+            - not-attempted-retryable
+            - outcome-unknown-reconciling
+            - authorization-lost
+            - rate-limited
+            - provider-contract-violation
+          type: string
+        providerObjectIdDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        providerVersion:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[\x20-\x7e]+$
+          type: string
+        stageAttemptId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+      required:
+        - observationId
+        - stageAttemptId
+        - kernelSequence
+        - observationClass
+        - outcome
+        - destinationChanged
+        - observedAt
+        - evidenceDigest
+      type: object
+    ManagedDeploymentOperationResponse:
+      additionalProperties: false
+      allOf:
+        - oneOf:
+            - not:
+                anyOf:
+                  - required:
+                      - activationDetectionPlanDigest
+                  - required:
+                      - activationDetectionObservationCount
+                  - required:
+                      - activationDetectionLastEvidenceDigest
+                  - required:
+                      - activationBasis
+            - required:
+                - activationDetectionPlanDigest
+                - activationDetectionObservationCount
+        - else:
+            if:
+              required:
+                - activationDetectionObservationCount
+            then:
+              required:
+                - activationDetectionLastEvidenceDigest
+          if:
+            properties:
+              activationDetectionObservationCount:
+                const: 0
+            required:
+              - activationDetectionObservationCount
+          then:
+            not:
+              required:
+                - activationDetectionLastEvidenceDigest
+        - else:
+            required:
+              - managedReceipt
+              - currentAttemptManagedReceipt
+          if:
+            properties:
+              managedReceiptSnapshotCount:
+                const: 0
+            required:
+              - managedReceiptSnapshotCount
+          then:
+            not:
+              anyOf:
+                - required:
+                    - managedReceipt
+                - required:
+                    - currentAttemptManagedReceipt
+                - required:
+                    - nextManagedReceiptSnapshotSequence
+            properties:
+              managedReceiptSnapshots:
+                maxItems: 0
+        - if:
+            properties:
+              managedReceiptSnapshots:
+                maxItems: 0
+            required:
+              - managedReceiptSnapshots
+          then:
+            not:
+              required:
+                - nextManagedReceiptSnapshotSequence
+        - if:
+            required:
+              - nextManagedReceiptSnapshotSequence
+          then:
+            properties:
+              managedReceiptSnapshots:
+                minItems: 1
+      properties:
+        activationBasis:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/activationBasis
+        activationDetectionLastEvidenceDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        activationDetectionObservationCount:
+          maximum: 91
+          minimum: 0
+          type: integer
+        activationDetectionPlanDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        attempts:
+          items:
+            additionalProperties: false
+            properties:
+              resourceId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              state:
+                $ref: '#/components/schemas/OperationAttemptState'
+              version:
+                format: int64
+                minimum: 0
+                type: integer
+            required:
+              - resourceId
+              - version
+              - state
+            type: object
+          maxItems: 1000
+          type: array
+        blockers:
+          items:
+            maxLength: 80
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        currentAttemptManagedReceipt:
+          $ref: ../schemas/deployment-receipt.schema.json
+        kind:
+          $ref: '#/components/schemas/OperationKind'
+        managedReceipt:
+          $ref: ../schemas/deployment-receipt.schema.json
+        managedReceiptSnapshotCount:
+          maximum: 1000
+          minimum: 0
+          type: integer
+        managedReceiptSnapshots:
+          items:
+            $ref: '#/components/schemas/ManagedReceiptSnapshot'
+          maxItems: 100
+          minItems: 0
+          type: array
+          uniqueItems: true
+        nextManagedReceiptSnapshotSequence:
+          maximum: 999
+          minimum: 1
+          type: integer
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          $ref: '#/components/schemas/OperationPhase'
+        recoveryActions:
+          items:
+            maxLength: 80
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        statusUrl:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/canonicalRoute
+        subject:
+          $ref: '#/components/schemas/OperationSubject'
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+        - attempts
+        - blockers
+        - recoveryActions
+        - managedReceiptSnapshotCount
+        - managedReceiptSnapshots
+      type: object
+    ManagedReceiptEvidenceEntryResponse:
+      additionalProperties: false
+      properties:
+        managedReceiptEvidenceEntry:
+          additionalProperties: false
+          allOf:
+            - else:
+                not:
+                  required:
+                    - attempt
+                required:
+                  - observation
+              if:
+                properties:
+                  entryType:
+                    const: attempt
+                required:
+                  - entryType
+              then:
+                not:
+                  required:
+                    - observation
+                required:
+                  - attempt
+          properties:
+            attempt:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/deploymentAttempt
+            entryDigest:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+            entryNumber:
+              maximum: 1100
+              minimum: 1
+              type: integer
+            entryType:
+              enum:
+                - attempt
+                - observation
+              type: string
+            headDigest:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+            observation:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/deploymentObservation
+            previousHeadDigest:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+            receiptEntryCount:
+              maximum: 1100
+              minimum: 1
+              type: integer
+            receiptHeadDigest:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+            receiptId:
+              $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+          required:
+            - receiptId
+            - entryNumber
+            - previousHeadDigest
+            - entryType
+            - entryDigest
+            - headDigest
+            - receiptEntryCount
+            - receiptHeadDigest
+          type: object
+        operationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        organizationId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+      required:
+        - organizationId
+        - operationId
+        - managedReceiptEvidenceEntry
+      type: object
+    ManagedReceiptSnapshot:
+      additionalProperties: false
+      properties:
+        attemptSnapshotSequence:
+          maximum: 1000
+          minimum: 1
+          type: integer
+        finalizedAt:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/rfc3339
+        receiptDigest:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/digest
+        receiptId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+        runAttempt:
+          maximum: 51
+          minimum: 1
+          type: integer
+        snapshotSequence:
+          maximum: 1000
+          minimum: 1
+          type: integer
+        supersedesReceiptId:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/stableId
+      required:
+        - snapshotSequence
+        - runAttempt
+        - attemptSnapshotSequence
+        - receiptId
+        - receiptDigest
+        - finalizedAt
+      type: object
+    MembershipInvitationState:
+      enum:
+        - PENDING
+        - ACCEPTED
+        - REVOKED
+        - EXPIRED
+      type: string
+    MembershipInvitationSummary:
+      additionalProperties: false
+      description:
+        One pending or settled invitation, in exactly the shape the
+        single-invitation read returns, so a client renders a row and its detail
+        view from the same fields. `recipient` is deliberately absent, as it is
+        from the single read, because acceptance is possession-based and the
+        label an inviter typed is never a verified identity (LOCAL-34 G6).
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        invitationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/MembershipInvitationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - invitationId
+        - version
+        - state
+        - roleId
+        - expiresAt
+      type: object
+    MembershipState:
+      enum:
+        - ACTIVE
+        - SUSPENDED
+        - PLAN_SUSPENDED
+        - ENDED
+      type: string
+    MembershipSummary:
+      additionalProperties: false
+      properties:
+        membershipId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        principal:
+          $ref: '#/components/schemas/PrincipalSummary'
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/MembershipState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - membershipId
+        - version
+        - state
+        - principalId
+        - roleId
+      type: object
+    ObservedRoute:
+      additionalProperties: false
+      allOf:
+        - if:
+            required:
+              - observedDigest
+          then:
+            properties:
+              observedStatus:
+                const: 200
+      properties:
+        expectedDigest:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        observedDigest:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        observedStatus:
+          maximum: 599
+          minimum: 100
+          type: integer
+        route:
+          maxLength: 2048
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+      required:
+        - route
+        - expectedDigest
+      type: object
+    OperationAttemptState:
+      enum:
+        - NOT_STARTED
+        - RUNNING
+        - SUCCEEDED
+        - FAILED
+        - SKIPPED
+        - UNKNOWN
+      type: string
+    OperationDetailResponse:
+      additionalProperties: false
+      properties:
+        attempts:
+          items:
+            additionalProperties: false
+            properties:
+              resourceId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              state:
+                $ref: '#/components/schemas/OperationAttemptState'
+              version:
+                format: int64
+                minimum: 0
+                type: integer
+            required:
+              - resourceId
+              - version
+              - state
+            type: object
+          maxItems: 1000
+          type: array
+        blockers:
+          items:
+            maxLength: 80
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          $ref: '#/components/schemas/OperationKind'
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          enum:
+            - accepted
+            - executing
+            - reconciling
+            - completed
+            - failed_no_effect
+            - cancelled_no_effect
+          type: string
+        recoveryActions:
+          items:
+            maxLength: 80
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}` for
+            every organization-scoped operation. Clients navigate to this URL
+            verbatim and never construct the path themselves (LOCAL-36 G-14). It
+            is an API path under `/v2/...` rather than a client route, so a
+            browser client resolves it through its own routing table (the App
+            maps `/v2/organizations/{organizationId}/operations/{operationId}`
+            onto `/organizations/{organizationId}/operations/{operationId}`)
+            rather than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+        subject:
+          $ref: '#/components/schemas/OperationSubject'
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+        - attempts
+        - blockers
+        - recoveryActions
+      type: object
+    OperationPhase:
+      enum:
+        - accepted
+        - executing
+        - reconciling
+        - completed
+        - failed_no_effect
+        - cancelled_no_effect
+      type: string
+    OperationResponse:
+      additionalProperties: false
+      properties:
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          enum:
+            - accepted
+            - executing
+            - reconciling
+            - completed
+            - failed_no_effect
+            - cancelled_no_effect
+          type: string
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}` for
+            every organization-scoped operation. Clients navigate to this URL
+            verbatim and never construct the path themselves (LOCAL-36 G-14). It
+            is an API path under `/v2/...` rather than a client route, so a
+            browser client resolves it through its own routing table (the App
+            maps `/v2/organizations/{organizationId}/operations/{operationId}`
+            onto `/organizations/{organizationId}/operations/{operationId}`)
+            rather than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+      type: object
+    OperationKind:
+      description: |
+        What kind of work the operation is, so a client can label it and route
+        to the right screen without parsing `statusUrl` or inferring from
+        `subject`. The vocabulary is exactly the organization-scoped operations
+        that answer `202 Accepted` and therefore create an operation row; it is
+        spelled the way the API's own `operation_type` column is
+        (`^[a-z][a-z0-9_]*$`), and `publication_retirement` and
+        `repository_change_commit` are already that column's literals. A member
+        is added only by a reviewed contract change.
+      enum:
+        - deployment_reconcile
+        - deployment_rollback
+        - publication_import
+        - publication_retirement
+        - publish
+        - repository_change_commit
+        - repository_change_plan
+        - review_request
+      type: string
+    OperationSubject:
+      additionalProperties: false
+      description: |
+        What this operation acts on. Every member is optional and at least one
+        is present, because different kinds of work name different resources: a
+        publish names a publication and a publish, a review decision names a
+        review, a reconcile names a generation. Absent entirely when the
+        operation names nothing beyond itself.
+      minProperties: 1
+      properties:
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publishId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      type: object
+    OperationSummary:
+      additionalProperties: false
+      properties:
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          $ref: '#/components/schemas/OperationKind'
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          $ref: '#/components/schemas/OperationPhase'
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        startedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}`.
+            Clients navigate to it verbatim and never build the path themselves
+            (LOCAL-36 G-14). It is an API path under `/v2/...` rather than a
+            client route, so a browser client resolves it through its own
+            routing table (the App maps
+            `/v2/organizations/{organizationId}/operations/{operationId}` onto
+            `/organizations/{organizationId}/operations/{operationId}`) rather
+            than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+        subject:
+          $ref: '#/components/schemas/OperationSubject'
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+        - startedAt
+      type: object
+    OrganizationState:
+      enum:
+        - PROVISIONING
+        - ACTIVE
+        - SUSPENDED
+        - CLOSING
+        - CLOSED
+      type: string
+    OrganizationSummary:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/OrganizationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - organizationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    OwnerTransferState:
+      enum:
+        - PENDING
+        - ACCEPTED
+        - REVOKED
+        - EXPIRED
+      type: string
+    PasskeyState:
+      enum:
+        - ACTIVE
+        - UNLINKED
+        - REVOKED
+        - COMPROMISED
+      type: string
+    PatchOrganizationsByOrganizationIdMembershipsByMembershipIdRequest:
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type:
+            - string
+            - 'null'
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          enum:
+            - ACTIVE
+            - SUSPENDED
+            - ENDED
+          type: string
+      required: []
+      type: object
+    PatchOrganizationsByOrganizationIdMembershipsByMembershipIdResponse:
+      additionalProperties: false
+      properties:
+        membershipId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/MembershipState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - membershipId
+        - version
+        - state
+        - principalId
+        - roleId
+      type: object
+    PatchOrganizationsByOrganizationIdPublicationsByPublicationIdRequest:
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        desiredState:
+          enum:
+            - ACTIVE
+            - PAUSED
+            - PROVISIONING
+          type: string
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required: []
+      type: object
+    PatchOrganizationsByOrganizationIdPublicationsByPublicationIdResponse:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/PublicationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publicationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    PatchOrganizationsByOrganizationIdRequest:
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        desiredState:
+          enum:
+            - ACTIVE
+            - SUSPENDED
+            - CLOSING
+          type: string
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required: []
+      type: object
+    PatchOrganizationsByOrganizationIdResponse:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/OrganizationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - organizationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    PatchSelfPasskeysByPasskeyIdRequest:
+      additionalProperties: false
+      properties:
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - label
+      type: object
+    PatchSelfPasskeysByPasskeyIdResponse:
+      additionalProperties: false
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+        passkeyId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/PasskeyState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - passkeyId
+        - version
+        - state
+        - label
+        - createdAt
+      type: object
+    PostAuthenticationGithubTransactionsRequest:
+      additionalProperties: false
+      properties:
+        continuationId:
+          maxLength: 80
+          minLength: 1
+          type: string
+        purpose:
+          enum:
+            - SIGN_IN
+            - SIGN_UP
+            - LINK
+            - REAUTH
+            - RECOVERY
+          type: string
+      required:
+        - purpose
+      type: object
+    PostAuthenticationGithubTransactionsResponse:
+      additionalProperties: false
+      properties:
+        authorizationUrl:
+          format: uri
+          pattern: ^https://(?![^/?#]*@)
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        transactionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - transactionId
+        - authorizationUrl
+        - expiresAt
+      type: object
+    PostAuthenticationPasskeyAssertionOptionsRequest:
+      additionalProperties: false
+      properties:
+        purpose:
+          enum:
+            - AUTHENTICATION
+            - RECOVERY
+          type: string
+        transactionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - purpose
+      type: object
+    PostAuthenticationPasskeyAssertionOptionsResponse:
+      additionalProperties: false
+      properties:
+        challengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        publicKey:
+          additionalProperties: false
+          properties:
+            challenge:
+              maxLength: 2048
+              minLength: 1
+              type: string
+            rpId:
+              maxLength: 80
+              minLength: 1
+              type: string
+            timeout:
+              maximum: 300000
+              minimum: 1
+              type: integer
+          required:
+            - challenge
+            - rpId
+            - timeout
+          type: object
+      required:
+        - challengeId
+        - publicKey
+        - expiresAt
+      type: object
+    PostAuthenticationPasskeyAssertionsRequest:
+      additionalProperties: false
+      properties:
+        authenticatorData:
+          maxLength: 131072
+          minLength: 1
+          type: string
+        challengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        clientDataJson:
+          maxLength: 131072
+          minLength: 1
+          type: string
+        credentialId:
+          maxLength: 2048
+          minLength: 1
+          type: string
+        signature:
+          maxLength: 131072
+          minLength: 1
+          type: string
+        userHandle:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+      required:
+        - challengeId
+        - credentialId
+        - clientDataJson
+        - authenticatorData
+        - signature
+        - userHandle
+      type: object
+    PostAuthenticationPasskeyAssertionsResponse:
+      additionalProperties: false
+      properties:
+        assurance:
+          maxLength: 80
+          minLength: 1
+          type: string
+        authenticatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        authorizationEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        capabilities:
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 1000
+          type: array
+          uniqueItems: true
+        credentialEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        identityEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        organizations:
+          items:
+            additionalProperties: false
+            properties:
+              resourceId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              state:
+                $ref: '#/components/schemas/OrganizationState'
+              version:
+                format: int64
+                minimum: 0
+                type: integer
+            required:
+              - resourceId
+              - version
+              - state
+            type: object
+          maxItems: 100
+          type: array
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - principalId
+        - assurance
+        - authenticatedAt
+        - identityEpoch
+        - authorizationEpoch
+        - credentialEpoch
+        - organizations
+        - capabilities
+      type: object
+    PostAuthenticationRecoveryCodeRequest:
+      additionalProperties: false
+      properties:
+        code:
+          maxLength: 256
+          minLength: 8
+          type: string
+        transactionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - transactionId
+        - code
+      type: object
+    PostAuthenticationRecoveryCodeResponse:
+      additionalProperties: false
+      properties:
+        assurance:
+          maxLength: 80
+          minLength: 1
+          type: string
+        authenticatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        authorizationEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        capabilities:
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 1000
+          type: array
+          uniqueItems: true
+        credentialEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        identityEpoch:
+          format: int64
+          minimum: 0
+          type: integer
+        organizations:
+          items:
+            additionalProperties: false
+            properties:
+              resourceId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              state:
+                $ref: '#/components/schemas/OrganizationState'
+              version:
+                format: int64
+                minimum: 0
+                type: integer
+            required:
+              - resourceId
+              - version
+              - state
+            type: object
+          maxItems: 100
+          type: array
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - principalId
+        - assurance
+        - authenticatedAt
+        - identityEpoch
+        - authorizationEpoch
+        - credentialEpoch
+        - organizations
+        - capabilities
+      type: object
+    PostCallbacksGithubAppRequest:
+      additionalProperties: true
+      description:
+        Raw GitHub webhook JSON authenticated over the exact received bytes;
+        event and delivery identities are carried in required GitHub headers.
+      type: object
+    PostCallbacksGithubAppResponse:
+      additionalProperties: false
+      properties:
+        accepted:
+          const: true
+      required:
+        - accepted
+      type: object
+    PostMembershipInvitationsByTokenAcceptRequest:
+      additionalProperties: false
+      properties:
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required: []
+      type: object
+    PostMembershipInvitationsByTokenAcceptResponse:
+      additionalProperties: false
+      properties:
+        membershipId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        principalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/MembershipState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - membershipId
+        - version
+        - state
+        - principalId
+        - roleId
+      type: object
+    PostOrganizationsByOrganizationIdMembershipInvitationsRequest:
+      additionalProperties: false
+      properties:
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type:
+            - string
+            - 'null'
+        recipient:
+          description:
+            Label recording who the inviter meant to invite. Acceptance is
+            possession-based, so whoever presents the invitation token joins
+            with the invited role, and this value is never matched against the
+            accepting principal's verified identity. It exists so the inviter
+            can recognize the invitation in a list; treat it as a note, not a
+            binding (LOCAL-34 G6). Recipient binding is revisited when verified
+            email exists.
+          format: email
+          maxLength: 320
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - recipient
+        - roleId
+      type: object
+    PostOrganizationsByOrganizationIdMembershipInvitationsResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        invitationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/MembershipInvitationState'
+        token:
+          description:
+            plaintext single-use invitation token, present exactly once on the
+            response that creates the invitation; absent on an idempotent replay
+            of this request and absent from every read of an invitation. The
+            invitee redeems it with `POST
+            /v2/membership-invitations/{token}:accept`. It is a credential and
+            must never be logged, persisted outside the invitation record, or
+            echoed by any other response.
+          maxLength: 256
+          minLength: 32
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - invitationId
+        - version
+        - state
+        - roleId
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdOperationsByOperationIdCancelRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdOperationsByOperationIdCancelResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationDetailResponse'
+    PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdAcceptRequest:
+      additionalProperties: false
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+      required:
+        - consequenceDigest
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdAcceptResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          $ref: '#/components/schemas/OwnerTransferState'
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - state
+        - successorPrincipalId
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancelRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancelResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          $ref: '#/components/schemas/OwnerTransferState'
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - state
+        - successorPrincipalId
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersRequest:
+      additionalProperties: false
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - successorPrincipalId
+        - consequenceDigest
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          $ref: '#/components/schemas/OwnerTransferState'
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - state
+        - successorPrincipalId
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdPublicationImportsRequest:
+      additionalProperties: false
+      properties:
+        installationId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        repositoryOwnerId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+      required:
+        - installationId
+        - repositoryId
+        - repositoryOwnerId
+      type: object
+    PostOrganizationsByOrganizationIdPublicationImportsResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlanRequest:
+      oneOf:
+        - additionalProperties: false
+          properties:
+            changeKind:
+              const: PORTABLE_SETTINGS
+            expectedHead:
+              pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+              type: string
+            inputDigest:
+              pattern: ^sha256:[0-9a-f]{64}$
+              type: string
+          required:
+            - changeKind
+            - expectedHead
+            - inputDigest
+          type: object
+        - additionalProperties: false
+          properties:
+            changeKind:
+              const: MODULES
+            expectedHead:
+              pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+              type: string
+            inputDigest:
+              pattern: ^sha256:[0-9a-f]{64}$
+              type: string
+          required:
+            - changeKind
+            - expectedHead
+            - inputDigest
+          type: object
+        - additionalProperties: false
+          properties:
+            changeKind:
+              const: POLICY
+            expectedHead:
+              pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+              type: string
+            inputDigest:
+              pattern: ^sha256:[0-9a-f]{64}$
+              type: string
+          required:
+            - changeKind
+            - expectedHead
+            - inputDigest
+          type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlanResponse:
+      additionalProperties: false
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        diffDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: '#/components/schemas/RepositoryChangeState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - changeId
+        - version
+        - state
+        - expectedHead
+        - diffDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanRequest:
+      additionalProperties: false
+      properties:
+        contentDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        path:
+          maxLength: 512
+          minLength: 1
+          type: string
+      required:
+        - expectedHead
+        - path
+        - contentDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse:
+      additionalProperties: false
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        diffDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: '#/components/schemas/RepositoryChangeState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - changeId
+        - version
+        - state
+        - expectedHead
+        - diffDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdReconcileRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdReconcileResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollbackRequest:
+      additionalProperties: false
+      properties:
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - generationId
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollbackResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirementResponse:
+      additionalProperties: false
+      description:
+        The persisted consequence preview a retirement command must quote back.
+        A client never fabricates `consequencePreviewId` or `consequenceDigest`
+        (LOCAL-36 G-17).
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        consequences:
+          items:
+            $ref: '#/components/schemas/RetirementConsequence'
+          maxItems: 100
+          type: array
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - consequencePreviewId
+        - consequenceDigest
+        - consequences
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancelRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancelResponse:
+      additionalProperties: false
+      properties:
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publishId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        scheduledFor:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          $ref: '#/components/schemas/PublishScheduleState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publishId
+        - version
+        - state
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesRequest:
+      additionalProperties: false
+      properties:
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        scheduledFor:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        sourceRevision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+      required:
+        - reviewId
+        - sourceRevision
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesResponse:
+      additionalProperties: false
+      description: |
+        The accepted operation, plus the accepted publish's own identity. A
+        publish is a resource in its own right -- `:cancel` addresses it by
+        `publishId` -- and this acceptance previously named only the operation,
+        so a client had to carry the publication and the publish it had just
+        started in its own navigation state in order to cancel it (LOCAL-51).
+      properties:
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publishId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          enum:
+            - accepted
+            - executing
+            - reconciling
+            - completed
+            - failed_no_effect
+            - cancelled_no_effect
+          type: string
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}` for
+            every organization-scoped operation. Clients navigate to this URL
+            verbatim and never construct the path themselves (LOCAL-36 G-14). It
+            is an API path under `/v2/...` rather than a client route, so a
+            browser client resolves it through its own routing table (the App
+            maps `/v2/organizations/{organizationId}/operations/{operationId}`
+            onto `/organizations/{organizationId}/operations/{operationId}`)
+            rather than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+        - publishId
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsRequest:
+      additionalProperties: false
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        installationId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        repositoryOwnerId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+      required:
+        - installationId
+        - repositoryId
+        - repositoryOwnerId
+        - defaultBranch
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsResponse:
+      additionalProperties: false
+      description:
+        The repository binding this request created, in exactly the shape `GET
+        .../repository-bindings/current` returns. Binding is a synchronous write
+        with no operation row behind it, so this operation answers `201 Created`
+        with the created resource and a `Location` header, not a `202` with a
+        `statusUrl` that would point at an operation that never exists
+        (LOCAL-49).
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        installationId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        observedHead:
+          description:
+            Commit the server last observed at the bound repository's default
+            branch, or `null` when nothing has been observed yet. It is `null`
+            on a freshly created binding. Same digest profile as `expectedHead`,
+            so a repository on Git's SHA-256 object format is representable.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type:
+            - string
+            - 'null'
+        repositoryBindingId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        repositoryFullName:
+          description:
+            GitHub's `owner/name` identity of the bound repository, for display.
+            A client shows this instead of numeric identifiers (LOCAL-33).
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,38}/[A-Za-z0-9._-]{1,100}$
+          type: string
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        state:
+          $ref: '#/components/schemas/RepositoryBindingState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - repositoryBindingId
+        - version
+        - state
+        - repositoryId
+        - installationId
+        - defaultBranch
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmRequest:
+      additionalProperties: false
+      properties:
+        diffDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+      required:
+        - expectedHead
+        - diffDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlanRequest:
+      additionalProperties: false
+      properties:
+        changeKind:
+          maxLength: 80
+          minLength: 1
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        inputDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+      required:
+        - expectedHead
+        - changeKind
+        - inputDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlanResponse:
+      additionalProperties: false
+      description: |
+        The accepted plan, plus what it actually found. `diffDigest` and
+        `managedPathSetDigest` are the two digests the confirm step is fenced
+        on, so a client can show the reader exactly what they are about to
+        confirm, and confirm the same thing it planned, rather than confirming
+        an operation id and hoping (LOCAL-56). The created
+        `repository_change`'s id is this response's `operationId` (LOCAL-16).
+      properties:
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        diffDigest:
+          description: |
+            `sha256` over the canonical serialization of the planned diff.
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        managedPathSetDigest:
+          description: |
+            `sha256` over the canonical serialization of the set of repository
+            paths the plan manages.
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          enum:
+            - accepted
+            - executing
+            - reconciling
+            - completed
+            - failed_no_effect
+            - cancelled_no_effect
+          type: string
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}` for
+            every organization-scoped operation. Clients navigate to this URL
+            verbatim and never construct the path themselves (LOCAL-36 G-14). It
+            is an API path under `/v2/...` rather than a client route, so a
+            browser client resolves it through its own routing table (the App
+            maps `/v2/organizations/{organizationId}/operations/{operationId}`
+            onto `/organizations/{organizationId}/operations/{operationId}`)
+            rather than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+        - diffDigest
+        - managedPathSetDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideRequest:
+      additionalProperties: false
+      properties:
+        decision:
+          enum:
+            - APPROVE
+            - REJECT
+          type: string
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - decision
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideResponse:
+      additionalProperties: false
+      properties:
+        findingsDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        sourceRevision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: '#/components/schemas/ReviewState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - reviewId
+        - version
+        - state
+        - sourceRevision
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            not:
+              required:
+                - repositoryChangeId
+          then:
+            required:
+              - sourceRevision
+              - policyDigest
+              - validationEvidenceDigest
+      description: |
+        A review is requested over an exact source revision and the exact
+        validation evidence and policy it was judged against. A client that
+        names the confirmed repository change the revision came from
+        (`repositoryChangeId`) does not send the two digests: the server
+        already holds both inputs and derives them, because a browser client
+        never constructs an identifier or a digest it cannot compute from what
+        it was given (LOCAL-36 G-01). A caller that does send them -- a
+        workload holding the inputs itself -- must send both.
+
+        SCHEMA-2.9.0 (INFRA-E2E-7 finding, LOCAL-57 pattern): when
+        `repositoryChangeId` is present, `sourceRevision` is optional too --
+        the API derives it as the named confirmed change's candidate commit,
+        which no read exposes to a browser client, and refuses a present value
+        that disagrees with `422 VALIDATION_FAILED` naming `/sourceRevision`.
+        When `repositoryChangeId` is absent (the 2.7.1 shape) `sourceRevision`
+        stays required alongside the two digests.
+      properties:
+        policyDigest:
+          description: |
+            `sha256` over the RFC 8785 canonical JSON of the exact publication
+            policy document the revision was judged against, lowercase hex with
+            the `sha256:` prefix. Server-derived from the named confirmed
+            repository change when absent.
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        repositoryChangeId:
+          description: |
+            The confirmed repository change this review is created from. It is
+            the `operationId` the plan's `202` returned, which is also the
+            created change's identity (LOCAL-16).
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        sourceRevision:
+          description: |
+            The exact source revision under review. Required when
+            `repositoryChangeId` is absent. When it is present the API derives
+            the revision from the named confirmed change's candidate commit
+            and refuses a disagreement with `422 VALIDATION_FAILED` naming
+            `/sourceRevision` (SCHEMA-2.9.0, LOCAL-57 pattern).
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        validationEvidenceDigest:
+          description: |
+            `sha256` over the RFC 8785 canonical JSON of the exact validation
+            evidence recorded for this revision, lowercase hex with the
+            `sha256:` prefix. Server-derived from the named confirmed
+            repository change when absent.
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsResponse:
+      additionalProperties: false
+      description: |
+        The accepted operation, plus the created review's own identity.
+        `reviewId` is byte-equal to `operationId` and to `commandId`: the API
+        creates the review row with the plan's operation identity, the same
+        convention retire and `repository-changes:plan` already follow
+        (LOCAL-16). It is named here anyway so a client reads the id it needs
+        instead of having to know the convention.
+      properties:
+        commandId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        phase:
+          enum:
+            - accepted
+            - executing
+            - reconciling
+            - completed
+            - failed_no_effect
+            - cancelled_no_effect
+          type: string
+        resourceVersion:
+          format: int64
+          minimum: 0
+          type: integer
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}` for
+            every organization-scoped operation. Clients navigate to this URL
+            verbatim and never construct the path themselves (LOCAL-36 G-14). It
+            is an API path under `/v2/...` rather than a client route, so a
+            browser client resolves it through its own routing table (the App
+            maps `/v2/organizations/{organizationId}/operations/{operationId}`
+            onto `/organizations/{organizationId}/operations/{operationId}`)
+            rather than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+      required:
+        - operationId
+        - commandId
+        - phase
+        - resourceVersion
+        - statusUrl
+        - reviewId
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsRequest:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - name
+        - slug
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsResponse:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/PublicationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publicationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    PostOrganizationsRequest:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - name
+        - slug
+      type: object
+    PostOrganizationsResponse:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/OrganizationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - organizationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    PostSelfClosureRequest:
+      additionalProperties: false
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+      required:
+        - consequenceDigest
+      type: object
+    PostSelfClosureResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostSelfExportsRequest:
+      additionalProperties: false
+      properties: {}
+      required: []
+      type: object
+    PostSelfExportsResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostSelfIdentityLinksRequest:
+      additionalProperties: false
+      properties:
+        provider:
+          const: github
+      required:
+        - provider
+      type: object
+    PostSelfIdentityLinksResponse:
+      additionalProperties: false
+      properties:
+        authorizationUrl:
+          format: uri
+          pattern: ^https://(?![^/?#]*@)
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        transactionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - transactionId
+        - authorizationUrl
+        - expiresAt
+      type: object
+    PostSelfPasskeyRegistrationOptionsRequest:
+      additionalProperties: false
+      properties:
+        recoveryTransactionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required: []
+      type: object
+    PostSelfPasskeyRegistrationOptionsResponse:
+      additionalProperties: false
+      properties:
+        challengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        publicKey:
+          additionalProperties: false
+          properties:
+            challenge:
+              maxLength: 2048
+              minLength: 1
+              type: string
+            rpId:
+              maxLength: 80
+              minLength: 1
+              type: string
+            timeout:
+              maximum: 300000
+              minimum: 1
+              type: integer
+            userId:
+              maxLength: 2048
+              minLength: 1
+              type: string
+          required:
+            - challenge
+            - rpId
+            - userId
+            - timeout
+          type: object
+      required:
+        - challengeId
+        - publicKey
+        - expiresAt
+      type: object
+    PostSelfPasskeysRequest:
+      additionalProperties: false
+      properties:
+        attestationObject:
+          maxLength: 262144
+          minLength: 1
+          type: string
+        challengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        clientDataJson:
+          maxLength: 131072
+          minLength: 1
+          type: string
+        credentialId:
+          maxLength: 2048
+          minLength: 1
+          type: string
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - challengeId
+        - credentialId
+        - clientDataJson
+        - attestationObject
+        - label
+      type: object
+    PostSelfPasskeysResponse:
+      additionalProperties: false
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+        passkeyId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/PasskeyState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - passkeyId
+        - version
+        - state
+        - label
+        - createdAt
+      type: object
+    PostSelfRecoveryCodeSetsRequest:
+      additionalProperties: false
+      properties: {}
+      required: []
+      type: object
+    PostSelfRecoveryCodeSetsResponse:
+      additionalProperties: false
+      properties:
+        codes:
+          items:
+            maxLength: 256
+            minLength: 8
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+          uniqueItems: true
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        recoveryCodeSetId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - recoveryCodeSetId
+        - codes
+        - createdAt
+      type: object
+    PostSessionReauthenticationRequest:
+      additionalProperties: false
+      properties:
+        method:
+          enum:
+            - PASSKEY
+            - GITHUB
+          type: string
+      required:
+        - method
+      type: object
+    PostSessionReauthenticationResponse:
+      additionalProperties: false
+      properties:
+        challengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        method:
+          enum:
+            - PASSKEY
+            - GITHUB
+          type: string
+      required:
+        - challengeId
+        - method
+        - expiresAt
+      type: object
+    PostWorkloadsDeploymentReceiptsRequest:
+      additionalProperties: false
+      properties:
+        adapterId:
+          maxLength: 80
+          minLength: 1
+          type: string
+        adapterVersion:
+          maxLength: 128
+          minLength: 5
+          type: string
+        artifactByteCount:
+          format: int64
+          minimum: 1
+          type: integer
+        artifactFileCount:
+          format: int64
+          minimum: 1
+          type: integer
+        artifactManifestDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        destinationGenerationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        destinationReceiptDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        kernelJournal:
+          $ref: '#/components/schemas/KernelJournal'
+        observedRoutes:
+          items:
+            $ref: '#/components/schemas/ObservedRoute'
+          maxItems: 16
+          minItems: 0
+          type: array
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        provenanceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        publicBaseUrl:
+          format: uri
+          maxLength: 2048
+          pattern: ^https://(?![^/?#]*@)[^#]+$
+          type: string
+        publisherPackage:
+          const: '@rathnasgala2/publish-action'
+        publisherVersion:
+          maxLength: 128
+          minLength: 5
+          type: string
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        runAttempt:
+          maximum: 51
+          minimum: 1
+          type: integer
+        runId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        sbomDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        sourceCommit:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        workflowCompletedAt:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/rfc3339
+        workflowStartedAt:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/rfc3339
+      required:
+        - operationId
+        - repositoryId
+        - sourceCommit
+        - runId
+        - runAttempt
+        - artifactManifestDigest
+        - artifactByteCount
+        - artifactFileCount
+        - provenanceDigest
+        - sbomDigest
+        - publisherPackage
+        - publisherVersion
+        - adapterId
+        - adapterVersion
+        - publicBaseUrl
+        - observedRoutes
+        - workflowStartedAt
+        - workflowCompletedAt
+        - kernelJournal
+      type: object
+    PostWorkloadsDeploymentReceiptsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ManagedDeploymentOperationResponse'
+        - not:
+            anyOf:
+              - required:
+                  - managedReceipt
+              - required:
+                  - currentAttemptManagedReceipt
+              - required:
+                  - nextManagedReceiptSnapshotSequence
+          properties:
+            managedReceiptSnapshotCount:
+              const: 0
+            managedReceiptSnapshots:
+              maxItems: 0
+          required:
+            - activationDetectionPlanDigest
+            - activationDetectionObservationCount
+            - managedReceiptSnapshotCount
+            - managedReceiptSnapshots
+    PostWorkloadsGithubReceiptExchangesRequest:
+      description:
+        Discriminated by the constant `purpose` member every arm already
+        carries; the explicit `mapping` names the schema each value binds to so
+        OpenAPI Generator 7.25 emits `@JsonSubTypes` entries keyed by the wire
+        value instead of by generated class names (API-RECEIPTS-1 follow-up).
+      discriminator:
+        mapping:
+          deployment-intent: '#/components/schemas/ReceiptExchangeDeploymentIntentRequest'
+          deployment-receipt: '#/components/schemas/ReceiptExchangeDeploymentReceiptRequest'
+        propertyName: purpose
+      oneOf:
+        - $ref: '#/components/schemas/ReceiptExchangeDeploymentIntentRequest'
+        - $ref: '#/components/schemas/ReceiptExchangeDeploymentReceiptRequest'
+    PostWorkloadsGithubReceiptExchangesResponse:
+      description: |
+        Three flat response states, discriminated by the constant `kind` member
+        each one carries. `purpose` remains exactly as it was on the wire and
+        still separates an intent response from a receipt response; it cannot be
+        the discriminator, because its `deployment-receipt` value covers two of
+        the three states, and a mapping key must name exactly one schema. The
+        previous shape mapped that value onto an intermediate schema with a
+        nested `state` discriminator, which OpenAPI Generator 7.25 emits as an
+        interface a reader cannot resolve past. `kind` is optional, not
+        required, so a 2.7.x-era body still validates against this union -- the
+        arms remain mutually exclusive on `purpose` and `state` without it. The
+        generator caveat is deliberate: OpenAPI requires a discriminator
+        property to be required, and a generated client that reaches this union
+        through `kind` alone must tolerate its absence from an older server.
+      discriminator:
+        mapping:
+          deployment-intent: '#/components/schemas/ReceiptExchangeDeploymentIntentResponse'
+          deployment-receipt-capability-issued: '#/components/schemas/ReceiptExchangeCapabilityIssuedResponse'
+          deployment-receipt-submission-recorded: '#/components/schemas/ReceiptExchangeSubmissionRecordedResponse'
+        propertyName: kind
+      oneOf:
+        - $ref: '#/components/schemas/ReceiptExchangeDeploymentIntentResponse'
+        - $ref: '#/components/schemas/ReceiptExchangeCapabilityIssuedResponse'
+        - $ref: '#/components/schemas/ReceiptExchangeSubmissionRecordedResponse'
+    PrincipalClosureState:
+      enum:
+        - CLOSING
+        - CLOSED
+      type: string
+    PrincipalSummary:
+      additionalProperties: false
+      description:
+        Display identity of a principal, captured from the provider at sign-in.
+        It is a label for humans, never an authorization input (LOCAL-34 G7).
+      properties:
+        displayName:
+          description:
+            Human-readable name as the provider reported it. Optional and
+            nullable, and the two spellings carry the same meaning, namely that
+            this principal has no display name. A serializer that omits a null
+            member and one that writes `null` both satisfy this contract; a
+            client treats an absent and a null `displayName` identically and
+            falls back to `login`.
+          maxLength: 255
+          type:
+            - string
+            - 'null'
+        login:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - login
+      type: object
+    Problem:
+      $ref: ../schemas/problem.schema.json
+    PublicationState:
+      enum:
+        - PROVISIONING
+        - ACTIVE
+        - PAUSED
+        - RETIRING
+        - RETIRED
+      type: string
+    PublicationSummary:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/PublicationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publicationId
+        - version
+        - state
+        - name
+        - slug
+      type: object
+    PublishScheduleState:
+      enum:
+        - SCHEDULED
+        - DISPATCHED
+        - CANCELLED
+        - FINAL_FAILED
+      type: string
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdDestinationRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              adapterId:
+                pattern: ^do-spaces$
+                type: string
+                x-gala-const: do-spaces
+            required:
+              - adapterId
+          then:
+            properties:
+              providerBinding:
+                required:
+                  - region
+                  - servedBucket
+                  - stagingBucket
+            required:
+              - providerBinding
+        - if:
+            properties:
+              adapterId:
+                pattern: ^github-pages$
+                type: string
+                x-gala-const: github-pages
+            required:
+              - adapterId
+          then:
+            properties:
+              providerBinding: false
+        - if:
+            properties:
+              adapterId:
+                pattern: ^local-directory$
+                type: string
+                x-gala-const: local-directory
+            required:
+              - adapterId
+          then:
+            properties:
+              providerBinding: false
+      description:
+        "Sets the publication's deployment destination adapter and, for
+        `do-spaces`, its provider coordinates (SCHEMA-2.10.0, LOCAL-63).
+        `github-pages` and `local-directory` forbid `providerBinding`: Pages
+        coordinates are always derived from the live repository binding, and
+        local has nothing to configure."
+      properties:
+        adapterId:
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        providerBinding:
+          additionalProperties: false
+          properties:
+            basePath:
+              default: /
+              maxLength: 512
+              minLength: 1
+              pattern: ^/$|^/(?:[A-Za-z0-9._-]+/)+$
+              type: string
+            region:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesRegion
+            servedBucket:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesBucket
+            stagingBucket:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesBucket
+          required: []
+          type: object
+      required:
+        - adapterId
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdDestinationResponse:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              adapterId:
+                pattern: ^github-pages$
+                type: string
+                x-gala-const: github-pages
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                pattern: ^github-pages$
+                type: string
+                x-gala-const: github-pages
+              providerBinding:
+                properties:
+                  basePath: false
+                  controlPlaneBindingDigest: false
+                  mutationKeyDigest: false
+                  region: false
+                  regionCatalogDigest: false
+                  servedApiOrigin: false
+                  servedBucket: false
+                  stagingApiOrigin: false
+                  stagingBucket: false
+                  targetDigest: false
+                  websiteConfigurationDigest: false
+                  websiteOrigin: false
+                required:
+                  - owner
+                  - repository
+                  - repositoryId
+            required:
+              - environment
+        - if:
+            properties:
+              adapterId:
+                pattern: ^do-spaces$
+                type: string
+                x-gala-const: do-spaces
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                pattern: ^do-spaces$
+                type: string
+                x-gala-const: do-spaces
+              providerBinding:
+                properties:
+                  owner: false
+                  repository: false
+                  repositoryId: false
+                required:
+                  - region
+                  - servedBucket
+                  - stagingBucket
+                  - basePath
+                  - websiteOrigin
+                  - servedApiOrigin
+                  - stagingApiOrigin
+                  - targetDigest
+                  - mutationKeyDigest
+                  - regionCatalogDigest
+                  - websiteConfigurationDigest
+                  - controlPlaneBindingDigest
+            required:
+              - environment
+              - providerBinding
+        - if:
+            properties:
+              adapterId:
+                pattern: ^local-directory$
+                type: string
+                x-gala-const: local-directory
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                pattern: ^local-directory$
+                type: string
+                x-gala-const: local-directory
+              providerBinding: false
+            required:
+              - environment
+      description:
+        'The publication''s deployment destination (SCHEMA-2.10.0, LOCAL-63).
+        `state: UNSET` with `version: 0` is the honest representation of no
+        destination chosen yet: the sub-resource exists for every publication,
+        and `PUT` uses the required `If-Match` header uniformly (`"0"` means
+        create). `adapterId`, `environment` and `providerBinding` are present
+        exactly when `state` is `SET` or `LOCKED`.'
+      properties:
+        adapterId:
+          description:
+            Present once the destination has been set (`state` `SET` or
+            `LOCKED`); absent while `UNSET`.
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        admittedRegions:
+          description:
+            The exact accepted DigitalOcean Spaces region catalog (server-owned
+            `spacesRegionCatalog`), so a client never hard-codes provider facts
+            (LOCAL-63c). ASCII-sorted, present regardless of the chosen adapter
+            so a Spaces picker can render before the author selects it.
+          items:
+            $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesRegion
+          maxItems: 64
+          minItems: 1
+          type: array
+          uniqueItems: true
+        callerCapabilities:
+          description:
+            Capability keys the calling principal holds on this resource, so
+            that a client can enable or hide controls without guessing (LOCAL-34
+            G15/G16). Absent means the server did not compute it; it is never an
+            authorization decision by itself.
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 200
+          type: array
+          uniqueItems: true
+        environment:
+          description:
+            Equals `adapterId`; present exactly when `adapterId` is present.
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        lockedAt:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/rfc3339
+          description:
+            'Present exactly when `state` is `LOCKED`: the instant the accepting
+            publish transaction fixed the destination.'
+        lockedByOperationId:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/stableId
+          description:
+            'Present exactly when `state` is `LOCKED`: the operation id of the
+            publish that fixed the destination.'
+        providerBinding:
+          additionalProperties: false
+          properties:
+            basePath:
+              default: /
+              maxLength: 512
+              minLength: 1
+              pattern: ^/$|^/(?:[A-Za-z0-9._-]+/)+$
+              type: string
+            controlPlaneBindingDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            mutationKeyDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            owner:
+              maxLength: 39
+              minLength: 1
+              pattern: ^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$
+              type: string
+            region:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesRegion
+            regionCatalogDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            repository:
+              maxLength: 100
+              minLength: 1
+              pattern: ^(?!\.{1,2}$)[A-Za-z0-9._-]{1,100}$
+              type: string
+            repositoryId:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/githubPositiveDecimal
+            servedApiOrigin:
+              allOf:
+                - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+              maxLength: 2048
+              type: string
+            servedBucket:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesBucket
+            stagingApiOrigin:
+              allOf:
+                - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+              maxLength: 2048
+              type: string
+            stagingBucket:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/spacesBucket
+            targetDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            websiteConfigurationDigest:
+              $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+            websiteOrigin:
+              allOf:
+                - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+              maxLength: 2048
+              type: string
+          required: []
+          type: object
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          enum:
+            - UNSET
+            - SET
+            - LOCKED
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - publicationId
+        - version
+        - state
+      type: object
+    ReceiptExchangeCapabilityIssuedResponse:
+      additionalProperties: false
+      properties:
+        kind:
+          const: deployment-receipt-capability-issued
+          description: |
+            The outer discriminator of the receipt-exchange response union.
+            Optional, so a 2.7.x-era body still validates; a server that speaks
+            2.8.0 always sends it.
+        capabilityGeneration:
+          maximum: 20
+          minimum: 1
+          type: integer
+        purpose:
+          const: deployment-receipt
+        reportingCapability:
+          maxLength: 43
+          minLength: 43
+          pattern: ^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$
+          type: string
+        reportingCapabilityExpiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          const: capability-issued
+      required:
+        - purpose
+        - state
+        - capabilityGeneration
+        - reportingCapability
+        - reportingCapabilityExpiresAt
+      type: object
+    ReceiptExchangeDeploymentIntentRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              adapter:
+                properties:
+                  adapterId:
+                    const: github-pages
+                required:
+                  - adapterId
+            required:
+              - adapter
+          then:
+            not:
+              required:
+                - spacesStagePrefix
+        - if:
+            properties:
+              adapter:
+                properties:
+                  adapterId:
+                    const: do-spaces
+                required:
+                  - adapterId
+            required:
+              - adapter
+          then:
+            not:
+              required:
+                - pagesBuildVersion
+        - if:
+            properties:
+              adapter:
+                properties:
+                  adapterId:
+                    const: local-directory
+                required:
+                  - adapterId
+            required:
+              - adapter
+          then:
+            not:
+              anyOf:
+                - required:
+                    - pagesBuildVersion
+                - required:
+                    - spacesStagePrefix
+      description: |
+        What the workflow holds. `pagesBuildVersion` and `spacesStagePrefix` are
+        optional here (LOCAL-57): the API derives the same two values
+        deterministically from identifiers it mints, so a workflow that cannot
+        compute them simply omits them, and one that can may send them. A sent
+        value that does not equal the derived one is refused with `422
+        VALIDATION_FAILED` -- it is a disagreement about what is being deployed,
+        not a formatting error. They were required in 2.7.x, and each is still
+        confined to the adapter it belongs to. The retained deployment-intent
+        document carries both as required, server-derived members.
+
+        SCHEMA-2.9.0 (LOCAL-60, DEC-097 section 7) extends the same rule to the
+        members the workflow has no honest source for: `destination` is the
+        request-side `ReceiptExchangeIntentRequestDestination` (its
+        `environment` and `targetDigest` are api-derived), `rebuildRecord` is
+        the request-side `ReceiptExchangeIntentRequestRebuildRecord` (its four
+        Gala-owned members are api-derived) and `capabilityDecisionDigest` is
+        api-derived. Each is optional on the request; a present value that
+        disagrees with the api's derivation is refused with `422
+        VALIDATION_FAILED`. `provenanceDigest` and `sbomDigest` stay required:
+        they digest records the workflow itself authors. The retained
+        deployment-intent document is unchanged and carries every member as
+        required. Every 2.8.x request body that names the retained members with
+        the values the api derives is still valid.
+      properties:
+        adapter:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/adapterIdentity
+        artifactByteCount:
+          format: int64
+          minimum: 1
+          type: integer
+        artifactDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        artifactFileCount:
+          format: int64
+          minimum: 1
+          type: integer
+        artifactId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        capabilityDecisionDigest:
+          description: |
+            The digest of the closed `capabilityDecision` record (DEC-097
+            section 8), when the workflow knows it. Optional (SCHEMA-2.9.0,
+            LOCAL-60): the decision is server-owned, so the API constructs the
+            record, derives this digest and refuses a disagreement with `422
+            VALIDATION_FAILED`. Required in 2.8.x; required and server-derived
+            in the retained deployment-intent document.
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        destination:
+          $ref: '#/components/schemas/ReceiptExchangeIntentRequestDestination'
+        effectiveArtifactExpiresAt:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/rfc3339
+        frozenEnvelopeByteCount:
+          format: int64
+          minimum: 1
+          type: integer
+        frozenEnvelopeDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        frozenHandoffArtifactId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        frozenHandoffName:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/plainLabel
+        lockDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        manifestDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        pagesBuildVersion:
+          description: |
+            The Pages build version this deployment addresses, when the
+            workflow knows it. Optional: the API derives the same value and
+            refuses a disagreement (LOCAL-57). Admitted only for
+            `github-pages`.
+          pattern: ^[0-9a-f]{40}$
+          type: string
+        provenanceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        publisher:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/packageIdentity
+        purpose:
+          const: deployment-intent
+        rebuildRecord:
+          $ref: '#/components/schemas/ReceiptExchangeIntentRequestRebuildRecord'
+        requestedArtifactRetentionDays:
+          maximum: 7
+          minimum: 1
+          type: integer
+        sbomDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        sourceCommit:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        spacesStagePrefix:
+          description: |
+            The Spaces staging prefix this deployment stages under, when the
+            workflow knows it. Optional: the API derives the same value and
+            refuses a disagreement (LOCAL-57). Admitted only for `do-spaces`.
+          maxLength: 512
+          minLength: 1
+          type: string
+        verificationSubmission:
+          description: |
+            Whether the complete verification plan fits one request. The two
+            arms are named components with an explicit `state` discriminator, so
+            a generator emits two bound subtypes instead of one anonymous union
+            with no members (API 2.7.1 consumer report).
+          discriminator:
+            mapping:
+              fit: '#/components/schemas/VerificationSubmissionFit'
+              unfit: '#/components/schemas/VerificationSubmissionUnfit'
+            propertyName: state
+          oneOf:
+            - $ref: '#/components/schemas/VerificationSubmissionFit'
+            - $ref: '#/components/schemas/VerificationSubmissionUnfit'
+        workflowTriggerCommit:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+      required:
+        - purpose
+        - sourceCommit
+        - workflowTriggerCommit
+        - artifactId
+        - artifactDigest
+        - manifestDigest
+        - provenanceDigest
+        - sbomDigest
+        - frozenHandoffArtifactId
+        - frozenHandoffName
+        - frozenEnvelopeDigest
+        - frozenEnvelopeByteCount
+        - artifactByteCount
+        - artifactFileCount
+        - requestedArtifactRetentionDays
+        - effectiveArtifactExpiresAt
+        - verificationSubmission
+        - lockDigest
+        - rebuildRecord
+        - publisher
+        - adapter
+        - destination
+      type: object
+    ReceiptExchangeDeploymentIntentResponse:
+      additionalProperties: false
+      properties:
+        kind:
+          const: deployment-intent
+          description: |
+            The outer discriminator of the receipt-exchange response union.
+            Optional, so a 2.7.x-era body still validates; a server that speaks
+            2.8.0 always sends it.
+        deploymentIntent:
+          $ref: ../schemas/deployment-intent.schema.json
+        purpose:
+          const: deployment-intent
+        reportChallengeExpiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        reportChallengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - purpose
+        - deploymentIntent
+        - reportChallengeId
+        - reportChallengeExpiresAt
+      type: object
+    ReceiptExchangeDeploymentReceiptRequest:
+      additionalProperties: false
+      properties:
+        attemptId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        intentDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        purpose:
+          const: deployment-receipt
+        reportChallengeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - purpose
+        - operationId
+        - attemptId
+        - intentDigest
+        - reportChallengeId
+      type: object
+    ReceiptExchangeIntentRequestDestination:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              adapterId:
+                const: github-pages
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                const: github-pages
+              providerBinding:
+                properties:
+                  mutationSurfaceDigest: false
+                  rootIdentityDigest: false
+                required:
+                  - owner
+                  - repository
+        - if:
+            properties:
+              adapterId:
+                const: do-spaces
+            required:
+              - adapterId
+          then:
+            not:
+              required:
+                - providerBinding
+            properties:
+              environment:
+                const: do-spaces
+        - if:
+            properties:
+              adapterId:
+                const: local-directory
+            required:
+              - adapterId
+          then:
+            properties:
+              environment:
+                const: local-directory
+              providerBinding:
+                properties:
+                  owner: false
+                  repository: false
+                required:
+                  - mutationSurfaceDigest
+                  - rootIdentityDigest
+      description: |
+        The destination as the workflow holds it (SCHEMA-2.9.0, LOCAL-60,
+        DEC-097 section 7). `adapterId`, `adapterVersion` and `baseUrl` are
+        required: the adapter is lock-derived and the base URL is the
+        publication's canonical base, both workflow-verifiable. `environment`
+        and `targetDigest` are optional: the API derives `environment` as the
+        adapter's constant (LOCAL-60a) and `targetDigest` as the digest of its
+        own retained provider binding, and refuses a present value that
+        disagrees with `422 VALIDATION_FAILED`. `providerBinding` is admitted
+        per adapter: for `github-pages` it names the repository the runner is
+        bound to (`owner`, `repository`, checked against the API's repository
+        binding); for `local-directory` it supplies the two evidence digests the
+        API has no other source for (`rootIdentityDigest`,
+        `mutationSurfaceDigest`, DEC-097 section 7); for `do-spaces` it is
+        forbidden on the request until the publication destination record
+        exists (C2) -- the buckets and region are bound to the author
+        destination, never proposed by a deploy job. The retained
+        deployment-intent `destinationIdentity` is unchanged.
+      properties:
+        adapterId:
+          description: |
+            The lock-selected adapter, one of the three MVP adapters
+            (SCHEMA-2.9.0 review): the per-adapter `providerBinding` and
+            `environment` rules above key on it, so an identity outside the
+            vocabulary is refused here rather than falling through every
+            branch. The retained `destinationIdentity.adapterId` stays a
+            `plainLabel` (fixture adapters).
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        adapterVersion:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/semver
+        baseUrl:
+          allOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+          maxLength: 2048
+          type: string
+          x-gala-utf8ByteLength:
+            maximum: 2048
+        environment:
+          description: |
+            Optional (SCHEMA-2.9.0): the API derives the adapter's constant
+            (`github-pages`, `do-spaces` or `local-directory`, LOCAL-60a) and
+            refuses a disagreement with `422 VALIDATION_FAILED`. Required in
+            the retained document.
+          enum:
+            - github-pages
+            - do-spaces
+            - local-directory
+          type: string
+        providerBinding:
+          $ref: '#/components/schemas/ReceiptExchangeIntentRequestProviderBinding'
+        targetDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+          description: |
+            Optional (SCHEMA-2.9.0): the API derives the digest of its retained
+            provider binding (`GALA-DESTINATION-PROVIDER-BINDING-V2`) and
+            refuses a disagreement with `422 VALIDATION_FAILED`. Required in
+            the retained document.
+      required:
+        - adapterId
+        - adapterVersion
+        - baseUrl
+      type: object
+    ReceiptExchangeIntentRequestProviderBinding:
+      additionalProperties: false
+      description: |
+        Request-side provider binding material (SCHEMA-2.9.0). Which members are
+        admitted is fixed by the owning destination's `adapterId`: `owner` and
+        `repository` for `github-pages` (the same spellings as the retained
+        `destinationProviderCoordinates`), `rootIdentityDigest` and
+        `mutationSurfaceDigest` for `local-directory` (DEC-097 section 7 local
+        binding), nothing for `do-spaces`.
+      properties:
+        mutationSurfaceDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+          description: |
+            `local-directory` only: the descriptor-proved, path-insensitive
+            physical mutation surface digest (`GALA-LOCAL-MUTATION-SURFACE-V2`).
+        owner:
+          description: GitHub owner login, for `github-pages` destinations.
+          maxLength: 39
+          minLength: 1
+          pattern: ^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$
+          type: string
+          x-gala-asciiByteLength:
+            maximum: 39
+            minimum: 1
+        repository:
+          description: GitHub repository name, for `github-pages` destinations.
+          maxLength: 100
+          minLength: 1
+          pattern: ^(?!\.{1,2}$)[A-Za-z0-9._-]{1,100}$
+          type: string
+          x-gala-asciiByteLength:
+            maximum: 100
+            minimum: 1
+        rootIdentityDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+          description: |
+            `local-directory` only: the path-sensitive root identity digest
+            (`GALA-LOCAL-ROOT-IDENTITY-V2`).
+      type: object
+    ReceiptExchangeIntentRequestRebuildRecord:
+      additionalProperties: false
+      description: |
+        The request-side reproducible build record (SCHEMA-2.9.0, LOCAL-60).
+        It carries exactly the members of the retained
+        `reproducibleBuildRecord` (DEC-097 section 5), by the same definitions,
+        with the four Gala-owned members optional: `policyReleaseId` and
+        `buildPolicyDecisionDigest` equal the accepted policy decisions,
+        `packageReleaseCatalogDigest` equals the server-selected catalog and
+        `destinationCapabilityDigest` equals the owning validated destination
+        record. The API derives each of the four, writes it into the retained
+        record before retention and refuses a present value that disagrees with
+        `422 VALIDATION_FAILED`. The retained record is unchanged: one
+        byte-identical closed object in build provenance, the deployment intent,
+        the authorization request and the durable operation record, with every
+        member required.
+      properties:
+        basePath:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/canonicalRoute
+        baseUrl:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/urlHttps
+        buildEpoch:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/rfc3339
+        buildInputDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+        buildPolicyDecisionDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+          description: |
+            Optional (SCHEMA-2.9.0): the API derives the accepted build-policy
+            decision digest and refuses a disagreement with `422
+            VALIDATION_FAILED`. Required in the retained record.
+        builder:
+          allOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/packageIdentity
+            - properties:
+                package:
+                  const: '@rathnasgala2/publish-action'
+        contractVersion:
+          const: 2.0.0
+        dependencyLockDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+        destinationCapabilityDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+          description: |
+            Optional (SCHEMA-2.9.0): the API derives it from the owning
+            validated destination record and refuses a disagreement with `422
+            VALIDATION_FAILED`. Required in the retained record.
+        packageReleaseCatalogDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+          description: |
+            Optional (SCHEMA-2.9.0): the API derives the server-selected
+            package release catalog digest and refuses a disagreement with
+            `422 VALIDATION_FAILED`. Required in the retained record.
+        policyReleaseId:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/stableId
+          description: |
+            Optional (SCHEMA-2.9.0): the API derives the accepted immutable
+            policy release identity and refuses a disagreement with `422
+            VALIDATION_FAILED`. Required in the retained record.
+        renderPolicy:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/renderPolicyIdentity
+        repositoryId:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/githubPositiveDecimal
+        repositoryRootDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+        schemas:
+          allOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/packageIdentity
+            - properties:
+                package:
+                  const: '@rathnasgala2/schemas'
+        sourceCommit:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/gitObjectId
+        sourceTree:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/gitObjectId
+        stylingContractDigest:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+        template:
+          allOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/packageIdentity
+            - properties:
+                package:
+                  const: '@rathnasgala2/template'
+        theme:
+          allOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/packageIdentity
+            - properties:
+                package:
+                  enum:
+                    - '@rathnasgala2/theme-default'
+                    - '@rathnasgala2/theme-amaze'
+                    - '@rathnasgala2/theme-flashy'
+                    - '@rathnasgala2/theme-minimal'
+                    - '@rathnasgala2/theme-zebra'
+        workflowIdentity:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/digest
+      required:
+        - repositoryId
+        - sourceCommit
+        - sourceTree
+        - repositoryRootDigest
+        - buildEpoch
+        - contractVersion
+        - builder
+        - schemas
+        - template
+        - theme
+        - dependencyLockDigest
+        - buildInputDigest
+        - baseUrl
+        - basePath
+        - stylingContractDigest
+        - renderPolicy
+        - workflowIdentity
+      type: object
+    ReceiptExchangeSubmissionRecordedResponse:
+      additionalProperties: false
+      properties:
+        kind:
+          const: deployment-receipt-submission-recorded
+          description: |
+            The outer discriminator of the receipt-exchange response union.
+            Optional, so a 2.7.x-era body still validates; a server that speaks
+            2.8.0 always sends it.
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        purpose:
+          const: deployment-receipt
+        state:
+          const: submission-recorded
+        statusUrl:
+          description:
+            Exactly
+            `/v2/organizations/{organizationId}/operations/{operationId}`.
+            Clients navigate to this URL verbatim and never construct the path
+            themselves (LOCAL-36 G-14). It is an API path under `/v2/...` rather
+            than a client route, so a browser client resolves it through its own
+            routing table (the App maps
+            `/v2/organizations/{organizationId}/operations/{operationId}` onto
+            `/organizations/{organizationId}/operations/{operationId}`) rather
+            than treating it as a link to follow directly.
+          minLength: 1
+          pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+          type: string
+      required:
+        - purpose
+        - state
+        - operationId
+        - statusUrl
+      type: object
+    RepositoryBindingState:
+      enum:
+        - PENDING
+        - ACTIVE
+        - AUTHORITY_LOST
+        - TRANSFERRING
+        - REVOKED
+      type: string
+    RepositoryChangeState:
+      enum:
+        - REQUESTED
+        - PLANNED
+        - AWAITING_CONFIRMATION
+        - COMMIT_REQUESTED
+        - COMMITTING
+        - COMMITTED
+        - UNKNOWN_RECONCILING
+        - FAILED_NO_CHANGE
+        - CANCELLED
+      type: string
+    RetirementConsequence:
+      additionalProperties: false
+      properties:
+        code:
+          description:
+            Closed, machine-readable consequence identifier the client renders
+            through its own copy deck.
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9]*(?:[-.][a-z0-9]+)*$
+          type: string
+        detail:
+          description: Plain, non-sensitive summary of this consequence.
+          maxLength: 320
+          minLength: 1
+          type: string
+        reversible:
+          type: boolean
+      required:
+        - code
+        - detail
+        - reversible
+      type: object
+    ReviewState:
+      enum:
+        - REQUESTED
+        - APPROVED
+        - REJECTED
+        - INVALIDATED
+      type: string
+    ReviewSummary:
+      additionalProperties: false
+      description: |
+        One review of an exact source revision. It is the same body the single
+        review read returns, so a list row and a read of that row never
+        disagree.
+      properties:
+        findingsDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        sourceRevision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: '#/components/schemas/ReviewState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - reviewId
+        - version
+        - state
+        - sourceRevision
+      type: object
+    RoleScope:
+      enum:
+        - ORGANIZATION
+        - PUBLICATION
+        - ORGANIZATION_OR_PUBLICATION
+      type: string
+    RoleSummary:
+      additionalProperties: false
+      properties:
+        capabilityKeys:
+          items:
+            maxLength: 160
+            minLength: 1
+            type: string
+          maxItems: 200
+          type: array
+          uniqueItems: true
+        description:
+          maxLength: 320
+          minLength: 1
+          type: string
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        scope:
+          $ref: '#/components/schemas/RoleScope'
+        stableKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+      required:
+        - roleId
+        - stableKey
+        - scope
+        - name
+        - description
+        - capabilityKeys
+      type: object
+    SessionFamilyState:
+      enum:
+        - ACTIVE
+        - ROTATED
+        - REVOKED
+        - EXPIRED
+        - COMPROMISED
+      type: string
+    SessionSummary:
+      additionalProperties: false
+      properties:
+        authenticatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        current:
+          type: boolean
+        lastSeenAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        sessionFamilyId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/SessionFamilyState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - sessionFamilyId
+        - version
+        - state
+        - authenticatedAt
+        - lastSeenAt
+        - current
+      type: object
+    VerificationPlanEntry:
+      additionalProperties: false
+      properties:
+        byteLength:
+          format: int64
+          minimum: 0
+          type: integer
+        expectedCandidateDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedContentType:
+          maxLength: 128
+          minLength: 3
+          pattern:
+            ^[a-z0-9][a-z0-9!#$&^_.+-]{0,62}/[a-z0-9][a-z0-9!#$&^_.+-]{0,62}(?:;
+            charset=utf-8)?$
+          type: string
+        path:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/repoRelativePath
+        publicRoute:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/canonicalRoute
+        routeClass:
+          enum:
+            - html
+            - feed
+            - sitemap
+            - asset
+            - error
+          type: string
+      required:
+        - path
+        - publicRoute
+        - routeClass
+        - expectedContentType
+        - byteLength
+        - expectedCandidateDigest
+      type: object
+    VerificationSubmissionFit:
+      additionalProperties: false
+      description:
+        The complete verification plan fits one request, and the request carries
+        every entry.
+      properties:
+        state:
+          const: fit
+        verificationEntries:
+          items:
+            $ref: '#/components/schemas/VerificationPlanEntry'
+          maxItems: 900
+          minItems: 1
+          type: array
+      required:
+        - state
+        - verificationEntries
+      type: object
+    VerificationSubmissionUnfit:
+      additionalProperties: false
+      description:
+        The complete verification plan does not fit one request, so the request
+        states why and by how much instead of carrying a truncated plan.
+      properties:
+        canonicalFitRequestByteCount:
+          format: int64
+          minimum: 1
+          type: integer
+        reason:
+          enum:
+            - entry-count-exceeded
+            - encoded-request-limit-exceeded
+          type: string
+        requiredVerificationEntryCount:
+          maximum: 200000
+          minimum: 1
+          type: integer
+        state:
+          const: unfit
+      required:
+        - state
+        - reason
+        - requiredVerificationEntryCount
+        - canonicalFitRequestByteCount
+      type: object
+  securitySchemes:
+    browserSession:
+      in: cookie
+      name: __Host-gala-session
+      type: apiKey
+    galaReceipt:
+      in: header
+      name: Authorization
+      type: apiKey
+    githubOidc:
+      bearerFormat: GitHub OIDC JWT
+      scheme: bearer
+      type: http
+    githubWebhookSignature:
+      in: header
+      name: X-Hub-Signature-256
+      type: apiKey
+    internalHealth:
+      type: mutualTLS
