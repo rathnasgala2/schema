@@ -1141,6 +1141,17 @@ export async function runCrossLanguageParity(options = {}) {
   const expected = new Map();
   const failures = [];
   let standardError = '';
+  // The Networknt harness can die mid-stream (crash, OOM, runner resource
+  // pressure) while thousands of requests are still queued for it. Once its
+  // stdin pipe is closed, the next write fails asynchronously with EPIPE; with
+  // no listener that surfaces as an uncaught exception and kills the whole
+  // gate with no diagnostics. Record the failure instead and let the
+  // exit/close handling below report it using the harness's own stderr.
+  /** @type {{ error: NodeJS.ErrnoException | null }} */
+  const stdinFailure = { error: null };
+  child.stdin.on('error', (error) => {
+    stdinFailure.error = error;
+  });
   child.stderr.setEncoding('utf8');
   child.stderr.on('data', (chunk) => {
     standardError += chunk;
@@ -1165,8 +1176,27 @@ export async function runCrossLanguageParity(options = {}) {
 
   /** @param {Record<string, unknown>} request parity request */
   async function send(request) {
+    if (stdinFailure.error) return;
     if (!child.stdin.write(`${JSON.stringify(request)}\n`)) {
-      await once(child.stdin, 'drain');
+      // If the pipe breaks while we are waiting for backpressure to clear,
+      // 'drain' will never fire; race it against 'error' so a dead harness
+      // can't hang the gate. `events.once()` would work but leaves its
+      // internal safety 'error' listener attached on whichever race loser
+      // never resolves, leaking a listener per backpressure event across
+      // this run's thousands of requests; remove both listeners by hand once
+      // either one fires instead.
+      await new Promise((resolve) => {
+        const onDrain = () => {
+          child.stdin.off('error', onStdinError);
+          resolve(undefined);
+        };
+        const onStdinError = () => {
+          child.stdin.off('drain', onDrain);
+          resolve(undefined);
+        };
+        child.stdin.once('drain', onDrain);
+        child.stdin.once('error', onStdinError);
+      });
     }
   }
 
@@ -1305,13 +1335,16 @@ export async function runCrossLanguageParity(options = {}) {
     }
     await send(createScalarRequest(fixture));
   }
-  child.stdin.end();
+  if (!stdinFailure.error) child.stdin.end();
   const [exitCode] = await Promise.all([once(child, 'close'), reader]).then(
     ([close]) => close,
   );
-  if (exitCode !== 0) {
+  if (exitCode !== 0 || stdinFailure.error) {
+    const cause = stdinFailure.error
+      ? ` (its stdin pipe closed early: ${stdinFailure.error.code ?? stdinFailure.error.message})`
+      : '';
     throw new Error(
-      `Networknt harness exited ${String(exitCode)}:\n${standardError}`,
+      `Networknt harness exited ${String(exitCode)}${cause}:\n${standardError}`,
     );
   }
   if (expected.size > 0) {
