@@ -78,8 +78,18 @@ public final class ParityMain {
                 .formatAssertionsEnabled(true)
                 .regularExpressionFactory(ECMAScriptRegularExpressionFactory.getInstance())
                 .build();
+        // The parity corpus drives ~19,000 requests, most pointing at a
+        // distinct schemaId+fragment pointer (one nested location per
+        // structural fixture). SchemaRegistry's default schemaCache is an
+        // unbounded ConcurrentMap keyed by that exact SchemaLocation, so
+        // across a run this size it retains one compiled Schema per
+        // essentially-unique location and never evicts, growing heap
+        // monotonically until the process OOMs on a memory-constrained
+        // runner. Reuse across cases is negligible here, so disable the
+        // cache: each check still compiles correctly, just without
+        // unbounded retention.
         registry = SchemaRegistry.withDialect(dialect.build(), builder ->
-                builder.schemas(schemas).schemaRegistryConfig(config));
+                builder.schemas(schemas).schemaRegistryConfig(config).schemaCacheEnabled(false));
         DiagnosticMap diagnosticMap = loadDiagnosticMap(repositoryRoot);
         ruleCodes = diagnosticMap.ruleCodes();
         keywordCodes = diagnosticMap.keywordCodes();
