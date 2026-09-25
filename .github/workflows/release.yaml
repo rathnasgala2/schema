@@ -5,7 +5,6 @@ on:
     branches:
       - main
     paths:
-      - compatibility/compatibility.json
       - diagnostics/diagnostic-map.json
       - docs/catalogs/schema-inventory.json
       - examples/**
@@ -75,14 +74,18 @@ jobs:
         run: npm pack --dry-run
 
       - name: Reject version reuse
+        id: version-check
         shell: bash
         run: |
           package_name="$(node --input-type=module -e "import definition from './package.json' with {type: 'json'}; process.stdout.write(definition.name)")"
           package_version="$(node --input-type=module -e "import definition from './package.json' with {type: 'json'}; process.stdout.write(definition.version)")"
           if npm view "${package_name}@${package_version}" version >/dev/null 2>&1; then
-            echo "${package_name}@${package_version} is already immutable" >&2
-            exit 1
+            echo "::notice::${package_name}@${package_version} is already published; skipping publish (bump package.json's version to release new content)."
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish with trusted provenance
+        if: steps.version-check.outputs.should_publish == 'true'
         run: npm publish --access public --provenance
