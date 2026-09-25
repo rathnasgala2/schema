@@ -115,7 +115,6 @@ test('package metadata pins the accepted runtime and package manager', async () 
       types: './generated/typescript/index.d.ts',
       import: './generated/typescript/index.js',
     },
-    './compatibility/compatibility.json': './compatibility/compatibility.json',
     // SCHEMA-2.9.0: the DEC-097 record golden vectors the API's Java digest
     // implementation reproduces (LOCAL-60, packet API-INTENT-DERIVATION-1).
     './parity/digest-record-vectors.json':

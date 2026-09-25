@@ -53,7 +53,6 @@
       "types": "./generated/typescript/index.d.ts",
       "import": "./generated/typescript/index.js"
     },
-    "./compatibility/compatibility.json": "./compatibility/compatibility.json",
     "./parity/digest-record-vectors.json": "./parity/digest-record-vectors.json",
     "./catalog-sources/internal-event-actions.json": "./catalog-sources/internal-event-actions.json",
     "./docs/catalogs/app-components.json": "./docs/catalogs/app-components.json",
@@ -80,7 +79,6 @@
     "docs/catalogs/schema-inventory.json",
     "docs/catalogs/app-routes.json",
     "docs/catalogs/app-components.json",
-    "compatibility/compatibility.json",
     "parity/digest-record-vectors.json",
     "LICENSE",
     "NOTICE",
@@ -110,7 +108,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run compatibility:check && npm run app-catalogs:check && npm run browser-safety:check",
+    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run app-catalogs:check && npm run browser-safety:check",
     "schemas:generate": "node scripts/generate-author-source-schemas.mjs",
     "schemas:check": "node scripts/generate-author-source-schemas.mjs --check",
     "fixtures:generate": "node scripts/generate-fixture-corpus.mjs",
@@ -129,7 +127,6 @@
     "codegen:compile": "tsc --project tsconfig.codegen.json",
     "codegen:generate": "npm run codegen:compile && node .build/codegen/generate-contracts.js",
     "codegen:check": "npm run codegen:compile && node .build/codegen/generate-contracts.js --check",
-    "compatibility:check": "node scripts/check-compatibility.mjs",
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/generate-openapi.mjs --check",
     "events:generate": "node scripts/generate-internal-event-actions.mjs",

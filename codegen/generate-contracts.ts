@@ -72,7 +72,6 @@ const CONTRACTS = [
 ] as const;
 
 const OPENAPI_ID = 'urn:gala:schema:openapi:2.0.0';
-const PACKAGE_NAME = '@rathnasgala2/schemas';
 const DESIGN_DOMAIN = Buffer.from('GALA-DESIGN-REVISION-V2\0', 'utf8');
 const INTERNAL_DEFINITION = 'buildProvenance';
 const JAVA_PACKAGE = 'io.gala.schema.generated';
@@ -81,38 +80,6 @@ const FORMAT_OPTIONS = {
   singleQuote: true,
   trailingComma: 'all',
 } as const;
-
-const CONTRACT_CONSUMERS: Readonly<Record<string, readonly string[]>> = {
-  'adapter-capability': ['api', 'publish'],
-  appearance: ['api', 'template'],
-  'artifact-manifest': ['api', 'publish'],
-  author: ['api', 'template'],
-  'build-input': ['template'],
-  'build-provenance': ['api', 'publish'],
-  'content-frontmatter': ['api', 'template'],
-  'deployment-intent': ['api', 'publish'],
-  'deployment-observation': ['api', 'publish'],
-  'deployment-receipt': ['api', 'publish'],
-  'event-envelope': ['api', 'app'],
-  lock: ['publish', 'template'],
-  navigation: ['api', 'template'],
-  openapi: ['api', 'app'],
-  problem: ['api', 'app'],
-  'public-generation-marker': ['api', 'publish'],
-  'public-runtime-origins': ['api', 'app', 'infra'],
-  publication: ['api', 'template'],
-  repository: ['api', 'template'],
-  'template-composition': ['template'],
-  'theme-contract': [
-    'publish',
-    'template',
-    'theme-amaze',
-    'theme-default',
-    'theme-flashy',
-    'theme-minimal',
-    'theme-zebra',
-  ],
-};
 
 const JAVA_KEYWORDS = new Set([
   'abstract',
@@ -883,59 +850,6 @@ function schemaInventory(
   return inventory;
 }
 
-function compatibilityCatalog(
-  schemas: SchemaDocument[],
-  revision: string,
-): JsonObject {
-  const identities = [...schemas.map((schema) => schema.$id), OPENAPI_ID].sort(
-    compareUtf8,
-  );
-  const contracts: JsonValue[] = identities.map((contractId) => {
-    // SCHEMA-2.10.0: build-provenance's identity uses the DEC-097 metadata
-    // namespace (urn:gala:metadata:build-provenance:2.0.0) rather than
-    // urn:gala:schema:<contract>:2.0.0, so its contract name is recovered
-    // from whichever namespace prefix the identity actually carries.
-    const schemaPrefix = 'urn:gala:schema:';
-    const metadataPrefix = 'urn:gala:metadata:';
-    const prefix = contractId.startsWith(metadataPrefix)
-      ? metadataPrefix
-      : schemaPrefix;
-    const contract = contractId.slice(prefix.length, -':2.0.0'.length);
-    const consumers = CONTRACT_CONSUMERS[contract];
-    if (consumers === undefined || consumers.length === 0) {
-      throw new TypeError(`Missing compatibility consumers for ${contract}`);
-    }
-    return {
-      contractId,
-      producer: {
-        artifact: PACKAGE_NAME,
-        version: '2.0.0',
-        oldestAcceptedVersion: '2.0.0',
-        previousSupportedVersion: null,
-        previousVersionDisposition: 'INITIAL_RELEASE_NO_PREVIOUS_VERSION',
-        status: 'current',
-        introducedOn: '2026-09-06',
-        deprecatedOn: null,
-        retiredOn: null,
-        supportEvidence: ['DEC-071', 'DEC-078', 'S0-T05'],
-      },
-      consumers: consumers.map((artifact) => ({
-        artifact,
-        version: '2.0.0',
-        supportedProducerRange: '>=2.0.0 <2.1.0',
-      })),
-    };
-  });
-  const catalog: JsonObject = {
-    schemaVersion: '2.0.0',
-    sourceDesignRevision: revision,
-    contracts,
-    digest: '',
-  };
-  catalog.digest = catalogDigest(catalog);
-  return catalog;
-}
-
 async function writeGeneratedTree(
   repositoryRoot: string,
   outputRoot: string,
@@ -994,7 +908,6 @@ async function writeGeneratedTree(
       { recursive: true },
     ),
     mkdir(path.join(outputRoot, 'docs', 'catalogs'), { recursive: true }),
-    mkdir(path.join(outputRoot, 'compatibility'), { recursive: true }),
   ]);
 
   const index = generateTypescriptIndex(schemas, revision);
@@ -1088,19 +1001,10 @@ async function writeGeneratedTree(
     revision,
     openapiSource,
   );
-  const compatibility = compatibilityCatalog(schemas, revision);
   writes.push(
     writeFile(
       path.join(outputRoot, 'docs', 'catalogs', 'schema-inventory.json'),
       await prettierFormat(JSON.stringify(inventory), {
-        ...FORMAT_OPTIONS,
-        parser: 'json',
-      }),
-      'utf8',
-    ),
-    writeFile(
-      path.join(outputRoot, 'compatibility', 'compatibility.json'),
-      await prettierFormat(JSON.stringify(compatibility), {
         ...FORMAT_OPTIONS,
         parser: 'json',
       }),
@@ -1161,7 +1065,6 @@ async function copyManagedView(source: string, target: string): Promise<void> {
     'generated/java',
     'generated/typescript',
     'docs/catalogs/schema-inventory.json',
-    'compatibility/compatibility.json',
   ];
   for (const relative of managed) {
     const sourcePath = path.join(source, relative);
@@ -1208,7 +1111,7 @@ async function checkGenerated(repositoryRoot: string): Promise<void> {
     await rm(temporary, { force: true, recursive: true });
   }
   process.stdout.write(
-    'Generated Java, TypeScript, catalog, and compatibility output is reproducible and current.\n',
+    'Generated Java, TypeScript, and catalog output is reproducible and current.\n',
   );
 }
 
@@ -1224,9 +1127,7 @@ async function main(): Promise<void> {
   if (arguments_[0] === '--check') await checkGenerated(repositoryRoot);
   else {
     await writeGeneratedTree(repositoryRoot, repositoryRoot);
-    process.stdout.write(
-      'Generated Java, TypeScript, schema inventory, and compatibility catalog.\n',
-    );
+    process.stdout.write('Generated Java, TypeScript, and schema inventory.\n');
   }
 }
 

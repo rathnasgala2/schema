@@ -26,8 +26,7 @@ pinned Unicode 17 grapheme-conformance rows, and raw RFC 8785 number and string
 spellings that have not first been normalized by Node. S0-T06 generates strict
 TypeScript root types and validators plus Java 21 records and Networknt registry
 wiring for the exact 20 roots. The schema inventory adds the separately owned
-OpenAPI contract as the twenty-first identity, and the compatibility catalog
-closes 46 initial producer/consumer pairings. Both catalogs carry DEC-091's
+OpenAPI contract as the twenty-first identity and carries DEC-091's
 domain-separated `sourceDesignRevision`. S0-T07 materializes the reviewed
 OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound HTTP
 catalog for exactly 75 MVP operations plus `/internal/health` (76 catalog rows;
@@ -256,7 +255,6 @@ npm run events:generate
 npm run events:check
 npm run app-catalogs:generate
 npm run app-catalogs:check
-npm run compatibility:check
 npm run licenses:check
 npm run sbom:check
 npm run browser-safety:check
@@ -264,12 +262,12 @@ npm pack --dry-run
 ```
 
 `npm run verify` checks deterministic schema, diagnostic-map, exact parity
-expectation, generated TypeScript/Java, schema-inventory, and compatibility
-generation; verifies the deterministic OpenAPI bundle/catalog; builds
-declarations; and runs formatting, lint, type, architecture, duplication,
-workflow-pin, test, full cross-language parity, license, SBOM, and critical
-vulnerability gates. `codegen:check` performs two isolated clean builds and
-requires both generated trees and the committed tree to be byte-identical.
+expectation, and generated TypeScript/Java/schema-inventory generation; verifies
+the deterministic OpenAPI bundle/catalog; builds declarations; and runs
+formatting, lint, type, architecture, duplication, workflow-pin, test, full
+cross-language parity, license, SBOM, and critical vulnerability gates.
+`codegen:check` performs two isolated clean builds and requires both generated
+trees and the committed tree to be byte-identical.
 
 ### Browser safety
 
@@ -456,8 +454,6 @@ remediation, and documentation URL fields without including authored values.
   not a parallel transport authority.
 - `openapi/generator/` — serialized Spring and TypeScript Fetch options for
   OpenAPI Generator 7.25.0.
-- `compatibility/` — closed compatibility schema and the executable initial
-  21-contract, 46-pairing release authority (SCHEMA-2.10.0).
 - `scripts/` — repository verification and supply-chain tooling.
 - `parity/java/` — test-only checksum-pinned Gradle 8.8/Java 21 Networknt
   harness; it is not part of the npm package payload.

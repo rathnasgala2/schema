@@ -10,10 +10,6 @@ import {
   GENERATED_SCHEMA_IDS,
   validateGeneratedDocument,
 } from '../generated/typescript/index.js';
-import {
-  checkCompatibilityCatalog,
-  evaluateCompatibility,
-} from '../scripts/check-compatibility.mjs';
 import { GALA_SCHEMA_IDS } from '../src/index.js';
 
 const require = createRequire(import.meta.url);
@@ -167,73 +163,12 @@ test('schema inventory is exactly twenty roots plus OpenAPI', async () => {
   assert.equal(JSON.stringify(inventory).includes('buildProvenance'), false);
 });
 
-test('compatibility authority admits only documented exact pairings', async () => {
-  const [catalogValue, schema, inventory] = /** @type {[
-    unknown,
-    unknown,
-    {contracts: Array<{id: string}>}
-  ]} */ (
-    await Promise.all([
-      readFile('compatibility/compatibility.json', 'utf8').then(JSON.parse),
-      readFile('compatibility/compatibility.schema.json', 'utf8').then(
-        JSON.parse,
-      ),
-      readFile('docs/catalogs/schema-inventory.json', 'utf8').then(JSON.parse),
-    ])
-  );
-  const catalog = checkCompatibilityCatalog(
-    catalogValue,
-    schema,
-    inventory.contracts.map(({ id }) => id).sort(),
-  );
-  const repositoryId = 'urn:gala:schema:repository:2.0.0';
-  assert.deepEqual(
-    evaluateCompatibility(catalog, repositoryId, '2.0.0', 'template', '2.0.0'),
-    { compatible: true },
-  );
-  assert.deepEqual(
-    evaluateCompatibility(catalog, repositoryId, '2.0.1', 'template', '2.0.0'),
-    {
-      compatible: false,
-      code: 'COMPATIBILITY_PRODUCER_VERSION_UNDOCUMENTED',
-    },
-  );
-  assert.deepEqual(
-    evaluateCompatibility(catalog, repositoryId, '2.0.0', 'app', '2.0.0'),
-    {
-      compatible: false,
-      code: 'COMPATIBILITY_CONSUMER_UNDOCUMENTED',
-    },
-  );
-  assert.deepEqual(
-    evaluateCompatibility(catalog, repositoryId, '2.0.0', 'template', '2.1.0'),
-    {
-      compatible: false,
-      code: 'COMPATIBILITY_CONSUMER_VERSION_UNDOCUMENTED',
-    },
-  );
-  assert.deepEqual(
-    evaluateCompatibility(
-      catalog,
-      'urn:gala:schema:repository:3.0.0',
-      '3.0.0',
-      'template',
-      '2.0.0',
-    ),
-    { compatible: false, code: 'COMPATIBILITY_CONTRACT_UNKNOWN' },
-  );
-});
-
 test('package exports the generated API and machine catalogs explicitly', async () => {
   const packageDefinition = JSON.parse(await readFile('package.json', 'utf8'));
   assert.deepEqual(packageDefinition.exports['./generated/typescript'], {
     types: './generated/typescript/index.d.ts',
     import: './generated/typescript/index.js',
   });
-  assert.equal(
-    packageDefinition.exports['./compatibility/compatibility.json'],
-    './compatibility/compatibility.json',
-  );
   assert.equal(
     packageDefinition.exports['./docs/catalogs/schema-inventory.json'],
     './docs/catalogs/schema-inventory.json',
@@ -242,9 +177,13 @@ test('package exports the generated API and machine catalogs explicitly', async 
     packageDefinition.exports['./generated/buildProvenance'],
     undefined,
   );
+  assert.equal(
+    packageDefinition.exports['./compatibility/compatibility.json'],
+    undefined,
+  );
   assert.ok(packageDefinition.files.includes('generated/'));
   assert.ok(
-    packageDefinition.files.includes('compatibility/compatibility.json'),
+    !packageDefinition.files.includes('compatibility/compatibility.json'),
   );
 });
 

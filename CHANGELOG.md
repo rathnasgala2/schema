@@ -23,6 +23,32 @@ Tooling only; no schema, OpenAPI, generated-output or package-version change.
 - `publish:dry-run` script (`npm publish --dry-run --access public`) so the
   exact packed file list and size can be inspected before the real publish.
 
+### Removed
+
+- The compatibility catalog (`compatibility/compatibility.json`,
+  `compatibility/compatibility.schema.json`), its generator
+  (`codegen/generate-contracts.ts`'s `compatibilityCatalog`/
+  `CONTRACT_CONSUMERS`), and its checker (`scripts/check-compatibility.mjs`, the
+  `compatibility:check` script, and the exported `evaluateCompatibility`/
+  `checkCompatibilityCatalog` functions). Review found the catalog inert and
+  misleading: every one of its 21 contracts/46 pairings was permanently pinned
+  at producer/consumer `2.0.0` with `supportedProducerRange: ">=2.0.0 <2.1.0"`
+  since its introduction, never updated as the package moved through
+  2.1.0-2.11.0 (real consumers, `api`/`app` included, pin
+  `@rathnasgala2/schemas` at 2.11.0, a version the catalog had no entry for);
+  `checkCompatibilityCatalog` only checked that the catalog was internally
+  self-consistent (digest, sort order, semver parse, and `evaluateCompatibility`
+  run against the catalog's own pinned `2.0.0` values), never against the
+  package's actual `package.json` version or a real consumer's actual pinned
+  version. `evaluateCompatibility` was not part of the package's public JS
+  surface (`scripts/` is not in `files`, and `src/index.js` never re-exported
+  it) and a repository-wide search found no import of it, or read of
+  `compatibility/compatibility.json`, from `api`, `app`, or `publish`. It had no
+  consumer and validated nothing but itself, so it is removed rather than
+  repaired, so nobody budgets it as protection it never provided. The removal is
+  a dev-tooling and published-file-list change only; no schema, OpenAPI, or
+  generated-output content changes.
+
 ## [2.11.0] - 2026-09-19
 
 SCHEMA-2.11.0-INSTALLATION-EVENTS (backlog follow-up recorded at
