@@ -1,9 +1,15 @@
 import Ajv2020Module from 'ajv/dist/2020.js';
 import formatsPlugin from 'ajv-formats';
 
-import { canonicalizeJcsBytes } from './canonical-jcs.js';
-import { utf8Bytes } from './bytes.js';
-import { assertUnicodeScalarString, graphemeLength17 } from './unicode17.js';
+import {
+  galaAsciiByteLength,
+  galaDecisionPhase,
+  galaGraphemeLength,
+  galaMaxCanonicalBytes,
+  galaMaximum,
+  galaUtf8ByteLength,
+} from './gala-keywords.js';
+import { assertUnicodeScalarString } from './unicode17.js';
 
 const Ajv2020 = /** @type {typeof import('ajv/dist/2020.js').default} */ (
   /** @type {unknown} */ (Ajv2020Module)
@@ -101,119 +107,46 @@ function contractFromSchemaId(schemaId) {
  */
 
 /**
- * Test inclusive bounds.
- *
- * @param {number} value measured value
- * @param {{minimum?: number, maximum?: number}} bounds inclusive bounds
- * @returns {boolean} whether the value is in range
- */
-function withinBounds(value, bounds) {
-  return (
-    (bounds.minimum === undefined || value >= bounds.minimum) &&
-    (bounds.maximum === undefined || value <= bounds.maximum)
-  );
-}
-
-/**
- * Register Gala's assertion keywords.
+ * Register Gala's assertion keywords, wiring each of `gala-keywords.js`'s
+ * pure implementations into a closure-based `ajv.addKeyword` definition.
+ * `strict: true` would otherwise refuse to compile a schema using any of
+ * these as an unknown keyword (SCH-H1).
  *
  * @param {import('ajv/dist/2020.js').default} ajv registry
  * @returns {void}
  */
 function addGalaKeywords(ajv) {
-  // Pure annotation, not an assertion: it marks which DEC-097 lifecycle
-  // phase (issuance vs. deploy) a property belongs to for digest scoping
-  // (see LOCAL-62 in README.md). It carries no independent validation
-  // rule of its own -- adapter-capability is the only root that uses it --
-  // so it is registered as always-valid rather than left unknown, which
-  // strict: true would otherwise refuse to compile (SCH-H1).
-  ajv.addKeyword({ keyword: 'x-gala-decision-phase', validate: () => true });
+  ajv.addKeyword({
+    keyword: 'x-gala-decision-phase',
+    validate: galaDecisionPhase,
+  });
   ajv.addKeyword({
     keyword: 'x-gala-asciiByteLength',
     schemaType: 'object',
     type: 'string',
-    validate: (
-      /** @type {{minimum?: number, maximum?: number}} */ bounds,
-      /** @type {string} */ value,
-    ) =>
-      [...value].every((character) => character.charCodeAt(0) <= 0x7f) &&
-      withinBounds(value.length, bounds),
+    validate: galaAsciiByteLength,
   });
   ajv.addKeyword({
     keyword: 'x-gala-utf8ByteLength',
     schemaType: 'object',
     type: 'string',
-    validate: (
-      /** @type {{minimum?: number, maximum?: number}} */ bounds,
-      /** @type {string} */ value,
-    ) => {
-      try {
-        assertUnicodeScalarString(value);
-        return withinBounds(utf8Bytes(value).length, bounds);
-      } catch (error) {
-        if (
-          error instanceof TypeError &&
-          error.message === 'UNICODE_SCALAR_INVALID'
-        ) {
-          return false;
-        }
-        throw error;
-      }
-    },
+    validate: galaUtf8ByteLength,
   });
   ajv.addKeyword({
     keyword: 'x-gala-graphemeLength',
     schemaType: 'object',
     type: 'string',
-    validate: (
-      /** @type {{minimum?: number, maximum?: number}} */ bounds,
-      /** @type {string} */ value,
-    ) => {
-      try {
-        return withinBounds(graphemeLength17(value), bounds);
-      } catch (error) {
-        if (
-          error instanceof TypeError &&
-          error.message === 'UNICODE_SCALAR_INVALID'
-        ) {
-          return false;
-        }
-        throw error;
-      }
-    },
+    validate: galaGraphemeLength,
   });
   ajv.addKeyword({
     keyword: 'x-gala-maxCanonicalBytes',
     schemaType: 'number',
-    validate: (/** @type {number} */ maximum, /** @type {unknown} */ value) => {
-      try {
-        return canonicalizeJcsBytes(value).byteLength <= maximum;
-      } catch {
-        return false;
-      }
-    },
+    validate: galaMaxCanonicalBytes,
   });
   ajv.addKeyword({
     keyword: 'x-gala-maximum',
     schemaType: ['number', 'string'],
-    validate: (
-      /** @type {number | string} */ maximum,
-      /** @type {unknown} */ value,
-    ) => {
-      // x-gala-maximum is a range assertion, not a shape assertion; it must
-      // fail closed on anything it cannot evaluate as a non-negative
-      // decimal integer, not defer to a pattern/format keyword that may not
-      // be present on every $def using this keyword (see SCH-C3/SCH-H13).
-      if (typeof value !== 'string' && typeof value !== 'number') return false;
-      if (typeof value === 'string' && !/^(?:0|[1-9][0-9]*)$/u.test(value)) {
-        return false;
-      }
-      try {
-        return BigInt(value) <= BigInt(maximum);
-      } catch {
-        return false;
-      }
-    },
+    validate: galaMaximum,
   });
 }
 
