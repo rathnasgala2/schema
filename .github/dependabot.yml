@@ -1,5 +1,16 @@
 version: 2
 
+# 2026-09-26: a batch of four Dependabot PRs (npm dev-tooling + gradle) merged
+# in the same window as a review branch and broke `main`:
+#   - `typescript` jumped to a 7.x major outside `typescript-eslint`'s peer
+#     range (eslint.config.js / package.json pin typescript-eslint 8.70.0).
+#   - `yaml` was bumped past the exact devDependency version
+#     test/scaffold.test.js asserts, failing the pinned-version gate.
+# The groups/ignore rules below stop Dependabot from proposing bumps that our
+# own gates already pin on purpose. A real bump to any ignored dependency
+# must be a deliberate PR that also updates the pinned-version test/assertion
+# in the same change, not an automated one.
+
 updates:
   - package-ecosystem: npm
     directory: /
@@ -8,10 +19,29 @@ updates:
       day: monday
       time: '09:00'
       timezone: America/Los_Angeles
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     groups:
       development-tooling:
         dependency-type: development
+    ignore:
+      # typescript-eslint 8.70.0's peer range does not cover TypeScript 7.x;
+      # this is exactly the bump that broke `main` on 2026-09-26. A major
+      # needs a coordinated typescript + typescript-eslint compatibility
+      # check, not an automated PR.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      # test/scaffold.test.js: assert.equal(packageDefinition.devDependencies.yaml, '2.9.0')
+      # — any version change (not only majors) fails this pinned-version gate.
+      - dependency-name: 'yaml'
+      # test/t03-pinned-source-data.test.js: assert.equal(packageDefinition.devDependencies.semver, '7.8.5')
+      # and asserts the lockfile's resolved semver integrity hash — any
+      # version change fails this pinned SemVer-oracle gate.
+      - dependency-name: 'semver'
+      # test/t03-pinned-source-data.test.js: assert.deepEqual(packageDefinition.dependencies, { ajv: '8.20.0', 'ajv-formats': '3.0.1' })
+      # — the validator's exact version is gate-verified; any change (not
+      # only majors) fails this deepEqual assertion.
+      - dependency-name: 'ajv'
+      - dependency-name: 'ajv-formats'
 
   - package-ecosystem: github-actions
     directory: /
@@ -20,7 +50,15 @@ updates:
       day: monday
       time: '09:00'
       timezone: America/Los_Angeles
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 2
+    groups:
+      # Actions are SHA-pinned deliberately; only fold minor/patch tag bumps
+      # (of the pinned SHA's comment version) into one reviewed PR. Majors
+      # are left out of the group so they still surface as their own PR for
+      # a human to review by hand, per the SHA-pinning policy.
+      github-actions:
+        patterns: ['*']
+        update-types: ['minor', 'patch']
 
   # parity/java/gradle.lockfile pins the Networknt and Jackson versions the
   # entire cross-language parity guarantee (SCH-C4, SCH-H0b) rests on; without
@@ -32,4 +70,17 @@ updates:
       day: monday
       time: '09:00'
       timezone: America/Los_Angeles
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
+    groups:
+      parity-dependencies:
+        update-types: ['minor', 'patch']
+    ignore:
+      # Gradle 9 is a major runtime/toolchain jump for the parity harness;
+      # go through it deliberately, not via an automated PR.
+      - dependency-name: 'gradle-wrapper'
+        update-types: ['version-update:semver-major']
+      # com.networknt:json-schema-validator 2 -> 3 changes validator
+      # behaviour the cross-language parity gate (SCH-C4, SCH-H0b) depends
+      # on; a major needs the parity fixtures re-verified by hand.
+      - dependency-name: 'com.networknt:json-schema-validator'
+        update-types: ['version-update:semver-major']
