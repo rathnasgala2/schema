@@ -10,7 +10,22 @@ contracts, the eleven composition/build/deployment contracts (SCHEMA-2.10.0 adds
 `build-provenance`, `urn:gala:metadata:build-provenance:2.0.0`, a pure addition
 nested identically at `artifact-manifest`'s internal `#/$defs/buildProvenance`
 and published standalone for direct validation), and the three platform
-contracts (`problem`, `event-envelope`, and `public-runtime-origins`). Every
+contracts (`problem`, `event-envelope`, and `public-runtime-origins`).
+
+**URN namespace rule (SCH-M8):** every root's `$id` is
+`urn:gala:schema:<contract>:2.0.0` except `build-provenance`, which is
+`urn:gala:metadata:<contract>:2.0.0`. `urn:gala:metadata:` is for a root whose
+canonical home is as a record *embedded in* another root's envelope
+(`build-provenance` is `artifact-manifest`'s `#/$defs/buildProvenance`,
+published standalone only so the API can validate the record directly at the
+workload boundary) and that is published standalone purely as a secondary,
+already-embedded convenience -- not for every root that happens to describe
+metadata-shaped content in general (`artifact-manifest` itself is metadata-shaped
+too, and stays `urn:gala:schema:`, because it has no other root's envelope it is
+first and foremost a member of). `src/internal/validator-core.js` special-cases
+this one root's namespace at `contractFromSchemaId`; the next metadata-shaped
+root should apply this same test before picking a namespace, so the exception
+does not grow without a rule behind it. Every
 `$defs` name shared by more than one root is byte-identical everywhere it
 appears (`npm run schemas:shared-defs:check`, SCH-C3); a name whose meaning
 deliberately differs by root role is not shared -- it gets a distinct name
