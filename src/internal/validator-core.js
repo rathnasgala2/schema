@@ -16,7 +16,7 @@ const Ajv2020 = /** @type {typeof import('ajv/dist/2020.js').default} */ (
 );
 
 // Every S0 root's `$id` is immutable at `2.0.0`: contract *content* moves
-// forward in the npm package version (2.0.0 -> 2.11.0 and beyond), never in
+// forward in the npm package version (2.0.0 -> 2.12.0 and beyond), never in
 // the `$id`, so the same schema identity keeps resolving across releases.
 // This constant is that policy made explicit and enforced -- see
 // docs/COMPATIBILITY.md.

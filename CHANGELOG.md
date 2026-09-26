@@ -8,10 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
-Code-discipline remediation pass (2026-09-25 review). No package-version change.
-Includes a JSON Schema content change (SCH-C3: thirteen shared `$defs`
-divergences reconciled, some tightening validation) and new generated output
-(`generated/browser/**`) -- see Fixed.
+## [2.12.0] - 2026-09-26
+
+Code-discipline remediation pass (2026-09-25 review). Includes a JSON Schema
+content change (SCH-C3: thirteen shared `$defs` divergences reconciled, some
+tightening validation) and new generated output (`generated/browser/**`) -- see
+Fixed.
 
 ### Fixed
 
@@ -1851,7 +1853,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.11.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.12.0...HEAD
+[2.12.0]: https://github.com/rathnasgala2/schema/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/rathnasgala2/schema/compare/v2.10.0...v2.11.0
 [2.10.0]: https://github.com/rathnasgala2/schema/compare/v2.9.1...v2.10.0
 [2.9.1]: https://github.com/rathnasgala2/schema/compare/v2.9.0...v2.9.1

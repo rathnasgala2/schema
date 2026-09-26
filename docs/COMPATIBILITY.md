@@ -4,7 +4,7 @@
 root's `$id`/`schemaId` is pinned at `…:2.0.0` and never changes (enforced at
 `src/internal/validator-core.js`'s `IMMUTABLE_SCHEMA_VERSION`); a contract's
 content moves forward in the npm package version instead (`package.json`'s
-`version`, 2.0.0 → 2.11.0 and beyond). A consumer that pins an exact package
+`version`, 2.0.0 → 2.12.0 and beyond). A consumer that pins an exact package
 version and re-validates the same document against a later one must get the same
 accept/reject outcome unless the change it picked up is one of the additive
 kinds below.
