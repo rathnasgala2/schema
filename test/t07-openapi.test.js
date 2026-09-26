@@ -2323,3 +2323,20 @@ test('PortableProblemDocument matches problem.schema.json on shape and bounds (S
     );
   }
 });
+
+test('README.md states the MVP operation count consistently (SCH-L1)', async () => {
+  const readme = await readFile('README.md', 'utf8');
+  assert.ok(
+    readme.includes('75 MVP operations plus'),
+    'README.md no longer says "75 MVP operations plus"',
+  );
+  assert.match(
+    readme,
+    /exact 75 MVP\s+operations plus health/u,
+    'README.md no longer says "exact 75 MVP operations plus health"',
+  );
+  assert.ok(
+    !/\b73 MVP\b/u.test(readme),
+    'README.md still claims 73 MVP operations somewhere; it is 75',
+  );
+});

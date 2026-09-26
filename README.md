@@ -527,7 +527,7 @@ remediation, and documentation URL fields without including authored values.
   fragments grouped by the first literal resource token. A build input, not part
   of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
   a consumer reads the materialized `openapi/openapi.yaml` instead.
-- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 73 MVP
+- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 75 MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
   capability inventory, including `conditionalCapabilityKeys` (SCHEMA-2.7.1) and
