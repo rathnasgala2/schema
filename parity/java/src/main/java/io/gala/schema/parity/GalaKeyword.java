@@ -57,12 +57,17 @@ final class GalaKeyword extends AbstractKeyword {
     }
 
     static GalaKeyword maximum() {
+        // A range assertion, not a shape assertion: it must fail closed on
+        // anything it cannot evaluate as a decimal integer, matching the
+        // Node reference implementation (src/internal/gala-keywords.js's
+        // galaMaximum, SCH-H13) rather than deferring to a pattern/format
+        // keyword that may not be present on every $def using this keyword.
         return new GalaKeyword("x-gala-maximum", (schema, value) -> {
-            if (!value.isTextual() && !value.isIntegralNumber()) return true;
+            if (!value.isTextual() && !value.isIntegralNumber()) return false;
             try {
                 return new BigInteger(value.asText()).compareTo(new BigInteger(schema.asText())) <= 0;
             } catch (NumberFormatException error) {
-                return true;
+                return false;
             }
         });
     }
