@@ -33,6 +33,12 @@ reason other than one of these:
   `minProperties` floor being lowered or removed.
 - Turning `additionalProperties: false` into a schema (opening a previously
   closed object), or widening an existing `additionalProperties` schema.
+- Widening `type` to accept a strictly larger set of JSON types (for example
+  `"string"` -> `["string","null"]`).
+- Removing a `format` assertion, or removing a `type` constraint entirely.
+- Relaxing `minimum` (lowering or removing it) or `maximum` (raising or
+  removing it), and the same for `exclusiveMinimum`/`exclusiveMaximum`.
+- Adding a branch to `oneOf`/`anyOf`.
 
 ## Breaking (the gate fails; requires a deliberate, reviewed release note)
 
@@ -45,6 +51,14 @@ including:
 - Tightening any bound in the relaxing list above in the other direction.
 - Turning an open `additionalProperties` schema into `false`.
 - Changing a root's `$id`/`schemaId` (this must never happen; see above).
+- Narrowing `type` (dropping a member of a union, or changing to an
+  unrelated type outright), or adding a `type` constraint where none
+  existed.
+- Adding a `format` assertion to a property that had none, or changing an
+  existing `format` to a different one.
+- Tightening `minimum` (raising it) or `maximum` (lowering it), and the same
+  for `exclusiveMinimum`/`exclusiveMaximum`.
+- Removing a branch from `oneOf`/`anyOf`, even from the middle of the list.
 
 A breaking change is not forbidden -- DEC-097-class contracts have shipped
 deliberate breaking narrowings before (SCH-C3's `positiveInt64`/

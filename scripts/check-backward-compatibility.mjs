@@ -17,12 +17,16 @@ const RELAXES_WHEN_RAISED = new Set([
   'maxItems',
   'maxProperties',
   'maxContains',
+  'maximum',
+  'exclusiveMaximum',
 ]);
 const RELAXES_WHEN_LOWERED = new Set([
   'minLength',
   'minItems',
   'minProperties',
   'minContains',
+  'minimum',
+  'exclusiveMinimum',
 ]);
 const X_GALA_BOUND_KEYWORDS = new Set([
   'x-gala-asciiByteLength',
@@ -104,6 +108,154 @@ function diffBoundKeyword(
 }
 
 /**
+ * Normalize a JSON Schema `type` keyword value (a single type name or an
+ * array of them) into a set, for widening/narrowing comparison.
+ *
+ * @param {unknown} value the `type` keyword's value
+ * @returns {Set<string> | undefined} the type set, or undefined if `type`
+ *   was not present
+ */
+function toTypeSet(value) {
+  if (value === undefined) return undefined;
+  if (Array.isArray(value)) return new Set(value);
+  if (typeof value === 'string') return new Set([value]);
+  return undefined;
+}
+
+/**
+ * Deterministically stringify a value for set-membership comparison
+ * (object keys sorted; arrays kept in order). Used to compare `oneOf`/
+ * `anyOf` branches as a set rather than positionally, so a branch removed
+ * from the middle of the list is still detected.
+ *
+ * @param {unknown} value value to canonicalize
+ * @returns {string} a canonical string form
+ */
+function canonicalize(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalize).join(',')}]`;
+  if (value !== null && typeof value === 'object') {
+    const record = /** @type {Record<string, unknown>} */ (value);
+    const keys = Object.keys(record).sort();
+    return `{${keys
+      .map((key) => `${JSON.stringify(key)}:${canonicalize(record[key])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * Diff a schema fragment's `type` keyword. Widening (the after-set is a
+ * strict superset of the before-set, e.g. `"string"` ->
+ * `["string","null"]`) is additive; anything else that changes the set --
+ * narrowing (`["string","null"]` -> `"string"`) or an unrelated change
+ * (`"string"` -> `"number"`) -- is breaking.
+ *
+ * @param {string} pointer JSON Pointer to this fragment
+ * @param {Record<string, unknown>} before baseline fragment
+ * @param {Record<string, unknown>} after current fragment
+ * @param {CompatibilityFinding[]} findings accumulator
+ * @returns {void}
+ */
+function diffType(pointer, before, after, findings) {
+  if (!('type' in before) && !('type' in after)) return;
+  const beforeTypes = toTypeSet(before.type);
+  const afterTypes = toTypeSet(after.type);
+  if (beforeTypes === undefined && afterTypes !== undefined) {
+    findings.push({
+      path: pointer,
+      kind: 'breaking',
+      detail: `type constraint added: ${[...afterTypes].join('|')}`,
+    });
+    return;
+  }
+  if (beforeTypes !== undefined && afterTypes === undefined) {
+    findings.push({
+      path: pointer,
+      kind: 'additive',
+      detail: `type constraint removed (was ${[...beforeTypes].join('|')})`,
+    });
+    return;
+  }
+  if (beforeTypes === undefined || afterTypes === undefined) return;
+  const isSuperset = [...beforeTypes].every((type) => afterTypes.has(type));
+  const isSubset = [...afterTypes].every((type) => beforeTypes.has(type));
+  if (isSuperset && isSubset) return;
+  const detail = `type ${[...beforeTypes].join('|')} -> ${[...afterTypes].join('|')}`;
+  findings.push({
+    path: pointer,
+    kind: isSuperset && !isSubset ? 'additive' : 'breaking',
+    detail,
+  });
+}
+
+/**
+ * Diff a schema fragment's `format` keyword. `format` narrows the
+ * accepted value space the same way a `pattern` does, so adding one to a
+ * property that had none, or changing it to a different format, is
+ * breaking; removing it is additive.
+ *
+ * @param {string} pointer JSON Pointer to this fragment
+ * @param {Record<string, unknown>} before baseline fragment
+ * @param {Record<string, unknown>} after current fragment
+ * @param {CompatibilityFinding[]} findings accumulator
+ * @returns {void}
+ */
+function diffFormat(pointer, before, after, findings) {
+  if (!('format' in before) && !('format' in after)) return;
+  if (before.format === after.format) return;
+  findings.push({
+    path: pointer,
+    kind: after.format === undefined ? 'additive' : 'breaking',
+    detail: `format ${JSON.stringify(before.format)} -> ${JSON.stringify(after.format)}`,
+  });
+}
+
+/**
+ * Diff a schema fragment's `oneOf`/`anyOf` branch lists as sets rather
+ * than positionally, so a branch removed from the middle of the list (not
+ * just appended/truncated) is still detected. A removed branch is
+ * breaking (a document that only matched that branch is now rejected); an
+ * added branch is additive.
+ *
+ * @param {string} pointer JSON Pointer to this fragment
+ * @param {Record<string, unknown>} before baseline fragment
+ * @param {Record<string, unknown>} after current fragment
+ * @param {CompatibilityFinding[]} findings accumulator
+ * @returns {void}
+ */
+function diffComposition(pointer, before, after, findings) {
+  for (const keyword of /** @type {const} */ (['oneOf', 'anyOf'])) {
+    const beforeBranches = Array.isArray(before[keyword])
+      ? before[keyword]
+      : undefined;
+    const afterBranches = Array.isArray(after[keyword])
+      ? after[keyword]
+      : undefined;
+    if (beforeBranches === undefined && afterBranches === undefined) continue;
+    const beforeSet = new Set((beforeBranches ?? []).map(canonicalize));
+    const afterSet = new Set((afterBranches ?? []).map(canonicalize));
+    for (const branch of beforeSet) {
+      if (!afterSet.has(branch)) {
+        findings.push({
+          path: `${pointer}/${keyword}`,
+          kind: 'breaking',
+          detail: `${keyword} branch removed`,
+        });
+      }
+    }
+    for (const branch of afterSet) {
+      if (!beforeSet.has(branch)) {
+        findings.push({
+          path: `${pointer}/${keyword}`,
+          kind: 'additive',
+          detail: `${keyword} branch added`,
+        });
+      }
+    }
+  }
+}
+
+/**
  * Recursively diff one schema fragment pair for compatibility-relevant
  * keyword changes. This is a targeted diff over the keyword classes
  * docs/COMPATIBILITY.md defines, not a general JSON Schema differ.
@@ -114,7 +266,7 @@ function diffBoundKeyword(
  * @param {CompatibilityFinding[]} findings accumulator
  * @returns {void}
  */
-function diffSchema(pointer, baseline, current, findings) {
+export function diffSchema(pointer, baseline, current, findings) {
   if (
     baseline === null ||
     current === null ||
@@ -192,6 +344,10 @@ function diffSchema(pointer, baseline, current, findings) {
       });
     }
   }
+
+  diffType(pointer, before, after, findings);
+  diffFormat(pointer, before, after, findings);
+  diffComposition(pointer, before, after, findings);
 
   if ('pattern' in before || 'pattern' in after) {
     if (before.pattern !== after.pattern) {
@@ -346,7 +502,15 @@ function diffSchema(pointer, baseline, current, findings) {
 
   const childKeys = new Set([...Object.keys(before), ...Object.keys(after)]);
   for (const key of childKeys) {
-    if (key === 'required' || key === 'enum' || key === 'const') continue;
+    if (
+      key === 'required' ||
+      key === 'enum' ||
+      key === 'const' ||
+      key === 'oneOf' ||
+      key === 'anyOf'
+    ) {
+      continue;
+    }
     const childPointer = `${pointer}/${key}`;
     const beforeChild = before[key];
     const afterChild = after[key];
