@@ -3,6 +3,8 @@ import test from 'node:test';
 
 import {
   adversarialCaseId,
+  CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES,
+  CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES,
   createAdversarialRequest,
   createCanonicalByteParityCases,
   createCanonicalByteRequest,
@@ -19,7 +21,11 @@ import {
   validateStructuralCaseWithAjv,
   validateScalarParityCase,
 } from '../scripts/validator-parity.mjs';
-import { validateRegisteredFragment } from '../src/internal/schema-validator.js';
+import {
+  validateRegisteredDocument,
+  validateRegisteredFragment,
+} from '../src/internal/schema-validator.js';
+import { validateGalaFormat } from '../src/internal/format-validators.js';
 
 test('the parity corpus includes every structural fixture without sampling', async () => {
   const corpus = await createStructuralParityCases();
@@ -162,6 +168,67 @@ test('all adversarial semantic fixtures and sentinels reject with exact codes', 
       createAdversarialRequest(fixture)
     );
     assert.equal(request.fixture.expectedCode, undefined);
+  }
+});
+
+test('the adversarial corpus is triaged into contract-level and consumer-level categories (SCH-C6)', async () => {
+  // Every category is exactly one or the other, and the two sets partition
+  // the full fourteen with no overlap and no gap.
+  assert.equal(CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES.size, 4);
+  assert.equal(Object.keys(CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES).length, 10);
+  for (const category of CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES) {
+    assert.equal(category in CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES, false);
+  }
+
+  const corpus = await createStructuralParityCases();
+  const categories = new Set(
+    corpus.adversarial.map(({ category }) => category),
+  );
+  assert.deepEqual(
+    categories,
+    new Set([
+      ...CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES,
+      ...Object.keys(CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES),
+    ]),
+  );
+
+  // For each contract-level category, prove the *shipped* validator --
+  // not the parity harness's own reimplementation -- rejects the fixture.
+  // validateGalaDocument, not just validateRegisteredDocument, must also
+  // agree, since that is the exact function a consumer calls.
+  const { validateGalaDocument } = await import('../src/index.js');
+  for (const fixture of corpus.adversarial.filter(({ category }) =>
+    CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES.has(category),
+  )) {
+    if (fixture.category === 'path-traversal') {
+      assert.equal(
+        validateGalaFormat('gala-repository-relative-path', fixture.instance),
+        false,
+      );
+    } else if (fixture.category === 'reserved-extension-keys') {
+      assert.ok(
+        Object.keys(fixture.instance).some(
+          (key) => !validateGalaFormat('gala-extension-key', key),
+        ),
+      );
+    } else if (fixture.category === 'unknown-schema-major') {
+      assert.equal(
+        validateGalaDocument(fixture.instance.schemaId, fixture.instance).valid,
+        false,
+      );
+      assert.equal(
+        validateRegisteredDocument(fixture.instance.schemaId, fixture.instance)
+          .valid,
+        false,
+      );
+    } else if (fixture.category === 'unsafe-urls') {
+      assert.equal(
+        validateGalaFormat('gala-verification-url', fixture.instance),
+        false,
+      );
+    } else {
+      assert.fail(`unhandled contract-level category ${fixture.category}`);
+    }
   }
 });
 

@@ -8,12 +8,40 @@ and this project adheres to
 
 ## [Unreleased]
 
-Code-discipline remediation pass (2026-09-25 review). No JSON Schema content
-change and no package-version change; `generated/browser/**` is new generated
-output (see Fixed).
+Code-discipline remediation pass (2026-09-25 review). No package-version change.
+Includes a JSON Schema content change (SCH-C3: thirteen shared `$defs`
+divergences reconciled, some tightening validation) and new generated output
+(`generated/browser/**`) -- see Fixed.
 
 ### Fixed
 
+- **SCH-C3**: added `npm run schemas:shared-defs:check`, which fails the build
+  if any `$defs` name shared by more than one of the twenty roots has diverged
+  under that name. Reconciled the thirteen it found: nine unified to one
+  canonical, real-upper-bound-carrying body (`positiveInt64`,
+  `githubPositiveDecimal`, `destinationIdentity`, `githubRepositoryCoordinate`,
+  `colorMode`, `semanticTokens`, `int64`, `nonNegativeInt64`,
+  `navigationItem`/`navigationLeaf`), and two renamed to disambiguate a
+  deliberate difference (`adapterIdentity` -> `authoredAdapterIdentity` for
+  build-input's closed adapter enum; `renderPolicyIdentity`/
+  `reproducibleBuildRecord` -> `manifestRenderPolicyIdentity`/
+  `manifestReproducibleBuildRecord` for the manifest family and
+  `recordRenderPolicyIdentity`/`recordReproducibleBuildRecord` for the
+  deployment-* record family). Tightens validation in a few places
+  (`positiveInt64`/`githubPositiveDecimal` now reject values that do not fit the
+  integer width their name promises; `destinationIdentity.baseUrl` gets a
+  2048-byte cap on every root instead of just three of four); no committed
+  fixture or example was rejected by any of the tightened bounds.
+- **SCH-C6**: triaged the adversarial fixture corpus's fourteen categories. Four
+  (`path-traversal`, `reserved-extension-keys`, `unknown-schema-major`,
+  `unsafe-urls`) are contract-checkable and now call
+  `validateGalaFormat`/`validateRegisteredDocument` -- the same functions a real
+  consumer calls -- instead of a parity-harness-only reimplementation. The other
+  ten are documented as a consumer's responsibility (render-time sanitization,
+  filesystem resolution, a real repository's file listing, YAML parser
+  configuration) with the reason for each, in `scripts/validator-parity.mjs`'s
+  `CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES`/
+  `CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES` and in this README.
 - **SCH-C2**: `.` and `./runtime-origins` no longer call `ajv.compile()` (and
   therefore never call `new Function()`) at import or at validation time. Both
   now bind precompiled Ajv standalone ESM validators

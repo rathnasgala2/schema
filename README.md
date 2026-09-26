@@ -11,9 +11,23 @@ contracts, the eleven composition/build/deployment contracts (SCHEMA-2.10.0 adds
 nested identically at `artifact-manifest`'s internal `#/$defs/buildProvenance`
 and published standalone for direct validation), and the three platform
 contracts (`problem`, `event-envelope`, and `public-runtime-origins`). Every
-root embeds the identical complete 20-scalar `$defs` library. The package also
-carries the deterministic full valid, boundary, invalid-with-code,
-unknown-field, and adversarial fixture corpus. S0-T03 owns the internal semantic
+`$defs` name shared by more than one root is byte-identical everywhere it
+appears (`npm run schemas:shared-defs:check`, SCH-C3); a name whose meaning
+deliberately differs by root role is not shared -- it gets a distinct name
+instead (`authoredAdapterIdentity` vs. `adapterIdentity`,
+`manifestRenderPolicyIdentity` vs. `recordRenderPolicyIdentity`). The package
+also carries the deterministic full valid, boundary, invalid-with-code,
+unknown-field, and adversarial fixture corpus. Of the adversarial corpus's
+fourteen categories, four (`path-traversal`, `reserved-extension-keys`,
+`unknown-schema-major`, `unsafe-urls`) are enforced by the shipped validator
+itself and are asserted against `validateGalaDocument`/`validateGalaFormat`, not
+a test-only reimplementation; the other ten document a _consumer's_
+responsibility (render-time sanitization, filesystem resolution, a real
+repository's file listing, YAML parser configuration, and the like) that no JSON
+Schema validator operating on one already-parsed instance value can decide on
+its own -- see `scripts/validator-parity.mjs`'s
+`CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES`/`CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES`
+for the exact split and the reason for each. S0-T03 owns the internal semantic
 validators and active domain-separated digest profiles required by DEC-097
 through DEC-099; S0-T04 adds DEC-100 through DEC-102. S0-T05 exposes the
 fail-closed `validateGalaDocument` API and validates the complete committed
