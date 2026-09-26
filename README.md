@@ -212,7 +212,7 @@ server-derived members. `destinationIdentity` gains an optional closed
 it has always answered, `repository-changes:plan` names the two digests its
 confirm is fenced on, and no `format: date-time` member in the bundle carries a
 `pattern` any longer -- a generated `OffsetDateTime` cannot carry one, and the
-requirement moves into each member's description while the nineteen JSON Schema
+requirement moves into each member's description while all twenty JSON Schema
 roots keep enforcing it. Two reads join the contract --
 `GET .../publications/{publicationId}/reviews` (keyset, optional `state` filter,
 rows of the new `ReviewSummary`, which the single review read is now defined as)
