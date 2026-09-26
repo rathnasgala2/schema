@@ -7,7 +7,7 @@
 import {
   REGISTERED_SCHEMA_IDS,
   validateRegisteredDocument,
-} from './internal/schema-validator.js';
+} from './internal/browser-schema-validator.js';
 
 /** Exact immutable identities accepted by the validator registry. */
 export const GALA_SCHEMA_IDS = REGISTERED_SCHEMA_IDS;
@@ -17,7 +17,7 @@ export const GALA_SCHEMA_IDS = REGISTERED_SCHEMA_IDS;
  *
  * @param {string} schemaId exact immutable schema identity
  * @param {unknown} value document value
- * @returns {import('./internal/schema-validator.js').GalaValidationResult} validation result
+ * @returns {import('./internal/browser-schema-validator.js').GalaValidationResult} validation result
  */
 export function validateGalaDocument(schemaId, value) {
   return validateRegisteredDocument(schemaId, value);

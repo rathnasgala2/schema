@@ -273,22 +273,39 @@ trees and the committed tree to be byte-identical.
 
 The `.` export (`validateGalaDocument`/`GALA_SCHEMA_IDS`, `src/index.js`) is
 consumed at runtime by the App's Vite dev/build pipeline, so it must run in a
-browser: no `node:*` import, and no `Buffer`/`process` reference, may be
-reachable from it. Two gates enforce this:
+browser: no `node:*` import, no `Buffer`/`process` reference, and no
+`eval()`/`Function()`/non-literal dynamic `import()` may be reachable from it.
+
+Both `.` and `./runtime-origins` bind precompiled Ajv standalone ESM validators
+(`generated/browser/validator-core.mjs` and
+`generated/browser/runtime-origins-validator-core.mjs`, from
+`codegen/generate-contracts.ts`'s `generateBrowserValidatorCore`), with real
+Gala format and `x-gala-*` keyword semantics compiled directly into the
+generated validator functions' source. Neither export calls `ajv.compile()` or
+otherwise invokes `new Function()` at import or at validation time, so a
+consumer does not need `'unsafe-eval'` in its Content-Security-Policy to load or
+use either export. `src/internal/schema-validator.js` still builds a real,
+runtime-compiled Ajv registry, but only `scripts/validator-parity.mjs` (the
+Node-only fixture and cross-language parity tooling) uses it.
+
+Two gates enforce browser safety:
 
 - `npm run browser-safety:check` (`scripts/check-browser-safety.mjs`, wired into
   `npm run build`/`npm run verify`) statically walks the `.`,
-  `./runtime-origins` and `./digest-profiles` exports' import graphs and fails
-  on any reachable Node-builtin import or `Buffer`/`process` reference. The same
-  walk weighs each entry point's package-owned module closure — the reachable
-  `.js` sources plus the `.json` documents they import, which is what a bundler
-  inlines — and fails `./runtime-origins` if it exceeds its declared
-  1,250,000-byte cap. `./generated/typescript` is a declared export subpath but
-  is intentionally excluded from this walk: it is generated output that loads a
-  CommonJS structural-validator core via `node:module`'s `createRequire`, and
-  every consumer today reaches it only through `import type` (erased at compile
-  time, never entering a runtime browser bundle) — making that subpath itself
-  browser-safe is a separate codegen change.
+  `./runtime-origins` and `./digest-profiles` exports' import graphs (`.js`,
+  `.mjs` and `.json` files alike) and fails on any reachable Node-builtin
+  import, `Buffer`/`process` reference, `eval()`/`Function()`/`new Function()`
+  call, or dynamic `import()` with a non-literal specifier. The same walk weighs
+  each entry point's package-owned module closure — the reachable sources plus
+  the `.json` documents they import, which is what a bundler inlines — and fails
+  `./runtime-origins` if it exceeds its declared 1,250,000-byte cap.
+  `./generated/typescript` is a declared export subpath but is intentionally
+  excluded from this walk: it is generated output that loads a CommonJS
+  structural-validator core via `node:module`'s `createRequire`, and every
+  consumer today reaches it only through `import type` (erased at compile time,
+  never entering a runtime browser bundle) — making that subpath itself
+  browser-safe is covered by folding it onto the same standalone core `.` and
+  `./runtime-origins` already use.
 - `npm test` (via `test/browser-smoke.test.js`) spawns
   `scripts/browser-smoke.mjs` under `node --experimental-vm-modules`, which
   links the real `.` export's ESM source inside a genuine jsdom-realm `vm`
@@ -404,9 +421,13 @@ remediation, and documentation URL fields without including authored values.
 ## Package layout
 
 - `src/` — JavaScript ESM runtime package surface, checked from JSDoc;
-  `index.js` is the 19-contract `.` export and `runtime-origins.js` the narrow
-  single-contract browser export, both bound through
-  `internal/validator-core.js`; `digest-profiles.js` is the read-only
+  `index.js` is the twenty-contract `.` export (through
+  `internal/browser-schema-validator.js`) and `runtime-origins.js` the narrow
+  single-contract browser export, both bound to precompiled standalone
+  validators (SCH-C2) through `internal/validator-core.js`'s
+  `createPrecompiledValidatorSuite`; `internal/schema-validator.js` is the
+  separate runtime-compiled (`ajv.compile()`) registry used only by the
+  Node-only fixture and parity tooling; `digest-profiles.js` is the read-only
   `./digest-profiles` re-export of `internal/digest-profiles.js`;
   `frozen-envelope.js` is the Node-only `./frozen-envelope` re-export of
   `internal/frozen-envelope.js`.
@@ -422,6 +443,10 @@ remediation, and documentation URL fields without including authored values.
   manifests.
 - `codegen/` — TypeScript deterministic generator and the hash-bound DEC-091
   design manifest reconstructed from the accepted merged design snapshot.
+- `generated/browser/` — the real Ajv standalone ESM validator cores `.` and
+  `./runtime-origins` bind (SCH-C2): real Gala format and `x-gala-*` keyword
+  semantics compiled directly into the generated functions' source, no runtime
+  `ajv.compile()`.
 - `generated/typescript/` — strict root types and ESM API around the deliberate
   Ajv standalone CommonJS structural core.
 - `generated/java/` — Java 21 root/nested records, exact schema resources, and

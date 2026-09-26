@@ -27,15 +27,16 @@ const BROWSER_ENTRY_SUBPATHS = Object.freeze([
 
 /**
  * Declared upper bound, in bytes, on the package-owned module closure of one
- * browser entry point: every `.js` and `.json` file in this repository that
- * the entry point statically reaches, which is what a bundler inlines into
- * the chunk. Third-party runtime dependencies (Ajv and ajv-formats) are
- * excluded because they are identical for both entry points and are shared
- * with everything else in a consumer's bundle.
+ * browser entry point: every `.js`, `.mjs` and `.json` file in this
+ * repository that the entry point statically reaches, which is what a
+ * bundler inlines into the chunk. Third-party runtime dependencies (Ajv and
+ * ajv-formats) are excluded because they are identical for both entry points
+ * and are shared with everything else in a consumer's bundle.
  *
- * `.` is measured, not capped tightly: it binds all 19 contracts and every
- * pinned source-data table by design, and its number is recorded here only so
- * a regression in the narrow export is legible next to it.
+ * `.` is measured, not capped tightly: it binds all twenty contracts'
+ * precompiled standalone validators (SCH-C2) and every pinned source-data
+ * table by design, and its number is recorded here only so a regression in
+ * the narrow export is legible next to it.
  *
  * `./runtime-origins` is capped. The cap is not the 200 kB the App's report
  * suggested: `urn:gala:schema:public-runtime-origins:2.0.0` genuinely uses
@@ -45,8 +46,9 @@ const BROWSER_ENTRY_SUBPATHS = Object.freeze([
  * language subtag registry (344 kB). Dropping those would make the narrow
  * export accept documents the full validator rejects, which the fixture
  * parity test in `test/t10-runtime-origins-export.test.js` forbids. What the
- * narrow export does drop is the 4.5 MB pinned SPDX licence list, the other
- * eighteen contracts, and 7,712 of the 7,804 diagnostic rules.
+ * narrow export does drop is the 4.5 MB pinned SPDX licence list, the
+ * precompiled validators for the other nineteen contracts, and 7,712 of the
+ * 7,804 diagnostic rules.
  *
  * @type {Readonly<Record<string, number>>}
  */
@@ -207,7 +209,7 @@ async function walkImportGraph(root, entryRelativePath) {
         root,
         path.resolve(path.dirname(absolutePath), specifier),
       );
-      if (resolved.endsWith('.js')) {
+      if (resolved.endsWith('.js') || resolved.endsWith('.mjs')) {
         queue.push(resolved);
       } else if (resolved.endsWith('.json')) {
         closure.add(resolved);

@@ -12,6 +12,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import Ajv2020Module from 'ajv/dist/2020.js';
+import {
+  Name as CodegenName,
+  _ as codegenTemplate,
+  type Code as CodegenCode,
+} from 'ajv/dist/compile/codegen/index.js';
 import standaloneCodeModule from 'ajv/dist/standalone/index.js';
 import { format as prettierFormat } from 'prettier';
 
@@ -52,8 +57,40 @@ const Ajv2020 = Ajv2020Module as unknown as new (options: {
   strictTypes: false;
   strictRequired: false;
 }) => AjvRegistry;
+
+interface BrowserKeywordCodeContext {
+  data: CodegenCode;
+  schemaCode: CodegenCode;
+  fail(condition: CodegenCode): void;
+  ok(pass: boolean): void;
+}
+interface BrowserFormatDefinition {
+  type: 'string';
+  validate: (value: string) => boolean;
+}
+interface BrowserAjvRegistry {
+  addFormat(
+    name: string,
+    definition: BrowserFormatDefinition,
+  ): BrowserAjvRegistry;
+  addKeyword(definition: {
+    keyword: string;
+    schemaType?: string | string[];
+    type?: string;
+    code: (context: BrowserKeywordCodeContext) => void;
+  }): BrowserAjvRegistry;
+  addSchema(schema: JsonObject, key?: string): BrowserAjvRegistry;
+}
+const Ajv2020Browser = Ajv2020Module as unknown as new (options: {
+  allErrors: true;
+  code: { source: true; esm: true; formats: unknown };
+  strict: true;
+  strictTypes: false;
+  strictRequired: false;
+}) => BrowserAjvRegistry;
+
 const standaloneCode = standaloneCodeModule as unknown as (
-  ajv: AjvRegistry,
+  ajv: AjvRegistry | BrowserAjvRegistry,
   references: Record<string, string>,
 ) => string;
 
@@ -443,6 +480,245 @@ function generateValidatorCore(
     `// Generated structural core; sourceDesignRevision=${revision}.`,
     '// Gala semantic formats and keywords are enforced by the strict ESM API.',
     standaloneCode(ajv, references).trimEnd(),
+    '',
+  ].join('\n');
+}
+
+/**
+ * Gala's `x-gala-*` assertion keywords, wired to `gala-keywords.js`'s pure
+ * implementations via `code()` (not `validate`, a closure Ajv's standalone
+ * codegen cannot serialize) -- see gala-keywords.js's module comment.
+ */
+const BROWSER_KEYWORD_DEFINITIONS: ReadonlyArray<{
+  keyword: string;
+  schemaType?: string | string[];
+  type?: string;
+  fn: string;
+  inert?: true;
+}> = [
+  { keyword: 'x-gala-decision-phase', fn: 'galaDecisionPhase', inert: true },
+  {
+    keyword: 'x-gala-asciiByteLength',
+    schemaType: 'object',
+    type: 'string',
+    fn: 'galaAsciiByteLength',
+  },
+  {
+    keyword: 'x-gala-utf8ByteLength',
+    schemaType: 'object',
+    type: 'string',
+    fn: 'galaUtf8ByteLength',
+  },
+  {
+    keyword: 'x-gala-graphemeLength',
+    schemaType: 'object',
+    type: 'string',
+    fn: 'galaGraphemeLength',
+  },
+  {
+    keyword: 'x-gala-maxCanonicalBytes',
+    schemaType: 'number',
+    fn: 'galaMaxCanonicalBytes',
+  },
+  {
+    keyword: 'x-gala-maximum',
+    schemaType: ['number', 'string'],
+    fn: 'galaMaximum',
+  },
+];
+
+/**
+ * Generate one browser-safe ESM standalone core: real Gala format and
+ * `x-gala-*` keyword semantics compiled directly into the validator
+ * functions' source, with no runtime `ajv.compile` and no `new Function`
+ * anywhere in the output (SCH-C2). This is what `.` and `./runtime-origins`
+ * bind to; the CJS structural core above stays Node-tooling-only.
+ *
+ * @param schemas complete schema documents to compile, in `contracts` order
+ * @param contracts contract names, one per entry in `schemas`
+ * @param revision source design revision, for the file header
+ * @param formatModuleSpecifier import specifier for the format dispatcher,
+ *   relative to the generated file (the full core needs SPDX support and
+ *   the narrow core does not, so the two entry points import different
+ *   dispatchers -- see format-validators.js's module comment)
+ * @param formatDispatcherName exported name of the format dispatcher
+ *   function at `formatModuleSpecifier`, taking `(formatName, value)`
+ * @returns generated ESM module source
+ */
+const AJV_RUNTIME_REQUIRE_PATTERN =
+  /const (\w+) = require\("ajv\/dist\/runtime\/([a-zA-Z0-9]+)"\)(\.[a-zA-Z]+)?;/gu;
+
+/**
+ * Rewrite every `const name = require("ajv/dist/runtime/<module>")[.prop];`
+ * Ajv's standalone codegen emits for its own built-in runtime helpers (deep
+ * equality for `enum`/`const`/`uniqueItems`, Unicode-aware length counting,
+ * timestamp/URI/JSON parsing) into a real static ESM import plus a bare
+ * local binding.
+ *
+ * These `require(...)` calls are hardcoded in ajv's own runtime helper
+ * modules (e.g. `ajv/dist/runtime/equal.js`'s `equal.code =
+ * 'require("ajv/dist/runtime/equal").default'`) and are emitted verbatim
+ * regardless of the `esm: true` compile option -- `esm: true` only changes
+ * how *our own* referenced values are emitted, not ajv's internal ones. A
+ * literal `require` is not valid ESM and would throw the moment a browser
+ * tried to load this module, so it must be rewritten here, in the one place
+ * that assembles the final file text.
+ *
+ * @param {string} code standalone-generated validator source
+ * @returns {{code: string, imports: string[]}} rewritten source and the
+ *   import statements it now needs
+ */
+function resolveAjvRuntimeRequires(code: string): {
+  code: string;
+  imports: string[];
+} {
+  const imports = new Set<string>();
+  const rewritten = code.replace(
+    AJV_RUNTIME_REQUIRE_PATTERN,
+    (
+      _match,
+      localName: string,
+      moduleName: string,
+      property: string | undefined,
+    ) => {
+      if (property === undefined) {
+        imports.add(
+          `import ${localName} from 'ajv/dist/runtime/${moduleName}.js';`,
+        );
+        return '';
+      }
+      // These modules mark themselves `__esModule: true` and set
+      // `exports.default = <value>`, which is the pattern transpiled
+      // TS/Babel CJS output uses. A default *namespace* import of such a
+      // module resolves, correctly, to the *whole* `module.exports` object
+      // (verified empirically against this Node version) -- not to
+      // `.default` directly -- so `.default` needs one extra unwrap.
+      // Any other named property (`parseJson.js`'s `.parseJson`, etc.) is a
+      // plain CJS named export with no such wrapping and needs none.
+      const namespaceName = `${localName}Module`;
+      const importStatement =
+        property === '.default'
+          ? `import ${namespaceName} from 'ajv/dist/runtime/${moduleName}.js';`
+          : `import * as ${namespaceName} from 'ajv/dist/runtime/${moduleName}.js';`;
+      imports.add(importStatement);
+      return `const ${localName} = ${namespaceName}${property};`;
+    },
+  );
+  return { code: rewritten, imports: [...imports].sort() };
+}
+
+function generateBrowserValidatorCore(
+  schemas: SchemaDocument[],
+  contracts: readonly string[],
+  revision: string,
+  formatModuleSpecifier: string,
+  formatDispatcherName: string,
+): string {
+  const ajv = new Ajv2020Browser({
+    allErrors: true,
+    code: { source: true, esm: true, formats: codegenTemplate`GALA_FORMATS` },
+    strict: true,
+    strictTypes: false,
+    strictRequired: false,
+  });
+  for (const definition of BROWSER_KEYWORD_DEFINITIONS) {
+    ajv.addKeyword({
+      keyword: definition.keyword,
+      ...(definition.schemaType === undefined
+        ? {}
+        : { schemaType: definition.schemaType }),
+      ...(definition.type === undefined ? {} : { type: definition.type }),
+      code(context) {
+        if (definition.inert) {
+          context.ok(true);
+          return;
+        }
+        context.fail(
+          codegenTemplate`!${new CodegenName(definition.fn)}(${context.schemaCode}, ${context.data})`,
+        );
+      },
+    });
+  }
+  const formats = new Set<string>();
+  for (const schema of schemas) collectFormats(schema, formats);
+  for (const format of [...formats].sort()) {
+    // This closure is never invoked at runtime: `code.formats` (above)
+    // makes every compiled call site reference the real `GALA_FORMATS`
+    // object written into the generated file's preamble below instead.
+    // Ajv only consults this registration at compile time, to read
+    // `.type` off it (`getFormat` in ajv/dist/vocabularies/format/format.js)
+    // -- every Gala format is string-typed, so a stub satisfies that.
+    ajv.addFormat(format, {
+      type: 'string',
+      validate: () => true,
+    });
+  }
+  const references: Record<string, string> = {};
+  for (const [index, schema] of schemas.entries()) {
+    ajv.addSchema(schema, schema.$id);
+    references[`validate${pascalCase(contracts[index] ?? '')}`] = schema.$id;
+  }
+  const schemaValidatorEntries = schemas
+    .map(
+      (schema, index) =>
+        `  ${JSON.stringify(schema.$id)}: validate${pascalCase(contracts[index] ?? '')},`,
+    )
+    .join('\n');
+  const { code: validatorCode, imports: runtimeImports } =
+    resolveAjvRuntimeRequires(standaloneCode(ajv, references).trimEnd());
+  return [
+    '// @ts-nocheck -- Ajv machine-generated standalone core.',
+    `// Generated browser-safe ESM standalone core; sourceDesignRevision=${revision}.`,
+    '// Do not edit. Real Gala format and x-gala-* keyword semantics are',
+    '// compiled directly into these validator functions -- no runtime',
+    '// ajv.compile() and no eval()/new Function() (SCH-C2). This core is',
+    '// bound to `.` and `./runtime-origins`; the Node-only fixture and',
+    '// parity tooling keep using the runtime-compiled registry instead.',
+    `import { ${formatDispatcherName} } from '${formatModuleSpecifier}';`,
+    'import {',
+    '  galaAsciiByteLength,',
+    '  galaDecisionPhase,',
+    '  galaGraphemeLength,',
+    '  galaMaxCanonicalBytes,',
+    '  galaMaximum,',
+    '  galaUtf8ByteLength,',
+    "} from '../../src/internal/gala-keywords.js';",
+    ...runtimeImports,
+    'const GALA_FORMATS = Object.freeze({',
+    ...[...formats]
+      .sort()
+      .map(
+        (format) =>
+          `  ${JSON.stringify(format)}: { type: 'string', validate: (value) => ${formatDispatcherName}(${JSON.stringify(format)}, value) },`,
+      ),
+    '});',
+    validatorCode,
+    `export const SCHEMA_VALIDATORS = Object.freeze({`,
+    schemaValidatorEntries,
+    '});',
+    '',
+  ].join('\n');
+}
+
+/**
+ * Generate the `.d.mts` companion declaration for one browser standalone
+ * core. TypeScript's NodeNext resolution prefers a sibling `.d.mts` over
+ * parsing the paired `.mjs` for type information; without one, `tsc` walks
+ * the real compiled validator functions' control-flow graph (thousands of
+ * nested `if`/`else` branches for the larger roots) and overflows its own
+ * call stack. This tiny, stable, generated shape is what every consumer of
+ * the real file actually needs.
+ *
+ * @param {string} revision source design revision, for the file header
+ * @returns {string} generated `.d.mts` source
+ */
+function browserValidatorCoreDeclaration(revision: string): string {
+  return [
+    `// Generated declaration for the browser-safe ESM standalone core; sourceDesignRevision=${revision}.`,
+    '// Do not edit.',
+    'export declare const SCHEMA_VALIDATORS: Readonly<',
+    "  Record<string, ((value: unknown) => boolean) & { errors?: import('ajv').ErrorObject[] | null }>",
+    '>;',
     '',
   ].join('\n');
 }
@@ -926,11 +1202,14 @@ async function writeGeneratedTree(
   const revision = manifest.digest;
   const typescriptRoot = path.join(outputRoot, 'generated', 'typescript');
   const javaRoot = path.join(outputRoot, 'generated', 'java');
+  const browserRoot = path.join(outputRoot, 'generated', 'browser');
   await Promise.all([
     rm(typescriptRoot, { force: true, recursive: true }),
     rm(javaRoot, { force: true, recursive: true }),
+    rm(browserRoot, { force: true, recursive: true }),
   ]);
   await Promise.all([
+    mkdir(browserRoot, { recursive: true }),
     mkdir(path.join(typescriptRoot, 'contracts'), { recursive: true }),
     mkdir(
       path.join(
@@ -959,6 +1238,11 @@ async function writeGeneratedTree(
     mkdir(path.join(outputRoot, 'docs', 'catalogs'), { recursive: true }),
   ]);
 
+  const runtimeOriginsIndex = CONTRACTS.indexOf('public-runtime-origins');
+  const runtimeOriginsSchema = schemas[runtimeOriginsIndex];
+  if (runtimeOriginsSchema === undefined) {
+    throw new TypeError('Missing public-runtime-origins schema');
+  }
   const index = generateTypescriptIndex(schemas, revision);
   const writes: Promise<void>[] = [
     writeFile(
@@ -980,6 +1264,44 @@ async function writeGeneratedTree(
     writeFile(
       path.join(typescriptRoot, 'validator-core.cjs'),
       generateValidatorCore(schemas, revision),
+      'utf8',
+    ),
+    writeFile(
+      path.join(browserRoot, 'validator-core.mjs'),
+      generateBrowserValidatorCore(
+        schemas,
+        CONTRACTS,
+        revision,
+        '../../src/internal/format-validators.js',
+        'validateGalaFormat',
+      ),
+      'utf8',
+    ),
+    writeFile(
+      path.join(browserRoot, 'validator-core.d.mts'),
+      await prettierFormat(browserValidatorCoreDeclaration(revision), {
+        ...FORMAT_OPTIONS,
+        parser: 'typescript',
+      }),
+      'utf8',
+    ),
+    writeFile(
+      path.join(browserRoot, 'runtime-origins-validator-core.mjs'),
+      generateBrowserValidatorCore(
+        [runtimeOriginsSchema],
+        ['public-runtime-origins'],
+        revision,
+        '../../src/internal/format-validators-core.js',
+        'validateGalaFormatCore',
+      ),
+      'utf8',
+    ),
+    writeFile(
+      path.join(browserRoot, 'runtime-origins-validator-core.d.mts'),
+      await prettierFormat(browserValidatorCoreDeclaration(revision), {
+        ...FORMAT_OPTIONS,
+        parser: 'typescript',
+      }),
       'utf8',
     ),
     writeFile(
@@ -1111,6 +1433,7 @@ async function compareDirectories(
 
 async function copyManagedView(source: string, target: string): Promise<void> {
   const managed = [
+    'generated/browser',
     'generated/java',
     'generated/typescript',
     'docs/catalogs/schema-inventory.json',

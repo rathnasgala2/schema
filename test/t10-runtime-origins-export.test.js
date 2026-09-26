@@ -117,7 +117,7 @@ test('the narrow export drops the SPDX, whole-catalog and other-contract weight'
     'src/internal/generated/spdx-3.28.0.json',
     'src/internal/spdx.js',
     'diagnostics/diagnostic-map.json',
-    'schemas/repository.schema.json',
+    'generated/browser/validator-core.mjs',
   ]) {
     assert.ok(
       !narrow.files.includes(unwanted),

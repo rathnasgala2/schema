@@ -85,6 +85,27 @@ function contractFromSchemaId(schemaId) {
  * }} Registry
  */
 
+/**
+ * The callable shape both an `ajv.compile()`-produced validate function and
+ * a precompiled standalone one share: callable, with `.errors` populated
+ * (Ajv error objects) on rejection. `ajv.compile()`'s richer
+ * `import('ajv').ValidateFunction` additionally carries `.schema`/
+ * `.schemaEnv`, which a standalone-generated function does not.
+ *
+ * @typedef {((value: unknown) => boolean) & {errors?: AjvError[] | null}} MinimalValidateFunction
+ */
+
+/**
+ * The subset of `Registry` document-level validation actually needs: just a
+ * schema-identity-keyed map of validate functions, precompiled or
+ * `ajv.compile()`-produced alike (SCH-C2's `createPrecompiledValidatorSuite`
+ * constructs one of these without ever building a real `Registry`).
+ *
+ * @typedef {{
+ *   validatorsById: ReadonlyMap<string, MinimalValidateFunction>
+ * }} DocumentValidatorRegistry
+ */
+
 /** @typedef {import('ajv').ErrorObject} AjvError */
 
 /**
@@ -510,7 +531,7 @@ function unicodeScalarDiagnostic(diagnosticMap, value, instancePointer) {
 /**
  * Validate one complete Gala document against an exact registered schema identity.
  *
- * @param {Registry} registry compiled schema registry
+ * @param {DocumentValidatorRegistry} registry validators by schema identity
  * @param {DiagnosticMap} diagnosticMap shared diagnostic normalization map
  * @param {string} schemaId exact immutable schema identity
  * @param {unknown} value document value
@@ -705,5 +726,41 @@ export function createValidatorSuite({
       validateFragment(registry, diagnosticMap, schemaId, schemaPointer, value),
     validateArrayCardinality: (schema, length) =>
       validateArrayCardinality(registry, diagnosticMap, schema, length),
+  });
+}
+
+/**
+ * Bind a document validator surface to an already-compiled set of Ajv
+ * validate functions instead of raw schemas -- no `ajv.compile` and
+ * therefore no `new Function` in this path.
+ *
+ * This is what `.` and `./runtime-origins` use (SCH-C2): their compiled
+ * validators come from `codegen/generate-contracts.ts`'s browser standalone
+ * core, generated ahead of time with real Gala format and `x-gala-*`
+ * keyword semantics baked into the compiled source. Every Ajv validate
+ * function -- precompiled or `ajv.compile()`-produced -- has the same
+ * callable shape (`fn(value)` returning a boolean, `fn.errors` populated on
+ * rejection in the same shape), so the exact same diagnostic normalization
+ * (`validateDocument`) applies unchanged; only fragment- and cardinality-
+ * level validation are unavailable here, because they runtime-compile
+ * schema fragments the precompiled core does not carry -- Node-only fixture
+ * and parity tooling keeps using `createValidatorSuite` for those.
+ *
+ * @param {{
+ *   validators: Record<string, MinimalValidateFunction>,
+ *   diagnosticMap: DiagnosticMap
+ * }} dependencies precompiled validators by schema identity, and the shared
+ *   diagnostic map
+ * @returns {{
+ *   schemaIds: readonly string[],
+ *   validateDocument: (schemaId: string, value: unknown) => GalaValidationResult
+ * }} bound validator surface
+ */
+export function createPrecompiledValidatorSuite({ validators, diagnosticMap }) {
+  const registry = { validatorsById: new Map(Object.entries(validators)) };
+  return Object.freeze({
+    schemaIds: Object.freeze([...registry.validatorsById.keys()].sort()),
+    validateDocument: (schemaId, value) =>
+      validateDocument(registry, diagnosticMap, schemaId, value),
   });
 }
