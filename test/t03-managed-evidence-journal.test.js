@@ -6,7 +6,7 @@ import {
   digestManagedEvidenceEntry,
   digestManagedEvidenceGenesis,
 } from '../src/internal/digest-profiles.js';
-import { validateManagedEvidenceJournal } from '../src/internal/managed-evidence-journal.js';
+import { validateManagedEvidenceJournal } from '../scripts/internal-semantics/managed-evidence-journal.js';
 
 const OPERATION_ID = '018f0000-0000-7000-8000-000000000001';
 

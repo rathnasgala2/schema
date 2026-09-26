@@ -15,7 +15,13 @@ const IMMUTABLE_CONTAINER_DIGEST = /^docker:\/\/[^\s@]+@sha256:[0-9a-f]{64}$/u;
  */
 export function findUnpinnedActionReferences(source, file) {
   const diagnostics = [];
-  const actionReference = /^\s*-?\s*uses:\s*([^\s#]+).*$/gmu;
+  // Matches `uses:` at the start of a block-style step (`- uses: ...` or
+  // `uses: ...`) and also as a key inside a flow-style mapping
+  // (`- {uses: a/b@sha}`, `- {name: X, uses: a/b@sha}`), preceded by `{` or
+  // `,` rather than only by line start (SCH-L7). The captured value stops
+  // at whitespace, `#`, `,` or `}` so a flow mapping's closing brace or next
+  // key is never captured as part of the reference.
+  const actionReference = /(?:^\s*-?\s*|[{,]\s*)uses:\s*([^\s#,}]+)/gmu;
 
   for (const match of source.matchAll(actionReference)) {
     const reference = match[1];

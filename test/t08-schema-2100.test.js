@@ -441,7 +441,17 @@ test('SCHEMA-2.10.0 LOCAL-63: the receipt-exchange request family is byte-unchan
     .digest('hex');
   assert.equal(
     digest,
-    'b195f55837bcf0c15e4e4543eac41d83e9aed8ed79625f52b6e252e8527e991d',
+    // 2026-09-25 code-discipline review, SCH-C3: renderPolicyIdentity had
+    // diverged under the same name across roots (a record's `name` was any
+    // plainLabel; a manifest's was pinned to the `gala-render-policy`
+    // const) with nothing checking. Reconciled by renaming both --
+    // recordRenderPolicyIdentity here, manifestRenderPolicyIdentity in the
+    // artifact-manifest/build-provenance family -- which only renames the
+    // OpenAPI component (PortableDeploymentIntentRenderPolicyIdentity ->
+    // PortableDeploymentIntentRecordRenderPolicyIdentity); every referenced
+    // schema body, including the still-forbidden Spaces providerBinding
+    // per LOCAL-63d, is byte-identical.
+    '3a1536d0847fd848d43e644cc786b722fbc34a1b78f25b2d0fb50ccba7da047c',
     'the receipt-exchange request family moved since SCHEMA-2.9.0; Spaces providerBinding must stay forbidden on the request until a future packet, per LOCAL-63d',
   );
 });

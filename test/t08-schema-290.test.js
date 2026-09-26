@@ -428,7 +428,7 @@ test('the request rebuild record restates the retained record with four Gala-own
   const request =
     source.components.schemas.ReceiptExchangeIntentRequestRebuildRecord;
   const intent = await readJson('schemas/deployment-intent.schema.json');
-  const retained = intent.$defs.reproducibleBuildRecord;
+  const retained = intent.$defs.recordReproducibleBuildRecord;
   assert.equal(request.additionalProperties, false);
   assert.deepEqual(
     Object.keys(request.properties).sort(),
@@ -821,7 +821,7 @@ test('every profile function member is frozen', () => {
 
 test('the record vectors ship with the package', async () => {
   const definition = await readJson('package.json');
-  assert.equal(definition.version, '2.11.0');
+  assert.equal(definition.version, '2.12.0');
   assert.equal(
     definition.exports['./parity/digest-record-vectors.json'],
     './parity/digest-record-vectors.json',

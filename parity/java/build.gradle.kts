@@ -26,13 +26,6 @@ java {
     }
 }
 
-sourceSets {
-    main {
-        java.srcDir("../../../generated/java/src/main/java")
-        resources.srcDir("../../../generated/java/src/main/resources")
-    }
-}
-
 application {
     mainClass = "io.gala.schema.parity.ParityMain"
 }

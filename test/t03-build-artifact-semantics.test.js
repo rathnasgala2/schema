@@ -21,7 +21,7 @@ import {
   BUILD_ARTIFACT_CONTEXT_CONSTRAINTS,
   BuildArtifactSemanticError,
   validateBuildArtifactSemantics,
-} from '../src/internal/build-artifact-semantics.js';
+} from '../scripts/internal-semantics/build-artifact-semantics.js';
 
 /** @typedef {Record<string, unknown>} UnknownRecord */
 

@@ -81,7 +81,8 @@ export type ArtifactManifestGitObjectId = string;
 
 export type ArtifactManifestGithubActionCoordinate = string;
 
-export type ArtifactManifestGithubActionsArtifactId = string;
+export type ArtifactManifestGithubActionsArtifactId =
+  ArtifactManifestGithubPositiveDecimal;
 
 export type ArtifactManifestGithubActorLogin = string;
 
@@ -193,6 +194,53 @@ export type ArtifactManifestManifestRedirect = Readonly<{
   readonly targetRoute: ArtifactManifestCanonicalRoute;
 }>;
 
+export type ArtifactManifestManifestRenderPolicyIdentity = Readonly<{
+  readonly digest: ArtifactManifestDigest;
+  readonly name: 'gala-render-policy';
+  readonly version: ArtifactManifestSemver;
+}>;
+
+export type ArtifactManifestManifestReproducibleBuildRecord = Readonly<{
+  readonly basePath: ArtifactManifestCanonicalRoute;
+  readonly baseUrl: ArtifactManifestUrlHttps;
+  readonly buildEpoch: ArtifactManifestRfc3339;
+  readonly buildInputDigest: ArtifactManifestDigest;
+  readonly buildPolicyDecisionDigest: ArtifactManifestDigest;
+  readonly builder: ArtifactManifestPackageIdentity &
+    Readonly<{
+      readonly package?: '@rathnasgala2/publish-action';
+    }>;
+  readonly contractVersion: '2.0.0';
+  readonly dependencyLockDigest: ArtifactManifestDigest;
+  readonly destinationCapabilityDigest: ArtifactManifestDigest;
+  readonly packageReleaseCatalogDigest: ArtifactManifestDigest;
+  readonly policyReleaseId: ArtifactManifestStableId;
+  readonly renderPolicy: ArtifactManifestManifestRenderPolicyIdentity;
+  readonly repositoryId: ArtifactManifestGithubPositiveDecimal;
+  readonly repositoryRootDigest: ArtifactManifestDigest;
+  readonly schemas: ArtifactManifestPackageIdentity &
+    Readonly<{
+      readonly package?: '@rathnasgala2/schemas';
+    }>;
+  readonly sourceCommit: ArtifactManifestGitObjectId;
+  readonly sourceTree: ArtifactManifestGitObjectId;
+  readonly stylingContractDigest: ArtifactManifestDigest;
+  readonly template: ArtifactManifestPackageIdentity &
+    Readonly<{
+      readonly package?: '@rathnasgala2/template';
+    }>;
+  readonly theme: ArtifactManifestPackageIdentity &
+    Readonly<{
+      readonly package?:
+        | '@rathnasgala2/theme-default'
+        | '@rathnasgala2/theme-amaze'
+        | '@rathnasgala2/theme-flashy'
+        | '@rathnasgala2/theme-minimal'
+        | '@rathnasgala2/theme-zebra';
+    }>;
+  readonly workflowIdentity: ArtifactManifestDigest;
+}>;
+
 export type ArtifactManifestManifestRoute = Readonly<{
   readonly byteLength: ArtifactManifestNonNegativeInt64;
   readonly interactionBearing: false;
@@ -267,54 +315,7 @@ export type ArtifactManifestPositiveInt64 = string;
 
 export type ArtifactManifestProvenanceRef = string;
 
-export type ArtifactManifestRenderPolicyIdentity = Readonly<{
-  readonly digest: ArtifactManifestDigest;
-  readonly name: 'gala-render-policy';
-  readonly version: ArtifactManifestSemver;
-}>;
-
 export type ArtifactManifestRepoRelativePath = string;
-
-export type ArtifactManifestReproducibleBuildRecord = Readonly<{
-  readonly basePath: ArtifactManifestCanonicalRoute;
-  readonly baseUrl: ArtifactManifestUrlHttps;
-  readonly buildEpoch: ArtifactManifestRfc3339;
-  readonly buildInputDigest: ArtifactManifestDigest;
-  readonly buildPolicyDecisionDigest: ArtifactManifestDigest;
-  readonly builder: ArtifactManifestPackageIdentity &
-    Readonly<{
-      readonly package?: '@rathnasgala2/publish-action';
-    }>;
-  readonly contractVersion: '2.0.0';
-  readonly dependencyLockDigest: ArtifactManifestDigest;
-  readonly destinationCapabilityDigest: ArtifactManifestDigest;
-  readonly packageReleaseCatalogDigest: ArtifactManifestDigest;
-  readonly policyReleaseId: ArtifactManifestStableId;
-  readonly renderPolicy: ArtifactManifestRenderPolicyIdentity;
-  readonly repositoryId: ArtifactManifestGithubPositiveDecimal;
-  readonly repositoryRootDigest: ArtifactManifestDigest;
-  readonly schemas: ArtifactManifestPackageIdentity &
-    Readonly<{
-      readonly package?: '@rathnasgala2/schemas';
-    }>;
-  readonly sourceCommit: ArtifactManifestGitObjectId;
-  readonly sourceTree: ArtifactManifestGitObjectId;
-  readonly stylingContractDigest: ArtifactManifestDigest;
-  readonly template: ArtifactManifestPackageIdentity &
-    Readonly<{
-      readonly package?: '@rathnasgala2/template';
-    }>;
-  readonly theme: ArtifactManifestPackageIdentity &
-    Readonly<{
-      readonly package?:
-        | '@rathnasgala2/theme-default'
-        | '@rathnasgala2/theme-amaze'
-        | '@rathnasgala2/theme-flashy'
-        | '@rathnasgala2/theme-minimal'
-        | '@rathnasgala2/theme-zebra';
-    }>;
-  readonly workflowIdentity: ArtifactManifestDigest;
-}>;
 
 export type ArtifactManifestRfc3339 = string;
 

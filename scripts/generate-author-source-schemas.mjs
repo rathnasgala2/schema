@@ -314,14 +314,12 @@ const navigationLinkConstraint = {
         required: ['type'],
       },
       then: {
-        properties: { route: {} },
         required: ['route'],
-        not: { properties: { url: {} }, required: ['url'] },
+        not: { required: ['url'] },
       },
       else: {
-        properties: { url: {} },
         required: ['url'],
-        not: { properties: { route: {} }, required: ['route'] },
+        not: { required: ['route'] },
       },
     },
   ],
@@ -333,7 +331,7 @@ const navigationLeaf = closedObject(
     label: ref('plainLabel'),
     route: ref('canonicalRoute'),
     url: ref('urlHttps'),
-    children: arrayOf({}, 0, 0),
+    children: { const: [] },
   },
   ['type', 'label', 'children'],
   navigationLinkConstraint,
@@ -537,7 +535,7 @@ const schemas = {
             },
           })),
           $comment:
-            'The appearance validator requires default to be a member of allowed.',
+            'The semantic validator requires default to be a member of allowed, and enforces canonical set ordering for allowed.',
         },
       ),
       semanticTokens: closedObject({}, [], {

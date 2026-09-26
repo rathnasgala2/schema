@@ -1,12 +1,6 @@
 // Generated from urn:gala:schema:build-input:2.0.0; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 // Do not edit.
 
-export type BuildInputAdapterIdentity = Readonly<{
-  readonly adapterDigest: BuildInputDigest;
-  readonly adapterId: 'local-directory' | 'github-pages' | 'do-spaces';
-  readonly adapterVersion: BuildInputSemver;
-}>;
-
 export type BuildInputAppearanceNormalized = Readonly<{
   readonly brandMark?: BuildInputResolvedFile;
   readonly colorMode: BuildInputColorMode;
@@ -30,6 +24,12 @@ export type BuildInputAuthorNormalized = Readonly<{
   readonly pronouns?: BuildInputPlainText;
   readonly sourceDigest: BuildInputDigest;
   readonly sourcePath: BuildInputRepoRelativePath;
+}>;
+
+export type BuildInputAuthoredAdapterIdentity = Readonly<{
+  readonly adapterDigest: BuildInputDigest;
+  readonly adapterId: 'local-directory' | 'github-pages' | 'do-spaces';
+  readonly adapterVersion: BuildInputSemver;
 }>;
 
 export type BuildInputBcp47 = string;
@@ -89,7 +89,7 @@ export type BuildInputContentBuildRecord = Readonly<{
   readonly bodyDigest: BuildInputDigest;
   readonly bodyMediaType: 'text/html';
   readonly frontmatter: BuildInputContentFrontmatterNormalized;
-  readonly renderPolicy: BuildInputRenderPolicyIdentity;
+  readonly renderPolicy: BuildInputManifestRenderPolicyIdentity;
   readonly resolvedAuthorIds: ReadonlyArray<BuildInputStableId>;
   readonly sourceDigest: BuildInputDigest;
   readonly sourcePath: BuildInputRepoRelativePath;
@@ -118,7 +118,7 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
 }>;
 
 export type BuildInputDestinationCapabilityProfile = Readonly<{
-  readonly adapter: BuildInputAdapterIdentity;
+  readonly adapter: BuildInputAuthoredAdapterIdentity;
   readonly baseUrl: BuildInputUrlHttps;
   readonly capabilityDigest: BuildInputDigest;
 }>;
@@ -139,6 +139,12 @@ export type BuildInputLocalizedAuthor = Readonly<{
   readonly biography: BuildInputPlainText;
   readonly displayName: BuildInputPlainText;
   readonly language: BuildInputBcp47;
+}>;
+
+export type BuildInputManifestRenderPolicyIdentity = Readonly<{
+  readonly digest: BuildInputDigest;
+  readonly name: 'gala-render-policy';
+  readonly version: BuildInputSemver;
 }>;
 
 export type BuildInputModuleBuildSelection = Readonly<Record<string, never>>;
@@ -223,17 +229,11 @@ export type BuildInputPublicationNormalized = Readonly<{
   readonly title: BuildInputPlainText;
 }>;
 
-export type BuildInputRenderPolicyIdentity = Readonly<{
-  readonly digest: BuildInputDigest;
-  readonly name: 'gala-render-policy';
-  readonly version: BuildInputSemver;
-}>;
-
 export type BuildInputRenderableBody = Readonly<{
   readonly body: string;
   readonly bodyDigest: BuildInputDigest;
   readonly bodyMediaType: 'text/html';
-  readonly renderPolicy: BuildInputRenderPolicyIdentity;
+  readonly renderPolicy: BuildInputManifestRenderPolicyIdentity;
   readonly sourceDigest: BuildInputDigest;
   readonly sourcePath: BuildInputRepoRelativePath;
 }>;

@@ -10,10 +10,39 @@ contracts, the eleven composition/build/deployment contracts (SCHEMA-2.10.0 adds
 `build-provenance`, `urn:gala:metadata:build-provenance:2.0.0`, a pure addition
 nested identically at `artifact-manifest`'s internal `#/$defs/buildProvenance`
 and published standalone for direct validation), and the three platform
-contracts (`problem`, `event-envelope`, and `public-runtime-origins`). Every
-root embeds the identical complete 20-scalar `$defs` library. The package also
-carries the deterministic full valid, boundary, invalid-with-code,
-unknown-field, and adversarial fixture corpus. S0-T03 owns the internal semantic
+contracts (`problem`, `event-envelope`, and `public-runtime-origins`).
+
+**URN namespace rule (SCH-M8):** every root's `$id` is
+`urn:gala:schema:<contract>:2.0.0` except `build-provenance`, which is
+`urn:gala:metadata:<contract>:2.0.0`. `urn:gala:metadata:` is for a root whose
+canonical home is as a record _embedded in_ another root's envelope
+(`build-provenance` is `artifact-manifest`'s `#/$defs/buildProvenance`,
+published standalone only so the API can validate the record directly at the
+workload boundary) and that is published standalone purely as a secondary,
+already-embedded convenience -- not for every root that happens to describe
+metadata-shaped content in general (`artifact-manifest` itself is
+metadata-shaped too, and stays `urn:gala:schema:`, because it has no other
+root's envelope it is first and foremost a member of).
+`src/internal/validator-core.js` special-cases this one root's namespace at
+`contractFromSchemaId`; the next metadata-shaped root should apply this same
+test before picking a namespace, so the exception does not grow without a rule
+behind it. Every `$defs` name shared by more than one root is byte-identical
+everywhere it appears (`npm run schemas:shared-defs:check`, SCH-C3); a name
+whose meaning deliberately differs by root role is not shared -- it gets a
+distinct name instead (`authoredAdapterIdentity` vs. `adapterIdentity`,
+`manifestRenderPolicyIdentity` vs. `recordRenderPolicyIdentity`). The package
+also carries the deterministic full valid, boundary, invalid-with-code,
+unknown-field, and adversarial fixture corpus. Of the adversarial corpus's
+fourteen categories, four (`path-traversal`, `reserved-extension-keys`,
+`unknown-schema-major`, `unsafe-urls`) are enforced by the shipped validator
+itself and are asserted against `validateGalaDocument`/`validateGalaFormat`, not
+a test-only reimplementation; the other ten document a _consumer's_
+responsibility (render-time sanitization, filesystem resolution, a real
+repository's file listing, YAML parser configuration, and the like) that no JSON
+Schema validator operating on one already-parsed instance value can decide on
+its own -- see `scripts/validator-parity.mjs`'s
+`CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES`/`CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES`
+for the exact split and the reason for each. S0-T03 owns the internal semantic
 validators and active domain-separated digest profiles required by DEC-097
 through DEC-099; S0-T04 adds DEC-100 through DEC-102. S0-T05 exposes the
 fail-closed `validateGalaDocument` API and validates the complete committed
@@ -24,13 +53,14 @@ committed exact-result snapshot rejects mutually shared extra diagnostics. The
 same gate also executes 1,995 shared DEC-099 scalar vectors, including all 766
 pinned Unicode 17 grapheme-conformance rows, and raw RFC 8785 number and string
 spellings that have not first been normalized by Node. S0-T06 generates strict
-TypeScript root types and validators plus Java 21 records and Networknt registry
-wiring for the exact 20 roots. The schema inventory adds the separately owned
-OpenAPI contract as the twenty-first identity and carries DEC-091's
-domain-separated `sourceDesignRevision`. S0-T07 materializes the reviewed
-OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound HTTP
-catalog for exactly 75 MVP operations plus `/internal/health` (76 catalog rows;
-71 at S0-T07, plus the two SCHEMA-2.8.0 reads and the two SCHEMA-2.10.0
+TypeScript root types and validators for the exact 20 roots (the codegen path
+also generated a Java 21 records/Networknt registry tree until SCH-C4/SCH-H5
+removed it as unconsumed -- see "Package layout"). The schema inventory adds the
+separately owned OpenAPI contract as the twenty-first identity and carries
+DEC-091's domain-separated `sourceDesignRevision`. S0-T07 materializes the
+reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
+HTTP catalog for exactly 75 MVP operations plus `/internal/health` (76 catalog
+rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads and the two SCHEMA-2.10.0
 publication-destination reads/writes). The bundle includes the accepted DEC-097
 receipt-exchange and deployment-receipt amendments and serializes the fixed
 OpenAPI Generator 7.25.0 option sets. Every operation also declares its tenant
@@ -151,7 +181,8 @@ Pages-conditional `required` set (deploy-phase evidence the artifact-build step
 produces after authorization, not before), and the schema description states
 that the intent's `capabilityDecisionDigest` is computed over the issuance-phase
 record only -- a `required`-set relaxation on a record root is MINOR, not MAJOR,
-under this package's stated compatibility policy (every 2.9.x-valid
+under this package's stated compatibility policy (`docs/COMPATIBILITY.md`,
+mechanically enforced by `npm run compatibility:check`; every 2.9.x-valid
 `capabilityDecision` record, Pages included, stays valid, since 2.9.x always
 supplied both fields where 2.10.0 now only asks for them optionally). The
 package adds its twentieth JSON Schema root, `build-provenance`
@@ -196,7 +227,7 @@ server-derived members. `destinationIdentity` gains an optional closed
 it has always answered, `repository-changes:plan` names the two digests its
 confirm is fenced on, and no `format: date-time` member in the bundle carries a
 `pattern` any longer -- a generated `OffsetDateTime` cannot carry one, and the
-requirement moves into each member's description while the nineteen JSON Schema
+requirement moves into each member's description while all twenty JSON Schema
 roots keep enforcing it. Two reads join the contract --
 `GET .../publications/{publicationId}/reviews` (keyset, optional `state` filter,
 rows of the new `ReviewSummary`, which the single review read is now defined as)
@@ -273,22 +304,40 @@ trees and the committed tree to be byte-identical.
 
 The `.` export (`validateGalaDocument`/`GALA_SCHEMA_IDS`, `src/index.js`) is
 consumed at runtime by the App's Vite dev/build pipeline, so it must run in a
-browser: no `node:*` import, and no `Buffer`/`process` reference, may be
-reachable from it. Two gates enforce this:
+browser: no `node:*` import, no `Buffer`/`process` reference, and no
+`eval()`/`Function()`/non-literal dynamic `import()` may be reachable from it.
+
+Both `.` and `./runtime-origins` bind precompiled Ajv standalone ESM validators
+(`generated/browser/validator-core.mjs` and
+`generated/browser/runtime-origins-validator-core.mjs`, from
+`codegen/generate-contracts.ts`'s `generateBrowserValidatorCore`), with real
+Gala format and `x-gala-*` keyword semantics compiled directly into the
+generated validator functions' source. Neither export calls `ajv.compile()` or
+otherwise invokes `new Function()` at import or at validation time, so a
+consumer does not need `'unsafe-eval'` in its Content-Security-Policy to load or
+use either export. `src/internal/schema-validator.js` still builds a real,
+runtime-compiled Ajv registry, but only `scripts/validator-parity.mjs` (the
+Node-only fixture and cross-language parity tooling) uses it.
+
+Two gates enforce browser safety:
 
 - `npm run browser-safety:check` (`scripts/check-browser-safety.mjs`, wired into
   `npm run build`/`npm run verify`) statically walks the `.`,
-  `./runtime-origins` and `./digest-profiles` exports' import graphs and fails
-  on any reachable Node-builtin import or `Buffer`/`process` reference. The same
-  walk weighs each entry point's package-owned module closure — the reachable
-  `.js` sources plus the `.json` documents they import, which is what a bundler
-  inlines — and fails `./runtime-origins` if it exceeds its declared
-  1,250,000-byte cap. `./generated/typescript` is a declared export subpath but
-  is intentionally excluded from this walk: it is generated output that loads a
-  CommonJS structural-validator core via `node:module`'s `createRequire`, and
-  every consumer today reaches it only through `import type` (erased at compile
-  time, never entering a runtime browser bundle) — making that subpath itself
-  browser-safe is a separate codegen change.
+  `./runtime-origins` and `./digest-profiles` exports' import graphs (`.js`,
+  `.mjs` and `.json` files alike) and fails on any reachable Node-builtin
+  import, `Buffer`/`process` reference, `eval()`/`Function()`/`new Function()`
+  call, or dynamic `import()` with a non-literal specifier. The same walk weighs
+  each entry point's package-owned module closure — the reachable sources plus
+  the `.json` documents they import, which is what a bundler inlines — and fails
+  `./runtime-origins` if it exceeds its declared 1,250,000-byte cap.
+  `./generated/typescript` is a declared export subpath but is intentionally
+  excluded from this walk: `validateGeneratedDocument` now delegates directly to
+  `.`'s exact precompiled validator (SCH-M5, no more CommonJS structural core,
+  no more `node:module`'s `createRequire`), so its runtime is already plain ESM
+  with no reachable Node builtin, but every consumer today reaches it only
+  through `import type` (erased at compile time, never entering a runtime
+  browser bundle), so it has no declared closure byte cap yet — that is a
+  follow-up once a real runtime consumer exists.
 - `npm test` (via `test/browser-smoke.test.js`) spawns
   `scripts/browser-smoke.mjs` under `node --experimental-vm-modules`, which
   links the real `.` export's ESM source inside a genuine jsdom-realm `vm`
@@ -302,10 +351,14 @@ reachable from it. Two gates enforce this:
 (browser-safe byte helpers) and `src/internal/sha256.js` (a pure-JS synchronous
 SHA-256, verified byte-identical to `node:crypto`'s `createHash('sha256')`,
 needed because `crypto.subtle.digest` is Promise-only and many call sites here
-are synchronous). Modules not reachable from `.` (`frozen-envelope.js`,
-`build-artifact-semantics.js`, `theme-composition-semantics.js`,
-`deployment-record-semantics.js`) remain Node-only and keep using
-`node:*`/`Buffer` freely.
+are synchronous). `frozen-envelope.js` (a real export, Node-only by design) is
+not reachable from `.` and keeps using `node:*`/`Buffer` freely; the
+DEC-097/098/099 semantic validators (`build-artifact-semantics.js`,
+`theme-composition-semantics.js`, `deployment-record-semantics.js`,
+`deployment-stage-semantics.js`, `managed-evidence-journal.js`) have no export
+at all and live in `scripts/internal-semantics/` (SCH-H6), not `src/`, so they
+are Node-only repository tooling by construction rather than shipped product
+code that happens to be unreachable.
 
 The public package API is intentionally small:
 
@@ -404,30 +457,56 @@ remediation, and documentation URL fields without including authored values.
 ## Package layout
 
 - `src/` — JavaScript ESM runtime package surface, checked from JSDoc;
-  `index.js` is the 19-contract `.` export and `runtime-origins.js` the narrow
-  single-contract browser export, both bound through
-  `internal/validator-core.js`; `digest-profiles.js` is the read-only
+  `index.js` is the twenty-contract `.` export (through
+  `internal/browser-schema-validator.js`) and `runtime-origins.js` the narrow
+  single-contract browser export, both bound to precompiled standalone
+  validators (SCH-C2) through `internal/validator-core.js`'s
+  `createPrecompiledValidatorSuite`; `internal/schema-validator.js` is the
+  separate runtime-compiled (`ajv.compile()`) registry used only by the
+  Node-only fixture and parity tooling; `digest-profiles.js` is the read-only
   `./digest-profiles` re-export of `internal/digest-profiles.js`;
   `frozen-envelope.js` is the Node-only `./frozen-envelope` re-export of
   `internal/frozen-envelope.js`.
 - `types/` — declaration output emitted from `src/`.
-- `schemas/` — 19 committed Draft 2020-12 contracts.
+- `schemas/` — 20 committed Draft 2020-12 contracts.
+- `compatibility/baseline-schemas/` — the last-released `schemas/*.schema.json`,
+  refreshed only at release time (`npm run compatibility:baseline:update`);
+  `npm run compatibility:check` diffs the current committed schemas against it
+  and fails on a breaking change per `docs/COMPATIBILITY.md` (SCH-C5).
 - `diagnostics/` — generated shared rule-to-diagnostic normalization map, its
   per-contract narrow projections (today `public-runtime-origins`, for the
-  narrow browser export), and the exact whole-result parity snapshot.
+  narrow browser export), and `parity-expectations.json` (SCH-M17): the
+  JS-computed expected result for every parity case. `npm run parity:check`
+  (which spawns the Java harness) diffs the Java-computed actual result against
+  this file, which is genuine cross-language evidence. Plain `npm test` never
+  spawns Java, so `test/t05-parity-corpus.test.js`'s use of the same file is a
+  same-language regression snapshot -- JS re-checked against its own prior
+  committed output -- not cross-language coverage by itself; do not read a green
+  fast test suite as proof of Java parity.
 - `examples/valid/` — canonical valid roots and rule-level accepted vectors.
+  Exported as `./examples/*` (SCH-H7): the sibling `template` repo already
+  resolved this directory by walking the installed package, so this declares the
+  contract that already existed instead of leaving it undeclared.
 - `fixtures/` — boundary, invalid-with-code, unknown-field, and adversarial
   vectors plus their coverage manifest; `fixtures/s2/` and `fixtures/s4/` are
   separately bound, generated consumer-fixture families with their own
-  manifests.
+  manifests. Exported as `./fixtures/*` (SCH-H7), for the same reason.
 - `codegen/` — TypeScript deterministic generator and the hash-bound DEC-091
   design manifest reconstructed from the accepted merged design snapshot.
-- `generated/typescript/` — strict root types and ESM API around the deliberate
-  Ajv standalone CommonJS structural core.
-- `generated/java/` — Java 21 root/nested records, exact schema resources, and
-  Networknt registry wiring for a caller-supplied Gala semantic dialect.
-- `docs/catalogs/schema-inventory.json` — exact 19 JSON Schema roots plus the
+- `generated/browser/` — the real Ajv standalone ESM validator cores `.` and
+  `./runtime-origins` bind (SCH-C2): real Gala format and `x-gala-*` keyword
+  semantics compiled directly into the generated functions' source, no runtime
+  `ajv.compile()`.
+- `generated/typescript/` — strict root types and an ESM API
+  (`validateGeneratedDocument`) that delegates directly to the `.` export's
+  exact precompiled validator; it no longer also runs a separate, weaker
+  standalone structural core in parallel (SCH-M5) -- that used a second 2.73 MB
+  Ajv standalone CommonJS core whose result could never disagree with the exact
+  one, so it added no assertion and doubled the work.
+- `docs/catalogs/schema-inventory.json` — exact 20 JSON Schema roots plus the
   materialized OpenAPI identity.
+- `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`
+  enforces mechanically.
 - `catalog-sources/internal-event-actions.json` — reviewed 19-family transition,
   aggregate, scope, producer, and consumer source ledger.
 - `docs/catalogs/internal-event-actions.json` — generated digest-bound catalog
@@ -445,18 +524,43 @@ remediation, and documentation URL fields without including authored values.
   validated against `openapi/openapi.yaml`, and `capabilityKeys` projected from
   `openapi/http-catalog.json`.
 - `openapi/source/` — reviewed, complete OpenAPI root, component, and path
-  fragments grouped by the first literal resource token.
-- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 73 MVP
+  fragments grouped by the first literal resource token. A build input, not part
+  of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
+  a consumer reads the materialized `openapi/openapi.yaml` instead.
+- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 75 MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
   capability inventory, including `conditionalCapabilityKeys` (SCHEMA-2.7.1) and
   the per-operation `assuranceClass`/`actionGrant` pair (SCHEMA-2.8.0); it is
   not a parallel transport authority.
 - `openapi/generator/` — serialized Spring and TypeScript Fetch options for
-  OpenAPI Generator 7.25.0.
+  OpenAPI Generator 7.25.0. Also a build input excluded from the npm payload
+  (SCH-H7).
 - `scripts/` — repository verification and supply-chain tooling.
+- `scripts/internal-semantics/` — the DEC-097/098/099 semantic validators
+  (`build-artifact-semantics.js`, `theme-composition-semantics.js`,
+  `deployment-record-semantics.js`, `deployment-stage-semantics.js`,
+  `managed-evidence-journal.js`) plus two small build-time helpers
+  (`public-runtime-origins.js`, `http-problem-contract.js`); moved out of `src/`
+  (SCH-H6) because none of them has a declared export or any consumer outside
+  their own `test/t03-*.test.js` and the fixture/OpenAPI generators -- they are
+  repository tooling, not shipped product code.
 - `parity/java/` — test-only checksum-pinned Gradle 8.8/Java 21 Networknt
-  harness; it is not part of the npm package payload.
+  harness; it is not part of the npm package payload. It is also not a Java
+  consumer's starting point: a Java consumer of this package generates its own
+  request/response types from `openapi/openapi.yaml` (the `api` repository does
+  this with the OpenAPI Generator Gradle plugin). A Java consumer that wants
+  Ajv-equivalent JSON Schema _validation_, not just generated types, must
+  reproduce this harness's own Networknt configuration --
+  `formatAssertionsEnabled(true)`, `ECMAScriptRegularExpressionFactory`, and the
+  `gala-*` format/`x-gala-*` keyword implementations in
+  `parity/java/src/main/java/io/gala/schema/parity/Gala*.java` -- since the
+  package does not ship a self-configuring Java registry (SCH-C4/SCH-H5: the
+  package previously shipped one, `generated/java/**`, that accepted a
+  caller-supplied `SchemaRegistryConfig` and so silently validated weaker than
+  Ajv whenever that config omitted this pinning; it had no consumer in any
+  sibling repository and was removed rather than fixed, since a Java consumer
+  needing this list can read it here).
 - `parity/*.json` — shared scalar and raw RFC 8785 number inputs consumed by
   both parity implementations without transmitting expected results to Java;
   `parity/digest-record-vectors.json` (SCHEMA-2.9.0, shipped and exported) is

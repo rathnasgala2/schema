@@ -81,7 +81,8 @@ export type BuildProvenanceGitObjectId = string;
 
 export type BuildProvenanceGithubActionCoordinate = string;
 
-export type BuildProvenanceGithubActionsArtifactId = string;
+export type BuildProvenanceGithubActionsArtifactId =
+  BuildProvenanceGithubPositiveDecimal;
 
 export type BuildProvenanceGithubActorLogin = string;
 
@@ -193,6 +194,53 @@ export type BuildProvenanceManifestRedirect = Readonly<{
   readonly targetRoute: BuildProvenanceCanonicalRoute;
 }>;
 
+export type BuildProvenanceManifestRenderPolicyIdentity = Readonly<{
+  readonly digest: BuildProvenanceDigest;
+  readonly name: 'gala-render-policy';
+  readonly version: BuildProvenanceSemver;
+}>;
+
+export type BuildProvenanceManifestReproducibleBuildRecord = Readonly<{
+  readonly basePath: BuildProvenanceCanonicalRoute;
+  readonly baseUrl: BuildProvenanceUrlHttps;
+  readonly buildEpoch: BuildProvenanceRfc3339;
+  readonly buildInputDigest: BuildProvenanceDigest;
+  readonly buildPolicyDecisionDigest: BuildProvenanceDigest;
+  readonly builder: BuildProvenancePackageIdentity &
+    Readonly<{
+      readonly package?: '@rathnasgala2/publish-action';
+    }>;
+  readonly contractVersion: '2.0.0';
+  readonly dependencyLockDigest: BuildProvenanceDigest;
+  readonly destinationCapabilityDigest: BuildProvenanceDigest;
+  readonly packageReleaseCatalogDigest: BuildProvenanceDigest;
+  readonly policyReleaseId: BuildProvenanceStableId;
+  readonly renderPolicy: BuildProvenanceManifestRenderPolicyIdentity;
+  readonly repositoryId: BuildProvenanceGithubPositiveDecimal;
+  readonly repositoryRootDigest: BuildProvenanceDigest;
+  readonly schemas: BuildProvenancePackageIdentity &
+    Readonly<{
+      readonly package?: '@rathnasgala2/schemas';
+    }>;
+  readonly sourceCommit: BuildProvenanceGitObjectId;
+  readonly sourceTree: BuildProvenanceGitObjectId;
+  readonly stylingContractDigest: BuildProvenanceDigest;
+  readonly template: BuildProvenancePackageIdentity &
+    Readonly<{
+      readonly package?: '@rathnasgala2/template';
+    }>;
+  readonly theme: BuildProvenancePackageIdentity &
+    Readonly<{
+      readonly package?:
+        | '@rathnasgala2/theme-default'
+        | '@rathnasgala2/theme-amaze'
+        | '@rathnasgala2/theme-flashy'
+        | '@rathnasgala2/theme-minimal'
+        | '@rathnasgala2/theme-zebra';
+    }>;
+  readonly workflowIdentity: BuildProvenanceDigest;
+}>;
+
 export type BuildProvenanceManifestRoute = Readonly<{
   readonly byteLength: BuildProvenanceNonNegativeInt64;
   readonly interactionBearing: false;
@@ -267,54 +315,7 @@ export type BuildProvenancePositiveInt64 = string;
 
 export type BuildProvenanceProvenanceRef = string;
 
-export type BuildProvenanceRenderPolicyIdentity = Readonly<{
-  readonly digest: BuildProvenanceDigest;
-  readonly name: 'gala-render-policy';
-  readonly version: BuildProvenanceSemver;
-}>;
-
 export type BuildProvenanceRepoRelativePath = string;
-
-export type BuildProvenanceReproducibleBuildRecord = Readonly<{
-  readonly basePath: BuildProvenanceCanonicalRoute;
-  readonly baseUrl: BuildProvenanceUrlHttps;
-  readonly buildEpoch: BuildProvenanceRfc3339;
-  readonly buildInputDigest: BuildProvenanceDigest;
-  readonly buildPolicyDecisionDigest: BuildProvenanceDigest;
-  readonly builder: BuildProvenancePackageIdentity &
-    Readonly<{
-      readonly package?: '@rathnasgala2/publish-action';
-    }>;
-  readonly contractVersion: '2.0.0';
-  readonly dependencyLockDigest: BuildProvenanceDigest;
-  readonly destinationCapabilityDigest: BuildProvenanceDigest;
-  readonly packageReleaseCatalogDigest: BuildProvenanceDigest;
-  readonly policyReleaseId: BuildProvenanceStableId;
-  readonly renderPolicy: BuildProvenanceRenderPolicyIdentity;
-  readonly repositoryId: BuildProvenanceGithubPositiveDecimal;
-  readonly repositoryRootDigest: BuildProvenanceDigest;
-  readonly schemas: BuildProvenancePackageIdentity &
-    Readonly<{
-      readonly package?: '@rathnasgala2/schemas';
-    }>;
-  readonly sourceCommit: BuildProvenanceGitObjectId;
-  readonly sourceTree: BuildProvenanceGitObjectId;
-  readonly stylingContractDigest: BuildProvenanceDigest;
-  readonly template: BuildProvenancePackageIdentity &
-    Readonly<{
-      readonly package?: '@rathnasgala2/template';
-    }>;
-  readonly theme: BuildProvenancePackageIdentity &
-    Readonly<{
-      readonly package?:
-        | '@rathnasgala2/theme-default'
-        | '@rathnasgala2/theme-amaze'
-        | '@rathnasgala2/theme-flashy'
-        | '@rathnasgala2/theme-minimal'
-        | '@rathnasgala2/theme-zebra';
-    }>;
-  readonly workflowIdentity: BuildProvenanceDigest;
-}>;
 
 export type BuildProvenanceRfc3339 = string;
 
@@ -363,8 +364,8 @@ export type BuildProvenanceDocument = Readonly<{
   readonly manifestDigest: BuildProvenanceDigest;
   readonly packageReleaseCatalogDigest: BuildProvenanceDigest;
   readonly policyReleaseId: BuildProvenanceStableId;
-  readonly rebuildRecord: BuildProvenanceReproducibleBuildRecord;
-  readonly renderPolicy: BuildProvenanceRenderPolicyIdentity;
+  readonly rebuildRecord: BuildProvenanceManifestReproducibleBuildRecord;
+  readonly renderPolicy: BuildProvenanceManifestRenderPolicyIdentity;
   readonly requiredOidcClaims: [
     'actor',
     'actor_id',

@@ -1368,15 +1368,13 @@ export type DeploymentReceiptRecognizedPriorRouteContract = Readonly<{
   readonly terminalRequestUrl: DeploymentReceiptVerificationUrl;
 }>;
 
-export type DeploymentReceiptRenderPolicyIdentity = Readonly<{
+export type DeploymentReceiptRecordRenderPolicyIdentity = Readonly<{
   readonly digest: DeploymentReceiptDigest;
   readonly name: DeploymentReceiptPlainLabel;
   readonly version: DeploymentReceiptSemver;
 }>;
 
-export type DeploymentReceiptRepoRelativePath = string;
-
-export type DeploymentReceiptReproducibleBuildRecord = Readonly<{
+export type DeploymentReceiptRecordReproducibleBuildRecord = Readonly<{
   readonly basePath: DeploymentReceiptCanonicalRoute;
   readonly baseUrl: DeploymentReceiptUrlHttps;
   readonly buildEpoch: DeploymentReceiptRfc3339;
@@ -1391,7 +1389,7 @@ export type DeploymentReceiptReproducibleBuildRecord = Readonly<{
   readonly destinationCapabilityDigest: DeploymentReceiptDigest;
   readonly packageReleaseCatalogDigest: DeploymentReceiptDigest;
   readonly policyReleaseId: DeploymentReceiptStableId;
-  readonly renderPolicy: DeploymentReceiptRenderPolicyIdentity;
+  readonly renderPolicy: DeploymentReceiptRecordRenderPolicyIdentity;
   readonly repositoryId: DeploymentReceiptGithubPositiveDecimal;
   readonly repositoryRootDigest: DeploymentReceiptDigest;
   readonly schemas: DeploymentReceiptPackageIdentity &
@@ -1416,6 +1414,8 @@ export type DeploymentReceiptReproducibleBuildRecord = Readonly<{
     }>;
   readonly workflowIdentity: DeploymentReceiptDigest;
 }>;
+
+export type DeploymentReceiptRepoRelativePath = string;
 
 export type DeploymentReceiptRfc3339 = string;
 

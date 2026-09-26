@@ -134,10 +134,11 @@ export function createCompositionBuildSchemas(language) {
 
   const positiveInt64 = {
     type: 'string',
+    minLength: 1,
+    maxLength: 19,
     pattern: '^[1-9][0-9]*$',
-    format: 'gala-int64',
-    description:
-      'Canonical positive signed-64-bit decimal string; range is checked by the semantic validator.',
+    format: 'gala-positive-int64',
+    'x-gala-maximum': '9223372036854775807',
   };
 
   const spdxExpression = {
@@ -155,6 +156,7 @@ export function createCompositionBuildSchemas(language) {
     maxLength: 20,
     pattern: '^[1-9][0-9]{0,19}$',
     format: 'gala-github-positive-uint64',
+    'x-gala-maximum': '18446744073709551615',
   };
 
   const packageIdentity = closedObject(
@@ -468,7 +470,7 @@ export function createCompositionBuildSchemas(language) {
     ['path', 'sourceDigest'],
   );
 
-  const renderPolicyIdentity = closedObject(
+  const manifestRenderPolicyIdentity = closedObject(
     {
       name: { const: 'gala-render-policy' },
       version: ref('semver'),
@@ -484,7 +486,7 @@ export function createCompositionBuildSchemas(language) {
       bodyMediaType: { const: 'text/html' },
       body: { type: 'string', minLength: 0, maxLength: 2_000_000 },
       bodyDigest: ref('digest'),
-      renderPolicy: ref('renderPolicyIdentity'),
+      renderPolicy: ref('manifestRenderPolicyIdentity'),
     },
     [
       'sourcePath',
@@ -620,19 +622,19 @@ export function createCompositionBuildSchemas(language) {
         },
         then: {
           properties: {
-            allowed: { contains: { const: mode } },
+            allowed: { contains: { const: mode }, type: 'array' },
           },
         },
       })),
       $comment:
-        'The semantic validator also enforces canonical set ordering for allowed.',
+        'The semantic validator requires default to be a member of allowed, and enforces canonical set ordering for allowed.',
     },
   );
 
   const semanticTokens = closedObject({}, [], {
     maxProperties: 0,
     $comment:
-      'Fail closed: only the documented empty object is accepted until the author semantic-token catalog is accepted.',
+      'Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted.',
   });
 
   const normalizedSource = {
@@ -812,7 +814,7 @@ export function createCompositionBuildSchemas(language) {
       body: { type: 'string', minLength: 0, maxLength: 2_000_000 },
       bodyMediaType: { const: 'text/html' },
       bodyDigest: ref('digest'),
-      renderPolicy: ref('renderPolicyIdentity'),
+      renderPolicy: ref('manifestRenderPolicyIdentity'),
       sourcePath: ref('repoRelativePath'),
       sourceRevision: ref('gitObjectId'),
       sourceDigest: ref('digest'),
@@ -870,7 +872,7 @@ export function createCompositionBuildSchemas(language) {
     ['schemas', 'template', 'theme', 'publisher', 'dependencies'],
   );
 
-  const adapterIdentity = closedObject(
+  const authoredAdapterIdentity = closedObject(
     {
       adapterId: { enum: ['local-directory', 'github-pages', 'do-spaces'] },
       adapterVersion: ref('semver'),
@@ -881,7 +883,7 @@ export function createCompositionBuildSchemas(language) {
 
   const destinationCapabilityProfile = closedObject(
     {
-      adapter: ref('adapterIdentity'),
+      adapter: ref('authoredAdapterIdentity'),
       baseUrl: ref('urlHttps'),
       capabilityDigest: ref('digest'),
     },
@@ -893,10 +895,11 @@ export function createCompositionBuildSchemas(language) {
     minLength: 3,
     maxLength: 140,
     pattern:
-      '^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/[A-Za-z0-9._-]{1,100}$',
-    not: { pattern: '^[^/]+/\\.{1,2}$' },
+      '^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/(?!\\.{1,2}$)[A-Za-z0-9._-]{1,100}$',
     format: 'gala-github-repository-coordinate',
-    'x-gala-utf8ByteLength': { minimum: 3, maximum: 140 },
+    'x-gala-asciiByteLength': { minimum: 3, maximum: 140 },
+    description:
+      'Exact GitHub owner/repository spelling; the repository component cannot be dot or dot-dot.',
   };
 
   const githubActorLogin = {
@@ -1266,7 +1269,7 @@ export function createCompositionBuildSchemas(language) {
     },
   );
 
-  const reproducibleBuildRecord = closedObject(
+  const manifestReproducibleBuildRecord = closedObject(
     {
       repositoryId: ref('githubPositiveDecimal'),
       sourceCommit: ref('gitObjectId'),
@@ -1314,7 +1317,7 @@ export function createCompositionBuildSchemas(language) {
       policyReleaseId: ref('stableId'),
       buildPolicyDecisionDigest: ref('digest'),
       stylingContractDigest: ref('digest'),
-      renderPolicy: ref('renderPolicyIdentity'),
+      renderPolicy: ref('manifestRenderPolicyIdentity'),
       workflowIdentity: ref('digest'),
     },
     [
@@ -1395,7 +1398,7 @@ export function createCompositionBuildSchemas(language) {
           { properties: { purpose: { const: 'unfrozen-output' } } },
         ],
       },
-      rebuildRecord: ref('reproducibleBuildRecord'),
+      rebuildRecord: ref('manifestReproducibleBuildRecord'),
       lockDigest: ref('digest'),
       packageReleaseCatalogDigest: ref('digest'),
       buildInputDigest: ref('digest'),
@@ -1416,7 +1419,7 @@ export function createCompositionBuildSchemas(language) {
       buildPolicyDecisionDigest: ref('digest'),
       capabilityDecisionDigest: ref('digest'),
       stylingContractDigest: ref('digest'),
-      renderPolicy: ref('renderPolicyIdentity'),
+      renderPolicy: ref('manifestRenderPolicyIdentity'),
       sandbox: ref('buildSandboxEvidence'),
       secretInputs: { const: [] },
     },
@@ -1473,8 +1476,8 @@ export function createCompositionBuildSchemas(language) {
   // SCHEMA-2.10.0: the complete $defs set used by artifact-manifest, reused
   // as-is for build-provenance.schema.json so every local $ref it carries
   // (transitively, through assertedWorkload/actionPinEvidence/
-  // workflowCarrierEvidence/reproducibleBuildRecord/artifactLicenseConclusion/
-  // renderPolicyIdentity/buildSandboxEvidence) resolves inside its own file.
+  // workflowCarrierEvidence/manifestReproducibleBuildRecord/artifactLicenseConclusion/
+  // manifestRenderPolicyIdentity/buildSandboxEvidence) resolves inside its own file.
   const manifestDefinitions = {
     npmPackageName,
     int64,
@@ -1482,7 +1485,7 @@ export function createCompositionBuildSchemas(language) {
     positiveInt64,
     spdxExpression,
     githubPositiveDecimal,
-    githubActionsArtifactId: githubPositiveDecimal,
+    githubActionsArtifactId: ref('githubPositiveDecimal'),
     githubRepositoryCoordinate,
     githubActorLogin,
     provenanceRef,
@@ -1499,13 +1502,13 @@ export function createCompositionBuildSchemas(language) {
     manifestAsset,
     finding,
     measurement,
-    renderPolicyIdentity,
+    manifestRenderPolicyIdentity,
     assertedWorkload,
     workflowFileEvidence,
     actionPinEvidence,
     workflowCarrierEvidence,
     artifactLicenseConclusion,
-    reproducibleBuildRecord,
+    manifestReproducibleBuildRecord,
     buildSandboxEvidence,
   };
   // artifact-manifest additionally nests the complete buildProvenance shape
@@ -1747,7 +1750,7 @@ export function createCompositionBuildSchemas(language) {
         buildPackages,
         repositorySnapshot,
         resolvedFile,
-        renderPolicyIdentity,
+        manifestRenderPolicyIdentity,
         renderableBody,
         resolvedMedia,
         socialLink,
@@ -1764,7 +1767,7 @@ export function createCompositionBuildSchemas(language) {
         contentFrontmatterNormalized,
         contentBuildRecord,
         moduleBuildSelection: closedObject({}, [], { maxProperties: 0 }),
-        adapterIdentity,
+        authoredAdapterIdentity,
         destinationCapabilityProfile,
       },
       {

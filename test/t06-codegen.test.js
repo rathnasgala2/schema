@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createRequire } from 'node:module';
 import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
@@ -11,12 +10,6 @@ import {
   validateGeneratedDocument,
 } from '../generated/typescript/index.js';
 import { GALA_SCHEMA_IDS } from '../src/index.js';
-
-const require = createRequire(import.meta.url);
-const structuralCore =
-  /** @type {Record<string, (value: unknown) => boolean>} */ (
-    require('../generated/typescript/validator-core.cjs')
-  );
 
 const CONTRACTS = [
   'adapter-capability',
@@ -41,20 +34,7 @@ const CONTRACTS = [
   'theme-contract',
 ];
 
-/**
- * Convert one kebab-case contract name to its generated type stem.
- *
- * @param {string} value contract name
- * @returns {string} PascalCase name
- */
-function pascalCase(value) {
-  return value
-    .split('-')
-    .map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`)
-    .join('');
-}
-
-test('generated TypeScript and Java root sets equal the twenty schemas', async () => {
+test('generated TypeScript root set equals the twenty schemas', async () => {
   // GALA_SCHEMA_IDS is sorted by the identity string itself, so
   // build-provenance's urn:gala:metadata:... namespace (SCHEMA-2.10.0) sorts
   // before every urn:gala:schema:... identity; GENERATED_SCHEMA_IDS instead
@@ -66,26 +46,11 @@ test('generated TypeScript and Java root sets equal the twenty schemas', async (
   );
   assert.equal(GENERATED_SCHEMA_IDS.length, 20);
 
-  const [typescriptFiles, javaFiles] = await Promise.all([
-    readdir('generated/typescript/contracts'),
-    readdir('generated/java/src/main/java/io/gala/schema/generated/model'),
-  ]);
+  const typescriptFiles = await readdir('generated/typescript/contracts');
   assert.deepEqual(
     typescriptFiles.sort(),
     CONTRACTS.map((contract) => `${contract}.d.ts`).sort(),
   );
-  const javaRoots = javaFiles
-    .filter((file) => file.endsWith('Document.java'))
-    .sort();
-  assert.deepEqual(
-    javaRoots,
-    CONTRACTS.map((contract) => `${pascalCase(contract)}Document.java`).sort(),
-  );
-  // SCHEMA-2.10.0: buildProvenance is now also a standalone root, so exactly
-  // one BuildProvenance* Java type exists (BuildProvenanceDocument.java, part
-  // of javaRoots above) alongside the still-internal nested copy inside
-  // ArtifactManifestDocument's own generated type.
-  assert.ok(javaFiles.includes('BuildProvenanceDocument.java'));
 });
 
 /**
@@ -100,7 +65,7 @@ function schemaIdForContract(contract) {
     : `urn:gala:schema:${contract}:2.0.0`;
 }
 
-test('generated strict API and structural core cover every canonical root', async () => {
+test('generated API covers every canonical root and mirrors structuralValid to valid (SCH-M5)', async () => {
   for (const contract of CONTRACTS) {
     const schemaId = schemaIdForContract(contract);
     const value = JSON.parse(
@@ -111,22 +76,17 @@ test('generated strict API and structural core cover every canonical root', asyn
       structuralValid: true,
       diagnostics: [],
     });
-    const structural = structuralCore[`validate${pascalCase(contract)}`];
-    assert.equal(typeof structural, 'function');
-    assert.equal(structural?.(value), true, contract);
-    assert.equal(
-      structural?.({ ...value, generatedUnknownField: true }),
-      false,
-      contract,
-    );
-    assert.equal(
-      validateGeneratedDocument(schemaId, {
-        ...value,
-        generatedUnknownField: true,
-      }).structuralValid,
-      false,
-      contract,
-    );
+    // generateGeneratedDocument no longer runs a second, weaker standalone
+    // structural core alongside the exact validator (SCH-M5); structuralValid
+    // is derived from the exact result and must always agree with it,
+    // including on rejection.
+    const rejected = validateGeneratedDocument(schemaId, {
+      ...value,
+      generatedUnknownField: true,
+    });
+    assert.equal(rejected.valid, false, contract);
+    assert.equal(rejected.structuralValid, false, contract);
+    assert.ok(rejected.diagnostics.length > 0, contract);
   }
 });
 
@@ -158,7 +118,6 @@ test('schema inventory is exactly twenty roots plus OpenAPI', async () => {
     materialized: true,
     sourceDigest: `sha256:${createHash('sha256').update(openApiSource).digest('hex')}`,
     typescriptRootType: null,
-    javaRootType: null,
   });
   assert.equal(JSON.stringify(inventory).includes('buildProvenance'), false);
 });
@@ -205,13 +164,24 @@ test('release workflow is one pinned provenance publication run', async () => {
   assert.deepEqual(workflow.permissions, { contents: 'read' });
   assert.equal(workflow.jobs.publish.environment, 'npm');
   assert.deepEqual(workflow.jobs.publish.permissions, {
-    contents: 'read',
+    contents: 'write',
     'id-token': 'write',
   });
   const steps = workflow.jobs.publish.steps;
   assert.match(
     steps.find(({ name }) => name === 'Reject version reuse')?.run ?? '',
     /npm view/u,
+  );
+  assert.match(
+    steps.find(
+      ({ name }) =>
+        name === 'Check the CHANGELOG has an entry for this version',
+    )?.run ?? '',
+    /CHANGELOG\.md/u,
+  );
+  assert.match(
+    steps.find(({ name }) => name === 'Tag the release')?.run ?? '',
+    /git push/u,
   );
   assert.equal(
     steps.find(({ name }) => name === 'Publish with trusted provenance')?.run,

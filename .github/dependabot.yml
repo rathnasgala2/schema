@@ -21,3 +21,15 @@ updates:
       time: '09:00'
       timezone: America/Los_Angeles
     open-pull-requests-limit: 5
+
+  # parity/java/gradle.lockfile pins the Networknt and Jackson versions the
+  # entire cross-language parity guarantee (SCH-C4, SCH-H0b) rests on; without
+  # this entry, nothing ever proposed an update (SCH-M19).
+  - package-ecosystem: gradle
+    directory: /parity/java
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Los_Angeles
+    open-pull-requests-limit: 5

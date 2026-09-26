@@ -1,6 +1,6 @@
 {
   "name": "@rathnasgala2/schemas",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "description": "Executable JSON Schema and OpenAPI contracts for Galascribe",
   "type": "module",
   "license": "Apache-2.0",
@@ -61,7 +61,9 @@
     "./docs/catalogs/schema-inventory.json": "./docs/catalogs/schema-inventory.json",
     "./openapi/openapi.yaml": "./openapi/openapi.yaml",
     "./openapi/http-catalog.json": "./openapi/http-catalog.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./fixtures/*": "./fixtures/*",
+    "./examples/*": "./examples/*"
   },
   "types": "./types/index.d.ts",
   "files": [
@@ -74,6 +76,8 @@
     "fixtures/",
     "generated/",
     "openapi/",
+    "!openapi/source/",
+    "!openapi/generator/",
     "catalog-sources/internal-event-actions.json",
     "docs/catalogs/internal-event-actions.json",
     "docs/catalogs/schema-inventory.json",
@@ -108,9 +112,12 @@
     "provenance": true
   },
   "scripts": {
-    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run app-catalogs:check && npm run browser-safety:check",
+    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run schemas:shared-defs:check && npm run compatibility:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run app-catalogs:check && npm run browser-safety:check",
     "schemas:generate": "node scripts/generate-author-source-schemas.mjs",
     "schemas:check": "node scripts/generate-author-source-schemas.mjs --check",
+    "schemas:shared-defs:check": "node scripts/check-shared-defs.mjs",
+    "compatibility:check": "node scripts/check-backward-compatibility.mjs",
+    "compatibility:baseline:update": "node scripts/check-backward-compatibility.mjs --update-baseline",
     "fixtures:generate": "node scripts/generate-fixture-corpus.mjs",
     "fixtures:check": "node scripts/generate-fixture-corpus.mjs --check",
     "diagnostics:generate": "node scripts/generate-diagnostic-map.mjs",
@@ -146,9 +153,8 @@
     "licenses:check": "node scripts/generate-license-inventory.mjs --check",
     "sbom:generate": "node scripts/generate-sbom.mjs",
     "sbom:check": "node scripts/generate-sbom.mjs --check",
-    "audit": "npm audit --audit-level=critical",
+    "audit": "npm audit --audit-level=high",
     "verify": "npm run build && npm run format:check && npm run lint && npm run typecheck && npm run architecture && npm run duplication && npm run workflows:check && npm run parity:supply-chain:check && npm test && npm run parity:check && npm run licenses:check && npm run sbom:check && npm run audit",
-    "prepublishOnly": "npm run verify",
     "publish:dry-run": "npm publish --dry-run --access public"
   },
   "dependencies": {

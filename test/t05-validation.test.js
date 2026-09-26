@@ -1,8 +1,27 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
 
+import { Ajv2020 } from 'ajv/dist/2020.js';
+import formatsPlugin from 'ajv-formats';
+
+import rawDiagnosticMap from '../diagnostics/diagnostic-map.json' with { type: 'json' };
 import { GALA_SCHEMA_IDS, validateGalaDocument } from '../src/index.js';
+
+/**
+ * The real, committed diagnostic map -- the same one
+ * `src/internal/schema-validator.js` and
+ * `src/internal/browser-schema-validator.js` bind into production --
+ * imported here so `createValidatorSuite` is exercised against its actual
+ * shape instead of an empty stand-in.
+ *
+ * @type {import('../src/internal/validator-core.js').DiagnosticMap}
+ */
+const diagnosticMap =
+  /** @type {import('../src/internal/validator-core.js').DiagnosticMap} */ (
+    rawDiagnosticMap
+  );
 
 /**
  * Parse one committed JSON file.
@@ -240,5 +259,272 @@ test('one diagnostic map owns every executable fixture code', async () => {
     assert.equal(diagnostic.severity, 'ERROR');
     assert.equal(typeof diagnostic.remediation, 'string');
     assert.match(diagnostic.documentationUrl, /^https:\/\//u);
+  }
+});
+
+/**
+ * A frozen record of `LEGACY_STRICT_TYPES_ALLOWLIST` at the moment the
+ * split-registry allowlist was introduced (SCH-H1). `validator-core.js`'s
+ * allowlist may only shrink from here -- a PR that adds a root not in this
+ * set fails the assertion below, so a new schema root must compile clean
+ * under full `strictTypes`/`strictRequired` from day one, and reconciling
+ * an existing root's composition out of the allowlist is a one-line delete
+ * in both places.
+ */
+const STRICT_ALLOWLIST_BASELINE = new Set([
+  'adapter-capability',
+  'artifact-manifest',
+  'author',
+  'build-input',
+  'build-provenance',
+  'content-frontmatter',
+  'deployment-intent',
+  'deployment-observation',
+  'deployment-receipt',
+  'lock',
+  'navigation',
+  'problem',
+  'publication',
+  'theme-contract',
+]);
+
+test('the strict-composition allowlist only shrinks (SCH-H1)', async () => {
+  const { LEGACY_STRICT_TYPES_ALLOWLIST } =
+    await import('../src/internal/validator-core.js');
+  for (const contract of LEGACY_STRICT_TYPES_ALLOWLIST) {
+    assert.ok(
+      STRICT_ALLOWLIST_BASELINE.has(contract),
+      `"${contract}" is not in the recorded SCH-H1 baseline; a root may be ` +
+        'removed from LEGACY_STRICT_TYPES_ALLOWLIST but never added',
+    );
+  }
+});
+
+test('every root compiles under strict schema/format/number/tuple checking (SCH-H1)', async () => {
+  // src/internal/validator-core.js's real registry runs with `strict: true`
+  // for every root. Roots outside LEGACY_STRICT_TYPES_ALLOWLIST additionally
+  // compile with strictTypes/strictRequired enabled; roots on the allowlist
+  // relax those two checks only (their allOf/if/then composition declares
+  // required/properties across sibling branches, which strict mode cannot
+  // see across). This test pins that every other strict-mode check --
+  // unknown keywords (a misspelled keyword like `requred`/`maxItmes`),
+  // unknown formats, strict numbers and strict tuples -- reports zero
+  // diagnostics across every root, and that the allowlisted roots report
+  // zero *additional* strictTypes/strictRequired diagnostics beyond what is
+  // already known, so a schema-authoring typo is caught here rather than
+  // silently validating nothing.
+  const { LEGACY_STRICT_TYPES_ALLOWLIST } =
+    await import('../src/internal/validator-core.js');
+  const files = (await readdir('schemas')).filter((file) =>
+    file.endsWith('.schema.json'),
+  );
+  const galaKeywords = new Set();
+  const collectGalaKeywords = (/** @type {unknown} */ value) => {
+    if (value === null || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      for (const entry of value) collectGalaKeywords(entry);
+      return;
+    }
+    for (const key of Object.keys(value)) {
+      if (key.startsWith('x-gala-')) galaKeywords.add(key);
+    }
+    for (const child of Object.values(value)) collectGalaKeywords(child);
+  };
+  const schemas = await Promise.all(
+    files.map((file) =>
+      readFile(path.join('schemas', file), 'utf8').then((source) =>
+        JSON.parse(source),
+      ),
+    ),
+  );
+  for (const schema of schemas) collectGalaKeywords(schema);
+
+  const collectFormats = (
+    /** @type {unknown} */ value,
+    /** @type {Set<string>} */ target,
+  ) => {
+    if (value === null || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      for (const entry of value) collectFormats(entry, target);
+      return;
+    }
+    if (
+      typeof (/** @type {{format?: unknown}} */ (value).format) === 'string'
+    ) {
+      target.add(/** @type {{format: string}} */ (value).format);
+    }
+    for (const child of Object.values(value)) collectFormats(child, target);
+  };
+  const formats = new Set();
+  for (const schema of schemas) collectFormats(schema, formats);
+
+  /**
+   * @param {boolean} strictComposition strictTypes/strictRequired setting
+   * @returns {{ajv: import('ajv').default, diagnostics: string[]}} a fresh
+   *   Ajv instance with Gala's keywords/formats registered, plus its
+   *   diagnostic sink
+   */
+  function buildAjv(strictComposition) {
+    const diagnostics = /** @type {string[]} */ ([]);
+    const ajv = new Ajv2020({
+      allErrors: true,
+      strict: 'log',
+      strictTypes: strictComposition,
+      strictRequired: strictComposition,
+      logger: {
+        log() {},
+        warn: (/** @type {string} */ message) => diagnostics.push(message),
+        error: (/** @type {string} */ message) => diagnostics.push(message),
+      },
+    });
+    /** @type {(ajv: unknown) => void} */ (
+      /** @type {unknown} */ (formatsPlugin)
+    )(ajv);
+    for (const keyword of galaKeywords) {
+      ajv.addKeyword({ keyword, validate: () => true });
+    }
+    for (const format of formats) {
+      if (ajv.formats[format] === undefined) {
+        ajv.addFormat(format, { type: 'string', validate: () => true });
+      }
+    }
+    return { ajv, diagnostics };
+  }
+
+  const strict = buildAjv(true);
+  const legacy = buildAjv(false);
+  for (const schema of schemas) {
+    const contract = String(schema.$id).replace(
+      /^urn:gala:(?:schema|metadata):([a-z0-9-]+):.*$/u,
+      '$1',
+    );
+    const { ajv } = LEGACY_STRICT_TYPES_ALLOWLIST.has(contract)
+      ? legacy
+      : strict;
+    ajv.compile(schema);
+  }
+
+  assert.deepEqual(strict.diagnostics, []);
+  assert.deepEqual(legacy.diagnostics, []);
+});
+
+test('each of the six non-allowlisted roots rejects a fabricated schema an allowlisted root tolerates (SCH-H1)', async () => {
+  // The prior two tests prove every *real, committed* root is clean under
+  // its assigned strictness. This test proves the split is load-bearing in
+  // the other direction: a schema-authoring mistake strictTypes/
+  // strictRequired exists to catch -- a `required` (or `properties`) keyword
+  // nested under `oneOf`/`allOf` with no `type` declared on its own branch,
+  // so Ajv cannot see what type it is asserting requirements against -- must
+  // actually fail to compile on a root outside LEGACY_STRICT_TYPES_ALLOWLIST,
+  // and must be tolerated (legacy, relaxed) on a root inside it. This is
+  // exactly the shape SCH-H1's rollout hit on real allOf/if composition
+  // (colorMode's `if` branches on `appearance`), reproduced here as a
+  // minimal fabricated fixture instead of relying on today's committed
+  // schemas happening to stay clean.
+  const { createValidatorSuite, LEGACY_STRICT_TYPES_ALLOWLIST } =
+    await import('../src/internal/validator-core.js');
+
+  const NON_ALLOWLISTED_ROOTS = [
+    'appearance',
+    'event-envelope',
+    'public-generation-marker',
+    'public-runtime-origins',
+    'repository',
+    'template-composition',
+  ];
+  assert.equal(NON_ALLOWLISTED_ROOTS.length, 6);
+  for (const contract of NON_ALLOWLISTED_ROOTS) {
+    assert.ok(
+      !LEGACY_STRICT_TYPES_ALLOWLIST.has(contract),
+      `"${contract}" is expected to be outside LEGACY_STRICT_TYPES_ALLOWLIST`,
+    );
+  }
+
+  /**
+   * @param {string} contract contract name
+   * @returns {Record<string, unknown>} a schema whose `allOf` branch
+   *   declares `required` with no local `type`
+   */
+  function fabricateUntypedRequiredSchema(contract) {
+    return {
+      $id: `urn:gala:schema:${contract}:2.0.0`,
+      oneOf: [
+        {
+          type: 'object',
+          properties: { kind: { type: 'string' } },
+          allOf: [{ required: ['kind'] }],
+        },
+      ],
+    };
+  }
+
+  for (const contract of NON_ALLOWLISTED_ROOTS) {
+    assert.throws(
+      () =>
+        createValidatorSuite({
+          schemas: [fabricateUntypedRequiredSchema(contract)],
+          diagnosticMap,
+          validateFormat: () => true,
+        }),
+      /strict mode/u,
+      `"${contract}" (strict, non-allowlisted) should reject the fabricated schema`,
+    );
+  }
+
+  const [allowlistedContract] = LEGACY_STRICT_TYPES_ALLOWLIST;
+  assert.ok(allowlistedContract);
+  assert.doesNotThrow(
+    () =>
+      createValidatorSuite({
+        schemas: [fabricateUntypedRequiredSchema(allowlistedContract)],
+        diagnosticMap,
+        validateFormat: () => true,
+      }),
+    `"${allowlistedContract}" (legacy, allowlisted) should tolerate the fabricated schema`,
+  );
+});
+
+test('createValidatorSuite never exposes the internal registry or fragmentAjv (SCH-H1)', async () => {
+  // src/internal/schema-validator.js -- the only caller of createValidatorSuite
+  // outside this test file -- is itself reachable only from Node-only tooling
+  // (scripts/validator-parity.mjs) per .dependency-cruiser.cjs's
+  // src-internal-module-is-reachable-from-a-declared-export exception. That
+  // structural guarantee is about which *module* can reach fragmentAjv; this
+  // test pins the complementary guarantee that the *value* createValidatorSuite
+  // returns never leaks the registry (and therefore fragmentAjv) itself, so a
+  // future caller cannot reach it through the returned suite even if it did
+  // gain a reachable import path.
+  const { createValidatorSuite } =
+    await import('../src/internal/validator-core.js');
+  const schema = { $id: 'urn:gala:schema:problem:2.0.0', type: 'object' };
+  const suite = createValidatorSuite({
+    schemas: [schema],
+    diagnosticMap,
+    validateFormat: () => true,
+  });
+  const keys = Object.keys(suite).sort();
+  assert.deepEqual(keys, [
+    'schemaIds',
+    'validateArrayCardinality',
+    'validateDocument',
+    'validateFragment',
+  ]);
+  assert.ok(
+    !keys.includes('registry') && !keys.includes('fragmentAjv'),
+    'createValidatorSuite must not expose the internal registry or fragmentAjv by name',
+  );
+  assert.ok(Array.isArray(suite.schemaIds));
+  /** @type {readonly (keyof typeof suite)[]} */
+  const suiteFunctionKeys = [
+    'validateArrayCardinality',
+    'validateDocument',
+    'validateFragment',
+  ];
+  for (const key of suiteFunctionKeys) {
+    assert.equal(
+      typeof suite[key],
+      'function',
+      `${key} must be a bound function, not the registry object`,
+    );
   }
 });

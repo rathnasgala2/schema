@@ -12,6 +12,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import Ajv2020Module from 'ajv/dist/2020.js';
+import {
+  Name as CodegenName,
+  _ as codegenTemplate,
+  type Code as CodegenCode,
+} from 'ajv/dist/compile/codegen/index.js';
 import standaloneCodeModule from 'ajv/dist/standalone/index.js';
 import { format as prettierFormat } from 'prettier';
 
@@ -34,17 +39,51 @@ interface DesignManifest extends JsonObject {
   schemaVersion: string;
 }
 
+interface KeywordContext {
+  ok(pass: boolean): void;
+}
 interface AjvRegistry {
   addFormat(name: string, definition: true): AjvRegistry;
+  addKeyword(definition: {
+    keyword: string;
+    code: (context: KeywordContext) => void;
+  }): AjvRegistry;
   addSchema(schema: JsonObject, key?: string): AjvRegistry;
 }
 
-const Ajv2020 = Ajv2020Module as unknown as new (options: {
-  code: { source: true };
-  strict: false;
-}) => AjvRegistry;
+interface BrowserKeywordCodeContext {
+  data: CodegenCode;
+  schemaCode: CodegenCode;
+  fail(condition: CodegenCode): void;
+  ok(pass: boolean): void;
+}
+interface BrowserFormatDefinition {
+  type: 'string';
+  validate: (value: string) => boolean;
+}
+interface BrowserAjvRegistry {
+  addFormat(
+    name: string,
+    definition: BrowserFormatDefinition,
+  ): BrowserAjvRegistry;
+  addKeyword(definition: {
+    keyword: string;
+    schemaType?: string | string[];
+    type?: string;
+    code: (context: BrowserKeywordCodeContext) => void;
+  }): BrowserAjvRegistry;
+  addSchema(schema: JsonObject, key?: string): BrowserAjvRegistry;
+}
+const Ajv2020Browser = Ajv2020Module as unknown as new (options: {
+  allErrors: true;
+  code: { source: true; esm: true; formats: unknown };
+  strict: true;
+  strictTypes: false;
+  strictRequired: false;
+}) => BrowserAjvRegistry;
+
 const standaloneCode = standaloneCodeModule as unknown as (
-  ajv: AjvRegistry,
+  ajv: AjvRegistry | BrowserAjvRegistry,
   references: Record<string, string>,
 ) => string;
 
@@ -74,65 +113,11 @@ const CONTRACTS = [
 const OPENAPI_ID = 'urn:gala:schema:openapi:2.0.0';
 const DESIGN_DOMAIN = Buffer.from('GALA-DESIGN-REVISION-V2\0', 'utf8');
 const INTERNAL_DEFINITION = 'buildProvenance';
-const JAVA_PACKAGE = 'io.gala.schema.generated';
 const FORMAT_OPTIONS = {
   proseWrap: 'always',
   singleQuote: true,
   trailingComma: 'all',
 } as const;
-
-const JAVA_KEYWORDS = new Set([
-  'abstract',
-  'assert',
-  'boolean',
-  'break',
-  'byte',
-  'case',
-  'catch',
-  'char',
-  'class',
-  'const',
-  'continue',
-  'default',
-  'do',
-  'double',
-  'else',
-  'enum',
-  'extends',
-  'final',
-  'finally',
-  'float',
-  'for',
-  'goto',
-  'if',
-  'implements',
-  'import',
-  'instanceof',
-  'int',
-  'interface',
-  'long',
-  'native',
-  'new',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'return',
-  'short',
-  'static',
-  'strictfp',
-  'super',
-  'switch',
-  'synchronized',
-  'this',
-  'throw',
-  'throws',
-  'transient',
-  'try',
-  'void',
-  'volatile',
-  'while',
-]);
 
 function requireObject(value: JsonValue, label: string): JsonObject {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -375,25 +360,241 @@ function collectFormats(value: JsonValue, target: Set<string>): void {
   for (const child of Object.values(value)) collectFormats(child, target);
 }
 
-function generateValidatorCore(
+/**
+ * Gala's `x-gala-*` assertion keywords, wired to `gala-keywords.js`'s pure
+ * implementations via `code()` (not `validate`, a closure Ajv's standalone
+ * codegen cannot serialize) -- see gala-keywords.js's module comment.
+ */
+const BROWSER_KEYWORD_DEFINITIONS: ReadonlyArray<{
+  keyword: string;
+  schemaType?: string | string[];
+  type?: string;
+  fn: string;
+  inert?: true;
+}> = [
+  { keyword: 'x-gala-decision-phase', fn: 'galaDecisionPhase', inert: true },
+  {
+    keyword: 'x-gala-asciiByteLength',
+    schemaType: 'object',
+    type: 'string',
+    fn: 'galaAsciiByteLength',
+  },
+  {
+    keyword: 'x-gala-utf8ByteLength',
+    schemaType: 'object',
+    type: 'string',
+    fn: 'galaUtf8ByteLength',
+  },
+  {
+    keyword: 'x-gala-graphemeLength',
+    schemaType: 'object',
+    type: 'string',
+    fn: 'galaGraphemeLength',
+  },
+  {
+    keyword: 'x-gala-maxCanonicalBytes',
+    schemaType: 'number',
+    fn: 'galaMaxCanonicalBytes',
+  },
+  {
+    keyword: 'x-gala-maximum',
+    schemaType: ['number', 'string'],
+    fn: 'galaMaximum',
+  },
+];
+
+/**
+ * Generate one browser-safe ESM standalone core: real Gala format and
+ * `x-gala-*` keyword semantics compiled directly into the validator
+ * functions' source, with no runtime `ajv.compile` and no `new Function`
+ * anywhere in the output (SCH-C2). This is what `.` and `./runtime-origins`
+ * bind to; the CJS structural core above stays Node-tooling-only.
+ *
+ * @param schemas complete schema documents to compile, in `contracts` order
+ * @param contracts contract names, one per entry in `schemas`
+ * @param revision source design revision, for the file header
+ * @param formatModuleSpecifier import specifier for the format dispatcher,
+ *   relative to the generated file (the full core needs SPDX support and
+ *   the narrow core does not, so the two entry points import different
+ *   dispatchers -- see format-validators.js's module comment)
+ * @param formatDispatcherName exported name of the format dispatcher
+ *   function at `formatModuleSpecifier`, taking `(formatName, value)`
+ * @returns generated ESM module source
+ */
+const AJV_RUNTIME_REQUIRE_PATTERN =
+  /const (\w+) = require\("ajv\/dist\/runtime\/([a-zA-Z0-9]+)"\)(\.[a-zA-Z]+)?;/gu;
+
+/**
+ * Rewrite every `const name = require("ajv/dist/runtime/<module>")[.prop];`
+ * Ajv's standalone codegen emits for its own built-in runtime helpers (deep
+ * equality for `enum`/`const`/`uniqueItems`, Unicode-aware length counting,
+ * timestamp/URI/JSON parsing) into a real static ESM import plus a bare
+ * local binding.
+ *
+ * These `require(...)` calls are hardcoded in ajv's own runtime helper
+ * modules (e.g. `ajv/dist/runtime/equal.js`'s `equal.code =
+ * 'require("ajv/dist/runtime/equal").default'`) and are emitted verbatim
+ * regardless of the `esm: true` compile option -- `esm: true` only changes
+ * how *our own* referenced values are emitted, not ajv's internal ones. A
+ * literal `require` is not valid ESM and would throw the moment a browser
+ * tried to load this module, so it must be rewritten here, in the one place
+ * that assembles the final file text.
+ *
+ * @param {string} code standalone-generated validator source
+ * @returns {{code: string, imports: string[]}} rewritten source and the
+ *   import statements it now needs
+ */
+function resolveAjvRuntimeRequires(code: string): {
+  code: string;
+  imports: string[];
+} {
+  const imports = new Set<string>();
+  const rewritten = code.replace(
+    AJV_RUNTIME_REQUIRE_PATTERN,
+    (
+      _match,
+      localName: string,
+      moduleName: string,
+      property: string | undefined,
+    ) => {
+      if (property === undefined) {
+        imports.add(
+          `import ${localName} from 'ajv/dist/runtime/${moduleName}.js';`,
+        );
+        return '';
+      }
+      // These modules mark themselves `__esModule: true` and set
+      // `exports.default = <value>`, which is the pattern transpiled
+      // TS/Babel CJS output uses. A default *namespace* import of such a
+      // module resolves, correctly, to the *whole* `module.exports` object
+      // (verified empirically against this Node version) -- not to
+      // `.default` directly -- so `.default` needs one extra unwrap.
+      // Any other named property (`parseJson.js`'s `.parseJson`, etc.) is a
+      // plain CJS named export with no such wrapping and needs none.
+      const namespaceName = `${localName}Module`;
+      const importStatement =
+        property === '.default'
+          ? `import ${namespaceName} from 'ajv/dist/runtime/${moduleName}.js';`
+          : `import * as ${namespaceName} from 'ajv/dist/runtime/${moduleName}.js';`;
+      imports.add(importStatement);
+      return `const ${localName} = ${namespaceName}${property};`;
+    },
+  );
+  return { code: rewritten, imports: [...imports].sort() };
+}
+
+function generateBrowserValidatorCore(
   schemas: SchemaDocument[],
+  contracts: readonly string[],
   revision: string,
+  formatModuleSpecifier: string,
+  formatDispatcherName: string,
 ): string {
-  const ajv = new Ajv2020({ code: { source: true }, strict: false });
+  const ajv = new Ajv2020Browser({
+    allErrors: true,
+    code: { source: true, esm: true, formats: codegenTemplate`GALA_FORMATS` },
+    strict: true,
+    strictTypes: false,
+    strictRequired: false,
+  });
+  for (const definition of BROWSER_KEYWORD_DEFINITIONS) {
+    ajv.addKeyword({
+      keyword: definition.keyword,
+      ...(definition.schemaType === undefined
+        ? {}
+        : { schemaType: definition.schemaType }),
+      ...(definition.type === undefined ? {} : { type: definition.type }),
+      code(context) {
+        if (definition.inert) {
+          context.ok(true);
+          return;
+        }
+        context.fail(
+          codegenTemplate`!${new CodegenName(definition.fn)}(${context.schemaCode}, ${context.data})`,
+        );
+      },
+    });
+  }
   const formats = new Set<string>();
   for (const schema of schemas) collectFormats(schema, formats);
-  for (const format of [...formats].sort()) ajv.addFormat(format, true);
+  for (const format of [...formats].sort()) {
+    // This closure is never invoked at runtime: `code.formats` (above)
+    // makes every compiled call site reference the real `GALA_FORMATS`
+    // object written into the generated file's preamble below instead.
+    // Ajv only consults this registration at compile time, to read
+    // `.type` off it (`getFormat` in ajv/dist/vocabularies/format/format.js)
+    // -- every Gala format is string-typed, so a stub satisfies that.
+    ajv.addFormat(format, {
+      type: 'string',
+      validate: () => true,
+    });
+  }
   const references: Record<string, string> = {};
   for (const [index, schema] of schemas.entries()) {
     ajv.addSchema(schema, schema.$id);
-    references[`validate${pascalCase(CONTRACTS[index] ?? '')}`] = schema.$id;
+    references[`validate${pascalCase(contracts[index] ?? '')}`] = schema.$id;
   }
+  const schemaValidatorEntries = schemas
+    .map(
+      (schema, index) =>
+        `  ${JSON.stringify(schema.$id)}: validate${pascalCase(contracts[index] ?? '')},`,
+    )
+    .join('\n');
+  const { code: validatorCode, imports: runtimeImports } =
+    resolveAjvRuntimeRequires(standaloneCode(ajv, references).trimEnd());
   return [
     '// @ts-nocheck -- Ajv machine-generated standalone core.',
-    `'use strict';`,
-    `// Generated structural core; sourceDesignRevision=${revision}.`,
-    '// Gala semantic formats and keywords are enforced by the strict ESM API.',
-    standaloneCode(ajv, references).trimEnd(),
+    `// Generated browser-safe ESM standalone core; sourceDesignRevision=${revision}.`,
+    '// Do not edit. Real Gala format and x-gala-* keyword semantics are',
+    '// compiled directly into these validator functions -- no runtime',
+    '// ajv.compile() and no eval()/new Function() (SCH-C2). This core is',
+    '// bound to `.` and `./runtime-origins`; the Node-only fixture and',
+    '// parity tooling keep using the runtime-compiled registry instead.',
+    `import { ${formatDispatcherName} } from '${formatModuleSpecifier}';`,
+    'import {',
+    '  galaAsciiByteLength,',
+    '  galaDecisionPhase,',
+    '  galaGraphemeLength,',
+    '  galaMaxCanonicalBytes,',
+    '  galaMaximum,',
+    '  galaUtf8ByteLength,',
+    "} from '../../src/internal/gala-keywords.js';",
+    ...runtimeImports,
+    'const GALA_FORMATS = Object.freeze({',
+    ...[...formats]
+      .sort()
+      .map(
+        (format) =>
+          `  ${JSON.stringify(format)}: { type: 'string', validate: (value) => ${formatDispatcherName}(${JSON.stringify(format)}, value) },`,
+      ),
+    '});',
+    validatorCode,
+    `export const SCHEMA_VALIDATORS = Object.freeze({`,
+    schemaValidatorEntries,
+    '});',
+    '',
+  ].join('\n');
+}
+
+/**
+ * Generate the `.d.mts` companion declaration for one browser standalone
+ * core. TypeScript's NodeNext resolution prefers a sibling `.d.mts` over
+ * parsing the paired `.mjs` for type information; without one, `tsc` walks
+ * the real compiled validator functions' control-flow graph (thousands of
+ * nested `if`/`else` branches for the larger roots) and overflows its own
+ * call stack. This tiny, stable, generated shape is what every consumer of
+ * the real file actually needs.
+ *
+ * @param {string} revision source design revision, for the file header
+ * @returns {string} generated `.d.mts` source
+ */
+function browserValidatorCoreDeclaration(revision: string): string {
+  return [
+    `// Generated declaration for the browser-safe ESM standalone core; sourceDesignRevision=${revision}.`,
+    '// Do not edit.',
+    'export declare const SCHEMA_VALIDATORS: Readonly<',
+    "  Record<string, ((value: unknown) => boolean) & { errors?: import('ajv').ErrorObject[] | null }>",
+    '>;',
     '',
   ].join('\n');
 }
@@ -414,46 +615,38 @@ function generateTypescriptIndex(
     `// Generated contract API; sourceDesignRevision=${revision}.`,
     '// Do not edit.',
     '',
-    "import { createRequire } from 'node:module';",
     "import { validateGalaDocument } from '../../src/index.js';",
     '',
-    'const require = createRequire(import.meta.url);',
-    "const CORE_PATH = './validator-core.cjs';",
-    '/** @type {Record<string, (value: unknown) => boolean>} */',
-    'const core = require(CORE_PATH);',
     `const SCHEMA_IDS = ${JSON.stringify(ids, null, 2)};`,
-    'const STRUCTURAL_VALIDATORS = Object.freeze({',
-  ];
-  for (const [index, schema] of schemas.entries()) {
-    const functionName = `validate${pascalCase(CONTRACTS[index] ?? '')}`;
-    runtimeLines.push(`  ${JSON.stringify(schema.$id)}: core.${functionName},`);
-  }
-  runtimeLines.push(
-    '});',
     '',
     '/** Exact immutable schema identities represented by generated root types. */',
     'export const GENERATED_SCHEMA_IDS = Object.freeze(SCHEMA_IDS);',
     '',
     '/**',
-    ' * Validate one generated root through the standalone structural core and',
-    " * Galascribe's exact semantic validator.",
+    " * Validate one generated root through Galascribe's exact semantic",
+    " * validator (`.`'s precompiled ESM standalone core, SCH-C2). This used",
+    ' * to additionally run a separate, weaker standalone structural core',
+    ' * (every custom format compiled as an unconditional pass) and AND the',
+    ' * two results together (SCH-M5); since the weaker core can never turn a',
+    " * `true` into a `false`, that check was redundant with `validateGalaDocument`'s",
+    ' * own result and never changed the outcome -- it only doubled the work',
+    ' * and shipped a second 2.73 MB precompiled core to do it. `structuralValid`',
+    ' * is kept in the result shape for existing consumers and now always',
+    ' * equals `valid`.',
     ' *',
     ' * @param {string} schemaId exact immutable schema identity',
     ' * @param {unknown} value candidate document',
     " * @returns {Readonly<import('../../src/internal/schema-validator.js').GalaValidationResult & {structuralValid: boolean}>} stable result",
     ' */',
     'export function validateGeneratedDocument(schemaId, value) {',
-    '  const structural = STRUCTURAL_VALIDATORS[schemaId];',
-    '  const structuralValid = structural?.(value) ?? false;',
     '  const exactResult = validateGalaDocument(schemaId, value);',
     '  return Object.freeze({',
     '    ...exactResult,',
-    '    structuralValid,',
-    '    valid: structuralValid && exactResult.valid,',
+    '    structuralValid: exactResult.valid,',
     '  });',
     '}',
     '',
-  );
+  ];
   declarationLines.push(
     'export type GeneratedValidationResult = GalaValidationResult & Readonly<{',
     '  structuralValid: boolean;',
@@ -494,247 +687,6 @@ function generateTypescriptIndex(
     declaration: declarationLines.join('\n'),
     runtime: runtimeLines.join('\n'),
   };
-}
-
-function javaIdentifier(value: string): string {
-  const normalized = value.replace(/[^A-Za-z0-9_$]/gu, '_');
-  const prefixed = /^\d/u.test(normalized) ? `_${normalized}` : normalized;
-  return JAVA_KEYWORDS.has(prefixed) ? `${prefixed}_` : prefixed;
-}
-
-function javaType(
-  value: JsonValue,
-  root: SchemaDocument,
-  prefix: string,
-): string {
-  if (typeof value === 'boolean') return 'JsonNode';
-  const schema = requireObject(value, 'Java schema');
-  if (typeof schema.$ref === 'string') {
-    const definition = schema.$ref.slice('#/$defs/'.length);
-    if (definition === INTERNAL_DEFINITION) return 'JsonNode';
-    const resolved = resolveLocalReference(schema.$ref, root);
-    if (resolved.type === 'object' || resolved.properties !== undefined) {
-      return `${prefix}${pascalCase(definition)}`;
-    }
-    return javaType(resolved, root, prefix);
-  }
-  if ('const' in schema) {
-    const constant = schema.const;
-    if (typeof constant === 'string') return 'String';
-    if (typeof constant === 'boolean') return 'Boolean';
-    if (typeof constant === 'number')
-      return Number.isInteger(constant) ? 'Long' : 'BigDecimal';
-    return 'JsonNode';
-  }
-  if (Array.isArray(schema.enum)) {
-    const values = schema.enum;
-    if (values.every((entry) => typeof entry === 'string')) return 'String';
-    if (values.every((entry) => typeof entry === 'boolean')) return 'Boolean';
-    if (values.every((entry) => typeof entry === 'number')) return 'BigDecimal';
-    return 'JsonNode';
-  }
-  const declared = Array.isArray(schema.type)
-    ? schema.type.filter((entry): entry is string => typeof entry === 'string')
-    : typeof schema.type === 'string'
-      ? [schema.type]
-      : [];
-  const concrete = declared.filter((entry) => entry !== 'null');
-  if (concrete.length !== 1) {
-    const alternatives = ['oneOf', 'anyOf']
-      .flatMap((key) => (Array.isArray(schema[key]) ? schema[key] : []))
-      .map((entry) => javaType(entry, root, prefix));
-    const unique = uniqueTypes(alternatives);
-    if (unique.length === 1) return unique[0] ?? 'JsonNode';
-    const intersections = Array.isArray(schema.allOf)
-      ? uniqueTypes(schema.allOf.map((entry) => javaType(entry, root, prefix)))
-      : [];
-    const concreteIntersections = intersections.filter(
-      (entry) => entry !== 'JsonNode',
-    );
-    return concreteIntersections.length === 1
-      ? (concreteIntersections[0] ?? 'JsonNode')
-      : 'JsonNode';
-  }
-  const type = concrete[0];
-  if (type === 'string') return 'String';
-  if (type === 'boolean') return 'Boolean';
-  if (type === 'integer') return 'Long';
-  if (type === 'number') return 'BigDecimal';
-  if (type === 'array') {
-    const item = Array.isArray(schema.prefixItems)
-      ? true
-      : (schema.items ?? true);
-    return `List<${javaType(item, root, prefix)}>`;
-  }
-  return 'JsonNode';
-}
-
-function generateJavaRecordSource(
-  className: string,
-  sourceIdentity: string,
-  value: JsonObject,
-  root: SchemaDocument,
-  prefix: string,
-  revision: string,
-): string {
-  const properties = Object.entries(schemaObject(value.properties) ?? {}).sort(
-    ([left], [right]) => compareUtf8(left, right),
-  );
-  const required = new Set(
-    Array.isArray(value.required)
-      ? value.required.filter(
-          (entry): entry is string => typeof entry === 'string',
-        )
-      : [],
-  );
-  const components = properties.map(([name, property]) => ({
-    javaName: javaIdentifier(name),
-    name,
-    required: required.has(name),
-    type: javaType(property, root, prefix),
-  }));
-  const imports = new Set<string>([
-    'com.fasterxml.jackson.annotation.JsonProperty',
-    'com.fasterxml.jackson.databind.JsonNode',
-    'java.util.Objects',
-  ]);
-  if (components.some(({ type }) => type.includes('BigDecimal')))
-    imports.add('java.math.BigDecimal');
-  if (components.some(({ type }) => type.includes('List<')))
-    imports.add('java.util.List');
-  const componentSource = components
-    .map(
-      ({ javaName, name, type }) =>
-        `        @JsonProperty(${JSON.stringify(name)}) ${type} ${javaName}`,
-    )
-    .join(',\n');
-  const requiredSource = components
-    .filter(({ required: isRequired }) => isRequired)
-    .map(
-      ({ javaName, name }) =>
-        `        Objects.requireNonNull(${javaName}, ${JSON.stringify(name)});`,
-    );
-  return [
-    `// Generated from ${sourceIdentity}; sourceDesignRevision=${revision}.`,
-    `package ${JAVA_PACKAGE}.model;`,
-    '',
-    ...[...imports].sort().map((name) => `import ${name};`),
-    '',
-    `/** Closed generated record for ${sourceIdentity}. */`,
-    `public record ${className}(`,
-    componentSource,
-    ') {',
-    `    /** Reject a missing required root member before domain use. */`,
-    `    public ${className} {`,
-    ...requiredSource,
-    '    }',
-    '}',
-    '',
-  ].join('\n');
-}
-
-function generateJavaRecords(
-  contract: string,
-  schema: SchemaDocument,
-  revision: string,
-): Array<{ className: string; source: string }> {
-  const prefix = pascalCase(contract);
-  const records = [
-    {
-      className: `${prefix}Document`,
-      identity: schema.$id,
-      schema: schema as JsonObject,
-    },
-  ];
-  for (const [name, definition] of Object.entries(schema.$defs ?? {}).sort(
-    ([left], [right]) => compareUtf8(left, right),
-  )) {
-    if (name === INTERNAL_DEFINITION || typeof definition === 'boolean')
-      continue;
-    const object = requireObject(definition, name);
-    if (object.type !== 'object' && object.properties === undefined) continue;
-    records.push({
-      className: `${prefix}${pascalCase(name)}`,
-      identity: `${schema.$id}#/$defs/${name}`,
-      schema: object,
-    });
-  }
-  const names = records.map(({ className }) => className);
-  if (new Set(names).size !== names.length) {
-    throw new TypeError(`${contract} produces colliding Java record names`);
-  }
-  return records.map(({ className, identity, schema: recordSchema }) => ({
-    className,
-    source: generateJavaRecordSource(
-      className,
-      identity,
-      recordSchema,
-      schema,
-      prefix,
-      revision,
-    ),
-  }));
-}
-
-function generateJavaRegistry(
-  schemas: SchemaDocument[],
-  revision: string,
-): string {
-  const entries = schemas.map(
-    (schema, index) =>
-      `            Map.entry(${JSON.stringify(schema.$id)}, ${JSON.stringify(`/io/gala/schema/generated/schemas/${CONTRACTS[index]}.schema.json`)})`,
-  );
-  return [
-    `// Generated Networknt registry wiring; sourceDesignRevision=${revision}.`,
-    `package ${JAVA_PACKAGE};`,
-    '',
-    'import com.networknt.schema.SchemaRegistry;',
-    'import com.networknt.schema.SchemaRegistryConfig;',
-    'import com.networknt.schema.dialect.Dialect;',
-    'import java.io.IOException;',
-    'import java.io.InputStream;',
-    'import java.nio.charset.StandardCharsets;',
-    'import java.util.LinkedHashMap;',
-    'import java.util.List;',
-    'import java.util.Map;',
-    'import java.util.Objects;',
-    '',
-    '/** Exact nineteen-root schema registry for a caller-supplied Gala-enabled dialect. */',
-    'public final class GalaSchemaRegistry {',
-    '    private static final Map<String, String> RESOURCES = Map.ofEntries(',
-    `${entries.join(',\n')}`,
-    '    );',
-    '',
-    '    private GalaSchemaRegistry() {}',
-    '',
-    '    /** Return the exact immutable root identities in lexical order. */',
-    '    public static List<String> schemaIds() {',
-    '        return RESOURCES.keySet().stream().sorted().toList();',
-    '    }',
-    '',
-    "    /** Build a Networknt registry using the caller's exact Gala formats and keywords. */",
-    '    public static SchemaRegistry create(Dialect dialect, SchemaRegistryConfig config) {',
-    '        Objects.requireNonNull(dialect, "dialect");',
-    '        Objects.requireNonNull(config, "config");',
-    '        return SchemaRegistry.withDialect(',
-    '                dialect, builder -> builder.schemas(loadSchemas()).schemaRegistryConfig(config));',
-    '    }',
-    '',
-    '    private static Map<String, String> loadSchemas() {',
-    '        Map<String, String> schemas = new LinkedHashMap<>();',
-    '        for (Map.Entry<String, String> entry : RESOURCES.entrySet()) {',
-    '            try (InputStream input = GalaSchemaRegistry.class.getResourceAsStream(entry.getValue())) {',
-    '                if (input == null) throw new IllegalStateException("Missing schema resource " + entry.getValue());',
-    '                schemas.put(entry.getKey(), new String(input.readAllBytes(), StandardCharsets.UTF_8));',
-    '            } catch (IOException error) {',
-    '                throw new IllegalStateException("Cannot read schema resource " + entry.getValue(), error);',
-    '            }',
-    '        }',
-    '        return Map.copyOf(schemas);',
-    '    }',
-    '}',
-    '',
-  ].join('\n');
 }
 
 async function loadSchemas(repositoryRoot: string): Promise<SchemaDocument[]> {
@@ -825,7 +777,6 @@ function schemaInventory(
       materialized: true,
       sourceDigest: `sha256:${sha256(sources[index] ?? '')}`,
       typescriptRootType: `${pascalCase(contract)}Document`,
-      javaRootType: `${JAVA_PACKAGE}.model.${pascalCase(contract)}Document`,
     };
   });
   contracts.push({
@@ -838,7 +789,6 @@ function schemaInventory(
     sourceDigest:
       openapiSource === undefined ? null : `sha256:${sha256(openapiSource)}`,
     typescriptRootType: null,
-    javaRootType: null,
   });
   const inventory: JsonObject = {
     schemaVersion: '2.0.0',
@@ -876,40 +826,22 @@ async function writeGeneratedTree(
   );
   const revision = manifest.digest;
   const typescriptRoot = path.join(outputRoot, 'generated', 'typescript');
-  const javaRoot = path.join(outputRoot, 'generated', 'java');
+  const browserRoot = path.join(outputRoot, 'generated', 'browser');
   await Promise.all([
     rm(typescriptRoot, { force: true, recursive: true }),
-    rm(javaRoot, { force: true, recursive: true }),
+    rm(browserRoot, { force: true, recursive: true }),
   ]);
   await Promise.all([
+    mkdir(browserRoot, { recursive: true }),
     mkdir(path.join(typescriptRoot, 'contracts'), { recursive: true }),
-    mkdir(
-      path.join(
-        javaRoot,
-        'src',
-        'main',
-        'java',
-        ...JAVA_PACKAGE.split('.'),
-        'model',
-      ),
-      {
-        recursive: true,
-      },
-    ),
-    mkdir(
-      path.join(
-        javaRoot,
-        'src',
-        'main',
-        'resources',
-        ...JAVA_PACKAGE.split('.'),
-        'schemas',
-      ),
-      { recursive: true },
-    ),
     mkdir(path.join(outputRoot, 'docs', 'catalogs'), { recursive: true }),
   ]);
 
+  const runtimeOriginsIndex = CONTRACTS.indexOf('public-runtime-origins');
+  const runtimeOriginsSchema = schemas[runtimeOriginsIndex];
+  if (runtimeOriginsSchema === undefined) {
+    throw new TypeError('Missing public-runtime-origins schema');
+  }
   const index = generateTypescriptIndex(schemas, revision);
   const writes: Promise<void>[] = [
     writeFile(
@@ -929,20 +861,41 @@ async function writeGeneratedTree(
       'utf8',
     ),
     writeFile(
-      path.join(typescriptRoot, 'validator-core.cjs'),
-      generateValidatorCore(schemas, revision),
+      path.join(browserRoot, 'validator-core.mjs'),
+      generateBrowserValidatorCore(
+        schemas,
+        CONTRACTS,
+        revision,
+        '../../src/internal/format-validators.js',
+        'validateGalaFormat',
+      ),
       'utf8',
     ),
     writeFile(
-      path.join(
-        javaRoot,
-        'src',
-        'main',
-        'java',
-        ...JAVA_PACKAGE.split('.'),
-        'GalaSchemaRegistry.java',
+      path.join(browserRoot, 'validator-core.d.mts'),
+      await prettierFormat(browserValidatorCoreDeclaration(revision), {
+        ...FORMAT_OPTIONS,
+        parser: 'typescript',
+      }),
+      'utf8',
+    ),
+    writeFile(
+      path.join(browserRoot, 'runtime-origins-validator-core.mjs'),
+      generateBrowserValidatorCore(
+        [runtimeOriginsSchema],
+        ['public-runtime-origins'],
+        revision,
+        '../../src/internal/format-validators-core.js',
+        'validateGalaFormatCore',
       ),
-      generateJavaRegistry(schemas, revision),
+      'utf8',
+    ),
+    writeFile(
+      path.join(browserRoot, 'runtime-origins-validator-core.d.mts'),
+      await prettierFormat(browserValidatorCoreDeclaration(revision), {
+        ...FORMAT_OPTIONS,
+        parser: 'typescript',
+      }),
       'utf8',
     ),
   ];
@@ -959,38 +912,6 @@ async function writeGeneratedTree(
             parser: 'typescript',
           },
         ),
-        'utf8',
-      ),
-    );
-    for (const java of generateJavaRecords(contract, schema, revision)) {
-      writes.push(
-        writeFile(
-          path.join(
-            javaRoot,
-            'src',
-            'main',
-            'java',
-            ...JAVA_PACKAGE.split('.'),
-            'model',
-            `${java.className}.java`,
-          ),
-          java.source,
-          'utf8',
-        ),
-      );
-    }
-    writes.push(
-      writeFile(
-        path.join(
-          javaRoot,
-          'src',
-          'main',
-          'resources',
-          ...JAVA_PACKAGE.split('.'),
-          'schemas',
-          `${contract}.schema.json`,
-        ),
-        sourceFiles[indexValue] ?? '',
         'utf8',
       ),
     );
@@ -1062,7 +983,7 @@ async function compareDirectories(
 
 async function copyManagedView(source: string, target: string): Promise<void> {
   const managed = [
-    'generated/java',
+    'generated/browser',
     'generated/typescript',
     'docs/catalogs/schema-inventory.json',
   ];
@@ -1111,7 +1032,7 @@ async function checkGenerated(repositoryRoot: string): Promise<void> {
     await rm(temporary, { force: true, recursive: true });
   }
   process.stdout.write(
-    'Generated Java, TypeScript, and catalog output is reproducible and current.\n',
+    'Generated TypeScript and catalog output is reproducible and current.\n',
   );
 }
 
@@ -1127,7 +1048,7 @@ async function main(): Promise<void> {
   if (arguments_[0] === '--check') await checkGenerated(repositoryRoot);
   else {
     await writeGeneratedTree(repositoryRoot, repositoryRoot);
-    process.stdout.write('Generated Java, TypeScript, and schema inventory.\n');
+    process.stdout.write('Generated TypeScript and schema inventory.\n');
   }
 }
 

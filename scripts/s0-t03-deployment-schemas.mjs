@@ -386,17 +386,23 @@ export function createDeploymentSchemas(language) {
     type: 'string',
     pattern: '^(?:0|-?[1-9][0-9]*)$',
     format: 'gala-int64',
-    description: 'Canonical signed 64-bit base-10 JSON string.',
+    description:
+      'Canonical signed 64-bit decimal string; range is checked by the semantic validator.',
   };
   const nonNegativeInt64 = {
     type: 'string',
     pattern: '^(?:0|[1-9][0-9]*)$',
     format: 'gala-int64',
+    description:
+      'Canonical non-negative signed-64-bit decimal string; range is checked by the semantic validator.',
   };
   const positiveInt64 = {
     type: 'string',
+    minLength: 1,
+    maxLength: 19,
     pattern: '^[1-9][0-9]*$',
-    format: 'gala-int64',
+    format: 'gala-positive-int64',
+    'x-gala-maximum': '9223372036854775807',
   };
   const npmPackageName = {
     type: 'string',
@@ -412,6 +418,7 @@ export function createDeploymentSchemas(language) {
     maxLength: 20,
     pattern: '^[1-9][0-9]{0,19}$',
     format: 'gala-github-positive-uint64',
+    'x-gala-maximum': '18446744073709551615',
   };
   const githubActionsArtifactId = ref('githubPositiveDecimal');
   const lowerHex40 = { type: 'string', pattern: '^[0-9a-f]{40}$' };
@@ -569,7 +576,7 @@ export function createDeploymentSchemas(language) {
       ],
     },
   );
-  const renderPolicyIdentity = closedObject(
+  const recordRenderPolicyIdentity = closedObject(
     {
       name: ref('plainLabel'),
       version: ref('semver'),
@@ -583,7 +590,7 @@ export function createDeploymentSchemas(language) {
       { properties: { package: { enum: THEME_PACKAGES } } },
     ],
   };
-  const reproducibleBuildRecord = closedObject(
+  const recordReproducibleBuildRecord = closedObject(
     {
       repositoryId: ref('githubPositiveDecimal'),
       sourceCommit: ref('gitObjectId'),
@@ -627,7 +634,7 @@ export function createDeploymentSchemas(language) {
       policyReleaseId: ref('stableId'),
       buildPolicyDecisionDigest: ref('digest'),
       stylingContractDigest: ref('digest'),
-      renderPolicy: ref('renderPolicyIdentity'),
+      renderPolicy: ref('recordRenderPolicyIdentity'),
       workflowIdentity: ref('digest'),
     },
     [
@@ -2467,7 +2474,7 @@ export function createDeploymentSchemas(language) {
     effectiveArtifactExpiresAt: ref('rfc3339'),
     maximumReportRequestByteCount: ref('positiveInt64'),
     lockDigest: ref('digest'),
-    rebuildRecord: ref('reproducibleBuildRecord'),
+    rebuildRecord: ref('recordReproducibleBuildRecord'),
     publisher: {
       allOf: [
         ref('packageIdentity'),
@@ -2728,7 +2735,7 @@ export function createDeploymentSchemas(language) {
     destinationProviderCoordinates,
     spacesBucket,
     spacesRegion,
-    renderPolicyIdentity,
+    recordRenderPolicyIdentity,
     verificationOrigin,
     verificationUrl,
     observedRedirectLocation,
@@ -2754,7 +2761,7 @@ export function createDeploymentSchemas(language) {
   const authorityDefinitions = {
     ...publicProbeDefinitions,
     generationFence: generationFenceDefinition(),
-    reproducibleBuildRecord,
+    recordReproducibleBuildRecord,
     pagesInterveningRunAttempt,
     pagesRunAttemptGapProof,
     pagesReconciliationRecovery,

@@ -374,15 +374,13 @@ export type DeploymentIntentRecognizedPriorRouteContract = Readonly<{
   readonly terminalRequestUrl: DeploymentIntentVerificationUrl;
 }>;
 
-export type DeploymentIntentRenderPolicyIdentity = Readonly<{
+export type DeploymentIntentRecordRenderPolicyIdentity = Readonly<{
   readonly digest: DeploymentIntentDigest;
   readonly name: DeploymentIntentPlainLabel;
   readonly version: DeploymentIntentSemver;
 }>;
 
-export type DeploymentIntentRepoRelativePath = string;
-
-export type DeploymentIntentReproducibleBuildRecord = Readonly<{
+export type DeploymentIntentRecordReproducibleBuildRecord = Readonly<{
   readonly basePath: DeploymentIntentCanonicalRoute;
   readonly baseUrl: DeploymentIntentUrlHttps;
   readonly buildEpoch: DeploymentIntentRfc3339;
@@ -397,7 +395,7 @@ export type DeploymentIntentReproducibleBuildRecord = Readonly<{
   readonly destinationCapabilityDigest: DeploymentIntentDigest;
   readonly packageReleaseCatalogDigest: DeploymentIntentDigest;
   readonly policyReleaseId: DeploymentIntentStableId;
-  readonly renderPolicy: DeploymentIntentRenderPolicyIdentity;
+  readonly renderPolicy: DeploymentIntentRecordRenderPolicyIdentity;
   readonly repositoryId: DeploymentIntentGithubPositiveDecimal;
   readonly repositoryRootDigest: DeploymentIntentDigest;
   readonly schemas: DeploymentIntentPackageIdentity &
@@ -422,6 +420,8 @@ export type DeploymentIntentReproducibleBuildRecord = Readonly<{
     }>;
   readonly workflowIdentity: DeploymentIntentDigest;
 }>;
+
+export type DeploymentIntentRepoRelativePath = string;
 
 export type DeploymentIntentRfc3339 = string;
 
@@ -557,7 +557,7 @@ export type DeploymentIntentDocument = Readonly<{
     Readonly<{
       readonly package: '@rathnasgala2/publish-action';
     }>;
-  readonly rebuildRecord: DeploymentIntentReproducibleBuildRecord;
+  readonly rebuildRecord: DeploymentIntentRecordReproducibleBuildRecord;
   readonly requestedArtifactRetentionDays: number;
   readonly sbomDigest: DeploymentIntentDigest;
   readonly schemaId: 'urn:gala:schema:deployment-intent:2.0.0';

@@ -44,6 +44,7 @@ import {
 } from '../src/internal/unicode17.js';
 import {
   validateArrayCardinality,
+  validateRegisteredDocument,
   validateRegisteredFragment,
 } from '../src/internal/schema-validator.js';
 import { materializeFixture } from './generate-fixture-corpus.mjs';
@@ -595,13 +596,92 @@ function hasReferenceCycle(documents) {
 }
 
 /**
+ * The four adversarial categories the shipped package actually rejects,
+ * through the same functions a real consumer calls -- `validateGalaFormat`
+ * or `validateRegisteredDocument` (SCH-C6). Each is contract-checkable: one
+ * instance value or one complete document is enough information to decide
+ * it, with no external state.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES = new Set([
+  'path-traversal',
+  'reserved-extension-keys',
+  'unknown-schema-major',
+  'unsafe-urls',
+]);
+
+/**
+ * The ten adversarial categories that are a consumer's responsibility, not
+ * the schema package's, and why: each needs information no JSON Schema
+ * validator has when it validates one already-parsed instance value -- the
+ * raw source text before parsing, a real filesystem, the whole repository's
+ * file listing, or a plugin registry the schema cannot enumerate. A fixture
+ * in one of these categories documents the expected behavior of the
+ * *consumer* named in the fixture's own `validator` field; the package does
+ * not implement it, and README.md's adversarial-corpus claim says so.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES = Object.freeze({
+  'active-content':
+    'render-time HTML/script sanitization of authored content, not a schema shape (legitimate prose can quote "<script>" as text)',
+  'cyclic-references':
+    'a reference-cycle check across multiple documents; one schema validates one document',
+  'duplicate-keys':
+    'a raw-source-text check; a JSON/YAML parser has already resolved duplicate keys before a schema ever sees the value',
+  'oversized-fields':
+    'a class already covered by real per-field maxLength/maxItems/x-gala-*ByteLength bounds on every root; this fixture recipe exercises the test harness, not a distinct schema rule',
+  'oversized-files':
+    'a whole-request/whole-file transport size limit, not a JSON value a schema validates',
+  'symlink-escape':
+    'a real filesystem resolution (fs.realpath), not a value a schema can see',
+  'unicode-case-fold-collision':
+    'a cross-file repository-listing check, not the shape of one document',
+  'unknown-module':
+    'a plugin/module registry lookup the schema cannot enumerate ahead of time',
+  'yaml-aliases':
+    'YAML parser configuration (disable anchors/aliases), applied before a schema ever sees the parsed value',
+  'yaml-exponential-expansion':
+    'YAML parser configuration (bound alias expansion), applied before a schema ever sees the parsed value',
+});
+
+/**
  * Determine whether one adversarial fixture triggers its named validator.
+ *
+ * For a contract-level category this calls the same function a real
+ * consumer calls, so a passing case is proof the *shipped* validator
+ * rejects the payload, not that the fixture's own recipe describes the
+ * intention (SCH-C6). For a consumer-level category this reimplements the
+ * documented consumer responsibility, purely so this cross-language parity
+ * corpus has a JS-side reference outcome to compare Java against; the
+ * shipped package implements neither side of that comparison.
  *
  * @param {Record<string, any>} fixture adversarial fixture
  * @returns {boolean} whether the fixture is rejected
  */
 function adversarialFixtureRejects(fixture) {
   const { category, instance, recipe } = fixture;
+  if (
+    !CONTRACT_LEVEL_ADVERSARIAL_CATEGORIES.has(category) &&
+    !(category in CONSUMER_LEVEL_ADVERSARIAL_CATEGORIES)
+  ) {
+    throw new Error(`Unknown adversarial category ${category}`);
+  }
+  if (category === 'path-traversal') {
+    return !validateGalaFormat('gala-repository-relative-path', instance);
+  }
+  if (category === 'reserved-extension-keys') {
+    return Object.keys(instance).some(
+      (key) => !validateGalaFormat('gala-extension-key', key),
+    );
+  }
+  if (category === 'unknown-schema-major') {
+    return !validateRegisteredDocument(instance.schemaId, instance).valid;
+  }
+  if (category === 'unsafe-urls') {
+    return !validateGalaFormat('gala-verification-url', instance);
+  }
   if (category === 'active-content') {
     const source = String(instance.content).replace(/[A-Z]/gu, (character) =>
       String.fromCharCode(character.charCodeAt(0) + 0x20),
@@ -625,12 +705,6 @@ function adversarialFixtureRejects(fixture) {
   }
   if (category === 'oversized-fields') return Number(recipe.count) > 2_000_000;
   if (category === 'oversized-files') return Number(recipe.count) > 10_485_760;
-  if (category === 'path-traversal') {
-    return !validateGalaFormat('gala-repository-relative-path', instance);
-  }
-  if (category === 'reserved-extension-keys') {
-    return Object.keys(instance).some((key) => key.startsWith('gala.'));
-  }
   if (category === 'symlink-escape') {
     const root = path.resolve(instance.root);
     const realpath = path.resolve(instance.realpath);
@@ -643,15 +717,6 @@ function adversarialFixtureRejects(fixture) {
     return new Set(keys).size !== keys.length;
   }
   if (category === 'unknown-module') return instance.module !== undefined;
-  if (category === 'unknown-schema-major') {
-    return (
-      instance.schemaVersion !== '2.0.0' ||
-      !String(instance.schemaId).endsWith(':2.0.0')
-    );
-  }
-  if (category === 'unsafe-urls') {
-    return !validateGalaFormat('gala-verification-url', instance);
-  }
   if (category === 'yaml-aliases') {
     // eslint-disable-next-line no-control-regex -- YAML separation is exactly tab, LF, CR, and space
     return /(?:^|[\u0009\u000a\u000d\u0020])[&*][A-Za-z0-9_-]+/u.test(instance);

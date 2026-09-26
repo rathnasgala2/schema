@@ -1,17 +1,39 @@
 import Ajv2020Module from 'ajv/dist/2020.js';
 import formatsPlugin from 'ajv-formats';
 
-import { canonicalizeJcsBytes } from './canonical-jcs.js';
-import { utf8Bytes } from './bytes.js';
-import { assertUnicodeScalarString, graphemeLength17 } from './unicode17.js';
+import {
+  galaAsciiByteLength,
+  galaDecisionPhase,
+  galaGraphemeLength,
+  galaMaxCanonicalBytes,
+  galaMaximum,
+  galaUtf8ByteLength,
+} from './gala-keywords.js';
+import { assertUnicodeScalarString } from './unicode17.js';
 
 const Ajv2020 = /** @type {typeof import('ajv/dist/2020.js').default} */ (
   /** @type {unknown} */ (Ajv2020Module)
 );
 
-const SCHEMA_ID_PREFIX = 'urn:gala:schema:';
-const METADATA_ID_PREFIX = 'urn:gala:metadata:';
-const SCHEMA_ID_SUFFIX = ':2.0.0';
+// Every S0 root's `$id` is immutable at `2.0.0`: contract *content* moves
+// forward in the npm package version (2.0.0 -> 2.12.0 and beyond), never in
+// the `$id`, so the same schema identity keeps resolving across releases.
+// This constant is that policy made explicit and enforced -- see
+// docs/COMPATIBILITY.md.
+const IMMUTABLE_SCHEMA_VERSION = '2.0.0';
+
+const SCHEMA_ID_PATTERN = /^urn:gala:(schema|metadata):([a-z0-9-]+):([^:]+)$/u;
+
+/**
+ * Stable fallback diagnostic code for a rule/keyword pair the committed
+ * diagnostic map has no entry for. `validateGalaDocument` is on the request
+ * path in both the api and the App; if the compiled schemas and the
+ * diagnostic map ever fall out of step (a stale published tarball, a partial
+ * upgrade, a schema patch applied without `npm run diagnostics:generate`),
+ * an ordinary invalid input must still come back as a rejected result, not
+ * an exception thrown out of the consumer's validation call (SCH-H14).
+ */
+const UNMAPPED_RULE_CODE = 'SCHEMA_RULE_UNMAPPED';
 
 /**
  * Recover a contract's kebab-case name from its exact immutable schema
@@ -24,10 +46,22 @@ const SCHEMA_ID_SUFFIX = ':2.0.0';
  * @returns {string} contract name
  */
 function contractFromSchemaId(schemaId) {
-  const prefix = schemaId.startsWith(METADATA_ID_PREFIX)
-    ? METADATA_ID_PREFIX
-    : SCHEMA_ID_PREFIX;
-  return schemaId.slice(prefix.length, -SCHEMA_ID_SUFFIX.length);
+  const match = SCHEMA_ID_PATTERN.exec(schemaId);
+  if (match === null) {
+    throw new Error(
+      `Schema identity "${schemaId}" does not match urn:gala:(schema|metadata):<contract>:<version>`,
+    );
+  }
+  const contract = match[2] ?? '';
+  const version = match[3] ?? '';
+  if (version !== IMMUTABLE_SCHEMA_VERSION) {
+    throw new Error(
+      `Schema identity "${schemaId}" has version "${version}"; every root's $id is pinned at ` +
+        `"${IMMUTABLE_SCHEMA_VERSION}" and never bumps (see docs/COMPATIBILITY.md) -- contract ` +
+        `content changes go in the package version instead.`,
+    );
+  }
+  return contract;
 }
 
 /**
@@ -47,8 +81,32 @@ function contractFromSchemaId(schemaId) {
  * @typedef {{
  *   schemasById: ReadonlyMap<string, Record<string, unknown>>,
  *   validatorsById: ReadonlyMap<string, import('ajv').ValidateFunction>,
- *   ajv: import('ajv/dist/2020.js').default
+ *   strictAjv: import('ajv/dist/2020.js').default,
+ *   legacyAjv: import('ajv/dist/2020.js').default,
+ *   fragmentAjv: import('ajv/dist/2020.js').default,
+ *   cardinalityValidators: Map<string, import('ajv').ValidateFunction>
  * }} Registry
+ */
+
+/**
+ * The callable shape both an `ajv.compile()`-produced validate function and
+ * a precompiled standalone one share: callable, with `.errors` populated
+ * (Ajv error objects) on rejection. `ajv.compile()`'s richer
+ * `import('ajv').ValidateFunction` additionally carries `.schema`/
+ * `.schemaEnv`, which a standalone-generated function does not.
+ *
+ * @typedef {((value: unknown) => boolean) & {errors?: AjvError[] | null}} MinimalValidateFunction
+ */
+
+/**
+ * The subset of `Registry` document-level validation actually needs: just a
+ * schema-identity-keyed map of validate functions, precompiled or
+ * `ajv.compile()`-produced alike (SCH-C2's `createPrecompiledValidatorSuite`
+ * constructs one of these without ever building a real `Registry`).
+ *
+ * @typedef {{
+ *   validatorsById: ReadonlyMap<string, MinimalValidateFunction>
+ * }} DocumentValidatorRegistry
  */
 
 /** @typedef {import('ajv').ErrorObject} AjvError */
@@ -73,108 +131,46 @@ function contractFromSchemaId(schemaId) {
  */
 
 /**
- * Test inclusive bounds.
- *
- * @param {number} value measured value
- * @param {{minimum?: number, maximum?: number}} bounds inclusive bounds
- * @returns {boolean} whether the value is in range
- */
-function withinBounds(value, bounds) {
-  return (
-    (bounds.minimum === undefined || value >= bounds.minimum) &&
-    (bounds.maximum === undefined || value <= bounds.maximum)
-  );
-}
-
-/**
- * Register Gala's assertion keywords.
+ * Register Gala's assertion keywords, wiring each of `gala-keywords.js`'s
+ * pure implementations into a closure-based `ajv.addKeyword` definition.
+ * `strict: true` would otherwise refuse to compile a schema using any of
+ * these as an unknown keyword (SCH-H1).
  *
  * @param {import('ajv/dist/2020.js').default} ajv registry
  * @returns {void}
  */
 function addGalaKeywords(ajv) {
   ajv.addKeyword({
+    keyword: 'x-gala-decision-phase',
+    validate: galaDecisionPhase,
+  });
+  ajv.addKeyword({
     keyword: 'x-gala-asciiByteLength',
     schemaType: 'object',
     type: 'string',
-    validate: (
-      /** @type {{minimum?: number, maximum?: number}} */ bounds,
-      /** @type {string} */ value,
-    ) =>
-      [...value].every((character) => character.charCodeAt(0) <= 0x7f) &&
-      withinBounds(value.length, bounds),
+    validate: galaAsciiByteLength,
   });
   ajv.addKeyword({
     keyword: 'x-gala-utf8ByteLength',
     schemaType: 'object',
     type: 'string',
-    validate: (
-      /** @type {{minimum?: number, maximum?: number}} */ bounds,
-      /** @type {string} */ value,
-    ) => {
-      try {
-        assertUnicodeScalarString(value);
-        return withinBounds(utf8Bytes(value).length, bounds);
-      } catch (error) {
-        if (
-          error instanceof TypeError &&
-          error.message === 'UNICODE_SCALAR_INVALID'
-        ) {
-          return false;
-        }
-        throw error;
-      }
-    },
+    validate: galaUtf8ByteLength,
   });
   ajv.addKeyword({
     keyword: 'x-gala-graphemeLength',
     schemaType: 'object',
     type: 'string',
-    validate: (
-      /** @type {{minimum?: number, maximum?: number}} */ bounds,
-      /** @type {string} */ value,
-    ) => {
-      try {
-        return withinBounds(graphemeLength17(value), bounds);
-      } catch (error) {
-        if (
-          error instanceof TypeError &&
-          error.message === 'UNICODE_SCALAR_INVALID'
-        ) {
-          return false;
-        }
-        throw error;
-      }
-    },
+    validate: galaGraphemeLength,
   });
   ajv.addKeyword({
     keyword: 'x-gala-maxCanonicalBytes',
     schemaType: 'number',
-    validate: (/** @type {number} */ maximum, /** @type {unknown} */ value) => {
-      try {
-        return canonicalizeJcsBytes(value).byteLength <= maximum;
-      } catch {
-        return false;
-      }
-    },
+    validate: galaMaxCanonicalBytes,
   });
   ajv.addKeyword({
     keyword: 'x-gala-maximum',
     schemaType: ['number', 'string'],
-    validate: (
-      /** @type {number | string} */ maximum,
-      /** @type {unknown} */ value,
-    ) => {
-      if (typeof value !== 'string' && typeof value !== 'number') return true;
-      if (typeof value === 'string' && !/^(?:0|[1-9][0-9]*)$/u.test(value)) {
-        return true;
-      }
-      try {
-        return BigInt(value) <= BigInt(maximum);
-      } catch {
-        return true;
-      }
-    },
+    validate: galaMaximum,
   });
 }
 
@@ -197,17 +193,63 @@ function collectFormats(value, formats) {
 }
 
 /**
- * Create the immutable schema and validator registries.
+ * Roots whose `allOf`/`if`/`then`/`else` composition Ajv's `strictTypes`/
+ * `strictRequired` cannot see across: a conditional branch's `properties`/
+ * `required` describes a value or a required member declared by a
+ * *sibling* branch in the same `allOf`, not locally, and strict mode flags
+ * that as if it were a typo (SCH-H1).
+ *
+ * This is a **shrinking-only** allowlist: `test/t15-strict-allowlist.test.js`
+ * asserts it is a subset of the set recorded there when the allowlist was
+ * introduced, so a new root or a reconciled `$defs` shape can be added to
+ * this file only by removing an existing entry, never by adding one net
+ * new. Every root *not* listed here already compiles clean under full
+ * `strictTypes`/`strictRequired` and must stay that way.
+ *
+ * As of this allowlist's introduction, the 14 listed roots account for 756
+ * strict-mode diagnostics (`strictTypes` + `strictRequired` combined); the
+ * remaining 6 roots (`appearance`, `event-envelope`,
+ * `public-generation-marker`, `public-runtime-origins`, `repository`,
+ * `template-composition`) have zero.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const LEGACY_STRICT_TYPES_ALLOWLIST = new Set([
+  'adapter-capability',
+  'artifact-manifest',
+  'author',
+  'build-input',
+  'build-provenance',
+  'content-frontmatter',
+  'deployment-intent',
+  'deployment-observation',
+  'deployment-receipt',
+  'lock',
+  'navigation',
+  'problem',
+  'publication',
+  'theme-contract',
+]);
+
+/**
+ * Build one Ajv instance with Gala's formats and keywords registered.
  *
  * @param {readonly Record<string, unknown>[]} schemas schema documents, in registration order
  * @param {(formatName: string, value: string) => boolean} validateFormat Gala format dispatcher
- * @returns {Registry} registries
+ * @param {boolean} strictComposition whether `strictTypes`/`strictRequired`
+ *   are enabled (see `LEGACY_STRICT_TYPES_ALLOWLIST`)
+ * @returns {import('ajv/dist/2020.js').default} configured Ajv instance
  */
-function createRegistry(schemas, validateFormat) {
+function buildAjv(schemas, validateFormat, strictComposition) {
   const formats = new Set();
   for (const schema of schemas) collectFormats(schema, formats);
 
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  const ajv = new Ajv2020({
+    allErrors: true,
+    strict: true,
+    strictTypes: strictComposition,
+    strictRequired: strictComposition,
+  });
   /** @type {import('ajv-formats').default} */ (
     /** @type {unknown} */ (formatsPlugin)
   )(ajv);
@@ -221,14 +263,60 @@ function createRegistry(schemas, validateFormat) {
       });
     }
   }
+  return ajv;
+}
+
+/**
+ * Create the immutable schema and validator registries. Every root compiles
+ * under full `strict: true` (unknown keywords, unknown formats, tuple and
+ * number strictness); roots on `LEGACY_STRICT_TYPES_ALLOWLIST` compile with
+ * `strictTypes`/`strictRequired` relaxed, every other root compiles with
+ * both enabled (SCH-H1).
+ *
+ * @param {readonly Record<string, unknown>[]} schemas schema documents, in registration order
+ * @param {(formatName: string, value: string) => boolean} validateFormat Gala format dispatcher
+ * @returns {Registry} registries
+ */
+function createRegistry(schemas, validateFormat) {
+  const strictAjv = buildAjv(schemas, validateFormat, true);
+  const legacyAjv = buildAjv(schemas, validateFormat, false);
+  // Fragment-level lookups (validateFragment's getSchema by $id + JSON
+  // Pointer, and validateArrayCardinality's ad-hoc schemas) are internal,
+  // Node-only parity/fixture tooling, never the public document-validation
+  // path SCH-H1 targets. Compiling an arbitrary JSON-pointer fragment in
+  // isolation loses the ancestor `type` context it had inside its parent
+  // schema (Ajv's strict "missing type" check only looks at the current
+  // schema object's own siblings), so a perfectly fine nested
+  // `allOf`/`if`/`then` fragment -- the *same* shape that motivated
+  // LEGACY_STRICT_TYPES_ALLOWLIST, and reachable from shared `$defs` used by
+  // roots outside that allowlist too (`colorMode`'s `if` branches, for one)
+  // -- throws when fragment-compiled even though the whole-document compile
+  // never does. This instance is always relaxed, independent of which
+  // document-level Ajv a root's real validator was compiled on.
+  const fragmentAjv = buildAjv(schemas, validateFormat, false);
+  for (const schema of schemas) {
+    fragmentAjv.addSchema(schema, String(schema.$id));
+  }
+
   const schemasById = new Map();
   const validatorsById = new Map();
   for (const schema of schemas) {
     const schemaId = String(schema.$id);
+    const contract = contractFromSchemaId(schemaId);
+    const ajv = LEGACY_STRICT_TYPES_ALLOWLIST.has(contract)
+      ? legacyAjv
+      : strictAjv;
     schemasById.set(schemaId, schema);
     validatorsById.set(schemaId, ajv.compile(schema));
   }
-  return { schemasById, validatorsById, ajv };
+  return {
+    schemasById,
+    validatorsById,
+    strictAjv,
+    legacyAjv,
+    fragmentAjv,
+    cardinalityValidators: new Map(),
+  };
 }
 
 /**
@@ -389,12 +477,8 @@ function normalizeError(diagnosticMap, contract, basePointer, value, error) {
   const rule = ruleIdentity(contract, basePointer, error);
   const mapping = diagnosticMap.rules[rule];
   const keyword = normalizedKeyword(error.keyword);
-  const code = mapping?.code ?? diagnosticMap.keywords[keyword];
-  if (code === undefined) {
-    throw new Error(
-      `Diagnostic rule ${rule} and keyword ${keyword} are unmapped`,
-    );
-  }
+  const code =
+    mapping?.code ?? diagnosticMap.keywords[keyword] ?? UNMAPPED_RULE_CODE;
   const catalog = diagnosticMap.codes[code];
   if (!catalog) throw new Error(`Diagnostic code ${code} is not cataloged`);
   const property =
@@ -526,7 +610,7 @@ function unicodeScalarDiagnostic(diagnosticMap, value, instancePointer) {
 /**
  * Validate one complete Gala document against an exact registered schema identity.
  *
- * @param {Registry} registry compiled schema registry
+ * @param {DocumentValidatorRegistry} registry validators by schema identity
  * @param {DiagnosticMap} diagnosticMap shared diagnostic normalization map
  * @param {string} schemaId exact immutable schema identity
  * @param {unknown} value document value
@@ -588,7 +672,9 @@ function validateFragment(
   schemaPointer,
   value,
 ) {
-  const validator = registry.ajv.getSchema(`${schemaId}${schemaPointer}`);
+  const validator = registry.fragmentAjv.getSchema(
+    `${schemaId}${schemaPointer}`,
+  );
   if (!validator) {
     throw new Error(
       `Registered schema fragment is absent: ${schemaId}${schemaPointer}`,
@@ -611,14 +697,11 @@ function validateFragment(
         errors.map((error) => {
           const rule = ruleIdentity(contract, schemaPointer, error);
           const keyword = normalizedKeyword(error.keyword);
-          const code =
-            diagnosticMap.rules[rule]?.code ?? diagnosticMap.keywords[keyword];
-          if (code === undefined) {
-            throw new Error(
-              `Diagnostic rule ${rule} and keyword ${keyword} are unmapped`,
-            );
-          }
-          return code;
+          return (
+            diagnosticMap.rules[rule]?.code ??
+            diagnosticMap.keywords[keyword] ??
+            UNMAPPED_RULE_CODE
+          );
         }),
       ),
     ].sort(),
@@ -651,6 +734,11 @@ function normalizedInlineResult(diagnosticMap, keywords) {
  *
  * Item schemas are validated separately by the parity harness so compact
  * recipes never allocate hundreds of thousands of complex object witnesses.
+ * The compiled validator for a given {minItems, maxItems, uniqueItems} shape
+ * is cached on the registry (SCH-M7): only a handful of distinct shapes
+ * exist across the fixture corpus, but this runs once per cardinality
+ * fixture case, so compiling on every call would recompile the same handful
+ * of schemas thousands of times over one parity run.
  *
  * @param {Registry} registry compiled schema registry
  * @param {DiagnosticMap} diagnosticMap shared diagnostic normalization map
@@ -666,7 +754,19 @@ function validateArrayCardinality(registry, diagnosticMap, schema, length) {
     ...(schema.maxItems === undefined ? {} : { maxItems: schema.maxItems }),
     ...(schema.uniqueItems === true ? { uniqueItems: true } : {}),
   };
-  const validator = registry.ajv.compile(cardinalitySchema);
+  // Only a handful of distinct {minItems, maxItems, uniqueItems} shapes
+  // exist across the whole fixture corpus, but this is called once per
+  // cardinality fixture case (thousands, across a full parity run).
+  // Compiling once per distinct shape and reusing the compiled validator
+  // (rather than ajv.compile()-ing the same shape repeatedly) is what
+  // SCH-M7 asks for; the cache lives on the registry so it is scoped to
+  // one createValidatorSuite call, not process-global.
+  const cacheKey = JSON.stringify(cardinalitySchema);
+  let validator = registry.cardinalityValidators.get(cacheKey);
+  if (validator === undefined) {
+    validator = registry.fragmentAjv.compile(cardinalitySchema);
+    registry.cardinalityValidators.set(cacheKey, validator);
+  }
   const values = schema.uniqueItems
     ? Array.from({ length }, (_, index) => index)
     : Array.from({ length }, () => null);
@@ -724,5 +824,41 @@ export function createValidatorSuite({
       validateFragment(registry, diagnosticMap, schemaId, schemaPointer, value),
     validateArrayCardinality: (schema, length) =>
       validateArrayCardinality(registry, diagnosticMap, schema, length),
+  });
+}
+
+/**
+ * Bind a document validator surface to an already-compiled set of Ajv
+ * validate functions instead of raw schemas -- no `ajv.compile` and
+ * therefore no `new Function` in this path.
+ *
+ * This is what `.` and `./runtime-origins` use (SCH-C2): their compiled
+ * validators come from `codegen/generate-contracts.ts`'s browser standalone
+ * core, generated ahead of time with real Gala format and `x-gala-*`
+ * keyword semantics baked into the compiled source. Every Ajv validate
+ * function -- precompiled or `ajv.compile()`-produced -- has the same
+ * callable shape (`fn(value)` returning a boolean, `fn.errors` populated on
+ * rejection in the same shape), so the exact same diagnostic normalization
+ * (`validateDocument`) applies unchanged; only fragment- and cardinality-
+ * level validation are unavailable here, because they runtime-compile
+ * schema fragments the precompiled core does not carry -- Node-only fixture
+ * and parity tooling keeps using `createValidatorSuite` for those.
+ *
+ * @param {{
+ *   validators: Record<string, MinimalValidateFunction>,
+ *   diagnosticMap: DiagnosticMap
+ * }} dependencies precompiled validators by schema identity, and the shared
+ *   diagnostic map
+ * @returns {{
+ *   schemaIds: readonly string[],
+ *   validateDocument: (schemaId: string, value: unknown) => GalaValidationResult
+ * }} bound validator surface
+ */
+export function createPrecompiledValidatorSuite({ validators, diagnosticMap }) {
+  const registry = { validatorsById: new Map(Object.entries(validators)) };
+  return Object.freeze({
+    schemaIds: Object.freeze([...registry.validatorsById.keys()].sort()),
+    validateDocument: (schemaId, value) =>
+      validateDocument(registry, diagnosticMap, schemaId, value),
   });
 }

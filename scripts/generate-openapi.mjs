@@ -7,7 +7,7 @@ import formatsPlugin from 'ajv-formats';
 import { parse, stringify } from 'yaml';
 
 import { canonicalizeJcsBytes } from '../src/internal/canonical-jcs.js';
-import { HTTP_PROBLEM_EXAMPLE_RULES } from '../src/internal/http-problem-contract.js';
+import { HTTP_PROBLEM_EXAMPLE_RULES } from './internal-semantics/http-problem-contract.js';
 import { runIfMain } from './run-if-main.mjs';
 
 const VERSION = '2.0.0';

@@ -464,7 +464,11 @@ export function createAdapterSchema(language) {
       adapterId: ref('plainLabel'),
       adapterVersion: ref('semver'),
       targetDigest: ref('digest'),
-      baseUrl: ref('urlHttps'),
+      baseUrl: {
+        allOf: [ref('urlHttps')],
+        maxLength: 2_048,
+        'x-gala-utf8ByteLength': { maximum: 2_048 },
+      },
       providerBinding: ref('destinationProviderCoordinates'),
     },
     ['environment', 'adapterId', 'adapterVersion', 'targetDigest', 'baseUrl'],

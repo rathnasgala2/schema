@@ -26,27 +26,65 @@ const T03_SCHEMA_HASHES = {
     // members in the digest input when present. Corrected to state actual
     // behavior and flag LOCAL-62(b) (phase-scoped digest enforcement) as
     // still open, not silently closed by this annotation alone.
-    'c2f57be0f0214e16b5e4ab834d88df81d58c1ef55357cda82ff7bf2b416c3f4a',
+    //
+    // 2026-09-25 code-discipline review, SCH-C3: destinationIdentity's
+    // baseUrl gained the same 2048-byte cap the deployment-* roots already
+    // had, positiveInt64/githubPositiveDecimal gained real upper bounds, and
+    // githubRepositoryCoordinate was reconciled to the description-bearing,
+    // ASCII-length-checked form -- see schemas:shared-defs:check.
+    '6d722c1cae0a2d90427a9d21b79b9d49014e6b5f507cd70f983055eae12801df',
   appearance:
-    '7f9942a2b201b321ee7ad8a41d4d1dd2238a0956bee875f1264d449694562aa2',
+    // 2026-09-25 code-discipline review, SCH-C3: colorMode and
+    // semanticTokens reconciled to the build-input root's wording/shape.
+    '0bd3b9332b25deec625de3d4fb65bd0717a434502fe90b58a6081f7d43459ea9',
   'artifact-manifest':
     // SCHEMA-2.10.0: $comment updated to note the standalone build-provenance
     // root alongside the unchanged internal #/$defs/buildProvenance nesting.
-    'e61cf7c29b505eba548ec6407092ca9545f6cba7deff63728f233aa6e2cc9626',
+    //
+    // 2026-09-25 code-discipline review, SCH-C3: positiveInt64,
+    // githubPositiveDecimal and githubRepositoryCoordinate reconciled (see
+    // adapter-capability above); githubActionsArtifactId now delegates to
+    // githubPositiveDecimal by $ref instead of repeating its body;
+    // renderPolicyIdentity/reproducibleBuildRecord renamed to
+    // manifestRenderPolicyIdentity/manifestReproducibleBuildRecord to
+    // disambiguate from the deployment-* roots' record-shaped variants.
+    '722ea75b9820ecadb5ee907e4c92fd560f9d1b298cab2824cbbcfa6fcf10b652',
   author: '86774ba476ba5a11b298bdca0d949d2584bd698d375e4b5dbeac6203d5133730',
   'build-input':
-    'ba65d58ab67c38e000f5efd2d98f844521535fc812e6958eb6f396ccb00babd8',
+    // 2026-09-25 code-discipline review, SCH-C3: adapterIdentity renamed to
+    // authoredAdapterIdentity (build-input's closed 3-adapter enum is
+    // deliberately narrower than the open plainLabel the capability/record
+    // roots use); colorMode, semanticTokens, navigationItem, navigationLeaf,
+    // githubPositiveDecimal, positiveInt64 and renderPolicyIdentity
+    // reconciled with their sibling roots (see adapter-capability and
+    // artifact-manifest above).
+    '0828f9658b0515f9608ca7b2482089eb4e411380002001cd87eeeaed21cf21bb',
   'content-frontmatter':
     'd033644fd188af7d55c596a7c910b2c9ca9a1c8d8d8b092860f04eec8a5273a0',
   'deployment-intent':
-    'f17df205e1358c765556a2535185a9aa90cae406837c7ef79ac5c2fef9d0cd84',
+    // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
+    // description reconciled and positiveInt64 gained a real upper bound
+    // (see artifact-manifest above); renderPolicyIdentity/
+    // reproducibleBuildRecord renamed to recordRenderPolicyIdentity/
+    // recordReproducibleBuildRecord to disambiguate from the manifest
+    // roots' const-named-policy variants.
+    '6442ef8a26a9ce0d103d4facbcd798bd97b80469427a2304407b8e65e526a3e3',
   'deployment-observation':
-    'be23fd27963c4316382137f2555b98f1e85d1dc0906551b95e0eb571e751e7ce',
+    // 2026-09-25 code-discipline review, SCH-C3: see deployment-intent above
+    // (int64/nonNegativeInt64/positiveInt64/renderPolicyIdentity).
+    '4ea49fda413a1c75fff63e85c6680be50963c03fe7b2e62c10e24ec4e23118b5',
   'deployment-receipt':
-    'dc3f6ec3a2222819532f0fefd42e19869dcfb2b4104aab0b19f28bd017cb1e1f',
+    // 2026-09-25 code-discipline review, SCH-C3: see deployment-intent above
+    // (int64/nonNegativeInt64/positiveInt64/renderPolicyIdentity/
+    // reproducibleBuildRecord).
+    'f11b86ba0b0340eb8de421c16846bcc222cfa4263a3a7447894b71a827825ca1',
   lock: '52d7026ec8aaf8c600ba98bbd6384cd376fc127bdd517d0639b5df658b84b57e',
   navigation:
-    '19c15c1e906d3783ebba57098c53a24b7b44cc7be4c05d367420df05b3f3fcb1',
+    // 2026-09-25 code-discipline review, SCH-C3: navigationItem/
+    // navigationLeaf reconciled to build-input's leaner if/then/else form
+    // and const-based empty-children shape (same validation outcome, one
+    // fewer diagnostic-code path for the same violation).
+    '41ceb495e2e9949a6d96b5ccaa47f6f9e7b35b7bf4f600da26bb7b2e838e0f8e',
   'public-generation-marker':
     'de1a21327cd07eb11af5d04a323f05025f29d200a6d11034ab37ede99dff2093',
   publication:
@@ -56,7 +94,9 @@ const T03_SCHEMA_HASHES = {
   'template-composition':
     '175eddf8b424fe6dfb8e2f79d23195b23333d5050acd02c6fbc17233214669f5',
   'theme-contract':
-    'efc36f130a746da11a15399fe31c126fade2c9d7ab6fdd86d4cb1f55b45fa1ad',
+    // 2026-09-25 code-discipline review, SCH-C3: positiveInt64 gained a real
+    // upper bound (see artifact-manifest above).
+    '05eddb45e9faf95f28ab8a44a4f9dddba744292dbabe669d05f1816d66969bcd',
 };
 
 const ADVERSARIAL_CATEGORIES = [

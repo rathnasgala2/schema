@@ -11,13 +11,16 @@ import { runIfMain } from './run-if-main.mjs';
  * `process`.
  *
  * `./generated/typescript` is deliberately excluded: it is generated output
- * (`npm run codegen:generate`), never hand-edited here, and its current
- * design intentionally loads a standalone CommonJS structural-validator core
- * through `node:module`'s `createRequire`. Every consumer today (including
- * this repository's App) reaches it only through `import type`, which is
- * erased at compile time and never enters a runtime browser bundle. Making
- * that subpath genuinely browser-safe is a separate, larger codegen change
- * and is out of scope for this fix; see the SCHEMA-BROWSER-SAFE report.
+ * (`npm run codegen:generate`), never hand-edited here. As of SCH-M5 it no
+ * longer loads a standalone CommonJS structural-validator core through
+ * `node:module`'s `createRequire` -- `validateGeneratedDocument` now
+ * delegates directly to the `.` export's exact precompiled validator, so its
+ * runtime is plain ESM with no reachable Node builtin. It stays off this list
+ * because every consumer today (including this repository's App) reaches it
+ * only through `import type`, which is erased at compile time and never
+ * enters a runtime browser bundle, so there is no live consumer exercising it
+ * as a real browser entry point yet; adding it here (with its own closure
+ * byte cap) is a follow-up once one exists.
  */
 const BROWSER_ENTRY_SUBPATHS = Object.freeze([
   '.',
@@ -27,15 +30,16 @@ const BROWSER_ENTRY_SUBPATHS = Object.freeze([
 
 /**
  * Declared upper bound, in bytes, on the package-owned module closure of one
- * browser entry point: every `.js` and `.json` file in this repository that
- * the entry point statically reaches, which is what a bundler inlines into
- * the chunk. Third-party runtime dependencies (Ajv and ajv-formats) are
- * excluded because they are identical for both entry points and are shared
- * with everything else in a consumer's bundle.
+ * browser entry point: every `.js`, `.mjs` and `.json` file in this
+ * repository that the entry point statically reaches, which is what a
+ * bundler inlines into the chunk. Third-party runtime dependencies (Ajv and
+ * ajv-formats) are excluded because they are identical for both entry points
+ * and are shared with everything else in a consumer's bundle.
  *
- * `.` is measured, not capped tightly: it binds all 19 contracts and every
- * pinned source-data table by design, and its number is recorded here only so
- * a regression in the narrow export is legible next to it.
+ * `.` is measured, not capped tightly: it binds all twenty contracts'
+ * precompiled standalone validators (SCH-C2) and every pinned source-data
+ * table by design, and its number is recorded here only so a regression in
+ * the narrow export is legible next to it.
  *
  * `./runtime-origins` is capped. The cap is not the 200 kB the App's report
  * suggested: `urn:gala:schema:public-runtime-origins:2.0.0` genuinely uses
@@ -45,18 +49,62 @@ const BROWSER_ENTRY_SUBPATHS = Object.freeze([
  * language subtag registry (344 kB). Dropping those would make the narrow
  * export accept documents the full validator rejects, which the fixture
  * parity test in `test/t10-runtime-origins-export.test.js` forbids. What the
- * narrow export does drop is the 4.5 MB pinned SPDX licence list, the other
- * eighteen contracts, and 7,712 of the 7,804 diagnostic rules.
+ * narrow export does drop is the 4.5 MB pinned SPDX licence list, the
+ * precompiled validators for the other nineteen contracts, and 7,712 of the
+ * 7,804 diagnostic rules.
  *
  * @type {Readonly<Record<string, number>>}
  */
 const CLOSURE_BYTE_CAPS = Object.freeze({ './runtime-origins': 1_250_000 });
 
+// module.builtinModules never carries the "node:"-prefixed spelling, so a
+// bare specifier must have that prefix stripped before the membership test.
 const BUILTIN_MODULES = new Set(module.builtinModules);
+
+/**
+ * Test whether one bare (non-relative) import specifier names a Node
+ * builtin module, in either its bare ("fs") or "node:"-prefixed ("node:fs")
+ * spelling.
+ *
+ * @param {string} specifier bare import specifier
+ * @returns {boolean} true if the specifier resolves to a Node builtin
+ */
+function isBuiltinSpecifier(specifier) {
+  const name = specifier.startsWith('node:')
+    ? specifier.slice('node:'.length)
+    : specifier;
+  return BUILTIN_MODULES.has(name);
+}
 
 const IMPORT_SPECIFIER_PATTERN =
   /(?:import|export)(?:[^'"();]*?from\s*)?\s*['"]([^'"]+)['"]/gu;
 const BARE_IDENTIFIER_PATTERN = /\b(?:Buffer|process)\b/gu;
+// `new Function(...)`, a bare `Function(...)` call (not a declaration or a
+// property/method access like `myFunction(`), and `eval(...)` are the three
+// ways a module can compile code from a string at runtime -- exactly what
+// forces `'unsafe-eval'` into a consumer's CSP (SCH-C2). A dynamic
+// `import(...)` with a specifier that is not a string/template literal is
+// included for the same reason: an unresolvable specifier defeats static
+// bundling and can load arbitrary code at runtime.
+const EVAL_LIKE_PATTERN =
+  /(?:\bnew\s+Function|(?<![\w$.])Function|\beval)\s*\(/gu;
+const DYNAMIC_IMPORT_PATTERN = /\bimport\s*\(/gu;
+
+/**
+ * Strip line and block comments only, preserving string literal contents
+ * (unlike `blankCommentsAndStrings`) so a real import/export specifier
+ * survives while a specifier-shaped string inside a comment does not
+ * (SCH-L3). This is a deliberately simple lexical pass, not a full parser,
+ * matching this repository's existing minimal-dependency script style.
+ *
+ * @param {string} source module source text
+ * @returns {string} source with comments blanked
+ */
+function blankComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/gu, (match) =>
+    match.replace(/[^\n]/gu, ' '),
+  );
+}
 
 /**
  * Strip line and block comments and string literal contents that would
@@ -98,20 +146,22 @@ function resolveExportEntry(subpath) {
 }
 
 /**
- * Extract relative import/export specifiers from one module's source text.
+ * Extract every static import/export specifier from one module's source
+ * text, relative and bare alike -- a bare specifier must still be tested
+ * against the Node builtin list (SCH-H3: only relative specifiers survived
+ * the previous filter, so that test could never fire).
  *
- * @param {string} source module source text
- * @returns {string[]} relative specifiers (starting with ".")
+ * @param {string} commentFreeSource module source text with comments blanked
+ *   (`blankComments`), so a specifier-shaped string inside a comment is
+ *   never walked as a real edge (SCH-L3)
+ * @returns {string[]} import/export specifiers, in source order
  */
-function extractRelativeSpecifiers(source) {
+function extractSpecifiers(commentFreeSource) {
   const specifiers = [];
   IMPORT_SPECIFIER_PATTERN.lastIndex = 0;
   let match;
-  while ((match = IMPORT_SPECIFIER_PATTERN.exec(source)) !== null) {
-    const specifier = match[1];
-    if (specifier !== undefined && specifier.startsWith('.')) {
-      specifiers.push(specifier);
-    }
+  while ((match = IMPORT_SPECIFIER_PATTERN.exec(commentFreeSource)) !== null) {
+    if (match[1] !== undefined) specifiers.push(match[1]);
   }
   return specifiers;
 }
@@ -143,20 +193,26 @@ async function walkImportGraph(root, entryRelativePath) {
 
     const absolutePath = path.resolve(root, relativePath);
     const source = await readFile(absolutePath, 'utf8');
+    const commentFree = blankComments(source);
     const cleaned = blankCommentsAndStrings(source);
 
-    for (const specifier of extractRelativeSpecifiers(source)) {
-      if (BUILTIN_MODULES.has(specifier)) {
-        diagnostics.push(
-          `${relativePath}: imports Node builtin "${specifier}"`,
-        );
+    for (const specifier of extractSpecifiers(commentFree)) {
+      if (!specifier.startsWith('.')) {
+        // Bare specifier: only a Node builtin is this gate's concern (an
+        // external package like `ajv` is shared with the rest of a
+        // consumer's bundle and is not walked further).
+        if (isBuiltinSpecifier(specifier)) {
+          diagnostics.push(
+            `${relativePath}: imports Node builtin "${specifier}"`,
+          );
+        }
         continue;
       }
       const resolved = path.relative(
         root,
         path.resolve(path.dirname(absolutePath), specifier),
       );
-      if (resolved.endsWith('.js')) {
+      if (resolved.endsWith('.js') || resolved.endsWith('.mjs')) {
         queue.push(resolved);
       } else if (resolved.endsWith('.json')) {
         closure.add(resolved);
@@ -174,17 +230,42 @@ async function walkImportGraph(root, entryRelativePath) {
         `${relativePath}: references browser-unsafe global "${identifier}"`,
       );
     }
+
+    EVAL_LIKE_PATTERN.lastIndex = 0;
+    if (EVAL_LIKE_PATTERN.test(cleaned)) {
+      diagnostics.push(
+        `${relativePath}: calls eval(), Function(), or new Function(), which requires 'unsafe-eval' in a browser CSP`,
+      );
+    }
+
+    DYNAMIC_IMPORT_PATTERN.lastIndex = 0;
+    let dynamicImportMatch;
+    while (
+      (dynamicImportMatch = DYNAMIC_IMPORT_PATTERN.exec(cleaned)) !== null
+    ) {
+      const afterParen = source
+        .slice(dynamicImportMatch.index + dynamicImportMatch[0].length)
+        .match(/^\s*(\S)/u);
+      const nextCharacter = afterParen?.[1];
+      if (
+        nextCharacter !== '"' &&
+        nextCharacter !== "'" &&
+        nextCharacter !== '`'
+      ) {
+        diagnostics.push(
+          `${relativePath}: dynamic import() with a non-literal specifier`,
+        );
+      }
+    }
   }
 
   return { diagnostics, closure: [...closure].sort() };
 }
 
 /**
- * Walk every declared bare-specifier import (including builtins) in a
- * module's source, without resolving relative specifiers. Used only to
- * detect bare (non-relative, non-builtin) package imports, which this gate
- * does not otherwise police but which would indicate an unexpected runtime
- * dependency if ever added to a browser-reachable module.
+ * Measure one entry point's package-owned module closure: the total byte
+ * size, on disk, of every `.js`/`.json` file the entry point statically
+ * reaches, which is what a bundler would inline into the chunk.
  *
  * @param {string} root repository root
  * @param {string} entryRelativePath entry file, relative to root
@@ -236,7 +317,7 @@ async function main() {
   }
 
   process.stdout.write(
-    `Verified browser-consumed subpath(s) ${BROWSER_ENTRY_SUBPATHS.join(', ')}: no reachable Node builtin import or Buffer/process reference.\n`,
+    `Verified browser-consumed subpath(s) ${BROWSER_ENTRY_SUBPATHS.join(', ')}: no reachable Node builtin import, Buffer/process reference, eval()/Function() call, or non-literal dynamic import().\n`,
   );
 }
 

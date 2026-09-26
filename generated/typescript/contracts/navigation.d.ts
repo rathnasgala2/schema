@@ -27,7 +27,7 @@ export type NavigationNavigationItem = Readonly<{
   unknown;
 
 export type NavigationNavigationLeaf = Readonly<{
-  readonly children: ReadonlyArray<unknown>;
+  readonly children: [];
   readonly label: NavigationPlainLabel;
   readonly route?: NavigationCanonicalRoute;
   readonly type: 'internal' | 'external';

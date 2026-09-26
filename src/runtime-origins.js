@@ -1,16 +1,20 @@
 /**
  * Narrow browser entry point for the public runtime-origins contract.
  *
- * The package root (`.`) binds all 19 contracts, which transitively pins the
- * SPDX licence list, the Unicode 17 tables, the IANA language subtag registry
- * and the complete 7,804-rule diagnostic map — around 5.3 MB of source data
- * that a browser bundle pays for in full. A client that only reads and writes
- * `urn:gala:schema:public-runtime-origins:2.0.0` needs none of the SPDX
- * material and none of the other eighteen contracts' rules, so this entry
- * point binds exactly that one schema and exactly that one contract's slice of
- * the diagnostic map, through the same validator core and the same format
- * semantics as the root export. Identical inputs therefore produce identical
- * diagnostics; the only difference is what is absent.
+ * The package root (`.`) binds all twenty contracts, which transitively
+ * pins the SPDX licence list, the Unicode 17 tables, the IANA language
+ * subtag registry and the complete 7,804-rule diagnostic map — around 5.3 MB
+ * of source data that a browser bundle pays for in full. A client that only
+ * reads and writes `urn:gala:schema:public-runtime-origins:2.0.0` needs none
+ * of the SPDX material and none of the other nineteen contracts' rules, so
+ * this entry point binds exactly that one schema and exactly that one
+ * contract's slice of the diagnostic map, through the same validator core
+ * and the same format semantics as the root export. Identical inputs
+ * therefore produce identical diagnostics; the only difference is what is
+ * absent.
+ *
+ * Like the `.` export, this binds a precompiled standalone validator
+ * (SCH-C2): no runtime `ajv.compile()` happens at import.
  *
  * The `.` export is unchanged and remains the general-purpose surface.
  *
@@ -18,19 +22,15 @@
  */
 
 import diagnosticMap from '../diagnostics/diagnostic-map.public-runtime-origins.json' with { type: 'json' };
-import publicRuntimeOriginsSchema from '../schemas/public-runtime-origins.schema.json' with { type: 'json' };
-import { validateGalaFormatCore } from './internal/format-validators-core.js';
-import { createValidatorSuite } from './internal/validator-core.js';
+import { SCHEMA_VALIDATORS } from '../generated/browser/runtime-origins-validator-core.mjs';
+import { createPrecompiledValidatorSuite } from './internal/validator-core.js';
 
-const SUITE = createValidatorSuite({
-  schemas: [
-    /** @type {Record<string, unknown>} */ (publicRuntimeOriginsSchema),
-  ],
+const SUITE = createPrecompiledValidatorSuite({
+  validators: SCHEMA_VALIDATORS,
   diagnosticMap:
     /** @type {import('./internal/validator-core.js').DiagnosticMap} */ (
       diagnosticMap
     ),
-  validateFormat: validateGalaFormatCore,
 });
 
 /** The one schema identity this narrow entry point accepts. */
