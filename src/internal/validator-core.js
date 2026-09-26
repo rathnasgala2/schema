@@ -121,6 +121,13 @@ function withinBounds(value, bounds) {
  * @returns {void}
  */
 function addGalaKeywords(ajv) {
+  // Pure annotation, not an assertion: it marks which DEC-097 lifecycle
+  // phase (issuance vs. deploy) a property belongs to for digest scoping
+  // (see LOCAL-62 in README.md). It carries no independent validation
+  // rule of its own -- adapter-capability is the only root that uses it --
+  // so it is registered as always-valid rather than left unknown, which
+  // strict: true would otherwise refuse to compile (SCH-H1).
+  ajv.addKeyword({ keyword: 'x-gala-decision-phase', validate: () => true });
   ajv.addKeyword({
     keyword: 'x-gala-asciiByteLength',
     schemaType: 'object',
@@ -239,7 +246,23 @@ function createRegistry(schemas, validateFormat) {
   const formats = new Set();
   for (const schema of schemas) collectFormats(schema, formats);
 
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  const ajv = new Ajv2020({
+    allErrors: true,
+    strict: true,
+    // strictTypes and strictRequired are relaxed for one deliberate,
+    // repository-wide compositional style: every deployment-* root
+    // expresses its state machine as `allOf` of `if`/`then`/`else`
+    // fragments, where a conditional's `properties`/`required` describe a
+    // value or a required member declared by a *sibling* branch in the
+    // same `allOf`, not locally. Ajv's strict mode cannot see across that
+    // composition and flags ~168 such sites as if they were typos. Every
+    // other strict-mode check -- unknown keywords, unknown formats, tuple
+    // and number strictness -- stays on, which is what catches the classes
+    // of mistake (a misspelled keyword, an unregistered format) SCH-H1
+    // exists to catch.
+    strictTypes: false,
+    strictRequired: false,
+  });
   /** @type {import('ajv-formats').default} */ (
     /** @type {unknown} */ (formatsPlugin)
   )(ajv);

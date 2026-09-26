@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
+
+import { Ajv2020 } from 'ajv/dist/2020.js';
+import formatsPlugin from 'ajv-formats';
 
 import { GALA_SCHEMA_IDS, validateGalaDocument } from '../src/index.js';
 
@@ -241,4 +245,84 @@ test('one diagnostic map owns every executable fixture code', async () => {
     assert.equal(typeof diagnostic.remediation, 'string');
     assert.match(diagnostic.documentationUrl, /^https:\/\//u);
   }
+});
+
+test('every root compiles under strict schema/format/number/tuple checking (SCH-H1)', async () => {
+  // src/internal/validator-core.js's real registry runs with `strict: true`,
+  // relaxing only strictTypes and strictRequired -- see its createRegistry
+  // for why (the deployment-* roots' allOf/if/then composition declares
+  // required/properties across sibling branches, which strict mode cannot
+  // see across). This test pins that every other strict-mode check --
+  // unknown keywords (a misspelled keyword like `requred`/`maxItmes`),
+  // unknown formats, strict numbers and strict tuples -- reports zero
+  // diagnostics across every root, so a schema-authoring typo is caught
+  // here rather than silently validating nothing.
+  const files = (await readdir('schemas')).filter((file) =>
+    file.endsWith('.schema.json'),
+  );
+  const galaKeywords = new Set();
+  const collectGalaKeywords = (/** @type {unknown} */ value) => {
+    if (value === null || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      for (const entry of value) collectGalaKeywords(entry);
+      return;
+    }
+    for (const key of Object.keys(value)) {
+      if (key.startsWith('x-gala-')) galaKeywords.add(key);
+    }
+    for (const child of Object.values(value)) collectGalaKeywords(child);
+  };
+  const schemas = await Promise.all(
+    files.map((file) =>
+      readFile(path.join('schemas', file), 'utf8').then((source) =>
+        JSON.parse(source),
+      ),
+    ),
+  );
+  for (const schema of schemas) collectGalaKeywords(schema);
+
+  const diagnostics = /** @type {string[]} */ ([]);
+  const ajv = new Ajv2020({
+    allErrors: true,
+    strict: 'log',
+    strictTypes: false,
+    strictRequired: false,
+    logger: {
+      log() {},
+      warn: (/** @type {string} */ message) => diagnostics.push(message),
+      error: (/** @type {string} */ message) => diagnostics.push(message),
+    },
+  });
+  /** @type {(ajv: unknown) => void} */ (
+    /** @type {unknown} */ (formatsPlugin)
+  )(ajv);
+  for (const keyword of galaKeywords) {
+    ajv.addKeyword({ keyword, validate: () => true });
+  }
+  const collectFormats = (
+    /** @type {unknown} */ value,
+    /** @type {Set<string>} */ target,
+  ) => {
+    if (value === null || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      for (const entry of value) collectFormats(entry, target);
+      return;
+    }
+    if (
+      typeof (/** @type {{format?: unknown}} */ (value).format) === 'string'
+    ) {
+      target.add(/** @type {{format: string}} */ (value).format);
+    }
+    for (const child of Object.values(value)) collectFormats(child, target);
+  };
+  const formats = new Set();
+  for (const schema of schemas) collectFormats(schema, formats);
+  for (const format of formats) {
+    if (ajv.formats[format] === undefined) {
+      ajv.addFormat(format, { type: 'string', validate: () => true });
+    }
+  }
+  for (const schema of schemas) ajv.compile(schema);
+
+  assert.deepEqual(diagnostics, []);
 });

@@ -34,14 +34,23 @@ interface DesignManifest extends JsonObject {
   schemaVersion: string;
 }
 
+interface KeywordContext {
+  ok(pass: boolean): void;
+}
 interface AjvRegistry {
   addFormat(name: string, definition: true): AjvRegistry;
+  addKeyword(definition: {
+    keyword: string;
+    code: (context: KeywordContext) => void;
+  }): AjvRegistry;
   addSchema(schema: JsonObject, key?: string): AjvRegistry;
 }
 
 const Ajv2020 = Ajv2020Module as unknown as new (options: {
   code: { source: true };
-  strict: false;
+  strict: true;
+  strictTypes: false;
+  strictRequired: false;
 }) => AjvRegistry;
 const standaloneCode = standaloneCodeModule as unknown as (
   ajv: AjvRegistry,
@@ -375,14 +384,54 @@ function collectFormats(value: JsonValue, target: Set<string>): void {
   for (const child of Object.values(value)) collectFormats(child, target);
 }
 
+// Collect every `x-gala-*` assertion keyword name from one JSON Schema. This
+// structural core deliberately does not carry Gala's semantic keyword
+// implementations -- see this function's `'// Gala semantic formats and
+// keywords are enforced by the strict ESM API.'` comment below and SCH-M5.
+// Ajv's 2020-12 dialect evaluates keywords alongside `$ref`, so any
+// `x-gala-*` keyword reachable from the root schema must be a keyword Ajv
+// recognises, or `strict: true` refuses to compile it; registering each one
+// found here as an always-true assertion (the same treatment given every
+// `format`, below) keeps this core's known weaker-than-the-ESM-API
+// semantics, not a stricter accident.
+function collectGalaKeywords(value: JsonValue, target: Set<string>): void {
+  if (value === null || typeof value !== 'object') return;
+  if (Array.isArray(value)) {
+    for (const entry of value) collectGalaKeywords(entry, target);
+    return;
+  }
+  for (const key of Object.keys(value)) {
+    if (key.startsWith('x-gala-')) target.add(key);
+  }
+  for (const child of Object.values(value)) collectGalaKeywords(child, target);
+}
+
 function generateValidatorCore(
   schemas: SchemaDocument[],
   revision: string,
 ): string {
-  const ajv = new Ajv2020({ code: { source: true }, strict: false });
+  // See src/internal/validator-core.js's createRegistry for why strictTypes
+  // and strictRequired are relaxed: the deployment-* roots' allOf/if/then
+  // state-machine composition declares required/properties across sibling
+  // branches, which strict mode cannot see across.
+  const ajv = new Ajv2020({
+    code: { source: true },
+    strict: true,
+    strictTypes: false,
+    strictRequired: false,
+  });
   const formats = new Set<string>();
-  for (const schema of schemas) collectFormats(schema, formats);
+  const galaKeywords = new Set<string>();
+  for (const schema of schemas) {
+    collectFormats(schema, formats);
+    collectGalaKeywords(schema, galaKeywords);
+  }
   for (const format of [...formats].sort()) ajv.addFormat(format, true);
+  for (const keyword of [...galaKeywords].sort()) {
+    // A code-based (not closure-based) keyword: standalone codegen cannot
+    // serialize a `validate` function reference, only inline code.
+    ajv.addKeyword({ keyword, code: (context) => context.ok(true) });
+  }
   const references: Record<string, string> = {};
   for (const [index, schema] of schemas.entries()) {
     ajv.addSchema(schema, schema.$id);
