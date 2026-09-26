@@ -51,13 +51,6 @@ interface AjvRegistry {
   addSchema(schema: JsonObject, key?: string): AjvRegistry;
 }
 
-const Ajv2020 = Ajv2020Module as unknown as new (options: {
-  code: { source: true };
-  strict: true;
-  strictTypes: false;
-  strictRequired: false;
-}) => AjvRegistry;
-
 interface BrowserKeywordCodeContext {
   data: CodegenCode;
   schemaCode: CodegenCode;
@@ -367,76 +360,6 @@ function collectFormats(value: JsonValue, target: Set<string>): void {
   for (const child of Object.values(value)) collectFormats(child, target);
 }
 
-// Collect every `x-gala-*` assertion keyword name from one JSON Schema. This
-// structural core deliberately does not carry Gala's semantic keyword
-// implementations -- see this function's `'// Gala semantic formats and
-// keywords are enforced by the strict ESM API.'` comment below and SCH-M5.
-// Ajv's 2020-12 dialect evaluates keywords alongside `$ref`, so any
-// `x-gala-*` keyword reachable from the root schema must be a keyword Ajv
-// recognises, or `strict: true` refuses to compile it; registering each one
-// found here as an always-true assertion (the same treatment given every
-// `format`, below) keeps this core's known weaker-than-the-ESM-API
-// semantics, not a stricter accident.
-function collectGalaKeywords(value: JsonValue, target: Set<string>): void {
-  if (value === null || typeof value !== 'object') return;
-  if (Array.isArray(value)) {
-    for (const entry of value) collectGalaKeywords(entry, target);
-    return;
-  }
-  for (const key of Object.keys(value)) {
-    if (key.startsWith('x-gala-')) target.add(key);
-  }
-  for (const child of Object.values(value)) collectGalaKeywords(child, target);
-}
-
-function generateValidatorCore(
-  schemas: SchemaDocument[],
-  revision: string,
-): string {
-  // src/internal/validator-core.js's real registry compiles most roots
-  // under full strictTypes/strictRequired and only relaxes the two checks
-  // for the roots on its shrinking LEGACY_STRICT_TYPES_ALLOWLIST (their
-  // allOf/if/then composition declares required/properties across sibling
-  // branches, which strict mode cannot see across -- see SCH-H1). This
-  // standalone core compiles all twenty schemas into one shared Ajv
-  // instance so `standaloneCode` can emit one module referencing all of
-  // them, so it cannot split per root the way the runtime registry does;
-  // it relaxes both checks uniformly instead. strict:true (unknown
-  // keywords, unknown formats, tuple/number strictness) still applies to
-  // every root here, which is what actually catches an authoring typo.
-  const ajv = new Ajv2020({
-    code: { source: true },
-    strict: true,
-    strictTypes: false,
-    strictRequired: false,
-  });
-  const formats = new Set<string>();
-  const galaKeywords = new Set<string>();
-  for (const schema of schemas) {
-    collectFormats(schema, formats);
-    collectGalaKeywords(schema, galaKeywords);
-  }
-  for (const format of [...formats].sort()) ajv.addFormat(format, true);
-  for (const keyword of [...galaKeywords].sort()) {
-    // A code-based (not closure-based) keyword: standalone codegen cannot
-    // serialize a `validate` function reference, only inline code.
-    ajv.addKeyword({ keyword, code: (context) => context.ok(true) });
-  }
-  const references: Record<string, string> = {};
-  for (const [index, schema] of schemas.entries()) {
-    ajv.addSchema(schema, schema.$id);
-    references[`validate${pascalCase(CONTRACTS[index] ?? '')}`] = schema.$id;
-  }
-  return [
-    '// @ts-nocheck -- Ajv machine-generated standalone core.',
-    `'use strict';`,
-    `// Generated structural core; sourceDesignRevision=${revision}.`,
-    '// Gala semantic formats and keywords are enforced by the strict ESM API.',
-    standaloneCode(ajv, references).trimEnd(),
-    '',
-  ].join('\n');
-}
-
 /**
  * Gala's `x-gala-*` assertion keywords, wired to `gala-keywords.js`'s pure
  * implementations via `code()` (not `validate`, a closure Ajv's standalone
@@ -692,46 +615,38 @@ function generateTypescriptIndex(
     `// Generated contract API; sourceDesignRevision=${revision}.`,
     '// Do not edit.',
     '',
-    "import { createRequire } from 'node:module';",
     "import { validateGalaDocument } from '../../src/index.js';",
     '',
-    'const require = createRequire(import.meta.url);',
-    "const CORE_PATH = './validator-core.cjs';",
-    '/** @type {Record<string, (value: unknown) => boolean>} */',
-    'const core = require(CORE_PATH);',
     `const SCHEMA_IDS = ${JSON.stringify(ids, null, 2)};`,
-    'const STRUCTURAL_VALIDATORS = Object.freeze({',
-  ];
-  for (const [index, schema] of schemas.entries()) {
-    const functionName = `validate${pascalCase(CONTRACTS[index] ?? '')}`;
-    runtimeLines.push(`  ${JSON.stringify(schema.$id)}: core.${functionName},`);
-  }
-  runtimeLines.push(
-    '});',
     '',
     '/** Exact immutable schema identities represented by generated root types. */',
     'export const GENERATED_SCHEMA_IDS = Object.freeze(SCHEMA_IDS);',
     '',
     '/**',
-    ' * Validate one generated root through the standalone structural core and',
-    " * Galascribe's exact semantic validator.",
+    " * Validate one generated root through Galascribe's exact semantic",
+    ' * validator (`.`\'s precompiled ESM standalone core, SCH-C2). This used',
+    ' * to additionally run a separate, weaker standalone structural core',
+    ' * (every custom format compiled as an unconditional pass) and AND the',
+    ' * two results together (SCH-M5); since the weaker core can never turn a',
+    " * `true` into a `false`, that check was redundant with `validateGalaDocument`'s",
+    ' * own result and never changed the outcome -- it only doubled the work',
+    ' * and shipped a second 2.73 MB precompiled core to do it. `structuralValid`',
+    ' * is kept in the result shape for existing consumers and now always',
+    ' * equals `valid`.',
     ' *',
     ' * @param {string} schemaId exact immutable schema identity',
     ' * @param {unknown} value candidate document',
     " * @returns {Readonly<import('../../src/internal/schema-validator.js').GalaValidationResult & {structuralValid: boolean}>} stable result",
     ' */',
     'export function validateGeneratedDocument(schemaId, value) {',
-    '  const structural = STRUCTURAL_VALIDATORS[schemaId];',
-    '  const structuralValid = structural?.(value) ?? false;',
     '  const exactResult = validateGalaDocument(schemaId, value);',
     '  return Object.freeze({',
     '    ...exactResult,',
-    '    structuralValid,',
-    '    valid: structuralValid && exactResult.valid,',
+    '    structuralValid: exactResult.valid,',
     '  });',
     '}',
     '',
-  );
+  ];
   declarationLines.push(
     'export type GeneratedValidationResult = GalaValidationResult & Readonly<{',
     '  structuralValid: boolean;',
@@ -943,11 +858,6 @@ async function writeGeneratedTree(
         ...FORMAT_OPTIONS,
         parser: 'typescript',
       }),
-      'utf8',
-    ),
-    writeFile(
-      path.join(typescriptRoot, 'validator-core.cjs'),
-      generateValidatorCore(schemas, revision),
       'utf8',
     ),
     writeFile(

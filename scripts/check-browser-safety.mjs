@@ -11,13 +11,16 @@ import { runIfMain } from './run-if-main.mjs';
  * `process`.
  *
  * `./generated/typescript` is deliberately excluded: it is generated output
- * (`npm run codegen:generate`), never hand-edited here, and its current
- * design intentionally loads a standalone CommonJS structural-validator core
- * through `node:module`'s `createRequire`. Every consumer today (including
- * this repository's App) reaches it only through `import type`, which is
- * erased at compile time and never enters a runtime browser bundle. Making
- * that subpath genuinely browser-safe is a separate, larger codegen change
- * and is out of scope for this fix; see the SCHEMA-BROWSER-SAFE report.
+ * (`npm run codegen:generate`), never hand-edited here. As of SCH-M5 it no
+ * longer loads a standalone CommonJS structural-validator core through
+ * `node:module`'s `createRequire` -- `validateGeneratedDocument` now
+ * delegates directly to the `.` export's exact precompiled validator, so its
+ * runtime is plain ESM with no reachable Node builtin. It stays off this list
+ * because every consumer today (including this repository's App) reaches it
+ * only through `import type`, which is erased at compile time and never
+ * enters a runtime browser bundle, so there is no live consumer exercising it
+ * as a real browser entry point yet; adding it here (with its own closure
+ * byte cap) is a follow-up once one exists.
  */
 const BROWSER_ENTRY_SUBPATHS = Object.freeze([
   '.',

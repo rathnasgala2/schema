@@ -316,12 +316,13 @@ Two gates enforce browser safety:
   the `.json` documents they import, which is what a bundler inlines — and fails
   `./runtime-origins` if it exceeds its declared 1,250,000-byte cap.
   `./generated/typescript` is a declared export subpath but is intentionally
-  excluded from this walk: it is generated output that loads a CommonJS
-  structural-validator core via `node:module`'s `createRequire`, and every
-  consumer today reaches it only through `import type` (erased at compile time,
-  never entering a runtime browser bundle) — making that subpath itself
-  browser-safe is covered by folding it onto the same standalone core `.` and
-  `./runtime-origins` already use.
+  excluded from this walk: `validateGeneratedDocument` now delegates directly
+  to `.`'s exact precompiled validator (SCH-M5, no more CommonJS structural
+  core, no more `node:module`'s `createRequire`), so its runtime is already
+  plain ESM with no reachable Node builtin, but every consumer today reaches
+  it only through `import type` (erased at compile time, never entering a
+  runtime browser bundle), so it has no declared closure byte cap yet — that
+  is a follow-up once a real runtime consumer exists.
 - `npm test` (via `test/browser-smoke.test.js`) spawns
   `scripts/browser-smoke.mjs` under `node --experimental-vm-modules`, which
   links the real `.` export's ESM source inside a genuine jsdom-realm `vm`
@@ -474,8 +475,12 @@ remediation, and documentation URL fields without including authored values.
   `./runtime-origins` bind (SCH-C2): real Gala format and `x-gala-*` keyword
   semantics compiled directly into the generated functions' source, no runtime
   `ajv.compile()`.
-- `generated/typescript/` — strict root types and ESM API around the deliberate
-  Ajv standalone CommonJS structural core.
+- `generated/typescript/` — strict root types and an ESM API
+  (`validateGeneratedDocument`) that delegates directly to the `.` export's
+  exact precompiled validator; it no longer also runs a separate, weaker
+  standalone structural core in parallel (SCH-M5) -- that used a second
+  2.73 MB Ajv standalone CommonJS core whose result could never disagree with
+  the exact one, so it added no assertion and doubled the work.
 - `docs/catalogs/schema-inventory.json` — exact 20 JSON Schema roots plus the
   materialized OpenAPI identity.
 - `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`

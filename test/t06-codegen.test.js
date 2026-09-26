@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createRequire } from 'node:module';
 import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
@@ -11,12 +10,6 @@ import {
   validateGeneratedDocument,
 } from '../generated/typescript/index.js';
 import { GALA_SCHEMA_IDS } from '../src/index.js';
-
-const require = createRequire(import.meta.url);
-const structuralCore =
-  /** @type {Record<string, (value: unknown) => boolean>} */ (
-    require('../generated/typescript/validator-core.cjs')
-  );
 
 const CONTRACTS = [
   'adapter-capability',
@@ -40,19 +33,6 @@ const CONTRACTS = [
   'template-composition',
   'theme-contract',
 ];
-
-/**
- * Convert one kebab-case contract name to its generated type stem.
- *
- * @param {string} value contract name
- * @returns {string} PascalCase name
- */
-function pascalCase(value) {
-  return value
-    .split('-')
-    .map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`)
-    .join('');
-}
 
 test('generated TypeScript root set equals the twenty schemas', async () => {
   // GALA_SCHEMA_IDS is sorted by the identity string itself, so
@@ -85,7 +65,7 @@ function schemaIdForContract(contract) {
     : `urn:gala:schema:${contract}:2.0.0`;
 }
 
-test('generated strict API and structural core cover every canonical root', async () => {
+test('generated API covers every canonical root and mirrors structuralValid to valid (SCH-M5)', async () => {
   for (const contract of CONTRACTS) {
     const schemaId = schemaIdForContract(contract);
     const value = JSON.parse(
@@ -96,22 +76,17 @@ test('generated strict API and structural core cover every canonical root', asyn
       structuralValid: true,
       diagnostics: [],
     });
-    const structural = structuralCore[`validate${pascalCase(contract)}`];
-    assert.equal(typeof structural, 'function');
-    assert.equal(structural?.(value), true, contract);
-    assert.equal(
-      structural?.({ ...value, generatedUnknownField: true }),
-      false,
-      contract,
-    );
-    assert.equal(
-      validateGeneratedDocument(schemaId, {
-        ...value,
-        generatedUnknownField: true,
-      }).structuralValid,
-      false,
-      contract,
-    );
+    // generateGeneratedDocument no longer runs a second, weaker standalone
+    // structural core alongside the exact validator (SCH-M5); structuralValid
+    // is derived from the exact result and must always agree with it,
+    // including on rejection.
+    const rejected = validateGeneratedDocument(schemaId, {
+      ...value,
+      generatedUnknownField: true,
+    });
+    assert.equal(rejected.valid, false, contract);
+    assert.equal(rejected.structuralValid, false, contract);
+    assert.ok(rejected.diagnostics.length > 0, contract);
   }
 });
 

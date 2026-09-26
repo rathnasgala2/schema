@@ -1,13 +1,8 @@
 // Generated contract API; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 // Do not edit.
 
-import { createRequire } from 'node:module';
 import { validateGalaDocument } from '../../src/index.js';
 
-const require = createRequire(import.meta.url);
-const CORE_PATH = './validator-core.cjs';
-/** @type {Record<string, (value: unknown) => boolean>} */
-const core = require(CORE_PATH);
 const SCHEMA_IDS = [
   'urn:gala:schema:adapter-capability:2.0.0',
   'urn:gala:schema:appearance:2.0.0',
@@ -30,52 +25,31 @@ const SCHEMA_IDS = [
   'urn:gala:schema:template-composition:2.0.0',
   'urn:gala:schema:theme-contract:2.0.0',
 ];
-const STRUCTURAL_VALIDATORS = Object.freeze({
-  'urn:gala:schema:adapter-capability:2.0.0': core.validateAdapterCapability,
-  'urn:gala:schema:appearance:2.0.0': core.validateAppearance,
-  'urn:gala:schema:artifact-manifest:2.0.0': core.validateArtifactManifest,
-  'urn:gala:schema:author:2.0.0': core.validateAuthor,
-  'urn:gala:schema:build-input:2.0.0': core.validateBuildInput,
-  'urn:gala:metadata:build-provenance:2.0.0': core.validateBuildProvenance,
-  'urn:gala:schema:content-frontmatter:2.0.0': core.validateContentFrontmatter,
-  'urn:gala:schema:deployment-intent:2.0.0': core.validateDeploymentIntent,
-  'urn:gala:schema:deployment-observation:2.0.0':
-    core.validateDeploymentObservation,
-  'urn:gala:schema:deployment-receipt:2.0.0': core.validateDeploymentReceipt,
-  'urn:gala:schema:event-envelope:2.0.0': core.validateEventEnvelope,
-  'urn:gala:schema:lock:2.0.0': core.validateLock,
-  'urn:gala:schema:navigation:2.0.0': core.validateNavigation,
-  'urn:gala:schema:problem:2.0.0': core.validateProblem,
-  'urn:gala:schema:public-generation-marker:2.0.0':
-    core.validatePublicGenerationMarker,
-  'urn:gala:schema:public-runtime-origins:2.0.0':
-    core.validatePublicRuntimeOrigins,
-  'urn:gala:schema:publication:2.0.0': core.validatePublication,
-  'urn:gala:schema:repository:2.0.0': core.validateRepository,
-  'urn:gala:schema:template-composition:2.0.0':
-    core.validateTemplateComposition,
-  'urn:gala:schema:theme-contract:2.0.0': core.validateThemeContract,
-});
 
 /** Exact immutable schema identities represented by generated root types. */
 export const GENERATED_SCHEMA_IDS = Object.freeze(SCHEMA_IDS);
 
 /**
- * Validate one generated root through the standalone structural core and
- * Galascribe's exact semantic validator.
+ * Validate one generated root through Galascribe's exact semantic
+ * validator (`.`'s precompiled ESM standalone core, SCH-C2). This used
+ * to additionally run a separate, weaker standalone structural core
+ * (every custom format compiled as an unconditional pass) and AND the
+ * two results together (SCH-M5); since the weaker core can never turn a
+ * `true` into a `false`, that check was redundant with `validateGalaDocument`'s
+ * own result and never changed the outcome -- it only doubled the work
+ * and shipped a second 2.73 MB precompiled core to do it. `structuralValid`
+ * is kept in the result shape for existing consumers and now always
+ * equals `valid`.
  *
  * @param {string} schemaId exact immutable schema identity
  * @param {unknown} value candidate document
  * @returns {Readonly<import('../../src/internal/schema-validator.js').GalaValidationResult & {structuralValid: boolean}>} stable result
  */
 export function validateGeneratedDocument(schemaId, value) {
-  const structural = STRUCTURAL_VALIDATORS[schemaId];
-  const structuralValid = structural?.(value) ?? false;
   const exactResult = validateGalaDocument(schemaId, value);
   return Object.freeze({
     ...exactResult,
-    structuralValid,
-    valid: structuralValid && exactResult.valid,
+    structuralValid: exactResult.valid,
   });
 }
 
