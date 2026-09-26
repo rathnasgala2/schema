@@ -170,6 +170,97 @@ divergences reconciled, some tightening validation) and new generated output
   a dev-tooling and published-file-list change only; no schema, OpenAPI, or
   generated-output content changes.
 
+### Fixed (continued -- second remediation pass)
+
+- **SCH-C5a**: `check-backward-compatibility.mjs` now classifies `type`
+  narrowing/widening, `format` added/changed/removed, `minimum`/`maximum`
+  tightening/relaxing, and `oneOf`/`anyOf` branch removal/addition (by set, not
+  position, so a branch removed from the middle of the list is still caught).
+  `items` type changes are caught by the existing recursive walk. Documented
+  each in `docs/COMPATIBILITY.md`.
+- **SCH-H1 (completed)**: `strictTypes`/`strictRequired` are enabled for the
+  fourteen roots outside a new, shrink-only `LEGACY_STRICT_TYPES_ALLOWLIST`; the
+  six roots outside it (`appearance`, `event-envelope`,
+  `public-generation-marker`, `public-runtime-origins`, `repository`,
+  `template-composition`) now compile under full strict mode.
+  `LEGACY_STRICT_TYPES_ALLOWLIST` may only shrink, enforced by a test.
+  Separately, fragment-level lookups (`validateFragment`'s
+  `getSchema(schemaId + JSON Pointer)`, and `validateArrayCardinality`) now
+  always resolve against a third, always-relaxed `fragmentAjv` instance:
+  compiling an arbitrary JSON-pointer fragment in isolation loses the ancestor
+  `type` context it had inside its parent, so a fragment that compiles clean as
+  part of its whole document can still throw under strict mode when
+  fragment-compiled alone (found on `appearance`'s shared `colorMode` `$def`
+  while verifying this change against the full fixture corpus).
+- **SCH-M1**: README.md's date-time pattern note said nineteen roots keep
+  enforcing the requirement; all twenty do.
+- **SCH-M2**: `SECURITY.md` states the actual `2.x` support line, a 5-business-day
+  acknowledgement window, and the advisory channel, instead of saying no
+  package had ever been released.
+- **SCH-M3**: the orphaned second `## [Unreleased]` heading (holding ~285 lines
+  covering 2.0.0 through 2.4.0 that were never renamed to a version) is split
+  into six proper version sections using each entry's own stated version
+  transition.
+- **SCH-M4**: every version heading now has a `[x.y.z]: https://...` compare-link
+  definition.
+- **SCH-M5**: `generated/typescript`'s `validateGeneratedDocument` delegates
+  directly to `.`'s exact precompiled validator instead of additionally running
+  a second, weaker standalone structural core and ANDing the two (the weaker
+  core could never turn a `true` into a `false`, so it added no assertion and
+  doubled the work). `generated/typescript/validator-core.cjs` (2.87 MB) is
+  deleted.
+- **SCH-M6**: fixed as a consequence of SCH-M5 -- `structuralValid` is now
+  always equal to `valid`, so `valid: false` can never come back with zero
+  diagnostics.
+- **SCH-M7**: the compiled cardinality validator is cached per distinct
+  `{minItems, maxItems, uniqueItems}` shape instead of recompiling on every
+  call.
+- **SCH-M8**: documented the URN namespace rule (`urn:gala:metadata:` is for a
+  root whose canonical home is as a record embedded in another root's
+  envelope) and pinned the one exception (`build-provenance`) with a test.
+- **SCH-M9**: pinned the closed integer-string format vocabulary (five
+  overlapping formats under three naming conventions) with a test, so a sixth
+  cannot appear by accident; consolidating the vocabulary itself is deferred
+  (a `format` rename is a breaking compatibility event under SCH-C5a).
+- **SCH-M10**: pinned the closed `x-gala-*` vocabulary on both the JSON Schema
+  and OpenAPI sides; unifying the two naming conventions is deferred for the
+  same reason as SCH-M9.
+- **SCH-M12**: the compatibility gate now derives which roots to diff from
+  `docs/catalogs/schema-inventory.json` instead of `readdir(schemas/)`, and
+  cross-checks that listing against both `compatibility/baseline-schemas/` and
+  `schemas/`, giving the inventory a real consumer.
+- **SCH-M14**: `src/**/*.js` gets `globals.browser` in `eslint.config.js`
+  (Node-only globals explicitly turned off), so a bare `Buffer`/`process` is a
+  lint error, not only a build-time gate failure;
+  `src/internal/frozen-envelope.js` keeps `globals.node` as the one documented
+  exception.
+- **SCH-M15**: `.dependency-cruiser.cjs` gains a rule forbidding a Node core
+  import from the browser-reachable subtree, and a rule requiring every
+  `src/internal/` module to be reachable from a declared JS export
+  (`src/internal/schema-validator.js` is the one documented exception).
+- **SCH-M16**: `nightly.yml` files or updates a tracking issue on failure
+  instead of only writing a `::error::` annotation nobody is notified of.
+- **SCH-M17**: documented that `diagnostics/parity-expectations.json` is
+  genuine cross-language evidence only under `npm run parity:check` (which
+  spawns the Java harness); under plain `npm test` it is a same-language
+  regression snapshot.
+- **SCH-M18**: added a direct structural comparison between
+  `PortableProblemDocument` and `schemas/problem.schema.json`, rather than
+  relying solely on the whole-bundle regeneration byte-check.
+- **SCH-M19**: added a Dependabot `gradle` entry for `/parity/java`.
+- **SCH-L1**: README.md's MVP operation count said 73 in one place and 75 in
+  another; it is 75.
+- **SCH-L6**: `check-declarations.mjs` resolves `tsc`, its project file's
+  working directory, and `types/` from the script's own location instead of
+  `process.cwd()`.
+- **SCH-L7**: the workflow-pin `uses:` regex now also matches a flow-mapping
+  step (`- {uses: a/b@sha}`), not only `uses:` at the start of a line.
+
+Deferred: SCH-M11 (an App-repo route-registry test) and SCH-M13 (finishing
+`publish`'s migration off its own local frozen-envelope codec, or dropping the
+`./frozen-envelope` subpath) both require a change in a sibling repository and
+are out of this package's scope.
+
 ## [2.11.0] - 2026-09-19
 
 SCHEMA-2.11.0-INSTALLATION-EVENTS (backlog follow-up recorded at
