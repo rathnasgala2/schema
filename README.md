@@ -300,6 +300,14 @@ cross-language parity, license, SBOM, and critical vulnerability gates.
 `codegen:check` performs two isolated clean builds and requires both generated
 trees and the committed tree to be byte-identical.
 
+## CI and Dependabot
+
+`ci.yml` runs on every pull request and on push to `main`. A pull request opened
+by `dependabot[bot]` runs no CI job by default -- every job needs a `gate` job
+whose condition skips it for that actor. To run CI on a Dependabot PR anyway
+(for example, before merging it by hand), add the `ci:run` label to the pull
+request and re-run the workflow.
+
 ### Browser safety
 
 The `.` export (`validateGalaDocument`/`GALA_SCHEMA_IDS`, `src/index.js`) is
