@@ -2260,3 +2260,66 @@ test('workload unions carry explicit discriminator mappings a generated model ca
     assert.deepEqual(Object.keys(member), ['$ref']);
   }
 });
+
+test('PortableProblemDocument matches problem.schema.json on shape and bounds (SCH-M18)', async () => {
+  // The whole-bundle regeneration byte-check (above) proves the committed
+  // bundle matches today's generator; it does not prove the generator's
+  // projection from schemas/problem.schema.json onto PortableProblemDocument
+  // is itself faithful. This compares the promoted component directly
+  // against its source root: same property set, same required set, and the
+  // same bound values on every property whose constraint is expressed
+  // directly on the property (not behind a further $ref this test does not
+  // chase).
+  const { bundle } = await readProjections();
+  const root = /** @type {JsonObject} */ (
+    JSON.parse(await readFile('schemas/problem.schema.json', 'utf8'))
+  );
+  const component = /** @type {JsonObject} */ (
+    bundle.components.schemas.PortableProblemDocument
+  );
+  assert.equal(bundle.components.schemas.Problem.$ref, '#/components/schemas/PortableProblemDocument');
+
+  assert.deepEqual(
+    Object.keys(component.properties).sort(),
+    Object.keys(root.properties).sort(),
+  );
+  assert.deepEqual([...component.required].sort(), [...root.required].sort());
+  assert.equal(component.additionalProperties, root.additionalProperties);
+
+  assert.equal(
+    schemaConstant(component.properties.schemaId),
+    root.properties.schemaId.const,
+  );
+  assert.equal(
+    schemaConstant(component.properties.schemaVersion),
+    root.properties.schemaVersion.const,
+  );
+  assert.equal(component.properties.status.type, root.properties.status.type);
+  assert.equal(
+    component.properties.status.minimum,
+    root.properties.status.minimum,
+  );
+  assert.equal(
+    component.properties.status.maximum,
+    root.properties.status.maximum,
+  );
+  assert.equal(
+    component.properties.retryable.type,
+    root.properties.retryable.type,
+  );
+  assert.equal(component.properties.errors.type, root.properties.errors.type);
+  assert.equal(
+    component.properties.errors.minItems,
+    root.properties.errors.minItems,
+  );
+  assert.equal(
+    component.properties.errors.maxItems,
+    root.properties.errors.maxItems,
+  );
+  for (const member of /** @type {const} */ (['title', 'detail'])) {
+    assert.deepEqual(
+      component.properties[member]['x-gala-graphemeLength'],
+      root.properties[member]['x-gala-graphemeLength'],
+    );
+  }
+});
