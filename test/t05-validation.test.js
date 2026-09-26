@@ -394,3 +394,123 @@ test('every root compiles under strict schema/format/number/tuple checking (SCH-
   assert.deepEqual(strict.diagnostics, []);
   assert.deepEqual(legacy.diagnostics, []);
 });
+
+test('each of the six non-allowlisted roots rejects a fabricated schema an allowlisted root tolerates (SCH-H1)', async () => {
+  // The prior two tests prove every *real, committed* root is clean under
+  // its assigned strictness. This test proves the split is load-bearing in
+  // the other direction: a schema-authoring mistake strictTypes/
+  // strictRequired exists to catch -- a `required` (or `properties`) keyword
+  // nested under `oneOf`/`allOf` with no `type` declared on its own branch,
+  // so Ajv cannot see what type it is asserting requirements against -- must
+  // actually fail to compile on a root outside LEGACY_STRICT_TYPES_ALLOWLIST,
+  // and must be tolerated (legacy, relaxed) on a root inside it. This is
+  // exactly the shape SCH-H1's rollout hit on real allOf/if composition
+  // (colorMode's `if` branches on `appearance`), reproduced here as a
+  // minimal fabricated fixture instead of relying on today's committed
+  // schemas happening to stay clean.
+  const { createValidatorSuite, LEGACY_STRICT_TYPES_ALLOWLIST } =
+    await import('../src/internal/validator-core.js');
+
+  const NON_ALLOWLISTED_ROOTS = [
+    'appearance',
+    'event-envelope',
+    'public-generation-marker',
+    'public-runtime-origins',
+    'repository',
+    'template-composition',
+  ];
+  assert.equal(NON_ALLOWLISTED_ROOTS.length, 6);
+  for (const contract of NON_ALLOWLISTED_ROOTS) {
+    assert.ok(
+      !LEGACY_STRICT_TYPES_ALLOWLIST.has(contract),
+      `"${contract}" is expected to be outside LEGACY_STRICT_TYPES_ALLOWLIST`,
+    );
+  }
+
+  /**
+   * @param {string} contract contract name
+   * @returns {Record<string, unknown>} a schema whose `allOf` branch
+   *   declares `required` with no local `type`
+   */
+  function fabricateUntypedRequiredSchema(contract) {
+    return {
+      $id: `urn:gala:schema:${contract}:2.0.0`,
+      oneOf: [
+        {
+          type: 'object',
+          properties: { kind: { type: 'string' } },
+          allOf: [{ required: ['kind'] }],
+        },
+      ],
+    };
+  }
+
+  for (const contract of NON_ALLOWLISTED_ROOTS) {
+    assert.throws(
+      () =>
+        createValidatorSuite({
+          schemas: [fabricateUntypedRequiredSchema(contract)],
+          diagnosticMap: {},
+          validateFormat: () => true,
+        }),
+      /strict mode/u,
+      `"${contract}" (strict, non-allowlisted) should reject the fabricated schema`,
+    );
+  }
+
+  const [allowlistedContract] = LEGACY_STRICT_TYPES_ALLOWLIST;
+  assert.ok(allowlistedContract);
+  assert.doesNotThrow(
+    () =>
+      createValidatorSuite({
+        schemas: [fabricateUntypedRequiredSchema(allowlistedContract)],
+        diagnosticMap: {},
+        validateFormat: () => true,
+      }),
+    `"${allowlistedContract}" (legacy, allowlisted) should tolerate the fabricated schema`,
+  );
+});
+
+test('createValidatorSuite never exposes the internal registry or fragmentAjv (SCH-H1)', async () => {
+  // src/internal/schema-validator.js -- the only caller of createValidatorSuite
+  // outside this test file -- is itself reachable only from Node-only tooling
+  // (scripts/validator-parity.mjs) per .dependency-cruiser.cjs's
+  // src-internal-module-is-reachable-from-a-declared-export exception. That
+  // structural guarantee is about which *module* can reach fragmentAjv; this
+  // test pins the complementary guarantee that the *value* createValidatorSuite
+  // returns never leaks the registry (and therefore fragmentAjv) itself, so a
+  // future caller cannot reach it through the returned suite even if it did
+  // gain a reachable import path.
+  const { createValidatorSuite } = await import(
+    '../src/internal/validator-core.js'
+  );
+  const schema = { $id: 'urn:gala:schema:problem:2.0.0', type: 'object' };
+  const suite = createValidatorSuite({
+    schemas: [schema],
+    diagnosticMap: {},
+    validateFormat: () => true,
+  });
+  const keys = Object.keys(suite).sort();
+  assert.deepEqual(keys, [
+    'schemaIds',
+    'validateArrayCardinality',
+    'validateDocument',
+    'validateFragment',
+  ]);
+  assert.ok(
+    !keys.includes('registry') && !keys.includes('fragmentAjv'),
+    'createValidatorSuite must not expose the internal registry or fragmentAjv by name',
+  );
+  assert.ok(Array.isArray(suite.schemaIds));
+  for (const key of [
+    'validateArrayCardinality',
+    'validateDocument',
+    'validateFragment',
+  ]) {
+    assert.equal(
+      typeof suite[key],
+      'function',
+      `${key} must be a bound function, not the registry object`,
+    );
+  }
+});
