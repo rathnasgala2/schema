@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: nightly-${{ github.workflow }}
@@ -72,4 +73,41 @@ jobs:
         if: failure()
         run: |
           echo "::error::Nightly verify failed at $(date -u +%FT%TZ). See the job logs above for the failing gate." >&2
-          exit 1
+
+      # An annotation on the run log is not a notification -- nothing looks
+      # at it unless someone already suspects a problem and opens the
+      # Actions tab (SCH-M16). File or update one tracking issue instead, so
+      # a nightly-only failure (parity-expectations, the full fixture
+      # corpus, cross-language parity, duplication, licenses, SBOM, audit)
+      # surfaces the same way a human-authored bug report would.
+      - name: File or update a tracking issue for the failed run
+        if: failure()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const title = 'Nightly verify is failing';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = `The scheduled nightly run failed at ${new Date().toISOString()}.\n\nSee the job log: ${runUrl}`;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'nightly-failure',
+            });
+            if (existing.data.length > 0) {
+              const issue = existing.data[0];
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['nightly-failure'],
+              });
+            }
