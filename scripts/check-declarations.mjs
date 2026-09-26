@@ -5,6 +5,11 @@ import path from 'node:path';
 
 import { runIfMain } from './run-if-main.mjs';
 
+/** Repository root, resolved from this script's own location (SCH-L6) --
+ * not `process.cwd()`, so this gate works the same regardless of the
+ * directory it is invoked from. */
+const REPOSITORY_ROOT = path.resolve(import.meta.dirname, '..');
+
 /**
  * Read a declaration tree into a stable relative-path-to-content map.
  *
@@ -77,11 +82,15 @@ export async function findDeclarationDrift(committedRoot, emittedRoot) {
  */
 function emitDeclarations(outputDirectory) {
   const executableName = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
-  const executable = path.resolve('node_modules/.bin', executableName);
+  const executable = path.resolve(
+    REPOSITORY_ROOT,
+    'node_modules/.bin',
+    executableName,
+  );
   const result = spawnSync(
     executable,
     ['--project', 'tsconfig.declarations.json', '--outDir', outputDirectory],
-    { encoding: 'utf8', shell: false },
+    { encoding: 'utf8', shell: false, cwd: REPOSITORY_ROOT },
   );
 
   if (result.status !== 0) {
@@ -100,7 +109,7 @@ async function main() {
   try {
     emitDeclarations(temporaryDirectory);
     const drift = await findDeclarationDrift(
-      path.resolve('types'),
+      path.resolve(REPOSITORY_ROOT, 'types'),
       temporaryDirectory,
     );
     if (drift.length > 0) {
