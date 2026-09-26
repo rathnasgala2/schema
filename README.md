@@ -165,7 +165,8 @@ Pages-conditional `required` set (deploy-phase evidence the artifact-build step
 produces after authorization, not before), and the schema description states
 that the intent's `capabilityDecisionDigest` is computed over the issuance-phase
 record only -- a `required`-set relaxation on a record root is MINOR, not MAJOR,
-under this package's stated compatibility policy (every 2.9.x-valid
+under this package's stated compatibility policy (`docs/COMPATIBILITY.md`,
+mechanically enforced by `npm run compatibility:check`; every 2.9.x-valid
 `capabilityDecision` record, Pages included, stays valid, since 2.9.x always
 supplied both fields where 2.10.0 now only asks for them optionally). The
 package adds its twentieth JSON Schema root, `build-provenance`
@@ -446,7 +447,11 @@ remediation, and documentation URL fields without including authored values.
   `frozen-envelope.js` is the Node-only `./frozen-envelope` re-export of
   `internal/frozen-envelope.js`.
 - `types/` — declaration output emitted from `src/`.
-- `schemas/` — 19 committed Draft 2020-12 contracts.
+- `schemas/` — 20 committed Draft 2020-12 contracts.
+- `compatibility/baseline-schemas/` — the last-released `schemas/*.schema.json`,
+  refreshed only at release time (`npm run compatibility:baseline:update`);
+  `npm run compatibility:check` diffs the current committed schemas against it
+  and fails on a breaking change per `docs/COMPATIBILITY.md` (SCH-C5).
 - `diagnostics/` — generated shared rule-to-diagnostic normalization map, its
   per-contract narrow projections (today `public-runtime-origins`, for the
   narrow browser export), and the exact whole-result parity snapshot.
@@ -465,8 +470,10 @@ remediation, and documentation URL fields without including authored values.
   Ajv standalone CommonJS structural core.
 - `generated/java/` — Java 21 root/nested records, exact schema resources, and
   Networknt registry wiring for a caller-supplied Gala semantic dialect.
-- `docs/catalogs/schema-inventory.json` — exact 19 JSON Schema roots plus the
+- `docs/catalogs/schema-inventory.json` — exact 20 JSON Schema roots plus the
   materialized OpenAPI identity.
+- `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`
+  enforces mechanically.
 - `catalog-sources/internal-event-actions.json` — reviewed 19-family transition,
   aggregate, scope, producer, and consumer source ledger.
 - `docs/catalogs/internal-event-actions.json` — generated digest-bound catalog
