@@ -475,7 +475,14 @@ remediation, and documentation URL fields without including authored values.
   and fails on a breaking change per `docs/COMPATIBILITY.md` (SCH-C5).
 - `diagnostics/` — generated shared rule-to-diagnostic normalization map, its
   per-contract narrow projections (today `public-runtime-origins`, for the
-  narrow browser export), and the exact whole-result parity snapshot.
+  narrow browser export), and `parity-expectations.json` (SCH-M17): the
+  JS-computed expected result for every parity case. `npm run parity:check`
+  (which spawns the Java harness) diffs the Java-computed actual result
+  against this file, which is genuine cross-language evidence. Plain `npm
+  test` never spawns Java, so `test/t05-parity-corpus.test.js`'s use of the
+  same file is a same-language regression snapshot -- JS re-checked against
+  its own prior committed output -- not cross-language coverage by itself;
+  do not read a green fast test suite as proof of Java parity.
 - `examples/valid/` — canonical valid roots and rule-level accepted vectors.
   Exported as `./examples/*` (SCH-H7): the sibling `template` repo already
   resolved this directory by walking the installed package, so this declares the
