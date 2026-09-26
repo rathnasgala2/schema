@@ -46,6 +46,35 @@ test('the parity corpus includes every structural fixture without sampling', asy
   );
 });
 
+test('every distinct schema-pointer fragment in the corpus compiles under the real registry (SCH-H1)', async () => {
+  // validateStructuralCaseWithAjv resolves each case's schemaId + JSON
+  // Pointer fragment through the registry's fragment lookup (a raw
+  // JSON-pointer target, compiled independently of its parent schema).
+  // Compiling a fragment in isolation loses the ancestor `type` context it
+  // had inside its parent (Ajv's strict "missing type" check only looks at
+  // the current schema object's own siblings), so a nested `allOf`/`if`
+  // fragment that compiles cleanly as part of the whole document can still
+  // throw here even on a root outside LEGACY_STRICT_TYPES_ALLOWLIST -- this
+  // is exactly what shared $defs like `colorMode` hit on `appearance`
+  // during SCH-H1's rollout. The registry's fragment-lookup Ajv instance is
+  // always relaxed (independent of the allowlist) precisely so this never
+  // throws; this test pins that across every unique pointer the fixture
+  // corpus actually exercises, deduplicated for speed (thousands of cases
+  // repeat the same handful of pointers per contract).
+  const corpus = await createStructuralParityCases();
+  const seen = new Set();
+  for (const fixture of corpus.cases) {
+    const key = `${fixture.contract}\u0000${fixture.schemaPointer}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    assert.doesNotThrow(
+      () => validateStructuralCaseWithAjv(fixture),
+      `${fixture.contract}${fixture.schemaPointer}`,
+    );
+  }
+  assert.ok(seen.size > 1000);
+});
+
 test('both runtimes consume the complete shared DEC-099 scalar vectors', async () => {
   const cases = await createScalarParityCases();
   const expectations = await loadParityExpectations();

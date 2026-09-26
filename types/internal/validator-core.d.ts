@@ -83,6 +83,29 @@ export function createPrecompiledValidatorSuite({ validators, diagnosticMap }: {
     schemaIds: readonly string[];
     validateDocument: (schemaId: string, value: unknown) => GalaValidationResult;
 };
+/**
+ * Roots whose `allOf`/`if`/`then`/`else` composition Ajv's `strictTypes`/
+ * `strictRequired` cannot see across: a conditional branch's `properties`/
+ * `required` describes a value or a required member declared by a
+ * *sibling* branch in the same `allOf`, not locally, and strict mode flags
+ * that as if it were a typo (SCH-H1).
+ *
+ * This is a **shrinking-only** allowlist: `test/t15-strict-allowlist.test.js`
+ * asserts it is a subset of the set recorded there when the allowlist was
+ * introduced, so a new root or a reconciled `$defs` shape can be added to
+ * this file only by removing an existing entry, never by adding one net
+ * new. Every root *not* listed here already compiles clean under full
+ * `strictTypes`/`strictRequired` and must stay that way.
+ *
+ * As of this allowlist's introduction, the 14 listed roots account for 756
+ * strict-mode diagnostics (`strictTypes` + `strictRequired` combined); the
+ * remaining 6 roots (`appearance`, `event-envelope`,
+ * `public-generation-marker`, `public-runtime-origins`, `repository`,
+ * `template-composition`) have zero.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const LEGACY_STRICT_TYPES_ALLOWLIST: ReadonlySet<string>;
 export type DiagnosticMap = {
     rules: Record<string, {
         code: string;
@@ -98,7 +121,9 @@ export type DiagnosticMap = {
 export type Registry = {
     schemasById: ReadonlyMap<string, Record<string, unknown>>;
     validatorsById: ReadonlyMap<string, import("ajv").ValidateFunction>;
-    ajv: import("ajv/dist/2020.js").default;
+    strictAjv: import("ajv/dist/2020.js").default;
+    legacyAjv: import("ajv/dist/2020.js").default;
+    fragmentAjv: import("ajv/dist/2020.js").default;
 };
 /**
  * The callable shape both an `ajv.compile()`-produced validate function and

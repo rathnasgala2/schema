@@ -82,7 +82,8 @@ function contractFromSchemaId(schemaId) {
  *   schemasById: ReadonlyMap<string, Record<string, unknown>>,
  *   validatorsById: ReadonlyMap<string, import('ajv').ValidateFunction>,
  *   strictAjv: import('ajv/dist/2020.js').default,
- *   legacyAjv: import('ajv/dist/2020.js').default
+ *   legacyAjv: import('ajv/dist/2020.js').default,
+ *   fragmentAjv: import('ajv/dist/2020.js').default
  * }} Registry
  */
 
@@ -278,6 +279,23 @@ function buildAjv(schemas, validateFormat, strictComposition) {
 function createRegistry(schemas, validateFormat) {
   const strictAjv = buildAjv(schemas, validateFormat, true);
   const legacyAjv = buildAjv(schemas, validateFormat, false);
+  // Fragment-level lookups (validateFragment's getSchema by $id + JSON
+  // Pointer, and validateArrayCardinality's ad-hoc schemas) are internal,
+  // Node-only parity/fixture tooling, never the public document-validation
+  // path SCH-H1 targets. Compiling an arbitrary JSON-pointer fragment in
+  // isolation loses the ancestor `type` context it had inside its parent
+  // schema (Ajv's strict "missing type" check only looks at the current
+  // schema object's own siblings), so a perfectly fine nested
+  // `allOf`/`if`/`then` fragment -- the *same* shape that motivated
+  // LEGACY_STRICT_TYPES_ALLOWLIST, and reachable from shared `$defs` used by
+  // roots outside that allowlist too (`colorMode`'s `if` branches, for one)
+  // -- throws when fragment-compiled even though the whole-document compile
+  // never does. This instance is always relaxed, independent of which
+  // document-level Ajv a root's real validator was compiled on.
+  const fragmentAjv = buildAjv(schemas, validateFormat, false);
+  for (const schema of schemas) {
+    fragmentAjv.addSchema(schema, String(schema.$id));
+  }
 
   const schemasById = new Map();
   const validatorsById = new Map();
@@ -290,23 +308,7 @@ function createRegistry(schemas, validateFormat) {
     schemasById.set(schemaId, schema);
     validatorsById.set(schemaId, ajv.compile(schema));
   }
-  return { schemasById, validatorsById, strictAjv, legacyAjv };
-}
-
-/**
- * Pick the Ajv instance a given schema identity's root was compiled on
- * (see `LEGACY_STRICT_TYPES_ALLOWLIST`), so a fragment lookup by `$id`
- * resolves against the instance that actually holds it.
- *
- * @param {Registry} registry compiled schema registry
- * @param {string} schemaId exact immutable schema identity
- * @returns {import('ajv/dist/2020.js').default} the owning Ajv instance
- */
-function ajvForSchemaId(registry, schemaId) {
-  const contract = contractFromSchemaId(schemaId);
-  return LEGACY_STRICT_TYPES_ALLOWLIST.has(contract)
-    ? registry.legacyAjv
-    : registry.strictAjv;
+  return { schemasById, validatorsById, strictAjv, legacyAjv, fragmentAjv };
 }
 
 /**
@@ -662,7 +664,7 @@ function validateFragment(
   schemaPointer,
   value,
 ) {
-  const validator = ajvForSchemaId(registry, schemaId).getSchema(
+  const validator = registry.fragmentAjv.getSchema(
     `${schemaId}${schemaPointer}`,
   );
   if (!validator) {
@@ -739,7 +741,7 @@ function validateArrayCardinality(registry, diagnosticMap, schema, length) {
     ...(schema.maxItems === undefined ? {} : { maxItems: schema.maxItems }),
     ...(schema.uniqueItems === true ? { uniqueItems: true } : {}),
   };
-  const validator = registry.strictAjv.compile(cardinalitySchema);
+  const validator = registry.fragmentAjv.compile(cardinalitySchema);
   const values = schema.uniqueItems
     ? Array.from({ length }, (_, index) => index)
     : Array.from({ length }, () => null);
