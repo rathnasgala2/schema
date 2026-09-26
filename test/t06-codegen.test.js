@@ -205,13 +205,24 @@ test('release workflow is one pinned provenance publication run', async () => {
   assert.deepEqual(workflow.permissions, { contents: 'read' });
   assert.equal(workflow.jobs.publish.environment, 'npm');
   assert.deepEqual(workflow.jobs.publish.permissions, {
-    contents: 'read',
+    contents: 'write',
     'id-token': 'write',
   });
   const steps = workflow.jobs.publish.steps;
   assert.match(
     steps.find(({ name }) => name === 'Reject version reuse')?.run ?? '',
     /npm view/u,
+  );
+  assert.match(
+    steps.find(
+      ({ name }) =>
+        name === 'Check the CHANGELOG has an entry for this version',
+    )?.run ?? '',
+    /CHANGELOG\.md/u,
+  );
+  assert.match(
+    steps.find(({ name }) => name === 'Tag the release')?.run ?? '',
+    /git push/u,
   );
   assert.equal(
     steps.find(({ name }) => name === 'Publish with trusted provenance')?.run,

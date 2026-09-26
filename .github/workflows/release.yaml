@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 30
     environment: npm
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Check out the complete history
@@ -79,6 +79,7 @@ jobs:
         run: |
           package_name="$(node --input-type=module -e "import definition from './package.json' with {type: 'json'}; process.stdout.write(definition.name)")"
           package_version="$(node --input-type=module -e "import definition from './package.json' with {type: 'json'}; process.stdout.write(definition.version)")"
+          echo "package_version=${package_version}" >> "$GITHUB_OUTPUT"
           if npm view "${package_name}@${package_version}" version >/dev/null 2>&1; then
             echo "::notice::${package_name}@${package_version} is already published; skipping publish (bump package.json's version to release new content)."
             echo "should_publish=false" >> "$GITHUB_OUTPUT"
@@ -86,6 +87,29 @@ jobs:
             echo "should_publish=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check the CHANGELOG has an entry for this version
+        if: steps.version-check.outputs.should_publish == 'true'
+        shell: bash
+        run: |
+          version="${{ steps.version-check.outputs.package_version }}"
+          if ! grep -qE "^## \[${version}\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [${version}]' section; add one before publishing." >&2
+            exit 1
+          fi
+
       - name: Publish with trusted provenance
         if: steps.version-check.outputs.should_publish == 'true'
         run: npm publish --access public --provenance
+
+      - name: Tag the release
+        if: steps.version-check.outputs.should_publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version="${{ steps.version-check.outputs.package_version }}"
+          tag="v${version}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${tag}" -m "Release ${tag}"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" "refs/tags/${tag}"
