@@ -214,6 +214,28 @@ test('workflow pin validation rejects tags and accepts full SHAs', () => {
   ]);
 });
 
+test('workflow pin validation catches a flow-mapping step too (SCH-L7)', () => {
+  // '- {uses: a/b@sha}' escapes a `uses:`-at-line-start regex entirely; a
+  // multi-key flow mapping ('- {name: X, uses: a/b@sha}') additionally
+  // requires the match to not anchor on the leading `-`.
+  const floatingFlow = '  - {uses: actions/checkout@v6}';
+  const floatingFlowWithSiblingKey =
+    '  - {name: Checkout, uses: actions/checkout@v6}';
+  const pinnedFlowWithSiblingKey =
+    '  - {name: Checkout, uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803}';
+  assert.deepEqual(findUnpinnedActionReferences(floatingFlow, 'ci.yml'), [
+    'ci.yml: actions/checkout@v6 is not pinned to a full commit SHA',
+  ]);
+  assert.deepEqual(
+    findUnpinnedActionReferences(floatingFlowWithSiblingKey, 'ci.yml'),
+    ['ci.yml: actions/checkout@v6 is not pinned to a full commit SHA'],
+  );
+  assert.deepEqual(
+    findUnpinnedActionReferences(pinnedFlowWithSiblingKey, 'ci.yml'),
+    [],
+  );
+});
+
 test('license inventory rejects a non-v3 lockfile', () => {
   assert.throws(
     () => createLicenseInventory('{"lockfileVersion":2,"packages":{}}'),
