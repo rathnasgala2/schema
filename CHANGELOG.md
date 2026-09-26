@@ -12,14 +12,15 @@ Tooling only; no schema, OpenAPI, generated-output or package-version change.
 
 ### Added
 
-- `prepublishOnly` script: runs the repository's full `verify` gate
+- `.github/workflows/release.yaml` runs the repository's full `verify` gate
   (build/codegen drift, format, lint, typecheck, architecture, duplication,
   workflow pins, Java parity supply chain, tests, validator parity, license
-  inventory, SBOM, audit) before `npm publish` can proceed, so a broken or
-  unverified package can never be published under the new `@rathnasgala2` scope.
-  This is the first manual publish of `@rathnasgala2/schemas` (`npm`
-  trusted-publisher OIDC can only be configured against an already-existing
-  package), so this gate is the sole guard on that first, irreversible release.
+  inventory, SBOM, audit) as an explicit step before `npm publish` runs, so a
+  broken or unverified package can never be published under the `@rathnasgala2`
+  scope through CI. This repository sets `ignore-scripts=true` in `.npmrc`,
+  which disables npm's `prepublishOnly` lifecycle hook for every `npm publish`
+  including a manual one; the CI workflow's explicit `verify` step is the only
+  gate that runs, so publishing must go through CI, not a local `npm publish`.
 - `publish:dry-run` script (`npm publish --dry-run --access public`) so the
   exact packed file list and size can be inspected before the real publish.
 
