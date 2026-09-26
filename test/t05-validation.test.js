@@ -6,7 +6,22 @@ import test from 'node:test';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 import formatsPlugin from 'ajv-formats';
 
+import rawDiagnosticMap from '../diagnostics/diagnostic-map.json' with { type: 'json' };
 import { GALA_SCHEMA_IDS, validateGalaDocument } from '../src/index.js';
+
+/**
+ * The real, committed diagnostic map -- the same one
+ * `src/internal/schema-validator.js` and
+ * `src/internal/browser-schema-validator.js` bind into production --
+ * imported here so `createValidatorSuite` is exercised against its actual
+ * shape instead of an empty stand-in.
+ *
+ * @type {import('../src/internal/validator-core.js').DiagnosticMap}
+ */
+const diagnosticMap =
+  /** @type {import('../src/internal/validator-core.js').DiagnosticMap} */ (
+    rawDiagnosticMap
+  );
 
 /**
  * Parse one committed JSON file.
@@ -448,7 +463,7 @@ test('each of the six non-allowlisted roots rejects a fabricated schema an allow
       () =>
         createValidatorSuite({
           schemas: [fabricateUntypedRequiredSchema(contract)],
-          diagnosticMap: {},
+          diagnosticMap,
           validateFormat: () => true,
         }),
       /strict mode/u,
@@ -462,7 +477,7 @@ test('each of the six non-allowlisted roots rejects a fabricated schema an allow
     () =>
       createValidatorSuite({
         schemas: [fabricateUntypedRequiredSchema(allowlistedContract)],
-        diagnosticMap: {},
+        diagnosticMap,
         validateFormat: () => true,
       }),
     `"${allowlistedContract}" (legacy, allowlisted) should tolerate the fabricated schema`,
@@ -484,7 +499,7 @@ test('createValidatorSuite never exposes the internal registry or fragmentAjv (S
   const schema = { $id: 'urn:gala:schema:problem:2.0.0', type: 'object' };
   const suite = createValidatorSuite({
     schemas: [schema],
-    diagnosticMap: {},
+    diagnosticMap,
     validateFormat: () => true,
   });
   const keys = Object.keys(suite).sort();
@@ -499,11 +514,13 @@ test('createValidatorSuite never exposes the internal registry or fragmentAjv (S
     'createValidatorSuite must not expose the internal registry or fragmentAjv by name',
   );
   assert.ok(Array.isArray(suite.schemaIds));
-  for (const key of [
+  /** @type {readonly (keyof typeof suite)[]} */
+  const suiteFunctionKeys = [
     'validateArrayCardinality',
     'validateDocument',
     'validateFragment',
-  ]) {
+  ];
+  for (const key of suiteFunctionKeys) {
     assert.equal(
       typeof suite[key],
       'function',
