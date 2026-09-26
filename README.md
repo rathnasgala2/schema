@@ -38,13 +38,14 @@ committed exact-result snapshot rejects mutually shared extra diagnostics. The
 same gate also executes 1,995 shared DEC-099 scalar vectors, including all 766
 pinned Unicode 17 grapheme-conformance rows, and raw RFC 8785 number and string
 spellings that have not first been normalized by Node. S0-T06 generates strict
-TypeScript root types and validators plus Java 21 records and Networknt registry
-wiring for the exact 20 roots. The schema inventory adds the separately owned
-OpenAPI contract as the twenty-first identity and carries DEC-091's
-domain-separated `sourceDesignRevision`. S0-T07 materializes the reviewed
-OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound HTTP
-catalog for exactly 75 MVP operations plus `/internal/health` (76 catalog rows;
-71 at S0-T07, plus the two SCHEMA-2.8.0 reads and the two SCHEMA-2.10.0
+TypeScript root types and validators for the exact 20 roots (the codegen path
+also generated a Java 21 records/Networknt registry tree until SCH-C4/SCH-H5
+removed it as unconsumed -- see "Package layout"). The schema inventory adds the
+separately owned OpenAPI contract as the twenty-first identity and carries
+DEC-091's domain-separated `sourceDesignRevision`. S0-T07 materializes the
+reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
+HTTP catalog for exactly 75 MVP operations plus `/internal/health` (76 catalog
+rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads and the two SCHEMA-2.10.0
 publication-destination reads/writes). The bundle includes the accepted DEC-097
 receipt-exchange and deployment-receipt amendments and serializes the fixed
 OpenAPI Generator 7.25.0 option sets. Every operation also declares its tenant
@@ -468,8 +469,6 @@ remediation, and documentation URL fields without including authored values.
   `ajv.compile()`.
 - `generated/typescript/` — strict root types and ESM API around the deliberate
   Ajv standalone CommonJS structural core.
-- `generated/java/` — Java 21 root/nested records, exact schema resources, and
-  Networknt registry wiring for a caller-supplied Gala semantic dialect.
 - `docs/catalogs/schema-inventory.json` — exact 20 JSON Schema roots plus the
   materialized OpenAPI identity.
 - `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`
@@ -502,7 +501,21 @@ remediation, and documentation URL fields without including authored values.
   OpenAPI Generator 7.25.0.
 - `scripts/` — repository verification and supply-chain tooling.
 - `parity/java/` — test-only checksum-pinned Gradle 8.8/Java 21 Networknt
-  harness; it is not part of the npm package payload.
+  harness; it is not part of the npm package payload. It is also not a Java
+  consumer's starting point: a Java consumer of this package generates its own
+  request/response types from `openapi/openapi.yaml` (the `api` repository does
+  this with the OpenAPI Generator Gradle plugin). A Java consumer that wants
+  Ajv-equivalent JSON Schema _validation_, not just generated types, must
+  reproduce this harness's own Networknt configuration --
+  `formatAssertionsEnabled(true)`, `ECMAScriptRegularExpressionFactory`, and the
+  `gala-*` format/`x-gala-*` keyword implementations in
+  `parity/java/src/main/java/io/gala/schema/parity/Gala*.java` -- since the
+  package does not ship a self-configuring Java registry (SCH-C4/SCH-H5: the
+  package previously shipped one, `generated/java/**`, that accepted a
+  caller-supplied `SchemaRegistryConfig` and so silently validated weaker than
+  Ajv whenever that config omitted this pinning; it had no consumer in any
+  sibling repository and was removed rather than fixed, since a Java consumer
+  needing this list can read it here).
 - `parity/*.json` — shared scalar and raw RFC 8785 number inputs consumed by
   both parity implementations without transmitting expected results to Java;
   `parity/digest-record-vectors.json` (SCHEMA-2.9.0, shipped and exported) is

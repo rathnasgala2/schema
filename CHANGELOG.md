@@ -112,6 +112,26 @@ divergences reconciled, some tightening validation) and new generated output
 
 ### Removed
 
+- **SCH-C4/SCH-H5**: `generated/java/**` (the Networknt `GalaSchemaRegistry` and
+  ~250 generated record classes) and its generator
+  (`codegen/generate-contracts.ts`'s `javaIdentifier`/`javaType`/
+  `generateJavaRecordSource`/`generateJavaRecords`/`generateJavaRegistry`, the
+  `JAVA_PACKAGE`/`JAVA_KEYWORDS` constants, and the schema inventory's
+  `javaRootType` field). Confirmed no consumer: the `api` repository extracts
+  only `openapi/openapi.yaml` and a handful of catalog/parity JSON files from
+  this package's npm tarball and generates its own Spring DTOs from the OpenAPI
+  bundle with the OpenAPI Generator Gradle plugin -- it never referenced
+  `io.gala.schema.generated`. `parity/java/build.gradle.kts` compiled
+  `generated/java`'s sources as an extra source set but never referenced any of
+  its classes either (`ParityMain` loads schemas directly from `schemas/` and
+  builds its own `SchemaRegistry`); that unused source set is also removed. The
+  shipped registry additionally accepted a caller-supplied
+  `SchemaRegistryConfig`, so a Java consumer that did use it with a default
+  config would silently validate weaker than Ajv (no `formatAssertionsEnabled`,
+  no `x-gala-*` keywords, `java.util.regex` anchoring instead of ECMAScript) --
+  the exact failure mode this package exists to prevent. README.md now documents
+  the required Networknt configuration (from `parity/java`'s own harness) for a
+  Java consumer that wants Ajv-equivalent validation, not just generated types.
 - The compatibility catalog (`compatibility/compatibility.json`,
   `compatibility/compatibility.schema.json`), its generator
   (`codegen/generate-contracts.ts`'s `compatibilityCatalog`/

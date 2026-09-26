@@ -54,7 +54,7 @@ function pascalCase(value) {
     .join('');
 }
 
-test('generated TypeScript and Java root sets equal the twenty schemas', async () => {
+test('generated TypeScript root set equals the twenty schemas', async () => {
   // GALA_SCHEMA_IDS is sorted by the identity string itself, so
   // build-provenance's urn:gala:metadata:... namespace (SCHEMA-2.10.0) sorts
   // before every urn:gala:schema:... identity; GENERATED_SCHEMA_IDS instead
@@ -66,26 +66,11 @@ test('generated TypeScript and Java root sets equal the twenty schemas', async (
   );
   assert.equal(GENERATED_SCHEMA_IDS.length, 20);
 
-  const [typescriptFiles, javaFiles] = await Promise.all([
-    readdir('generated/typescript/contracts'),
-    readdir('generated/java/src/main/java/io/gala/schema/generated/model'),
-  ]);
+  const typescriptFiles = await readdir('generated/typescript/contracts');
   assert.deepEqual(
     typescriptFiles.sort(),
     CONTRACTS.map((contract) => `${contract}.d.ts`).sort(),
   );
-  const javaRoots = javaFiles
-    .filter((file) => file.endsWith('Document.java'))
-    .sort();
-  assert.deepEqual(
-    javaRoots,
-    CONTRACTS.map((contract) => `${pascalCase(contract)}Document.java`).sort(),
-  );
-  // SCHEMA-2.10.0: buildProvenance is now also a standalone root, so exactly
-  // one BuildProvenance* Java type exists (BuildProvenanceDocument.java, part
-  // of javaRoots above) alongside the still-internal nested copy inside
-  // ArtifactManifestDocument's own generated type.
-  assert.ok(javaFiles.includes('BuildProvenanceDocument.java'));
 });
 
 /**
@@ -158,7 +143,6 @@ test('schema inventory is exactly twenty roots plus OpenAPI', async () => {
     materialized: true,
     sourceDigest: `sha256:${createHash('sha256').update(openApiSource).digest('hex')}`,
     typescriptRootType: null,
-    javaRootType: null,
   });
   assert.equal(JSON.stringify(inventory).includes('buildProvenance'), false);
 });

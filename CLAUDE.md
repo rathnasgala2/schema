@@ -31,8 +31,8 @@ deferred-MVP contracts.
 The accepted S0 slice brief and its cited decision records are authoritative.
 `npm run declarations:generate` emits declarations; `npm run declarations:check`
 performs an isolated emit and byte comparison. `npm run codegen:generate` emits
-`generated/typescript`, `generated/java`, and the schema inventory from the 19
-roots and the hash-bound DEC-091 design manifest. Never hand-edit generated
+`generated/browser`, `generated/typescript`, and the schema inventory from the
+20 roots and the hash-bound DEC-091 design manifest. Never hand-edit generated
 output.
 
 ## How to run locally

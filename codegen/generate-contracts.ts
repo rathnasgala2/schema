@@ -120,65 +120,11 @@ const CONTRACTS = [
 const OPENAPI_ID = 'urn:gala:schema:openapi:2.0.0';
 const DESIGN_DOMAIN = Buffer.from('GALA-DESIGN-REVISION-V2\0', 'utf8');
 const INTERNAL_DEFINITION = 'buildProvenance';
-const JAVA_PACKAGE = 'io.gala.schema.generated';
 const FORMAT_OPTIONS = {
   proseWrap: 'always',
   singleQuote: true,
   trailingComma: 'all',
 } as const;
-
-const JAVA_KEYWORDS = new Set([
-  'abstract',
-  'assert',
-  'boolean',
-  'break',
-  'byte',
-  'case',
-  'catch',
-  'char',
-  'class',
-  'const',
-  'continue',
-  'default',
-  'do',
-  'double',
-  'else',
-  'enum',
-  'extends',
-  'final',
-  'finally',
-  'float',
-  'for',
-  'goto',
-  'if',
-  'implements',
-  'import',
-  'instanceof',
-  'int',
-  'interface',
-  'long',
-  'native',
-  'new',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'return',
-  'short',
-  'static',
-  'strictfp',
-  'super',
-  'switch',
-  'synchronized',
-  'this',
-  'throw',
-  'throws',
-  'transient',
-  'try',
-  'void',
-  'volatile',
-  'while',
-]);
 
 function requireObject(value: JsonValue, label: string): JsonObject {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -821,247 +767,6 @@ function generateTypescriptIndex(
   };
 }
 
-function javaIdentifier(value: string): string {
-  const normalized = value.replace(/[^A-Za-z0-9_$]/gu, '_');
-  const prefixed = /^\d/u.test(normalized) ? `_${normalized}` : normalized;
-  return JAVA_KEYWORDS.has(prefixed) ? `${prefixed}_` : prefixed;
-}
-
-function javaType(
-  value: JsonValue,
-  root: SchemaDocument,
-  prefix: string,
-): string {
-  if (typeof value === 'boolean') return 'JsonNode';
-  const schema = requireObject(value, 'Java schema');
-  if (typeof schema.$ref === 'string') {
-    const definition = schema.$ref.slice('#/$defs/'.length);
-    if (definition === INTERNAL_DEFINITION) return 'JsonNode';
-    const resolved = resolveLocalReference(schema.$ref, root);
-    if (resolved.type === 'object' || resolved.properties !== undefined) {
-      return `${prefix}${pascalCase(definition)}`;
-    }
-    return javaType(resolved, root, prefix);
-  }
-  if ('const' in schema) {
-    const constant = schema.const;
-    if (typeof constant === 'string') return 'String';
-    if (typeof constant === 'boolean') return 'Boolean';
-    if (typeof constant === 'number')
-      return Number.isInteger(constant) ? 'Long' : 'BigDecimal';
-    return 'JsonNode';
-  }
-  if (Array.isArray(schema.enum)) {
-    const values = schema.enum;
-    if (values.every((entry) => typeof entry === 'string')) return 'String';
-    if (values.every((entry) => typeof entry === 'boolean')) return 'Boolean';
-    if (values.every((entry) => typeof entry === 'number')) return 'BigDecimal';
-    return 'JsonNode';
-  }
-  const declared = Array.isArray(schema.type)
-    ? schema.type.filter((entry): entry is string => typeof entry === 'string')
-    : typeof schema.type === 'string'
-      ? [schema.type]
-      : [];
-  const concrete = declared.filter((entry) => entry !== 'null');
-  if (concrete.length !== 1) {
-    const alternatives = ['oneOf', 'anyOf']
-      .flatMap((key) => (Array.isArray(schema[key]) ? schema[key] : []))
-      .map((entry) => javaType(entry, root, prefix));
-    const unique = uniqueTypes(alternatives);
-    if (unique.length === 1) return unique[0] ?? 'JsonNode';
-    const intersections = Array.isArray(schema.allOf)
-      ? uniqueTypes(schema.allOf.map((entry) => javaType(entry, root, prefix)))
-      : [];
-    const concreteIntersections = intersections.filter(
-      (entry) => entry !== 'JsonNode',
-    );
-    return concreteIntersections.length === 1
-      ? (concreteIntersections[0] ?? 'JsonNode')
-      : 'JsonNode';
-  }
-  const type = concrete[0];
-  if (type === 'string') return 'String';
-  if (type === 'boolean') return 'Boolean';
-  if (type === 'integer') return 'Long';
-  if (type === 'number') return 'BigDecimal';
-  if (type === 'array') {
-    const item = Array.isArray(schema.prefixItems)
-      ? true
-      : (schema.items ?? true);
-    return `List<${javaType(item, root, prefix)}>`;
-  }
-  return 'JsonNode';
-}
-
-function generateJavaRecordSource(
-  className: string,
-  sourceIdentity: string,
-  value: JsonObject,
-  root: SchemaDocument,
-  prefix: string,
-  revision: string,
-): string {
-  const properties = Object.entries(schemaObject(value.properties) ?? {}).sort(
-    ([left], [right]) => compareUtf8(left, right),
-  );
-  const required = new Set(
-    Array.isArray(value.required)
-      ? value.required.filter(
-          (entry): entry is string => typeof entry === 'string',
-        )
-      : [],
-  );
-  const components = properties.map(([name, property]) => ({
-    javaName: javaIdentifier(name),
-    name,
-    required: required.has(name),
-    type: javaType(property, root, prefix),
-  }));
-  const imports = new Set<string>([
-    'com.fasterxml.jackson.annotation.JsonProperty',
-    'com.fasterxml.jackson.databind.JsonNode',
-    'java.util.Objects',
-  ]);
-  if (components.some(({ type }) => type.includes('BigDecimal')))
-    imports.add('java.math.BigDecimal');
-  if (components.some(({ type }) => type.includes('List<')))
-    imports.add('java.util.List');
-  const componentSource = components
-    .map(
-      ({ javaName, name, type }) =>
-        `        @JsonProperty(${JSON.stringify(name)}) ${type} ${javaName}`,
-    )
-    .join(',\n');
-  const requiredSource = components
-    .filter(({ required: isRequired }) => isRequired)
-    .map(
-      ({ javaName, name }) =>
-        `        Objects.requireNonNull(${javaName}, ${JSON.stringify(name)});`,
-    );
-  return [
-    `// Generated from ${sourceIdentity}; sourceDesignRevision=${revision}.`,
-    `package ${JAVA_PACKAGE}.model;`,
-    '',
-    ...[...imports].sort().map((name) => `import ${name};`),
-    '',
-    `/** Closed generated record for ${sourceIdentity}. */`,
-    `public record ${className}(`,
-    componentSource,
-    ') {',
-    `    /** Reject a missing required root member before domain use. */`,
-    `    public ${className} {`,
-    ...requiredSource,
-    '    }',
-    '}',
-    '',
-  ].join('\n');
-}
-
-function generateJavaRecords(
-  contract: string,
-  schema: SchemaDocument,
-  revision: string,
-): Array<{ className: string; source: string }> {
-  const prefix = pascalCase(contract);
-  const records = [
-    {
-      className: `${prefix}Document`,
-      identity: schema.$id,
-      schema: schema as JsonObject,
-    },
-  ];
-  for (const [name, definition] of Object.entries(schema.$defs ?? {}).sort(
-    ([left], [right]) => compareUtf8(left, right),
-  )) {
-    if (name === INTERNAL_DEFINITION || typeof definition === 'boolean')
-      continue;
-    const object = requireObject(definition, name);
-    if (object.type !== 'object' && object.properties === undefined) continue;
-    records.push({
-      className: `${prefix}${pascalCase(name)}`,
-      identity: `${schema.$id}#/$defs/${name}`,
-      schema: object,
-    });
-  }
-  const names = records.map(({ className }) => className);
-  if (new Set(names).size !== names.length) {
-    throw new TypeError(`${contract} produces colliding Java record names`);
-  }
-  return records.map(({ className, identity, schema: recordSchema }) => ({
-    className,
-    source: generateJavaRecordSource(
-      className,
-      identity,
-      recordSchema,
-      schema,
-      prefix,
-      revision,
-    ),
-  }));
-}
-
-function generateJavaRegistry(
-  schemas: SchemaDocument[],
-  revision: string,
-): string {
-  const entries = schemas.map(
-    (schema, index) =>
-      `            Map.entry(${JSON.stringify(schema.$id)}, ${JSON.stringify(`/io/gala/schema/generated/schemas/${CONTRACTS[index]}.schema.json`)})`,
-  );
-  return [
-    `// Generated Networknt registry wiring; sourceDesignRevision=${revision}.`,
-    `package ${JAVA_PACKAGE};`,
-    '',
-    'import com.networknt.schema.SchemaRegistry;',
-    'import com.networknt.schema.SchemaRegistryConfig;',
-    'import com.networknt.schema.dialect.Dialect;',
-    'import java.io.IOException;',
-    'import java.io.InputStream;',
-    'import java.nio.charset.StandardCharsets;',
-    'import java.util.LinkedHashMap;',
-    'import java.util.List;',
-    'import java.util.Map;',
-    'import java.util.Objects;',
-    '',
-    '/** Exact nineteen-root schema registry for a caller-supplied Gala-enabled dialect. */',
-    'public final class GalaSchemaRegistry {',
-    '    private static final Map<String, String> RESOURCES = Map.ofEntries(',
-    `${entries.join(',\n')}`,
-    '    );',
-    '',
-    '    private GalaSchemaRegistry() {}',
-    '',
-    '    /** Return the exact immutable root identities in lexical order. */',
-    '    public static List<String> schemaIds() {',
-    '        return RESOURCES.keySet().stream().sorted().toList();',
-    '    }',
-    '',
-    "    /** Build a Networknt registry using the caller's exact Gala formats and keywords. */",
-    '    public static SchemaRegistry create(Dialect dialect, SchemaRegistryConfig config) {',
-    '        Objects.requireNonNull(dialect, "dialect");',
-    '        Objects.requireNonNull(config, "config");',
-    '        return SchemaRegistry.withDialect(',
-    '                dialect, builder -> builder.schemas(loadSchemas()).schemaRegistryConfig(config));',
-    '    }',
-    '',
-    '    private static Map<String, String> loadSchemas() {',
-    '        Map<String, String> schemas = new LinkedHashMap<>();',
-    '        for (Map.Entry<String, String> entry : RESOURCES.entrySet()) {',
-    '            try (InputStream input = GalaSchemaRegistry.class.getResourceAsStream(entry.getValue())) {',
-    '                if (input == null) throw new IllegalStateException("Missing schema resource " + entry.getValue());',
-    '                schemas.put(entry.getKey(), new String(input.readAllBytes(), StandardCharsets.UTF_8));',
-    '            } catch (IOException error) {',
-    '                throw new IllegalStateException("Cannot read schema resource " + entry.getValue(), error);',
-    '            }',
-    '        }',
-    '        return Map.copyOf(schemas);',
-    '    }',
-    '}',
-    '',
-  ].join('\n');
-}
-
 async function loadSchemas(repositoryRoot: string): Promise<SchemaDocument[]> {
   const schemas: SchemaDocument[] = [];
   for (const contract of CONTRACTS) {
@@ -1150,7 +855,6 @@ function schemaInventory(
       materialized: true,
       sourceDigest: `sha256:${sha256(sources[index] ?? '')}`,
       typescriptRootType: `${pascalCase(contract)}Document`,
-      javaRootType: `${JAVA_PACKAGE}.model.${pascalCase(contract)}Document`,
     };
   });
   contracts.push({
@@ -1163,7 +867,6 @@ function schemaInventory(
     sourceDigest:
       openapiSource === undefined ? null : `sha256:${sha256(openapiSource)}`,
     typescriptRootType: null,
-    javaRootType: null,
   });
   const inventory: JsonObject = {
     schemaVersion: '2.0.0',
@@ -1201,40 +904,14 @@ async function writeGeneratedTree(
   );
   const revision = manifest.digest;
   const typescriptRoot = path.join(outputRoot, 'generated', 'typescript');
-  const javaRoot = path.join(outputRoot, 'generated', 'java');
   const browserRoot = path.join(outputRoot, 'generated', 'browser');
   await Promise.all([
     rm(typescriptRoot, { force: true, recursive: true }),
-    rm(javaRoot, { force: true, recursive: true }),
     rm(browserRoot, { force: true, recursive: true }),
   ]);
   await Promise.all([
     mkdir(browserRoot, { recursive: true }),
     mkdir(path.join(typescriptRoot, 'contracts'), { recursive: true }),
-    mkdir(
-      path.join(
-        javaRoot,
-        'src',
-        'main',
-        'java',
-        ...JAVA_PACKAGE.split('.'),
-        'model',
-      ),
-      {
-        recursive: true,
-      },
-    ),
-    mkdir(
-      path.join(
-        javaRoot,
-        'src',
-        'main',
-        'resources',
-        ...JAVA_PACKAGE.split('.'),
-        'schemas',
-      ),
-      { recursive: true },
-    ),
     mkdir(path.join(outputRoot, 'docs', 'catalogs'), { recursive: true }),
   ]);
 
@@ -1304,18 +981,6 @@ async function writeGeneratedTree(
       }),
       'utf8',
     ),
-    writeFile(
-      path.join(
-        javaRoot,
-        'src',
-        'main',
-        'java',
-        ...JAVA_PACKAGE.split('.'),
-        'GalaSchemaRegistry.java',
-      ),
-      generateJavaRegistry(schemas, revision),
-      'utf8',
-    ),
   ];
   for (const [indexValue, schema] of schemas.entries()) {
     const contract = CONTRACTS[indexValue];
@@ -1330,38 +995,6 @@ async function writeGeneratedTree(
             parser: 'typescript',
           },
         ),
-        'utf8',
-      ),
-    );
-    for (const java of generateJavaRecords(contract, schema, revision)) {
-      writes.push(
-        writeFile(
-          path.join(
-            javaRoot,
-            'src',
-            'main',
-            'java',
-            ...JAVA_PACKAGE.split('.'),
-            'model',
-            `${java.className}.java`,
-          ),
-          java.source,
-          'utf8',
-        ),
-      );
-    }
-    writes.push(
-      writeFile(
-        path.join(
-          javaRoot,
-          'src',
-          'main',
-          'resources',
-          ...JAVA_PACKAGE.split('.'),
-          'schemas',
-          `${contract}.schema.json`,
-        ),
-        sourceFiles[indexValue] ?? '',
         'utf8',
       ),
     );
@@ -1434,7 +1067,6 @@ async function compareDirectories(
 async function copyManagedView(source: string, target: string): Promise<void> {
   const managed = [
     'generated/browser',
-    'generated/java',
     'generated/typescript',
     'docs/catalogs/schema-inventory.json',
   ];
@@ -1483,7 +1115,7 @@ async function checkGenerated(repositoryRoot: string): Promise<void> {
     await rm(temporary, { force: true, recursive: true });
   }
   process.stdout.write(
-    'Generated Java, TypeScript, and catalog output is reproducible and current.\n',
+    'Generated TypeScript and catalog output is reproducible and current.\n',
   );
 }
 
@@ -1499,7 +1131,7 @@ async function main(): Promise<void> {
   if (arguments_[0] === '--check') await checkGenerated(repositoryRoot);
   else {
     await writeGeneratedTree(repositoryRoot, repositoryRoot);
-    process.stdout.write('Generated Java, TypeScript, and schema inventory.\n');
+    process.stdout.write('Generated TypeScript and schema inventory.\n');
   }
 }
 
