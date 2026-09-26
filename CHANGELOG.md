@@ -1378,7 +1378,22 @@ release changes narrows what a client may send or what a server may return.
   schema; and the narrow diagnostic map carries only its own contract's rules
   with the shared vocabulary intact.
 
-## [2.5.0] - 2026-09-16
+## Pre-release history (never published)
+
+Everything in this section predates this package's first npm publish.
+`2.11.0` (2026-09-22T11:03:42Z, per the npm registry's own `time`
+metadata) is the only version ever published to `@rathnasgala2/schemas`;
+none of `2.0.0` through `2.5.0` was independently published, tagged, or
+installable. The `2026-09-16` dates previously attached to these entries
+recorded only when this block was retitled from an orphaned
+`## [Unreleased]` section (SCH-M3), not a real release date, so they have
+been removed rather than corrected -- there is no publish record to
+correct them against. The version numbers and their content are kept
+because they document real, sequential contract and catalog changes made
+during development; read them as local development history, not as a
+release ledger with independently verifiable dates.
+
+### 2.5.0
 
 ### Added
 
@@ -1469,7 +1484,7 @@ release changes narrows what a client may send or what a server may return.
   families, 74 actions — unchanged counts; only the transition's `fromStates`
   enum and the catalog digest move).
 
-## [2.4.2] - 2026-09-16
+### 2.4.2
 
 ### Fixed
 
@@ -1513,7 +1528,7 @@ release changes narrows what a client may send or what a server may return.
   version moves from `2.4.1` to `2.4.2` per this repository's Semantic
   Versioning policy; regenerated the license inventory and SBOM to match.
 
-## [2.4.1] - 2026-09-16
+### 2.4.1
 
 ### Changed
 
@@ -1529,7 +1544,7 @@ release changes narrows what a client may send or what a server may return.
   the first `;` in `screenJob`) remain unchanged. Regenerated catalogs to match.
   This is a backward-compatible, user-visible catalog content change.
 
-## [2.4.0] - 2026-09-16
+### 2.4.0
 
 ### Added
 
@@ -1573,7 +1588,7 @@ release changes narrows what a client may send or what a server may return.
   `pathTemplate`, `screenId`, `authenticationClass`, `apiOperationIds`,
   `requiredStates` or `componentIds` changed.
 
-## [2.2.2] - 2026-09-16
+### 2.2.2
 
 ### Fixed
 
@@ -1645,14 +1660,14 @@ release changes narrows what a client may send or what a server may return.
   schema, wire format, or canonical byte semantics changed. Package version
   moves from `2.2.1` to `2.2.2` (patch bug fix).
 
-## [2.2.1] - 2026-09-16
+### 2.2.1
 
 ### Fixed
 
 - SBOM regeneration: `sbom.cdx.json` was stale after the version bump and
   is now current.
 
-## [2.2.0] - 2026-09-16
+### 2.2.0
 
 ### Added
 
@@ -1698,7 +1713,7 @@ release changes narrows what a client may send or what a server may return.
   Versioning policy; regenerated the schema inventory digest, license inventory
   and SBOM to match.
 
-## [2.1.0] - 2026-09-16
+### 2.1.0
 
 ### Added
 
@@ -1726,7 +1741,7 @@ release changes narrows what a client may send or what a server may return.
   (`docs/catalogs/schema-inventory.json`'s `sourceDigest` for the `openapi`
   contract regenerates with the new bundle content, as expected).
 
-## [2.0.0] - 2026-09-16
+### 2.0.0
 
 ### Added
 
@@ -1847,13 +1862,4 @@ release changes narrows what a client may send or what a server may return.
 [2.7.1]: https://github.com/rathnasgala2/schema/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/rathnasgala2/schema/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/rathnasgala2/schema/compare/v2.6.0...v2.6.1
-[2.6.0]: https://github.com/rathnasgala2/schema/compare/v2.5.0...v2.6.0
-[2.5.0]: https://github.com/rathnasgala2/schema/compare/v2.4.2...v2.5.0
-[2.4.2]: https://github.com/rathnasgala2/schema/compare/v2.4.1...v2.4.2
-[2.4.1]: https://github.com/rathnasgala2/schema/compare/v2.4.0...v2.4.1
-[2.4.0]: https://github.com/rathnasgala2/schema/compare/v2.2.2...v2.4.0
-[2.2.2]: https://github.com/rathnasgala2/schema/compare/v2.2.1...v2.2.2
-[2.2.1]: https://github.com/rathnasgala2/schema/compare/v2.2.0...v2.2.1
-[2.2.0]: https://github.com/rathnasgala2/schema/compare/v2.1.0...v2.2.0
-[2.1.0]: https://github.com/rathnasgala2/schema/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/rathnasgala2/schema/releases/tag/v2.0.0
+[2.6.0]: https://github.com/rathnasgala2/schema/releases/tag/v2.6.0
