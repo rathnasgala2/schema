@@ -428,7 +428,7 @@ test('the request rebuild record restates the retained record with four Gala-own
   const request =
     source.components.schemas.ReceiptExchangeIntentRequestRebuildRecord;
   const intent = await readJson('schemas/deployment-intent.schema.json');
-  const retained = intent.$defs.reproducibleBuildRecord;
+  const retained = intent.$defs.recordReproducibleBuildRecord;
   assert.equal(request.additionalProperties, false);
   assert.deepEqual(
     Object.keys(request.properties).sort(),

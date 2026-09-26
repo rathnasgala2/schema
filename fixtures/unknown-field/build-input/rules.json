@@ -284,14 +284,17 @@
       "build-input:#/$defs/colorMode/allOf/0/if:required:default",
       "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed/contains:const",
       "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:contains",
+      "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:type",
       "build-input:#/$defs/colorMode/allOf/1/if/properties/default:const",
       "build-input:#/$defs/colorMode/allOf/1/if:required:default",
       "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed/contains:const",
       "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:contains",
+      "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:type",
       "build-input:#/$defs/colorMode/allOf/2/if/properties/default:const",
       "build-input:#/$defs/colorMode/allOf/2/if:required:default",
       "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed/contains:const",
       "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:contains",
+      "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:type",
       "build-input:#/$defs/colorMode/properties/allowed/items:enum",
       "build-input:#/$defs/colorMode/properties/allowed:maxItems",
       "build-input:#/$defs/colorMode/properties/allowed:minItems",
@@ -337,6 +340,7 @@
       "build-input:#/$defs/githubPositiveDecimal:minLength",
       "build-input:#/$defs/githubPositiveDecimal:pattern",
       "build-input:#/$defs/githubPositiveDecimal:type",
+      "build-input:#/$defs/githubPositiveDecimal:x-gala-maximum",
       "build-input:#/$defs/glob:format",
       "build-input:#/$defs/glob:maxLength",
       "build-input:#/$defs/glob:minLength",
@@ -795,22 +799,22 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
-    "caseId": "build-input-unknown-59e43c01b9d4cb57",
+    "caseId": "build-input-unknown-53a189b729c940c9",
     "coveredRuleIds": [
-      "build-input:#/$defs/renderPolicyIdentity/properties/name:const",
-      "build-input:#/$defs/renderPolicyIdentity:additionalProperties",
-      "build-input:#/$defs/renderPolicyIdentity:required:digest",
-      "build-input:#/$defs/renderPolicyIdentity:required:name",
-      "build-input:#/$defs/renderPolicyIdentity:required:version",
-      "build-input:#/$defs/renderPolicyIdentity:type"
+      "build-input:#/$defs/authoredAdapterIdentity/properties/adapterId:enum",
+      "build-input:#/$defs/authoredAdapterIdentity:additionalProperties",
+      "build-input:#/$defs/authoredAdapterIdentity:required:adapterDigest",
+      "build-input:#/$defs/authoredAdapterIdentity:required:adapterId",
+      "build-input:#/$defs/authoredAdapterIdentity:required:adapterVersion",
+      "build-input:#/$defs/authoredAdapterIdentity:type"
     ],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/renderPolicyIdentity",
+    "schemaPointer": "#/$defs/authoredAdapterIdentity",
     "keyword": "additionalProperties",
     "instance": {
-      "name": "gala-render-policy",
-      "version": "2.0.0",
-      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "adapterId": "local-directory",
+      "adapterVersion": "2.0.0",
+      "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
@@ -915,6 +919,27 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-ddf7847f1333a8c9",
+    "coveredRuleIds": [
+      "build-input:#/$defs/manifestRenderPolicyIdentity/properties/name:const",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:additionalProperties",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:required:digest",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:required:name",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:required:version",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/manifestRenderPolicyIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "name": "gala-render-policy",
+      "version": "2.0.0",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-e01b29a6b0d28dc0",
     "coveredRuleIds": [
       "build-input:#/$defs/semanticTokens:additionalProperties",
@@ -941,27 +966,6 @@
     "instance": {
       "path": "content/fixture-1.md",
       "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "unexpected": true
-    },
-    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
-  },
-  {
-    "caseId": "build-input-unknown-f706a91279db4442",
-    "coveredRuleIds": [
-      "build-input:#/$defs/adapterIdentity/properties/adapterId:enum",
-      "build-input:#/$defs/adapterIdentity:additionalProperties",
-      "build-input:#/$defs/adapterIdentity:required:adapterDigest",
-      "build-input:#/$defs/adapterIdentity:required:adapterId",
-      "build-input:#/$defs/adapterIdentity:required:adapterVersion",
-      "build-input:#/$defs/adapterIdentity:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/adapterIdentity",
-    "keyword": "additionalProperties",
-    "instance": {
-      "adapterId": "local-directory",
-      "adapterVersion": "2.0.0",
-      "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

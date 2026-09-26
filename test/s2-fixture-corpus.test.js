@@ -146,14 +146,18 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 817);
+  assert.equal(files.length, 826);
   assert.equal(
-    // Review fix: adapter-capability's capabilityDecision description was
-    // corrected (see t04-fixture-corpus.test.js T03_SCHEMA_HASHES comment),
-    // which regenerated fixtures/manifest.json's schemaSha256 for that
-    // contract; no rule, pattern or validation behavior changed.
+    // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
+    // name across roots had diverged under the same name with nothing
+    // checking (fixed by a new schemas:shared-defs:check gate). Reconciling
+    // them regenerated fixtures/manifest.json and the affected boundary/
+    // invalid fixture files for every touched root (adapter-capability,
+    // appearance, artifact-manifest, build-input, build-provenance,
+    // deployment-intent, deployment-observation, deployment-receipt,
+    // navigation, theme-contract), and added 9 new fixture files.
     aggregate.digest('hex'),
-    'e7b5e3064f243339db4c08d064f6da3376ed8543daf421e2f2af0eecea411a8c',
+    'dfe795e06bb501f964d0fadbddfe477a1dc706392d2d2b646dbc0dd5c9185e65',
   );
 });
 

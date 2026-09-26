@@ -3,12 +3,11 @@ package io.gala.schema.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
 import java.util.Objects;
 
 /** Closed generated record for urn:gala:schema:navigation:2.0.0#/$defs/navigationLeaf. */
 public record NavigationNavigationLeaf(
-        @JsonProperty("children") List<JsonNode> children,
+        @JsonProperty("children") JsonNode children,
         @JsonProperty("label") String label,
         @JsonProperty("route") String route,
         @JsonProperty("type") String type,

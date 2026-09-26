@@ -271,7 +271,11 @@
         "adapterId": { "$ref": "#/$defs/plainLabel" },
         "adapterVersion": { "$ref": "#/$defs/semver" },
         "targetDigest": { "$ref": "#/$defs/digest" },
-        "baseUrl": { "$ref": "#/$defs/urlHttps" },
+        "baseUrl": {
+          "allOf": [{ "$ref": "#/$defs/urlHttps" }],
+          "maxLength": 2048,
+          "x-gala-utf8ByteLength": { "maximum": 2048 }
+        },
         "providerBinding": { "$ref": "#/$defs/destinationProviderCoordinates" }
       },
       "additionalProperties": false,

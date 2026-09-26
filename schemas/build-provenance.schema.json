@@ -136,7 +136,7 @@
         { "properties": { "purpose": { "const": "unfrozen-output" } } }
       ]
     },
-    "rebuildRecord": { "$ref": "#/$defs/reproducibleBuildRecord" },
+    "rebuildRecord": { "$ref": "#/$defs/manifestReproducibleBuildRecord" },
     "lockDigest": { "$ref": "#/$defs/digest" },
     "packageReleaseCatalogDigest": { "$ref": "#/$defs/digest" },
     "buildInputDigest": { "$ref": "#/$defs/digest" },
@@ -158,7 +158,7 @@
     "buildPolicyDecisionDigest": { "$ref": "#/$defs/digest" },
     "capabilityDecisionDigest": { "$ref": "#/$defs/digest" },
     "stylingContractDigest": { "$ref": "#/$defs/digest" },
-    "renderPolicy": { "$ref": "#/$defs/renderPolicyIdentity" },
+    "renderPolicy": { "$ref": "#/$defs/manifestRenderPolicyIdentity" },
     "sandbox": { "$ref": "#/$defs/buildSandboxEvidence" },
     "secretInputs": { "const": [] }
   },
@@ -303,9 +303,11 @@
     },
     "positiveInt64": {
       "type": "string",
+      "minLength": 1,
+      "maxLength": 19,
       "pattern": "^[1-9][0-9]*$",
-      "format": "gala-int64",
-      "description": "Canonical positive signed-64-bit decimal string; range is checked by the semantic validator."
+      "format": "gala-positive-int64",
+      "x-gala-maximum": "9223372036854775807"
     },
     "spdxExpression": {
       "type": "string",
@@ -320,23 +322,18 @@
       "minLength": 1,
       "maxLength": 20,
       "pattern": "^[1-9][0-9]{0,19}$",
-      "format": "gala-github-positive-uint64"
+      "format": "gala-github-positive-uint64",
+      "x-gala-maximum": "18446744073709551615"
     },
-    "githubActionsArtifactId": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 20,
-      "pattern": "^[1-9][0-9]{0,19}$",
-      "format": "gala-github-positive-uint64"
-    },
+    "githubActionsArtifactId": { "$ref": "#/$defs/githubPositiveDecimal" },
     "githubRepositoryCoordinate": {
       "type": "string",
       "minLength": 3,
       "maxLength": 140,
-      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/[A-Za-z0-9._-]{1,100}$",
-      "not": { "pattern": "^[^/]+/\\.{1,2}$" },
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?/(?!\\.{1,2}$)[A-Za-z0-9._-]{1,100}$",
       "format": "gala-github-repository-coordinate",
-      "x-gala-utf8ByteLength": { "minimum": 3, "maximum": 140 }
+      "x-gala-asciiByteLength": { "minimum": 3, "maximum": 140 },
+      "description": "Exact GitHub owner/repository spelling; the repository component cannot be dot or dot-dot."
     },
     "githubActorLogin": {
       "type": "string",
@@ -679,7 +676,7 @@
       },
       "additionalProperties": false
     },
-    "renderPolicyIdentity": {
+    "manifestRenderPolicyIdentity": {
       "type": "object",
       "required": ["name", "version", "digest"],
       "properties": {
@@ -810,7 +807,7 @@
         }
       ]
     },
-    "reproducibleBuildRecord": {
+    "manifestReproducibleBuildRecord": {
       "type": "object",
       "required": [
         "repositoryId",
@@ -895,7 +892,7 @@
         "policyReleaseId": { "$ref": "#/$defs/stableId" },
         "buildPolicyDecisionDigest": { "$ref": "#/$defs/digest" },
         "stylingContractDigest": { "$ref": "#/$defs/digest" },
-        "renderPolicy": { "$ref": "#/$defs/renderPolicyIdentity" },
+        "renderPolicy": { "$ref": "#/$defs/manifestRenderPolicyIdentity" },
         "workflowIdentity": { "$ref": "#/$defs/digest" }
       },
       "additionalProperties": false

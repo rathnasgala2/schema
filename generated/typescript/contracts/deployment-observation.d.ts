@@ -234,7 +234,7 @@ export type DeploymentObservationRecognizedPriorRouteContract = Readonly<{
   readonly terminalRequestUrl: DeploymentObservationVerificationUrl;
 }>;
 
-export type DeploymentObservationRenderPolicyIdentity = Readonly<{
+export type DeploymentObservationRecordRenderPolicyIdentity = Readonly<{
   readonly digest: DeploymentObservationDigest;
   readonly name: DeploymentObservationPlainLabel;
   readonly version: DeploymentObservationSemver;

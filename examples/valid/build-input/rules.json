@@ -298,12 +298,13 @@
   {
     "caseId": "build-input-valid-1846d0eb0064dc7d",
     "coveredRuleIds": [
-      "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:contains"
+      "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:contains",
+      "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:type"
     ],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
     "schemaPointer": "#/$defs/colorMode/allOf/0/then/properties/allowed",
     "keyword": "contains",
-    "instance": null
+    "instance": ["light"]
   },
   {
     "caseId": "build-input-valid-18d12a682083a474",
@@ -439,6 +440,16 @@
     "schemaPointer": "#/$defs/navigationLeaf/properties/children",
     "keyword": "const",
     "instance": []
+  },
+  {
+    "caseId": "build-input-valid-2742177a67a4cc00",
+    "coveredRuleIds": [
+      "build-input:#/$defs/authoredAdapterIdentity/properties/adapterId:enum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/authoredAdapterIdentity/properties/adapterId",
+    "keyword": "enum",
+    "instance": "local-directory"
   },
   {
     "caseId": "build-input-valid-29f17b6fe3efdb3f",
@@ -1121,6 +1132,24 @@
     ]
   },
   {
+    "caseId": "build-input-valid-53a189b729c940c9",
+    "coveredRuleIds": [
+      "build-input:#/$defs/authoredAdapterIdentity:additionalProperties",
+      "build-input:#/$defs/authoredAdapterIdentity:required:adapterDigest",
+      "build-input:#/$defs/authoredAdapterIdentity:required:adapterId",
+      "build-input:#/$defs/authoredAdapterIdentity:required:adapterVersion",
+      "build-input:#/$defs/authoredAdapterIdentity:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/authoredAdapterIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "adapterId": "local-directory",
+      "adapterVersion": "2.0.0",
+      "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  },
+  {
     "caseId": "build-input-valid-53b9e37f9ee928d4",
     "coveredRuleIds": [
       "build-input:#/$defs/appearanceNormalized/properties/fontAssets:maxItems",
@@ -1147,24 +1176,6 @@
     "schemaPointer": "#/$defs/digest",
     "keyword": "pattern",
     "instance": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-  },
-  {
-    "caseId": "build-input-valid-59e43c01b9d4cb57",
-    "coveredRuleIds": [
-      "build-input:#/$defs/renderPolicyIdentity:additionalProperties",
-      "build-input:#/$defs/renderPolicyIdentity:required:digest",
-      "build-input:#/$defs/renderPolicyIdentity:required:name",
-      "build-input:#/$defs/renderPolicyIdentity:required:version",
-      "build-input:#/$defs/renderPolicyIdentity:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/renderPolicyIdentity",
-    "keyword": "additionalProperties",
-    "instance": {
-      "name": "gala-render-policy",
-      "version": "2.0.0",
-      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-    }
   },
   {
     "caseId": "build-input-valid-60afd7fb506f64f8",
@@ -1342,23 +1353,14 @@
     "instance": [{ "type": "website", "uri": "https://fixture-1.example.com/" }]
   },
   {
-    "caseId": "build-input-valid-878ab73431db494c",
-    "coveredRuleIds": [
-      "build-input:#/$defs/renderPolicyIdentity/properties/name:const"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/renderPolicyIdentity/properties/name",
-    "keyword": "const",
-    "instance": "gala-render-policy"
-  },
-  {
     "caseId": "build-input-valid-87cfb242e7e81d35",
     "coveredRuleIds": [
       "build-input:#/$defs/githubPositiveDecimal:format",
       "build-input:#/$defs/githubPositiveDecimal:maxLength",
       "build-input:#/$defs/githubPositiveDecimal:minLength",
       "build-input:#/$defs/githubPositiveDecimal:pattern",
-      "build-input:#/$defs/githubPositiveDecimal:type"
+      "build-input:#/$defs/githubPositiveDecimal:type",
+      "build-input:#/$defs/githubPositiveDecimal:x-gala-maximum"
     ],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
     "schemaPointer": "#/$defs/githubPositiveDecimal",
@@ -1368,12 +1370,13 @@
   {
     "caseId": "build-input-valid-8977bb49ee9371fe",
     "coveredRuleIds": [
-      "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:contains"
+      "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:contains",
+      "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:type"
     ],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
     "schemaPointer": "#/$defs/colorMode/allOf/2/then/properties/allowed",
     "keyword": "contains",
-    "instance": null
+    "instance": ["system"]
   },
   {
     "caseId": "build-input-valid-8980d8cfc3145b7c",
@@ -1414,16 +1417,6 @@
     "schemaPointer": "#/$defs/colorMode/allOf/2/if",
     "keyword": "required",
     "instance": { "default": "system" }
-  },
-  {
-    "caseId": "build-input-valid-928fceb1cbb2df9e",
-    "coveredRuleIds": [
-      "build-input:#/$defs/adapterIdentity/properties/adapterId:enum"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/adapterIdentity/properties/adapterId",
-    "keyword": "enum",
-    "instance": "local-directory"
   },
   {
     "caseId": "build-input-valid-95d49e2494515cd8",
@@ -1567,6 +1560,16 @@
     "schemaPointer": "#/$defs/navigationItem/allOf/0/if",
     "keyword": "required",
     "instance": { "type": "internal" }
+  },
+  {
+    "caseId": "build-input-valid-a863eab909e45385",
+    "coveredRuleIds": [
+      "build-input:#/$defs/manifestRenderPolicyIdentity/properties/name:const"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/manifestRenderPolicyIdentity/properties/name",
+    "keyword": "const",
+    "instance": "gala-render-policy"
   },
   {
     "caseId": "build-input-valid-aa1be406e687c07c",
@@ -1886,6 +1889,24 @@
     "instance": "fixture-1"
   },
   {
+    "caseId": "build-input-valid-ddf7847f1333a8c9",
+    "coveredRuleIds": [
+      "build-input:#/$defs/manifestRenderPolicyIdentity:additionalProperties",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:required:digest",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:required:name",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:required:version",
+      "build-input:#/$defs/manifestRenderPolicyIdentity:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/manifestRenderPolicyIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "name": "gala-render-policy",
+      "version": "2.0.0",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  },
+  {
     "caseId": "build-input-valid-de74efda4f10cb07",
     "coveredRuleIds": [
       "build-input:#/$defs/buildPackages/properties/publisher/prefixItems/0/allOf/1/properties/package:const"
@@ -1930,12 +1951,13 @@
   {
     "caseId": "build-input-valid-e5d053ef3f3709f2",
     "coveredRuleIds": [
-      "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:contains"
+      "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:contains",
+      "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:type"
     ],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
     "schemaPointer": "#/$defs/colorMode/allOf/1/then/properties/allowed",
     "keyword": "contains",
-    "instance": null
+    "instance": ["dark"]
   },
   {
     "caseId": "build-input-valid-e70d81bda3bf3484",
@@ -2055,24 +2077,6 @@
     "schemaPointer": "#/$defs/socialLink/allOf/0/if/properties/type",
     "keyword": "const",
     "instance": "email"
-  },
-  {
-    "caseId": "build-input-valid-f706a91279db4442",
-    "coveredRuleIds": [
-      "build-input:#/$defs/adapterIdentity:additionalProperties",
-      "build-input:#/$defs/adapterIdentity:required:adapterDigest",
-      "build-input:#/$defs/adapterIdentity:required:adapterId",
-      "build-input:#/$defs/adapterIdentity:required:adapterVersion",
-      "build-input:#/$defs/adapterIdentity:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/adapterIdentity",
-    "keyword": "additionalProperties",
-    "instance": {
-      "adapterId": "local-directory",
-      "adapterVersion": "2.0.0",
-      "adapterDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-    }
   },
   {
     "caseId": "build-input-valid-f84253a57ac77936",

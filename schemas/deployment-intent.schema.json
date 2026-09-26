@@ -91,7 +91,7 @@
     "effectiveArtifactExpiresAt": { "$ref": "#/$defs/rfc3339" },
     "maximumReportRequestByteCount": { "$ref": "#/$defs/positiveInt64" },
     "lockDigest": { "$ref": "#/$defs/digest" },
-    "rebuildRecord": { "$ref": "#/$defs/reproducibleBuildRecord" },
+    "rebuildRecord": { "$ref": "#/$defs/recordReproducibleBuildRecord" },
     "publisher": {
       "allOf": [
         { "$ref": "#/$defs/packageIdentity" },
@@ -300,24 +300,29 @@
       "type": "string",
       "pattern": "^(?:0|-?[1-9][0-9]*)$",
       "format": "gala-int64",
-      "description": "Canonical signed 64-bit base-10 JSON string."
+      "description": "Canonical signed 64-bit decimal string; range is checked by the semantic validator."
     },
     "nonNegativeInt64": {
       "type": "string",
       "pattern": "^(?:0|[1-9][0-9]*)$",
-      "format": "gala-int64"
+      "format": "gala-int64",
+      "description": "Canonical non-negative signed-64-bit decimal string; range is checked by the semantic validator."
     },
     "positiveInt64": {
       "type": "string",
+      "minLength": 1,
+      "maxLength": 19,
       "pattern": "^[1-9][0-9]*$",
-      "format": "gala-int64"
+      "format": "gala-positive-int64",
+      "x-gala-maximum": "9223372036854775807"
     },
     "githubPositiveDecimal": {
       "type": "string",
       "minLength": 1,
       "maxLength": 20,
       "pattern": "^[1-9][0-9]{0,19}$",
-      "format": "gala-github-positive-uint64"
+      "format": "gala-github-positive-uint64",
+      "x-gala-maximum": "18446744073709551615"
     },
     "githubActionsArtifactId": { "$ref": "#/$defs/githubPositiveDecimal" },
     "lowerHex40": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
@@ -473,7 +478,7 @@
       "pattern": "^[a-z]{3}[1-9][0-9]?$",
       "x-gala-asciiByteLength": { "minimum": 4, "maximum": 5 }
     },
-    "renderPolicyIdentity": {
+    "recordRenderPolicyIdentity": {
       "type": "object",
       "required": ["name", "version", "digest"],
       "properties": {
@@ -1555,7 +1560,7 @@
       "pattern": "^(?:gala:expect-nothing-served|[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$",
       "description": "Activation fence: a generation identity, or the explicit expect-nothing-served sentinel. Never null, and never absent as a way of saying \"no expectation\" (LOCAL-47). This is the write-side expectation a caller states before it mutates a destination, and it is deliberately asymmetric with the observation-side fields (`observedGenerationId`), which are simply absent -- and are modelled as nullable by the in-process adapter protocol -- when nothing is served (LOCAL-52). It is deliberately one string schema with one combined pattern rather than a two-member `oneOf` of two string schemas: the admitted value set is identical, and OpenAPI Generator 7.25 turns such a union into an empty marker interface that a caller cannot carry a value in."
     },
-    "reproducibleBuildRecord": {
+    "recordReproducibleBuildRecord": {
       "type": "object",
       "required": [
         "repositoryId",
@@ -1640,7 +1645,7 @@
         "policyReleaseId": { "$ref": "#/$defs/stableId" },
         "buildPolicyDecisionDigest": { "$ref": "#/$defs/digest" },
         "stylingContractDigest": { "$ref": "#/$defs/digest" },
-        "renderPolicy": { "$ref": "#/$defs/renderPolicyIdentity" },
+        "renderPolicy": { "$ref": "#/$defs/recordRenderPolicyIdentity" },
         "workflowIdentity": { "$ref": "#/$defs/digest" }
       },
       "additionalProperties": false

@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /** Closed generated record for urn:gala:schema:build-input:2.0.0#/$defs/destinationCapabilityProfile. */
 public record BuildInputDestinationCapabilityProfile(
-        @JsonProperty("adapter") BuildInputAdapterIdentity adapter,
+        @JsonProperty("adapter") BuildInputAuthoredAdapterIdentity adapter,
         @JsonProperty("baseUrl") String baseUrl,
         @JsonProperty("capabilityDigest") String capabilityDigest
 ) {

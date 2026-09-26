@@ -3385,7 +3385,7 @@ components:
               required:
                 - package
         rebuildRecord:
-          $ref: "#/components/schemas/PortableDeploymentIntentReproducibleBuildRecord"
+          $ref: "#/components/schemas/PortableDeploymentIntentRecordReproducibleBuildRecord"
         requestedArtifactRetentionDays:
           maximum: 7
           minimum: 1
@@ -3509,6 +3509,7 @@ components:
       minLength: 1
       pattern: ^[1-9][0-9]{0,19}$
       type: string
+      x-gala-maximum: "18446744073709551615"
     PortableDeploymentIntentLowerHex40:
       pattern: ^[0-9a-f]{40}$
       type: string
@@ -3645,9 +3646,12 @@ components:
         maximum: 80
         minimum: 1
     PortableDeploymentIntentPositiveInt64:
-      format: gala-int64
+      format: gala-positive-int64
+      maxLength: 19
+      minLength: 1
       pattern: ^[1-9][0-9]*$
       type: string
+      x-gala-maximum: "9223372036854775807"
     PortableDeploymentIntentPublicGenerationMarkerPayload:
       additionalProperties: false
       properties:
@@ -3672,7 +3676,7 @@ components:
         - artifactDigest
         - generationId
       type: object
-    PortableDeploymentIntentRenderPolicyIdentity:
+    PortableDeploymentIntentRecordRenderPolicyIdentity:
       additionalProperties: false
       properties:
         digest:
@@ -3686,7 +3690,7 @@ components:
         - version
         - digest
       type: object
-    PortableDeploymentIntentReproducibleBuildRecord:
+    PortableDeploymentIntentRecordReproducibleBuildRecord:
       additionalProperties: false
       properties:
         basePath:
@@ -3720,7 +3724,7 @@ components:
         policyReleaseId:
           $ref: "#/components/schemas/PortableDeploymentIntentStableId"
         renderPolicy:
-          $ref: "#/components/schemas/PortableDeploymentIntentRenderPolicyIdentity"
+          $ref: "#/components/schemas/PortableDeploymentIntentRecordRenderPolicyIdentity"
         repositoryId:
           $ref: "#/components/schemas/PortableDeploymentIntentGithubPositiveDecimal"
         repositoryRootDigest:
@@ -7627,6 +7631,7 @@ components:
       pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
       type: string
     PortableDeploymentReceiptNonNegativeInt64:
+      description: Canonical non-negative signed-64-bit decimal string; range is checked by the semantic validator.
       format: gala-int64
       pattern: ^(?:0|[1-9][0-9]*)$
       type: string
@@ -7707,9 +7712,12 @@ components:
       format: gala-plain-text
       type: string
     PortableDeploymentReceiptPositiveInt64:
-      format: gala-int64
+      format: gala-positive-int64
+      maxLength: 19
+      minLength: 1
       pattern: ^[1-9][0-9]*$
       type: string
+      x-gala-maximum: "9223372036854775807"
     PortableDeploymentReceiptProbeRegion:
       maxLength: 32
       minLength: 1
@@ -10663,8 +10671,8 @@ components:
       description: |
         The request-side reproducible build record (SCHEMA-2.9.0, LOCAL-60).
         It carries exactly the members of the retained
-        `reproducibleBuildRecord` (DEC-097 section 5), by the same definitions,
-        with the four Gala-owned members optional: `policyReleaseId` and
+        `recordReproducibleBuildRecord` (DEC-097 section 5), by the same
+        definitions, with the four Gala-owned members optional: `policyReleaseId` and
         `buildPolicyDecisionDigest` equal the accepted policy decisions,
         `packageReleaseCatalogDigest` equals the server-selected catalog and
         `destinationCapabilityDigest` equals the owning validated destination
@@ -10722,7 +10730,7 @@ components:
             policy release identity and refuses a disagreement with `422
             VALIDATION_FAILED`. Required in the retained record.
         renderPolicy:
-          $ref: "#/components/schemas/PortableDeploymentIntentRenderPolicyIdentity"
+          $ref: "#/components/schemas/PortableDeploymentIntentRecordRenderPolicyIdentity"
         repositoryId:
           $ref: "#/components/schemas/PortableDeploymentIntentGithubPositiveDecimal"
         repositoryRootDigest:

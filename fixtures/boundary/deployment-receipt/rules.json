@@ -486,16 +486,6 @@
     "instance": { "state": "present" }
   },
   {
-    "caseId": "deployment-receipt-boundary-08529b27a8c98bac",
-    "coveredRuleIds": [
-      "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/builder/allOf/1/properties/package:const"
-    ],
-    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/reproducibleBuildRecord/properties/builder/allOf/1/properties/package",
-    "keyword": "const",
-    "instance": "@rathnasgala2/publish-action"
-  },
-  {
     "caseId": "deployment-receipt-boundary-085e7d5c9787295b",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/deploymentFailure/oneOf/12:required:code",
@@ -1387,6 +1377,16 @@
     "schemaPointer": "#/$defs/supersessionFinalizationEvidence/allOf/0/then/not/anyOf/0",
     "keyword": "required",
     "instance": { "activationDetectionLastEvidenceDigest": null }
+  },
+  {
+    "caseId": "deployment-receipt-boundary-13fd125777326ab4",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/contractVersion:const"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/recordReproducibleBuildRecord/properties/contractVersion",
+    "keyword": "const",
+    "instance": "2.0.0"
   },
   {
     "caseId": "deployment-receipt-boundary-14224e8fdf5a5975",
@@ -4058,6 +4058,16 @@
     "instance": "staging"
   },
   {
+    "caseId": "deployment-receipt-boundary-3a038f1e7de2054e",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/template/allOf/1/properties/package:const"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/recordReproducibleBuildRecord/properties/template/allOf/1/properties/package",
+    "keyword": "const",
+    "instance": "@rathnasgala2/template"
+  },
+  {
     "caseId": "deployment-receipt-boundary-3a3c222e986c2a75",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/deploymentObservation/allOf/0/oneOf/2/properties/observationClass:const"
@@ -4554,6 +4564,16 @@
     "instance": "unknown"
   },
   {
+    "caseId": "deployment-receipt-boundary-4129e0bf6d5a6adb",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/recordReproducibleBuildRecord/properties/theme/allOf/1/properties/package",
+    "keyword": "enum",
+    "instance": "@rathnasgala2/theme-default"
+  },
+  {
     "caseId": "deployment-receipt-boundary-41559b7e9d4e7835",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/deploymentAttempt/properties/sequence:maximum"
@@ -4834,84 +4854,6 @@
     "schemaPointer": "#/allOf/0/oneOf/6/allOf/0/then/allOf/2/properties/attempts",
     "keyword": "contains",
     "instance": null
-  },
-  {
-    "caseId": "deployment-receipt-boundary-44dbdfb6f85392d9",
-    "coveredRuleIds": [
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:additionalProperties",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:basePath",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:baseUrl",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:buildEpoch",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:buildInputDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:buildPolicyDecisionDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:builder",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:contractVersion",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:dependencyLockDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:destinationCapabilityDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:packageReleaseCatalogDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:policyReleaseId",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:renderPolicy",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:repositoryId",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:repositoryRootDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:schemas",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:sourceCommit",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:sourceTree",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:stylingContractDigest",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:template",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:theme",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:required:workflowIdentity",
-      "deployment-receipt:#/$defs/reproducibleBuildRecord:type"
-    ],
-    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/reproducibleBuildRecord",
-    "keyword": "additionalProperties",
-    "instance": {
-      "repositoryId": "1",
-      "sourceCommit": "sha1:0000000000000000000000000000000000000001",
-      "sourceTree": "sha1:0000000000000000000000000000000000000001",
-      "repositoryRootDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "buildEpoch": "2026-09-13T12:00:00.000Z",
-      "contractVersion": "2.0.0",
-      "builder": {
-        "package": "@rathnasgala2/publish-action",
-        "version": "2.0.0",
-        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-        "registry": "https://fixture-1.example.com/"
-      },
-      "schemas": {
-        "package": "@rathnasgala2/schemas",
-        "version": "2.0.0",
-        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-        "registry": "https://fixture-1.example.com/"
-      },
-      "template": {
-        "package": "@rathnasgala2/template",
-        "version": "2.0.0",
-        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-        "registry": "https://fixture-1.example.com/"
-      },
-      "theme": {
-        "package": "@rathnasgala2/theme-default",
-        "version": "2.0.0",
-        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-        "registry": "https://fixture-1.example.com/"
-      },
-      "dependencyLockDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "packageReleaseCatalogDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "buildInputDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "baseUrl": "https://fixture-1.example.com/",
-      "basePath": "/fixture-1",
-      "destinationCapabilityDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "policyReleaseId": "019c0000-0000-7000-8000-000000000001",
-      "buildPolicyDecisionDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "stylingContractDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
-      "renderPolicy": {
-        "name": "fixture-1",
-        "version": "2.0.0",
-        "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-      },
-      "workflowIdentity": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-    }
   },
   {
     "caseId": "deployment-receipt-boundary-44edfb05fca38d3d",
@@ -7740,16 +7682,6 @@
     "instance": null
   },
   {
-    "caseId": "deployment-receipt-boundary-670e589f1e64a6b8",
-    "coveredRuleIds": [
-      "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum"
-    ],
-    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/reproducibleBuildRecord/properties/theme/allOf/1/properties/package",
-    "keyword": "enum",
-    "instance": "@rathnasgala2/theme-default"
-  },
-  {
     "caseId": "deployment-receipt-boundary-6725d2d258cdba84",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/activationDetectionProbe/allOf/1/then:required:observedLocation"
@@ -7778,6 +7710,19 @@
     "schemaPointer": "#/$defs/deploymentAttempt/oneOf/10/allOf/0/properties/failureCode",
     "keyword": "const",
     "instance": "PROVIDER_CONTRACT_VIOLATION"
+  },
+  {
+    "caseId": "deployment-receipt-boundary-6771ff664d9552ee",
+    "coveredRuleIds": ["deployment-receipt:#/$defs/positiveInt64:minLength"],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/positiveInt64",
+    "keyword": "minLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/positiveInt64",
+      "length": 1,
+      "direction": "minimum"
+    }
   },
   {
     "caseId": "deployment-receipt-boundary-677e83b545e6f1bb",
@@ -12574,16 +12519,6 @@
     "instance": { "failureCode": null }
   },
   {
-    "caseId": "deployment-receipt-boundary-a6e2ced2b3f74c55",
-    "coveredRuleIds": [
-      "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/contractVersion:const"
-    ],
-    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/reproducibleBuildRecord/properties/contractVersion",
-    "keyword": "const",
-    "instance": "2.0.0"
-  },
-  {
     "caseId": "deployment-receipt-boundary-a6fea649c251671b",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/deploymentStageResult/oneOf/1/not/anyOf/0:required:failureCode"
@@ -13568,16 +13503,6 @@
     "schemaPointer": "#/$defs/deploymentStageEvidence/allOf/0/then/not",
     "keyword": "anyOf",
     "instance": { "failureCode": null }
-  },
-  {
-    "caseId": "deployment-receipt-boundary-b52fdcea4d72ba3d",
-    "coveredRuleIds": [
-      "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/template/allOf/1/properties/package:const"
-    ],
-    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/reproducibleBuildRecord/properties/template/allOf/1/properties/package",
-    "keyword": "const",
-    "instance": "@rathnasgala2/template"
   },
   {
     "caseId": "deployment-receipt-boundary-b57c34655a2bd2ea",
@@ -14904,6 +14829,84 @@
     "instance": "no"
   },
   {
+    "caseId": "deployment-receipt-boundary-c7caf100a47a6d72",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:additionalProperties",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:basePath",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:baseUrl",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:buildEpoch",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:buildInputDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:buildPolicyDecisionDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:builder",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:contractVersion",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:dependencyLockDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:destinationCapabilityDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:packageReleaseCatalogDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:policyReleaseId",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:renderPolicy",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:repositoryId",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:repositoryRootDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:schemas",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:sourceCommit",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:sourceTree",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:stylingContractDigest",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:template",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:theme",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:workflowIdentity",
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord:type"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/recordReproducibleBuildRecord",
+    "keyword": "additionalProperties",
+    "instance": {
+      "repositoryId": "1",
+      "sourceCommit": "sha1:0000000000000000000000000000000000000001",
+      "sourceTree": "sha1:0000000000000000000000000000000000000001",
+      "repositoryRootDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "buildEpoch": "2026-09-13T12:00:00.000Z",
+      "contractVersion": "2.0.0",
+      "builder": {
+        "package": "@rathnasgala2/publish-action",
+        "version": "2.0.0",
+        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+        "registry": "https://fixture-1.example.com/"
+      },
+      "schemas": {
+        "package": "@rathnasgala2/schemas",
+        "version": "2.0.0",
+        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+        "registry": "https://fixture-1.example.com/"
+      },
+      "template": {
+        "package": "@rathnasgala2/template",
+        "version": "2.0.0",
+        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+        "registry": "https://fixture-1.example.com/"
+      },
+      "theme": {
+        "package": "@rathnasgala2/theme-default",
+        "version": "2.0.0",
+        "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+        "registry": "https://fixture-1.example.com/"
+      },
+      "dependencyLockDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "packageReleaseCatalogDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "buildInputDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "baseUrl": "https://fixture-1.example.com/",
+      "basePath": "/fixture-1",
+      "destinationCapabilityDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "policyReleaseId": "019c0000-0000-7000-8000-000000000001",
+      "buildPolicyDecisionDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "stylingContractDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "renderPolicy": {
+        "name": "fixture-1",
+        "version": "2.0.0",
+        "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "workflowIdentity": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  },
+  {
     "caseId": "deployment-receipt-boundary-c7ccfb788dabeed6",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/deploymentStageEvidence/allOf/7/then/oneOf/15:required:destinationChanged",
@@ -15607,6 +15610,16 @@
     "schemaPointer": "#/$defs/deploymentStageEvidence/allOf/7/then/oneOf/3/properties/stageInput/properties/stage",
     "keyword": "const",
     "instance": "staging"
+  },
+  {
+    "caseId": "deployment-receipt-boundary-d101943ed25d7cf8",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/githubPositiveDecimal:x-gala-maximum"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/githubPositiveDecimal",
+    "keyword": "x-gala-maximum",
+    "instance": "18446744073709551615"
   },
   {
     "caseId": "deployment-receipt-boundary-d1041ba5c0769a6f",
@@ -16502,14 +16515,14 @@
     }
   },
   {
-    "caseId": "deployment-receipt-boundary-dcd91030c41522c0",
+    "caseId": "deployment-receipt-boundary-dcc004c292655f47",
     "coveredRuleIds": [
-      "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const"
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/builder/allOf/1/properties/package:const"
     ],
     "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/reproducibleBuildRecord/properties/schemas/allOf/1/properties/package",
+    "schemaPointer": "#/$defs/recordReproducibleBuildRecord/properties/builder/allOf/1/properties/package",
     "keyword": "const",
-    "instance": "@rathnasgala2/schemas"
+    "instance": "@rathnasgala2/publish-action"
   },
   {
     "caseId": "deployment-receipt-boundary-dcda96dfe3435860",
@@ -17271,24 +17284,6 @@
     "schemaPointer": "#/$defs/deploymentStageEvidence/allOf/7/then/oneOf/24/properties/retryable",
     "keyword": "const",
     "instance": false
-  },
-  {
-    "caseId": "deployment-receipt-boundary-e7fdc7b9a67c29f3",
-    "coveredRuleIds": [
-      "deployment-receipt:#/$defs/renderPolicyIdentity:additionalProperties",
-      "deployment-receipt:#/$defs/renderPolicyIdentity:required:digest",
-      "deployment-receipt:#/$defs/renderPolicyIdentity:required:name",
-      "deployment-receipt:#/$defs/renderPolicyIdentity:required:version",
-      "deployment-receipt:#/$defs/renderPolicyIdentity:type"
-    ],
-    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-    "schemaPointer": "#/$defs/renderPolicyIdentity",
-    "keyword": "additionalProperties",
-    "instance": {
-      "name": "fixture-1",
-      "version": "2.0.0",
-      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-    }
   },
   {
     "caseId": "deployment-receipt-boundary-e8044d1813ade414",
@@ -18103,6 +18098,16 @@
     }
   },
   {
+    "caseId": "deployment-receipt-boundary-f00f87ba2bf3e72c",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/recordReproducibleBuildRecord/properties/schemas/allOf/1/properties/package",
+    "keyword": "const",
+    "instance": "@rathnasgala2/schemas"
+  },
+  {
     "caseId": "deployment-receipt-boundary-f03172dedda6dbfc",
     "coveredRuleIds": [
       "deployment-receipt:#/allOf/0/oneOf/1/allOf/1/properties/attempts/contains/properties/destinationChanged:const"
@@ -18141,6 +18146,37 @@
     "schemaPointer": "#/$defs/deploymentFailure/oneOf/23/properties/recovery",
     "keyword": "const",
     "instance": "retry"
+  },
+  {
+    "caseId": "deployment-receipt-boundary-f0c33a8f2355aa0f",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/recordRenderPolicyIdentity:additionalProperties",
+      "deployment-receipt:#/$defs/recordRenderPolicyIdentity:required:digest",
+      "deployment-receipt:#/$defs/recordRenderPolicyIdentity:required:name",
+      "deployment-receipt:#/$defs/recordRenderPolicyIdentity:required:version",
+      "deployment-receipt:#/$defs/recordRenderPolicyIdentity:type"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/recordRenderPolicyIdentity",
+    "keyword": "additionalProperties",
+    "instance": {
+      "name": "fixture-1",
+      "version": "2.0.0",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  },
+  {
+    "caseId": "deployment-receipt-boundary-f0c675d5af4b8982",
+    "coveredRuleIds": ["deployment-receipt:#/$defs/positiveInt64:maxLength"],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/positiveInt64",
+    "keyword": "maxLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/positiveInt64",
+      "length": 19,
+      "direction": "maximum"
+    }
   },
   {
     "caseId": "deployment-receipt-boundary-f0f505c92729ddac",
@@ -19074,6 +19110,16 @@
     "schemaPointer": "#/$defs/publicProbeObservation/allOf/4/then",
     "keyword": "required",
     "instance": { "observedStatus": null }
+  },
+  {
+    "caseId": "deployment-receipt-boundary-fcd441c1428fd1c5",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/positiveInt64:x-gala-maximum"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/positiveInt64",
+    "keyword": "x-gala-maximum",
+    "instance": "9223372036854775807"
   },
   {
     "caseId": "deployment-receipt-boundary-fd16fbc0564e21b4",

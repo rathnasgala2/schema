@@ -536,6 +536,12 @@
     "adapter-capability:#/$defs/destinationIdentity/allOf/5/then/properties/providerBinding:false": {
       "code": "REQUEST_FIELD_UNKNOWN"
     },
+    "adapter-capability:#/$defs/destinationIdentity/properties/baseUrl:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "adapter-capability:#/$defs/destinationIdentity/properties/baseUrl:x-gala-utf8ByteLength": {
+      "code": "UTF8_BYTE_LENGTH_INVALID"
+    },
     "adapter-capability:#/$defs/destinationIdentity/properties/environment:enum": {
       "code": "SCHEMA_ENUM_INVALID"
     },
@@ -4436,18 +4442,6 @@
     "artifact-manifest:#/$defs/githubActionCoordinate:x-gala-utf8ByteLength": {
       "code": "UTF8_BYTE_LENGTH_INVALID"
     },
-    "artifact-manifest:#/$defs/githubActionsArtifactId:maxLength": {
-      "code": "SCHEMA_STRING_TOO_LONG"
-    },
-    "artifact-manifest:#/$defs/githubActionsArtifactId:minLength": {
-      "code": "SCHEMA_STRING_TOO_SHORT"
-    },
-    "artifact-manifest:#/$defs/githubActionsArtifactId:pattern": {
-      "code": "SCHEMA_PATTERN_INVALID"
-    },
-    "artifact-manifest:#/$defs/githubActionsArtifactId:type": {
-      "code": "SCHEMA_TYPE_INVALID"
-    },
     "artifact-manifest:#/$defs/githubActorLogin:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
     },
@@ -4475,8 +4469,8 @@
     "artifact-manifest:#/$defs/githubPositiveDecimal:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "artifact-manifest:#/$defs/githubRepositoryCoordinate/not:pattern": {
-      "code": "SCHEMA_PATTERN_INVALID"
+    "artifact-manifest:#/$defs/githubPositiveDecimal:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "artifact-manifest:#/$defs/githubRepositoryCoordinate:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -4484,17 +4478,14 @@
     "artifact-manifest:#/$defs/githubRepositoryCoordinate:minLength": {
       "code": "SCHEMA_STRING_TOO_SHORT"
     },
-    "artifact-manifest:#/$defs/githubRepositoryCoordinate:not": {
-      "code": "SCHEMA_NEGATED_RULE_MATCHED"
-    },
     "artifact-manifest:#/$defs/githubRepositoryCoordinate:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "artifact-manifest:#/$defs/githubRepositoryCoordinate:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "artifact-manifest:#/$defs/githubRepositoryCoordinate:x-gala-utf8ByteLength": {
-      "code": "UTF8_BYTE_LENGTH_INVALID"
+    "artifact-manifest:#/$defs/githubRepositoryCoordinate:x-gala-asciiByteLength": {
+      "code": "ASCII_BYTE_LENGTH_INVALID"
     },
     "artifact-manifest:#/$defs/glob:format": {
       "code": "REPOSITORY_GLOB_INVALID"
@@ -4671,6 +4662,108 @@
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
     "artifact-manifest:#/$defs/manifestRedirect:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestRenderPolicyIdentity/properties/name:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestRenderPolicyIdentity:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "artifact-manifest:#/$defs/manifestRenderPolicyIdentity:required:digest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestRenderPolicyIdentity:required:name": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestRenderPolicyIdentity:required:version": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestRenderPolicyIdentity:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord/properties/contractVersion:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
+      "code": "SCHEMA_ENUM_INVALID"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:basePath": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:baseUrl": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:buildEpoch": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:buildInputDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:buildPolicyDecisionDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:builder": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:contractVersion": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:dependencyLockDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:destinationCapabilityDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:packageReleaseCatalogDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:policyReleaseId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:renderPolicy": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:repositoryId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:repositoryRootDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:schemas": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:sourceCommit": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:sourceTree": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:stylingContractDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:template": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:theme": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:required:workflowIdentity": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "artifact-manifest:#/$defs/manifestReproducibleBuildRecord:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "artifact-manifest:#/$defs/manifestRoute/properties/interactionBearing:const": {
@@ -4865,14 +4958,20 @@
     "artifact-manifest:#/$defs/plainText:type": {
       "code": "PLAIN_TEXT_INVALID"
     },
-    "artifact-manifest:#/$defs/positiveInt64:format": {
-      "code": "SCHEMA_FORMAT_INVALID"
+    "artifact-manifest:#/$defs/positiveInt64:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "artifact-manifest:#/$defs/positiveInt64:minLength": {
+      "code": "SCHEMA_STRING_TOO_SHORT"
     },
     "artifact-manifest:#/$defs/positiveInt64:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "artifact-manifest:#/$defs/positiveInt64:type": {
       "code": "SCHEMA_TYPE_INVALID"
+    },
+    "artifact-manifest:#/$defs/positiveInt64:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "artifact-manifest:#/$defs/provenanceRef:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -4888,24 +4987,6 @@
     },
     "artifact-manifest:#/$defs/provenanceRef:x-gala-utf8ByteLength": {
       "code": "UTF8_BYTE_LENGTH_INVALID"
-    },
-    "artifact-manifest:#/$defs/renderPolicyIdentity/properties/name:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "artifact-manifest:#/$defs/renderPolicyIdentity:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "artifact-manifest:#/$defs/renderPolicyIdentity:required:digest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/renderPolicyIdentity:required:name": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/renderPolicyIdentity:required:version": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/renderPolicyIdentity:type": {
-      "code": "SCHEMA_TYPE_INVALID"
     },
     "artifact-manifest:#/$defs/repoRelativePath:format": {
       "code": "REPOSITORY_PATH_INVALID"
@@ -4924,90 +5005,6 @@
     },
     "artifact-manifest:#/$defs/repoRelativePath:x-gala-utf8ByteLength": {
       "code": "REPOSITORY_PATH_INVALID"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord/properties/contractVersion:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
-      "code": "SCHEMA_ENUM_INVALID"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:basePath": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:baseUrl": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:buildEpoch": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:buildInputDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:buildPolicyDecisionDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:builder": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:contractVersion": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:dependencyLockDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:destinationCapabilityDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:packageReleaseCatalogDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:policyReleaseId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:renderPolicy": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:repositoryId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:repositoryRootDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:schemas": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:sourceCommit": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:sourceTree": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:stylingContractDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:template": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:theme": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:required:workflowIdentity": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "artifact-manifest:#/$defs/reproducibleBuildRecord:type": {
-      "code": "SCHEMA_TYPE_INVALID"
     },
     "artifact-manifest:#/$defs/rfc3339:format": {
       "code": "RFC3339_INVALID"
@@ -5660,24 +5657,6 @@
     "author:#:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "build-input:#/$defs/adapterIdentity/properties/adapterId:enum": {
-      "code": "SCHEMA_ENUM_INVALID"
-    },
-    "build-input:#/$defs/adapterIdentity:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "build-input:#/$defs/adapterIdentity:required:adapterDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-input:#/$defs/adapterIdentity:required:adapterId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-input:#/$defs/adapterIdentity:required:adapterVersion": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-input:#/$defs/adapterIdentity:type": {
-      "code": "SCHEMA_TYPE_INVALID"
-    },
     "build-input:#/$defs/appearanceNormalized/properties/fontAssets:maxItems": {
       "code": "SCHEMA_ARRAY_TOO_LONG"
     },
@@ -5772,6 +5751,24 @@
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
     "build-input:#/$defs/authorNormalized:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "build-input:#/$defs/authoredAdapterIdentity/properties/adapterId:enum": {
+      "code": "SCHEMA_ENUM_INVALID"
+    },
+    "build-input:#/$defs/authoredAdapterIdentity:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "build-input:#/$defs/authoredAdapterIdentity:required:adapterDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-input:#/$defs/authoredAdapterIdentity:required:adapterId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-input:#/$defs/authoredAdapterIdentity:required:adapterVersion": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-input:#/$defs/authoredAdapterIdentity:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "build-input:#/$defs/bcp47:format": {
@@ -5876,6 +5873,9 @@
     "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:contains": {
       "code": "SCHEMA_ARRAY_CONTAINS_INVALID"
     },
+    "build-input:#/$defs/colorMode/allOf/0/then/properties/allowed:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
     "build-input:#/$defs/colorMode/allOf/1/if/properties/default:const": {
       "code": "SCHEMA_CONSTANT_INVALID"
     },
@@ -5888,6 +5888,9 @@
     "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:contains": {
       "code": "SCHEMA_ARRAY_CONTAINS_INVALID"
     },
+    "build-input:#/$defs/colorMode/allOf/1/then/properties/allowed:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
     "build-input:#/$defs/colorMode/allOf/2/if/properties/default:const": {
       "code": "SCHEMA_CONSTANT_INVALID"
     },
@@ -5899,6 +5902,9 @@
     },
     "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:contains": {
       "code": "SCHEMA_ARRAY_CONTAINS_INVALID"
+    },
+    "build-input:#/$defs/colorMode/allOf/2/then/properties/allowed:type": {
+      "code": "SCHEMA_TYPE_INVALID"
     },
     "build-input:#/$defs/colorMode/properties/allowed/items:enum": {
       "code": "SCHEMA_ENUM_INVALID"
@@ -6116,6 +6122,9 @@
     "build-input:#/$defs/githubPositiveDecimal:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
+    "build-input:#/$defs/githubPositiveDecimal:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
+    },
     "build-input:#/$defs/glob:format": {
       "code": "REPOSITORY_GLOB_INVALID"
     },
@@ -6156,6 +6165,24 @@
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
     "build-input:#/$defs/localizedAuthor:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "build-input:#/$defs/manifestRenderPolicyIdentity/properties/name:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "build-input:#/$defs/manifestRenderPolicyIdentity:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "build-input:#/$defs/manifestRenderPolicyIdentity:required:digest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-input:#/$defs/manifestRenderPolicyIdentity:required:name": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-input:#/$defs/manifestRenderPolicyIdentity:required:version": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-input:#/$defs/manifestRenderPolicyIdentity:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "build-input:#/$defs/moduleBuildSelection:additionalProperties": {
@@ -6501,24 +6528,6 @@
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
     "build-input:#/$defs/publicationNormalized:type": {
-      "code": "SCHEMA_TYPE_INVALID"
-    },
-    "build-input:#/$defs/renderPolicyIdentity/properties/name:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "build-input:#/$defs/renderPolicyIdentity:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "build-input:#/$defs/renderPolicyIdentity:required:digest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-input:#/$defs/renderPolicyIdentity:required:name": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-input:#/$defs/renderPolicyIdentity:required:version": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-input:#/$defs/renderPolicyIdentity:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "build-input:#/$defs/renderableBody/properties/body:maxLength": {
@@ -7169,18 +7178,6 @@
     "build-provenance:#/$defs/githubActionCoordinate:x-gala-utf8ByteLength": {
       "code": "UTF8_BYTE_LENGTH_INVALID"
     },
-    "build-provenance:#/$defs/githubActionsArtifactId:maxLength": {
-      "code": "SCHEMA_STRING_TOO_LONG"
-    },
-    "build-provenance:#/$defs/githubActionsArtifactId:minLength": {
-      "code": "SCHEMA_STRING_TOO_SHORT"
-    },
-    "build-provenance:#/$defs/githubActionsArtifactId:pattern": {
-      "code": "SCHEMA_PATTERN_INVALID"
-    },
-    "build-provenance:#/$defs/githubActionsArtifactId:type": {
-      "code": "SCHEMA_TYPE_INVALID"
-    },
     "build-provenance:#/$defs/githubActorLogin:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
     },
@@ -7208,8 +7205,8 @@
     "build-provenance:#/$defs/githubPositiveDecimal:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "build-provenance:#/$defs/githubRepositoryCoordinate/not:pattern": {
-      "code": "SCHEMA_PATTERN_INVALID"
+    "build-provenance:#/$defs/githubPositiveDecimal:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "build-provenance:#/$defs/githubRepositoryCoordinate:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -7217,17 +7214,14 @@
     "build-provenance:#/$defs/githubRepositoryCoordinate:minLength": {
       "code": "SCHEMA_STRING_TOO_SHORT"
     },
-    "build-provenance:#/$defs/githubRepositoryCoordinate:not": {
-      "code": "SCHEMA_NEGATED_RULE_MATCHED"
-    },
     "build-provenance:#/$defs/githubRepositoryCoordinate:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "build-provenance:#/$defs/githubRepositoryCoordinate:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "build-provenance:#/$defs/githubRepositoryCoordinate:x-gala-utf8ByteLength": {
-      "code": "UTF8_BYTE_LENGTH_INVALID"
+    "build-provenance:#/$defs/githubRepositoryCoordinate:x-gala-asciiByteLength": {
+      "code": "ASCII_BYTE_LENGTH_INVALID"
     },
     "build-provenance:#/$defs/glob:format": {
       "code": "REPOSITORY_GLOB_INVALID"
@@ -7404,6 +7398,108 @@
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
     "build-provenance:#/$defs/manifestRedirect:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "build-provenance:#/$defs/manifestRenderPolicyIdentity/properties/name:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "build-provenance:#/$defs/manifestRenderPolicyIdentity:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "build-provenance:#/$defs/manifestRenderPolicyIdentity:required:digest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestRenderPolicyIdentity:required:name": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestRenderPolicyIdentity:required:version": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestRenderPolicyIdentity:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord/properties/contractVersion:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
+      "code": "SCHEMA_ENUM_INVALID"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:basePath": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:baseUrl": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:buildEpoch": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:buildInputDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:buildPolicyDecisionDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:builder": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:contractVersion": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:dependencyLockDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:destinationCapabilityDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:packageReleaseCatalogDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:policyReleaseId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:renderPolicy": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:repositoryId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:repositoryRootDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:schemas": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:sourceCommit": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:sourceTree": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:stylingContractDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:template": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:theme": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:required:workflowIdentity": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "build-provenance:#/$defs/manifestReproducibleBuildRecord:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "build-provenance:#/$defs/manifestRoute/properties/interactionBearing:const": {
@@ -7598,14 +7694,20 @@
     "build-provenance:#/$defs/plainText:type": {
       "code": "PLAIN_TEXT_INVALID"
     },
-    "build-provenance:#/$defs/positiveInt64:format": {
-      "code": "SCHEMA_FORMAT_INVALID"
+    "build-provenance:#/$defs/positiveInt64:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "build-provenance:#/$defs/positiveInt64:minLength": {
+      "code": "SCHEMA_STRING_TOO_SHORT"
     },
     "build-provenance:#/$defs/positiveInt64:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "build-provenance:#/$defs/positiveInt64:type": {
       "code": "SCHEMA_TYPE_INVALID"
+    },
+    "build-provenance:#/$defs/positiveInt64:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "build-provenance:#/$defs/provenanceRef:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -7621,24 +7723,6 @@
     },
     "build-provenance:#/$defs/provenanceRef:x-gala-utf8ByteLength": {
       "code": "UTF8_BYTE_LENGTH_INVALID"
-    },
-    "build-provenance:#/$defs/renderPolicyIdentity/properties/name:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "build-provenance:#/$defs/renderPolicyIdentity:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "build-provenance:#/$defs/renderPolicyIdentity:required:digest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/renderPolicyIdentity:required:name": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/renderPolicyIdentity:required:version": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/renderPolicyIdentity:type": {
-      "code": "SCHEMA_TYPE_INVALID"
     },
     "build-provenance:#/$defs/repoRelativePath:format": {
       "code": "REPOSITORY_PATH_INVALID"
@@ -7657,90 +7741,6 @@
     },
     "build-provenance:#/$defs/repoRelativePath:x-gala-utf8ByteLength": {
       "code": "REPOSITORY_PATH_INVALID"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord/properties/contractVersion:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
-      "code": "SCHEMA_ENUM_INVALID"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:basePath": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:baseUrl": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:buildEpoch": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:buildInputDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:buildPolicyDecisionDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:builder": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:contractVersion": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:dependencyLockDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:destinationCapabilityDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:packageReleaseCatalogDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:policyReleaseId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:renderPolicy": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:repositoryId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:repositoryRootDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:schemas": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:sourceCommit": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:sourceTree": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:stylingContractDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:template": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:theme": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:required:workflowIdentity": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "build-provenance:#/$defs/reproducibleBuildRecord:type": {
-      "code": "SCHEMA_TYPE_INVALID"
     },
     "build-provenance:#/$defs/rfc3339:format": {
       "code": "RFC3339_INVALID"
@@ -9698,6 +9698,9 @@
     "deployment-intent:#/$defs/githubPositiveDecimal:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
+    "deployment-intent:#/$defs/githubPositiveDecimal:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
+    },
     "deployment-intent:#/$defs/glob:format": {
       "code": "REPOSITORY_GLOB_INVALID"
     },
@@ -10067,14 +10070,20 @@
     "deployment-intent:#/$defs/plainText:type": {
       "code": "PLAIN_TEXT_INVALID"
     },
-    "deployment-intent:#/$defs/positiveInt64:format": {
-      "code": "SCHEMA_FORMAT_INVALID"
+    "deployment-intent:#/$defs/positiveInt64:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "deployment-intent:#/$defs/positiveInt64:minLength": {
+      "code": "SCHEMA_STRING_TOO_SHORT"
     },
     "deployment-intent:#/$defs/positiveInt64:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "deployment-intent:#/$defs/positiveInt64:type": {
       "code": "SCHEMA_TYPE_INVALID"
+    },
+    "deployment-intent:#/$defs/positiveInt64:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "deployment-intent:#/$defs/probeRegion:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -10556,19 +10565,103 @@
     "deployment-intent:#/$defs/recognizedPriorRouteContract:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "deployment-intent:#/$defs/renderPolicyIdentity:additionalProperties": {
+    "deployment-intent:#/$defs/recordRenderPolicyIdentity:additionalProperties": {
       "code": "REQUEST_FIELD_UNKNOWN"
     },
-    "deployment-intent:#/$defs/renderPolicyIdentity:required:digest": {
+    "deployment-intent:#/$defs/recordRenderPolicyIdentity:required:digest": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-intent:#/$defs/renderPolicyIdentity:required:name": {
+    "deployment-intent:#/$defs/recordRenderPolicyIdentity:required:name": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-intent:#/$defs/renderPolicyIdentity:required:version": {
+    "deployment-intent:#/$defs/recordRenderPolicyIdentity:required:version": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-intent:#/$defs/renderPolicyIdentity:type": {
+    "deployment-intent:#/$defs/recordRenderPolicyIdentity:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord/properties/contractVersion:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
+      "code": "SCHEMA_ENUM_INVALID"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:basePath": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:baseUrl": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:buildEpoch": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:buildInputDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:buildPolicyDecisionDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:builder": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:contractVersion": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:dependencyLockDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:destinationCapabilityDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:packageReleaseCatalogDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:policyReleaseId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:renderPolicy": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:repositoryId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:repositoryRootDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:schemas": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:sourceCommit": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:sourceTree": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:stylingContractDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:template": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:theme": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:required:workflowIdentity": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-intent:#/$defs/recordReproducibleBuildRecord:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "deployment-intent:#/$defs/repoRelativePath:format": {
@@ -10588,90 +10681,6 @@
     },
     "deployment-intent:#/$defs/repoRelativePath:x-gala-utf8ByteLength": {
       "code": "REPOSITORY_PATH_INVALID"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord/properties/contractVersion:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
-      "code": "SCHEMA_ENUM_INVALID"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:basePath": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:baseUrl": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:buildEpoch": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:buildInputDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:buildPolicyDecisionDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:builder": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:contractVersion": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:dependencyLockDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:destinationCapabilityDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:packageReleaseCatalogDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:policyReleaseId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:renderPolicy": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:repositoryId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:repositoryRootDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:schemas": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:sourceCommit": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:sourceTree": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:stylingContractDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:template": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:theme": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:required:workflowIdentity": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-intent:#/$defs/reproducibleBuildRecord:type": {
-      "code": "SCHEMA_TYPE_INVALID"
     },
     "deployment-intent:#/$defs/rfc3339:format": {
       "code": "RFC3339_INVALID"
@@ -12371,6 +12380,9 @@
     "deployment-observation:#/$defs/githubPositiveDecimal:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
+    "deployment-observation:#/$defs/githubPositiveDecimal:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
+    },
     "deployment-observation:#/$defs/glob:format": {
       "code": "REPOSITORY_GLOB_INVALID"
     },
@@ -12542,14 +12554,20 @@
     "deployment-observation:#/$defs/plainText:type": {
       "code": "PLAIN_TEXT_INVALID"
     },
-    "deployment-observation:#/$defs/positiveInt64:format": {
-      "code": "SCHEMA_FORMAT_INVALID"
+    "deployment-observation:#/$defs/positiveInt64:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "deployment-observation:#/$defs/positiveInt64:minLength": {
+      "code": "SCHEMA_STRING_TOO_SHORT"
     },
     "deployment-observation:#/$defs/positiveInt64:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "deployment-observation:#/$defs/positiveInt64:type": {
       "code": "SCHEMA_TYPE_INVALID"
+    },
+    "deployment-observation:#/$defs/positiveInt64:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "deployment-observation:#/$defs/probeRegion:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -13004,19 +13022,19 @@
     "deployment-observation:#/$defs/recognizedPriorRouteContract:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "deployment-observation:#/$defs/renderPolicyIdentity:additionalProperties": {
+    "deployment-observation:#/$defs/recordRenderPolicyIdentity:additionalProperties": {
       "code": "REQUEST_FIELD_UNKNOWN"
     },
-    "deployment-observation:#/$defs/renderPolicyIdentity:required:digest": {
+    "deployment-observation:#/$defs/recordRenderPolicyIdentity:required:digest": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-observation:#/$defs/renderPolicyIdentity:required:name": {
+    "deployment-observation:#/$defs/recordRenderPolicyIdentity:required:name": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-observation:#/$defs/renderPolicyIdentity:required:version": {
+    "deployment-observation:#/$defs/recordRenderPolicyIdentity:required:version": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-observation:#/$defs/renderPolicyIdentity:type": {
+    "deployment-observation:#/$defs/recordRenderPolicyIdentity:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "deployment-observation:#/$defs/repoRelativePath:format": {
@@ -19610,6 +19628,9 @@
     "deployment-receipt:#/$defs/githubPositiveDecimal:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
+    "deployment-receipt:#/$defs/githubPositiveDecimal:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
+    },
     "deployment-receipt:#/$defs/githubWorkflowRef:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
     },
@@ -20009,14 +20030,20 @@
     "deployment-receipt:#/$defs/plainText:type": {
       "code": "PLAIN_TEXT_INVALID"
     },
-    "deployment-receipt:#/$defs/positiveInt64:format": {
-      "code": "SCHEMA_FORMAT_INVALID"
+    "deployment-receipt:#/$defs/positiveInt64:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "deployment-receipt:#/$defs/positiveInt64:minLength": {
+      "code": "SCHEMA_STRING_TOO_SHORT"
     },
     "deployment-receipt:#/$defs/positiveInt64:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "deployment-receipt:#/$defs/positiveInt64:type": {
       "code": "SCHEMA_TYPE_INVALID"
+    },
+    "deployment-receipt:#/$defs/positiveInt64:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "deployment-receipt:#/$defs/probeRegion:maxLength": {
       "code": "SCHEMA_STRING_TOO_LONG"
@@ -20498,19 +20525,103 @@
     "deployment-receipt:#/$defs/recognizedPriorRouteContract:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
-    "deployment-receipt:#/$defs/renderPolicyIdentity:additionalProperties": {
+    "deployment-receipt:#/$defs/recordRenderPolicyIdentity:additionalProperties": {
       "code": "REQUEST_FIELD_UNKNOWN"
     },
-    "deployment-receipt:#/$defs/renderPolicyIdentity:required:digest": {
+    "deployment-receipt:#/$defs/recordRenderPolicyIdentity:required:digest": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-receipt:#/$defs/renderPolicyIdentity:required:name": {
+    "deployment-receipt:#/$defs/recordRenderPolicyIdentity:required:name": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-receipt:#/$defs/renderPolicyIdentity:required:version": {
+    "deployment-receipt:#/$defs/recordRenderPolicyIdentity:required:version": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "deployment-receipt:#/$defs/renderPolicyIdentity:type": {
+    "deployment-receipt:#/$defs/recordRenderPolicyIdentity:type": {
+      "code": "SCHEMA_TYPE_INVALID"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/contractVersion:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
+      "code": "SCHEMA_ENUM_INVALID"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:additionalProperties": {
+      "code": "REQUEST_FIELD_UNKNOWN"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:basePath": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:baseUrl": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:buildEpoch": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:buildInputDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:buildPolicyDecisionDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:builder": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:contractVersion": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:dependencyLockDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:destinationCapabilityDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:packageReleaseCatalogDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:policyReleaseId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:renderPolicy": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:repositoryId": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:repositoryRootDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:schemas": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:sourceCommit": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:sourceTree": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:stylingContractDigest": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:template": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:theme": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:required:workflowIdentity": {
+      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
+    },
+    "deployment-receipt:#/$defs/recordReproducibleBuildRecord:type": {
       "code": "SCHEMA_TYPE_INVALID"
     },
     "deployment-receipt:#/$defs/repoRelativePath:format": {
@@ -20530,90 +20641,6 @@
     },
     "deployment-receipt:#/$defs/repoRelativePath:x-gala-utf8ByteLength": {
       "code": "REPOSITORY_PATH_INVALID"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/builder/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/contractVersion:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/schemas/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/template/allOf/1/properties/package:const": {
-      "code": "SCHEMA_CONSTANT_INVALID"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord/properties/theme/allOf/1/properties/package:enum": {
-      "code": "SCHEMA_ENUM_INVALID"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:additionalProperties": {
-      "code": "REQUEST_FIELD_UNKNOWN"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:basePath": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:baseUrl": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:buildEpoch": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:buildInputDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:buildPolicyDecisionDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:builder": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:contractVersion": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:dependencyLockDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:destinationCapabilityDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:packageReleaseCatalogDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:policyReleaseId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:renderPolicy": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:repositoryId": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:repositoryRootDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:schemas": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:sourceCommit": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:sourceTree": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:stylingContractDigest": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:template": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:theme": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:required:workflowIdentity": {
-      "code": "SCHEMA_REQUIRED_FIELD_MISSING"
-    },
-    "deployment-receipt:#/$defs/reproducibleBuildRecord:type": {
-      "code": "SCHEMA_TYPE_INVALID"
     },
     "deployment-receipt:#/$defs/rfc3339:format": {
       "code": "RFC3339_INVALID"
@@ -22610,11 +22637,8 @@
     "navigation:#/$defs/navigationLeaf/allOf/0/then:required:route": {
       "code": "SCHEMA_REQUIRED_FIELD_MISSING"
     },
-    "navigation:#/$defs/navigationLeaf/properties/children:maxItems": {
-      "code": "SCHEMA_ARRAY_TOO_LONG"
-    },
-    "navigation:#/$defs/navigationLeaf/properties/children:type": {
-      "code": "SCHEMA_TYPE_INVALID"
+    "navigation:#/$defs/navigationLeaf/properties/children:const": {
+      "code": "SCHEMA_CONSTANT_INVALID"
     },
     "navigation:#/$defs/navigationLeaf/properties/type:enum": {
       "code": "SCHEMA_ENUM_INVALID"
@@ -24656,14 +24680,20 @@
     "theme-contract:#/$defs/plainText:type": {
       "code": "PLAIN_TEXT_INVALID"
     },
-    "theme-contract:#/$defs/positiveInt64:format": {
-      "code": "SCHEMA_FORMAT_INVALID"
+    "theme-contract:#/$defs/positiveInt64:maxLength": {
+      "code": "SCHEMA_STRING_TOO_LONG"
+    },
+    "theme-contract:#/$defs/positiveInt64:minLength": {
+      "code": "SCHEMA_STRING_TOO_SHORT"
     },
     "theme-contract:#/$defs/positiveInt64:pattern": {
       "code": "SCHEMA_PATTERN_INVALID"
     },
     "theme-contract:#/$defs/positiveInt64:type": {
       "code": "SCHEMA_TYPE_INVALID"
+    },
+    "theme-contract:#/$defs/positiveInt64:x-gala-maximum": {
+      "code": "INTEGER_RANGE_INVALID"
     },
     "theme-contract:#/$defs/repoRelativePath:format": {
       "code": "REPOSITORY_PATH_INVALID"
@@ -25288,10 +25318,10 @@
     "appearance:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "appearance:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "appearance:#/properties/fontAssetRefs:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
-    "artifact-manifest:#/$defs/githubActionsArtifactId:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "artifact-manifest:#/$defs/githubPositiveDecimal:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "artifact-manifest:#/$defs/githubRepositoryCoordinate:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "artifact-manifest:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
+    "artifact-manifest:#/$defs/positiveInt64:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "artifact-manifest:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "artifact-manifest:#/properties/assets:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "artifact-manifest:#/properties/excludedInputs:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
@@ -25319,10 +25349,10 @@
     "build-input:#/$defs/renderableBody/properties/body:minLength": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "build-input:#/$defs/socialLink/allOf/0/then/properties/uri:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "build-input:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
-    "build-provenance:#/$defs/githubActionsArtifactId:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "build-provenance:#/$defs/githubPositiveDecimal:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "build-provenance:#/$defs/githubRepositoryCoordinate:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "build-provenance:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
+    "build-provenance:#/$defs/positiveInt64:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "build-provenance:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "content-frontmatter:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "content-frontmatter:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
@@ -25332,6 +25362,7 @@
     "deployment-intent:#/$defs/githubPositiveDecimal:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-intent:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-intent:#/$defs/pagesRunAttemptGapProof/properties/interveningAttempts:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
+    "deployment-intent:#/$defs/positiveInt64:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-intent:#/$defs/publicProbeObservation/properties/observedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-intent:#/$defs/recognizedPriorRouteContract/properties/expectedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-intent:#/$defs/recognizedPriorRouteContract/properties/redirectChain:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
@@ -25342,6 +25373,7 @@
     "deployment-observation:#/$defs/activationDetectionProbe/properties/observedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-observation:#/$defs/githubPositiveDecimal:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-observation:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
+    "deployment-observation:#/$defs/positiveInt64:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-observation:#/$defs/publicProbeObservation/properties/observedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-observation:#/$defs/recognizedPriorRouteContract/properties/expectedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-observation:#/$defs/recognizedPriorRouteContract/properties/redirectChain:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
@@ -25356,6 +25388,7 @@
     "deployment-receipt:#/$defs/githubPositiveDecimal:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-receipt:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-receipt:#/$defs/pagesRunAttemptGapProof/properties/interveningAttempts:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
+    "deployment-receipt:#/$defs/positiveInt64:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "deployment-receipt:#/$defs/publicProbeObservation/properties/observedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-receipt:#/$defs/recognizedPriorRouteContract/properties/expectedHeaders:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "deployment-receipt:#/$defs/recognizedPriorRouteContract/properties/redirectChain:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
@@ -25373,7 +25406,6 @@
     "lock:#/properties/dependencyDag:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "navigation:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "navigation:#/$defs/navigationItem/properties/children:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
-    "navigation:#/$defs/navigationLeaf/properties/children:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "navigation:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "navigation:#/properties/footerItems:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
     "navigation:#/properties/items:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE",
@@ -25397,6 +25429,7 @@
     "template-composition:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "template-composition:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "theme-contract:#/$defs/isoCountry:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
+    "theme-contract:#/$defs/positiveInt64:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "theme-contract:#/$defs/urn:format": "FORMAT_REDUNDANT_WITH_SIBLING_RULES",
     "theme-contract:#/properties/assets:minItems": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE"
   },

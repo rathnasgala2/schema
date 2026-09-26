@@ -12,7 +12,7 @@ public record BuildInputContentBuildRecord(
         @JsonProperty("bodyDigest") String bodyDigest,
         @JsonProperty("bodyMediaType") String bodyMediaType,
         @JsonProperty("frontmatter") BuildInputContentFrontmatterNormalized frontmatter,
-        @JsonProperty("renderPolicy") BuildInputRenderPolicyIdentity renderPolicy,
+        @JsonProperty("renderPolicy") BuildInputManifestRenderPolicyIdentity renderPolicy,
         @JsonProperty("resolvedAuthorIds") List<String> resolvedAuthorIds,
         @JsonProperty("sourceDigest") String sourceDigest,
         @JsonProperty("sourcePath") String sourcePath,

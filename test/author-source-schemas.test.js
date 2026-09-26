@@ -287,7 +287,9 @@ test('navigation encodes exact target selection and a two-level tree', async () 
     minItems: 0,
     maxItems: 20,
   });
-  assert.equal(schema.$defs.navigationLeaf.properties.children.maxItems, 0);
+  assert.deepEqual(schema.$defs.navigationLeaf.properties.children, {
+    const: [],
+  });
   assert.equal(schema.$defs.navigationItem.allOf.length, 1);
   assert.equal(schema.$defs.navigationLeaf.allOf.length, 1);
 });

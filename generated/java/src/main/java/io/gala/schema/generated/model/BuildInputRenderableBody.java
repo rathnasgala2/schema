@@ -10,7 +10,7 @@ public record BuildInputRenderableBody(
         @JsonProperty("body") String body,
         @JsonProperty("bodyDigest") String bodyDigest,
         @JsonProperty("bodyMediaType") String bodyMediaType,
-        @JsonProperty("renderPolicy") BuildInputRenderPolicyIdentity renderPolicy,
+        @JsonProperty("renderPolicy") BuildInputManifestRenderPolicyIdentity renderPolicy,
         @JsonProperty("sourceDigest") String sourceDigest,
         @JsonProperty("sourcePath") String sourcePath
 ) {

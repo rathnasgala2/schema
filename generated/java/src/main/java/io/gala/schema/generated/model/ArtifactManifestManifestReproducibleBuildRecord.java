@@ -1,36 +1,36 @@
-// Generated from urn:gala:metadata:build-provenance:2.0.0#/$defs/reproducibleBuildRecord; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
+// Generated from urn:gala:schema:artifact-manifest:2.0.0#/$defs/manifestReproducibleBuildRecord; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 package io.gala.schema.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Objects;
 
-/** Closed generated record for urn:gala:metadata:build-provenance:2.0.0#/$defs/reproducibleBuildRecord. */
-public record BuildProvenanceReproducibleBuildRecord(
+/** Closed generated record for urn:gala:schema:artifact-manifest:2.0.0#/$defs/manifestReproducibleBuildRecord. */
+public record ArtifactManifestManifestReproducibleBuildRecord(
         @JsonProperty("basePath") String basePath,
         @JsonProperty("baseUrl") String baseUrl,
         @JsonProperty("buildEpoch") String buildEpoch,
         @JsonProperty("buildInputDigest") String buildInputDigest,
         @JsonProperty("buildPolicyDecisionDigest") String buildPolicyDecisionDigest,
-        @JsonProperty("builder") BuildProvenancePackageIdentity builder,
+        @JsonProperty("builder") ArtifactManifestPackageIdentity builder,
         @JsonProperty("contractVersion") String contractVersion,
         @JsonProperty("dependencyLockDigest") String dependencyLockDigest,
         @JsonProperty("destinationCapabilityDigest") String destinationCapabilityDigest,
         @JsonProperty("packageReleaseCatalogDigest") String packageReleaseCatalogDigest,
         @JsonProperty("policyReleaseId") String policyReleaseId,
-        @JsonProperty("renderPolicy") BuildProvenanceRenderPolicyIdentity renderPolicy,
+        @JsonProperty("renderPolicy") ArtifactManifestManifestRenderPolicyIdentity renderPolicy,
         @JsonProperty("repositoryId") String repositoryId,
         @JsonProperty("repositoryRootDigest") String repositoryRootDigest,
-        @JsonProperty("schemas") BuildProvenancePackageIdentity schemas,
+        @JsonProperty("schemas") ArtifactManifestPackageIdentity schemas,
         @JsonProperty("sourceCommit") String sourceCommit,
         @JsonProperty("sourceTree") String sourceTree,
         @JsonProperty("stylingContractDigest") String stylingContractDigest,
-        @JsonProperty("template") BuildProvenancePackageIdentity template,
-        @JsonProperty("theme") BuildProvenancePackageIdentity theme,
+        @JsonProperty("template") ArtifactManifestPackageIdentity template,
+        @JsonProperty("theme") ArtifactManifestPackageIdentity theme,
         @JsonProperty("workflowIdentity") String workflowIdentity
 ) {
     /** Reject a missing required root member before domain use. */
-    public BuildProvenanceReproducibleBuildRecord {
+    public ArtifactManifestManifestReproducibleBuildRecord {
         Objects.requireNonNull(basePath, "basePath");
         Objects.requireNonNull(baseUrl, "baseUrl");
         Objects.requireNonNull(buildEpoch, "buildEpoch");

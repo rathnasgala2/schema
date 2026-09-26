@@ -187,7 +187,8 @@
       "minLength": 1,
       "maxLength": 20,
       "pattern": "^[1-9][0-9]{0,19}$",
-      "format": "gala-github-positive-uint64"
+      "format": "gala-github-positive-uint64",
+      "x-gala-maximum": "18446744073709551615"
     },
     "packageIdentity": {
       "type": "object",
@@ -327,7 +328,7 @@
       },
       "additionalProperties": false
     },
-    "renderPolicyIdentity": {
+    "manifestRenderPolicyIdentity": {
       "type": "object",
       "required": ["name", "version", "digest"],
       "properties": {
@@ -353,7 +354,7 @@
         "bodyMediaType": { "const": "text/html" },
         "body": { "type": "string", "minLength": 0, "maxLength": 2000000 },
         "bodyDigest": { "$ref": "#/$defs/digest" },
-        "renderPolicy": { "$ref": "#/$defs/renderPolicyIdentity" }
+        "renderPolicy": { "$ref": "#/$defs/manifestRenderPolicyIdentity" }
       },
       "additionalProperties": false
     },
@@ -667,7 +668,9 @@
             "required": ["default"]
           },
           "then": {
-            "properties": { "allowed": { "contains": { "const": "light" } } }
+            "properties": {
+              "allowed": { "contains": { "const": "light" }, "type": "array" }
+            }
           }
         },
         {
@@ -676,7 +679,9 @@
             "required": ["default"]
           },
           "then": {
-            "properties": { "allowed": { "contains": { "const": "dark" } } }
+            "properties": {
+              "allowed": { "contains": { "const": "dark" }, "type": "array" }
+            }
           }
         },
         {
@@ -685,11 +690,13 @@
             "required": ["default"]
           },
           "then": {
-            "properties": { "allowed": { "contains": { "const": "system" } } }
+            "properties": {
+              "allowed": { "contains": { "const": "system" }, "type": "array" }
+            }
           }
         }
       ],
-      "$comment": "The semantic validator also enforces canonical set ordering for allowed."
+      "$comment": "The semantic validator requires default to be a member of allowed, and enforces canonical set ordering for allowed."
     },
     "semanticTokens": {
       "type": "object",
@@ -697,7 +704,7 @@
       "properties": {},
       "additionalProperties": false,
       "maxProperties": 0,
-      "$comment": "Fail closed: only the documented empty object is accepted until the author semantic-token catalog is accepted."
+      "$comment": "Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted."
     },
     "appearanceNormalized": {
       "type": "object",
@@ -819,7 +826,7 @@
         "body": { "type": "string", "minLength": 0, "maxLength": 2000000 },
         "bodyMediaType": { "const": "text/html" },
         "bodyDigest": { "$ref": "#/$defs/digest" },
-        "renderPolicy": { "$ref": "#/$defs/renderPolicyIdentity" },
+        "renderPolicy": { "$ref": "#/$defs/manifestRenderPolicyIdentity" },
         "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
         "sourceRevision": { "$ref": "#/$defs/gitObjectId" },
         "sourceDigest": { "$ref": "#/$defs/digest" },
@@ -839,7 +846,7 @@
       "additionalProperties": false,
       "maxProperties": 0
     },
-    "adapterIdentity": {
+    "authoredAdapterIdentity": {
       "type": "object",
       "required": ["adapterId", "adapterVersion", "adapterDigest"],
       "properties": {
@@ -855,7 +862,7 @@
       "type": "object",
       "required": ["adapter", "baseUrl", "capabilityDigest"],
       "properties": {
-        "adapter": { "$ref": "#/$defs/adapterIdentity" },
+        "adapter": { "$ref": "#/$defs/authoredAdapterIdentity" },
         "baseUrl": { "$ref": "#/$defs/urlHttps" },
         "capabilityDigest": { "$ref": "#/$defs/digest" }
       },

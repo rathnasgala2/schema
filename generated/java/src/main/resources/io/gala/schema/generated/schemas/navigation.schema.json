@@ -169,16 +169,8 @@
             "properties": { "type": { "const": "internal" } },
             "required": ["type"]
           },
-          "then": {
-            "properties": { "route": {} },
-            "required": ["route"],
-            "not": { "properties": { "url": {} }, "required": ["url"] }
-          },
-          "else": {
-            "properties": { "url": {} },
-            "required": ["url"],
-            "not": { "properties": { "route": {} }, "required": ["route"] }
-          }
+          "then": { "required": ["route"], "not": { "required": ["url"] } },
+          "else": { "required": ["url"], "not": { "required": ["route"] } }
         }
       ]
     },
@@ -190,12 +182,7 @@
         "label": { "$ref": "#/$defs/plainLabel" },
         "route": { "$ref": "#/$defs/canonicalRoute" },
         "url": { "$ref": "#/$defs/urlHttps" },
-        "children": {
-          "type": "array",
-          "items": {},
-          "minItems": 0,
-          "maxItems": 0
-        }
+        "children": { "const": [] }
       },
       "additionalProperties": false,
       "allOf": [
@@ -204,16 +191,8 @@
             "properties": { "type": { "const": "internal" } },
             "required": ["type"]
           },
-          "then": {
-            "properties": { "route": {} },
-            "required": ["route"],
-            "not": { "properties": { "url": {} }, "required": ["url"] }
-          },
-          "else": {
-            "properties": { "url": {} },
-            "required": ["url"],
-            "not": { "properties": { "route": {} }, "required": ["route"] }
-          }
+          "then": { "required": ["route"], "not": { "required": ["url"] } },
+          "else": { "required": ["url"], "not": { "required": ["route"] } }
         }
       ]
     },

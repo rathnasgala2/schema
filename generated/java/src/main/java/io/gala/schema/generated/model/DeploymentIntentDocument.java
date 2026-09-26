@@ -56,7 +56,7 @@ public record DeploymentIntentDocument(
         @JsonProperty("publicTlsRevocationSetDigest") String publicTlsRevocationSetDigest,
         @JsonProperty("publicTlsTrustStoreDigest") String publicTlsTrustStoreDigest,
         @JsonProperty("publisher") DeploymentIntentPackageIdentity publisher,
-        @JsonProperty("rebuildRecord") DeploymentIntentReproducibleBuildRecord rebuildRecord,
+        @JsonProperty("rebuildRecord") DeploymentIntentRecordReproducibleBuildRecord rebuildRecord,
         @JsonProperty("requestedArtifactRetentionDays") Long requestedArtifactRetentionDays,
         @JsonProperty("sbomDigest") String sbomDigest,
         @JsonProperty("schemaId") String schemaId,
