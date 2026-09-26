@@ -9,9 +9,25 @@ const Ajv2020 = /** @type {typeof import('ajv/dist/2020.js').default} */ (
   /** @type {unknown} */ (Ajv2020Module)
 );
 
-const SCHEMA_ID_PREFIX = 'urn:gala:schema:';
-const METADATA_ID_PREFIX = 'urn:gala:metadata:';
-const SCHEMA_ID_SUFFIX = ':2.0.0';
+// Every S0 root's `$id` is immutable at `2.0.0`: contract *content* moves
+// forward in the npm package version (2.0.0 -> 2.11.0 and beyond), never in
+// the `$id`, so the same schema identity keeps resolving across releases.
+// This constant is that policy made explicit and enforced -- see
+// docs/COMPATIBILITY.md.
+const IMMUTABLE_SCHEMA_VERSION = '2.0.0';
+
+const SCHEMA_ID_PATTERN = /^urn:gala:(schema|metadata):([a-z0-9-]+):([^:]+)$/u;
+
+/**
+ * Stable fallback diagnostic code for a rule/keyword pair the committed
+ * diagnostic map has no entry for. `validateGalaDocument` is on the request
+ * path in both the api and the App; if the compiled schemas and the
+ * diagnostic map ever fall out of step (a stale published tarball, a partial
+ * upgrade, a schema patch applied without `npm run diagnostics:generate`),
+ * an ordinary invalid input must still come back as a rejected result, not
+ * an exception thrown out of the consumer's validation call (SCH-H14).
+ */
+const UNMAPPED_RULE_CODE = 'SCHEMA_RULE_UNMAPPED';
 
 /**
  * Recover a contract's kebab-case name from its exact immutable schema
@@ -24,10 +40,22 @@ const SCHEMA_ID_SUFFIX = ':2.0.0';
  * @returns {string} contract name
  */
 function contractFromSchemaId(schemaId) {
-  const prefix = schemaId.startsWith(METADATA_ID_PREFIX)
-    ? METADATA_ID_PREFIX
-    : SCHEMA_ID_PREFIX;
-  return schemaId.slice(prefix.length, -SCHEMA_ID_SUFFIX.length);
+  const match = SCHEMA_ID_PATTERN.exec(schemaId);
+  if (match === null) {
+    throw new Error(
+      `Schema identity "${schemaId}" does not match urn:gala:(schema|metadata):<contract>:<version>`,
+    );
+  }
+  const contract = match[2] ?? '';
+  const version = match[3] ?? '';
+  if (version !== IMMUTABLE_SCHEMA_VERSION) {
+    throw new Error(
+      `Schema identity "${schemaId}" has version "${version}"; every root's $id is pinned at ` +
+        `"${IMMUTABLE_SCHEMA_VERSION}" and never bumps (see docs/COMPATIBILITY.md) -- contract ` +
+        `content changes go in the package version instead.`,
+    );
+  }
+  return contract;
 }
 
 /**
@@ -165,14 +193,18 @@ function addGalaKeywords(ajv) {
       /** @type {number | string} */ maximum,
       /** @type {unknown} */ value,
     ) => {
-      if (typeof value !== 'string' && typeof value !== 'number') return true;
+      // x-gala-maximum is a range assertion, not a shape assertion; it must
+      // fail closed on anything it cannot evaluate as a non-negative
+      // decimal integer, not defer to a pattern/format keyword that may not
+      // be present on every $def using this keyword (see SCH-C3/SCH-H13).
+      if (typeof value !== 'string' && typeof value !== 'number') return false;
       if (typeof value === 'string' && !/^(?:0|[1-9][0-9]*)$/u.test(value)) {
-        return true;
+        return false;
       }
       try {
         return BigInt(value) <= BigInt(maximum);
       } catch {
-        return true;
+        return false;
       }
     },
   });
@@ -389,12 +421,8 @@ function normalizeError(diagnosticMap, contract, basePointer, value, error) {
   const rule = ruleIdentity(contract, basePointer, error);
   const mapping = diagnosticMap.rules[rule];
   const keyword = normalizedKeyword(error.keyword);
-  const code = mapping?.code ?? diagnosticMap.keywords[keyword];
-  if (code === undefined) {
-    throw new Error(
-      `Diagnostic rule ${rule} and keyword ${keyword} are unmapped`,
-    );
-  }
+  const code =
+    mapping?.code ?? diagnosticMap.keywords[keyword] ?? UNMAPPED_RULE_CODE;
   const catalog = diagnosticMap.codes[code];
   if (!catalog) throw new Error(`Diagnostic code ${code} is not cataloged`);
   const property =
@@ -611,14 +639,11 @@ function validateFragment(
         errors.map((error) => {
           const rule = ruleIdentity(contract, schemaPointer, error);
           const keyword = normalizedKeyword(error.keyword);
-          const code =
-            diagnosticMap.rules[rule]?.code ?? diagnosticMap.keywords[keyword];
-          if (code === undefined) {
-            throw new Error(
-              `Diagnostic rule ${rule} and keyword ${keyword} are unmapped`,
-            );
-          }
-          return code;
+          return (
+            diagnosticMap.rules[rule]?.code ??
+            diagnosticMap.keywords[keyword] ??
+            UNMAPPED_RULE_CODE
+          );
         }),
       ),
     ].sort(),

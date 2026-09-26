@@ -79,6 +79,9 @@ function remediationFor(code) {
   if (code === 'SCHEMA_VERSION_UNSUPPORTED') {
     return 'Use an explicitly supported schema identity and semantic version.';
   }
+  if (code === 'SCHEMA_RULE_UNMAPPED') {
+    return 'Regenerate diagnostics/diagnostic-map.json (npm run diagnostics:generate) so the compiled schemas and the diagnostic map agree.';
+  }
   return `Replace the input with a value that satisfies the documented ${code} rule.`;
 }
 
@@ -126,6 +129,12 @@ export function createDiagnosticMap(manifestSource) {
   codes.add('DIGEST_VECTOR_MISMATCH');
   codes.add('UNICODE_SCALAR_INVALID');
   codes.add('SCHEMA_VERSION_UNSUPPORTED');
+  // Stable fallback for a rule/keyword pair the diagnostic map has no entry
+  // for -- a stale published tarball, a partial upgrade, or a schema patch
+  // applied without regenerating this map. normalizeError() emits this
+  // instead of throwing (SCH-H14): an unmapped rule must still produce a
+  // rejection, not an exception through the consumer's validation call.
+  codes.add('SCHEMA_RULE_UNMAPPED');
   for (const code of Object.values(KEYWORD_FALLBACKS)) codes.add(code);
 
   const codeCatalog = Object.fromEntries(
