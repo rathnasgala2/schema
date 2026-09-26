@@ -10,6 +10,12 @@ version: 2
 # own gates already pin on purpose. A real bump to any ignored dependency
 # must be a deliberate PR that also updates the pinned-version test/assertion
 # in the same change, not an automated one.
+#
+# CI does not run on Dependabot's own pull requests: ../workflows/ci.yml's
+# `gate` job (every other job `needs: gate`) skips for actor
+# `dependabot[bot]` unless the pull request carries the `ci:run` label. Add
+# that label to a Dependabot PR to run CI on it -- for example, before
+# reviewing and merging it by hand.
 
 updates:
   - package-ecosystem: npm

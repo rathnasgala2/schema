@@ -14,8 +14,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Dependabot PRs must not run any CI unless a human opts them in with the
+  # `ci:run` label. Every other job below `needs: gate`, so it only runs
+  # when this condition holds; `push` events (main) are always allowed
+  # through, since the actor check only applies on `pull_request`.
+  gate:
+    name: Dependabot CI gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    if: >-
+      github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
+      || contains(github.event.pull_request.labels.*.name, 'ci:run')
+    steps:
+      - name: Gate passed
+        run: 'true'
+
   static-checks:
     name: Format, lint, typecheck, architecture
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -56,6 +72,7 @@ jobs:
 
   generated-artifacts:
     name: Generated artifacts are current
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -104,6 +121,7 @@ jobs:
 
   unit-tests:
     name: Unit tests
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -140,6 +158,7 @@ jobs:
 
   fixture-corpus:
     name: Per-schema fixture coverage
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -173,6 +192,7 @@ jobs:
 
   quality:
     name: Package payload and secret scan
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -220,6 +240,7 @@ jobs:
 
   audit:
     name: Dependency audit
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -257,6 +278,7 @@ jobs:
   # changed.
   parity:
     name: Cross-language parity check
+    needs: gate
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
