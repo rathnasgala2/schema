@@ -16,7 +16,7 @@ import {
   computeDeploymentStageInputDigest,
   computeDeploymentStageResultDigest,
   computeLocalFilesystemObservationEvidenceDigest,
-} from '../src/internal/deployment-stage-semantics.js';
+} from '../scripts/internal-semantics/deployment-stage-semantics.js';
 import {
   computeActivationDetectionPlanDigest,
   computeCancellationFinalizationEvidenceDigest,
@@ -33,7 +33,7 @@ import {
   validateDeploymentIntentSemantics,
   validateDeploymentObservationSemantics,
   validateDeploymentReceiptSemantics,
-} from '../src/internal/deployment-record-semantics.js';
+} from '../scripts/internal-semantics/deployment-record-semantics.js';
 
 const OPERATION_ID = '018f0000-0000-7000-8000-000000000001';
 const ATTEMPT_ID = '018f0000-0000-7000-8000-000000000002';

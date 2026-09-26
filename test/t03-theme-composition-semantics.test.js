@@ -20,7 +20,7 @@ import {
   validateThemeContract,
   validateThemeFixtureRelease,
   validateThemePackage,
-} from '../src/internal/theme-composition-semantics.js';
+} from '../scripts/internal-semantics/theme-composition-semantics.js';
 
 /** @typedef {Record<string, unknown>} UnknownRecord */
 

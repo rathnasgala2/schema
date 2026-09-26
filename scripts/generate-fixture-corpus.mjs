@@ -6,7 +6,7 @@ import { format, resolveConfig } from 'prettier';
 import { parseDocument } from 'yaml';
 
 import { validateGalaFormat } from '../src/internal/format-validators.js';
-import { digestPublicRuntimeOrigins } from '../src/internal/public-runtime-origins.js';
+import { digestPublicRuntimeOrigins } from './internal-semantics/public-runtime-origins.js';
 import { graphemeLength17 } from '../src/internal/unicode17.js';
 import { runIfMain } from './run-if-main.mjs';
 

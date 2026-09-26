@@ -131,6 +131,11 @@ test('package metadata pins the accepted runtime and package manager', async () 
     './openapi/openapi.yaml': './openapi/openapi.yaml',
     './openapi/http-catalog.json': './openapi/http-catalog.json',
     './package.json': './package.json',
+    // SCH-H7: fixtures/ and examples/ were already a de-facto public surface
+    // (the sibling template repo resolves them by walking the installed
+    // directory); this declares it as a real contract instead.
+    './fixtures/*': './fixtures/*',
+    './examples/*': './examples/*',
   });
 });
 

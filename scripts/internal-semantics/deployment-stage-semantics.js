@@ -1,7 +1,10 @@
-import { canonicalizeJcs, canonicalizeJcsBytes } from './canonical-jcs.js';
-import { ACTIVE_DIGEST_PROFILES } from './digest-profiles.js';
-import { validateRfc3339 } from './portable-scalars.js';
-import { SemanticValidationError } from './semver.js';
+import {
+  canonicalizeJcs,
+  canonicalizeJcsBytes,
+} from '../../src/internal/canonical-jcs.js';
+import { ACTIVE_DIGEST_PROFILES } from '../../src/internal/digest-profiles.js';
+import { validateRfc3339 } from '../../src/internal/portable-scalars.js';
+import { SemanticValidationError } from '../../src/internal/semver.js';
 
 const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/u;
 const STABLE_ID_PATTERN =

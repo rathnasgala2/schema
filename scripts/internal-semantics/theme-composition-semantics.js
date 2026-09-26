@@ -3,22 +3,25 @@ import {
   canonicalizeJcsBytes,
   parseDuplicateFreeIJson,
   sha256Tagged,
-} from './canonical-jcs.js';
-import { ACTIVE_DIGEST_PROFILES } from './digest-profiles.js';
+} from '../../src/internal/canonical-jcs.js';
+import { ACTIVE_DIGEST_PROFILES } from '../../src/internal/digest-profiles.js';
 import {
   parseSemver,
   parseSemverRange,
   satisfiesSemverRange,
   SemanticValidationError,
-} from './semver.js';
-import { validateSpdxCatalogEvidence, validateSpdxExpression } from './spdx.js';
-import unicodeData from './generated/unicode17.json' with { type: 'json' };
+} from '../../src/internal/semver.js';
+import {
+  validateSpdxCatalogEvidence,
+  validateSpdxExpression,
+} from '../../src/internal/spdx.js';
+import unicodeData from '../../src/internal/generated/unicode17.json' with { type: 'json' };
 import {
   assertUnicodeScalarString,
   graphemeLength17,
   normalizeNfc17,
   unicodeCollisionKey17,
-} from './unicode17.js';
+} from '../../src/internal/unicode17.js';
 
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/u;

@@ -15,6 +15,20 @@ divergences reconciled, some tightening validation) and new generated output
 
 ### Fixed
 
+- **SCH-H6/SCH-H7 (payload audit, part 1)**: moved the five DEC-097/098/099
+  semantic validators that had no declared export and no consumer outside their
+  own tests (`build-artifact-semantics.js`, `theme-composition-semantics.js`,
+  `deployment-record-semantics.js`, `deployment-stage-semantics.js`,
+  `managed-evidence-journal.js`) plus two build-time-only helpers
+  (`public-runtime-origins.js`, `http-problem-contract.js`) from `src/` to
+  `scripts/internal-semantics/`, so they are Node-only repository tooling by
+  construction instead of shipped-but-unreachable product code.
+  `openapi/source/**` and `openapi/generator/**` (build inputs the api/app never
+  extract from the published tarball) are excluded from `files`. `fixtures/*`
+  and `examples/*`, already resolved by the sibling `template` repo by walking
+  the installed package, are now declared `exports` patterns instead of an
+  undeclared convention. `npm pack --dry-run`: 38.6 MB / 1217 files (pre-SCH-C2)
+  -> 36.3 MB / 959 files.
 - **SCH-C3**: added `npm run schemas:shared-defs:check`, which fails the build
   if any `$defs` name shared by more than one of the twenty roots has diverged
   under that name. Reconciled the thirteen it found: nine unified to one

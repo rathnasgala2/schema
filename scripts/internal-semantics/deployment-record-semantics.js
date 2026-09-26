@@ -1,22 +1,22 @@
-import { canonicalizeJcs } from './canonical-jcs.js';
+import { canonicalizeJcs } from '../../src/internal/canonical-jcs.js';
 import {
   ACTIVE_DIGEST_PROFILES,
   derivePagesBuildVersion,
   digestManagedEvidenceGenesis,
-} from './digest-profiles.js';
+} from '../../src/internal/digest-profiles.js';
 import {
   validateDeploymentStageRecords,
   validateLocalFilesystemObservationEvidence,
 } from './deployment-stage-semantics.js';
 import { validateManagedEvidenceJournal } from './managed-evidence-journal.js';
-import { validateRfc3339 } from './portable-scalars.js';
+import { validateRfc3339 } from '../../src/internal/portable-scalars.js';
 import {
   validatePublicActivationDetectionObservation,
   validatePublicActivationDetectionPlan,
   validatePublicProbeAttempt,
   validateVerificationPlan,
-} from './public-verification-semantics.js';
-import { SemanticValidationError } from './semver.js';
+} from '../../src/internal/public-verification-semantics.js';
+import { SemanticValidationError } from '../../src/internal/semver.js';
 
 const INT64_MAXIMUM = 9_223_372_036_854_775_807n;
 const UINT64_MAXIMUM = 18_446_744_073_709_551_615n;

@@ -16,7 +16,7 @@ import {
 } from '../scripts/generate-openapi.mjs';
 import { canonicalizeJcsBytes } from '../src/internal/canonical-jcs.js';
 import { validateGalaFormat } from '../src/internal/format-validators.js';
-import { HTTP_PROBLEM_EXAMPLE_RULES } from '../src/internal/http-problem-contract.js';
+import { HTTP_PROBLEM_EXAMPLE_RULES } from '../scripts/internal-semantics/http-problem-contract.js';
 import { validateRfc3339 } from '../src/internal/portable-scalars.js';
 import { validateVerificationContentType } from '../src/internal/public-verification-semantics.js';
 

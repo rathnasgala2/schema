@@ -10,7 +10,7 @@ import {
   digestPublicRuntimeOrigins,
   projectPublicRuntimeOrigins,
   validatePublicRuntimeOrigins,
-} from '../src/internal/public-runtime-origins.js';
+} from '../scripts/internal-semantics/public-runtime-origins.js';
 
 const STABLE_ID = '019c0000-0000-7000-8000-000000000001';
 const OTHER_STABLE_ID = '019c0000-0000-7000-8000-000000000002';

@@ -1,10 +1,10 @@
-import { canonicalizeJcs } from './canonical-jcs.js';
+import { canonicalizeJcs } from '../../src/internal/canonical-jcs.js';
 import {
   appendManagedEvidenceHead,
   digestManagedEvidenceEntry,
   digestManagedEvidenceGenesis,
-} from './digest-profiles.js';
-import { SemanticValidationError } from './semver.js';
+} from '../../src/internal/digest-profiles.js';
+import { SemanticValidationError } from '../../src/internal/semver.js';
 
 const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/u;
 

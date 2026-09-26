@@ -9,27 +9,30 @@ import {
   canonicalizeJcsBytes,
   parseDuplicateFreeIJson,
   sha256Tagged,
-} from './canonical-jcs.js';
+} from '../../src/internal/canonical-jcs.js';
 import {
   ACTIVE_DIGEST_PROFILES,
   digestActionDefinitionBlob,
   digestRenderPolicyBytes,
-} from './digest-profiles.js';
-import { validateFrozenEnvelope } from './frozen-envelope.js';
-import { validateRfc3339 } from './portable-scalars.js';
+} from '../../src/internal/digest-profiles.js';
+import { validateFrozenEnvelope } from '../../src/internal/frozen-envelope.js';
+import { validateRfc3339 } from '../../src/internal/portable-scalars.js';
 import {
   parseSemver,
   parseSemverRange,
   satisfiesSemverRange,
-} from './semver.js';
-import { validateSpdxCatalogEvidence, validateSpdxExpression } from './spdx.js';
-import unicodeTable from './generated/unicode17.json' with { type: 'json' };
+} from '../../src/internal/semver.js';
+import {
+  validateSpdxCatalogEvidence,
+  validateSpdxExpression,
+} from '../../src/internal/spdx.js';
+import unicodeTable from '../../src/internal/generated/unicode17.json' with { type: 'json' };
 import {
   assertUnicodeScalarString,
   graphemeLength17,
   normalizeNfc17,
   unicodeCollisionKey17,
-} from './unicode17.js';
+} from '../../src/internal/unicode17.js';
 
 const FATAL_UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/u;

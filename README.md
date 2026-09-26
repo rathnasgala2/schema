@@ -335,10 +335,14 @@ Two gates enforce browser safety:
 (browser-safe byte helpers) and `src/internal/sha256.js` (a pure-JS synchronous
 SHA-256, verified byte-identical to `node:crypto`'s `createHash('sha256')`,
 needed because `crypto.subtle.digest` is Promise-only and many call sites here
-are synchronous). Modules not reachable from `.` (`frozen-envelope.js`,
-`build-artifact-semantics.js`, `theme-composition-semantics.js`,
-`deployment-record-semantics.js`) remain Node-only and keep using
-`node:*`/`Buffer` freely.
+are synchronous). `frozen-envelope.js` (a real export, Node-only by design) is
+not reachable from `.` and keeps using `node:*`/`Buffer` freely; the
+DEC-097/098/099 semantic validators (`build-artifact-semantics.js`,
+`theme-composition-semantics.js`, `deployment-record-semantics.js`,
+`deployment-stage-semantics.js`, `managed-evidence-journal.js`) have no export
+at all and live in `scripts/internal-semantics/` (SCH-H6), not `src/`, so they
+are Node-only repository tooling by construction rather than shipped product
+code that happens to be unreachable.
 
 The public package API is intentionally small:
 
@@ -457,10 +461,13 @@ remediation, and documentation URL fields without including authored values.
   per-contract narrow projections (today `public-runtime-origins`, for the
   narrow browser export), and the exact whole-result parity snapshot.
 - `examples/valid/` — canonical valid roots and rule-level accepted vectors.
+  Exported as `./examples/*` (SCH-H7): the sibling `template` repo already
+  resolved this directory by walking the installed package, so this declares the
+  contract that already existed instead of leaving it undeclared.
 - `fixtures/` — boundary, invalid-with-code, unknown-field, and adversarial
   vectors plus their coverage manifest; `fixtures/s2/` and `fixtures/s4/` are
   separately bound, generated consumer-fixture families with their own
-  manifests.
+  manifests. Exported as `./fixtures/*` (SCH-H7), for the same reason.
 - `codegen/` — TypeScript deterministic generator and the hash-bound DEC-091
   design manifest reconstructed from the accepted merged design snapshot.
 - `generated/browser/` — the real Ajv standalone ESM validator cores `.` and
@@ -490,7 +497,9 @@ remediation, and documentation URL fields without including authored values.
   validated against `openapi/openapi.yaml`, and `capabilityKeys` projected from
   `openapi/http-catalog.json`.
 - `openapi/source/` — reviewed, complete OpenAPI root, component, and path
-  fragments grouped by the first literal resource token.
+  fragments grouped by the first literal resource token. A build input, not part
+  of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
+  a consumer reads the materialized `openapi/openapi.yaml` instead.
 - `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 73 MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
@@ -498,8 +507,17 @@ remediation, and documentation URL fields without including authored values.
   the per-operation `assuranceClass`/`actionGrant` pair (SCHEMA-2.8.0); it is
   not a parallel transport authority.
 - `openapi/generator/` — serialized Spring and TypeScript Fetch options for
-  OpenAPI Generator 7.25.0.
+  OpenAPI Generator 7.25.0. Also a build input excluded from the npm payload
+  (SCH-H7).
 - `scripts/` — repository verification and supply-chain tooling.
+- `scripts/internal-semantics/` — the DEC-097/098/099 semantic validators
+  (`build-artifact-semantics.js`, `theme-composition-semantics.js`,
+  `deployment-record-semantics.js`, `deployment-stage-semantics.js`,
+  `managed-evidence-journal.js`) plus two small build-time helpers
+  (`public-runtime-origins.js`, `http-problem-contract.js`); moved out of `src/`
+  (SCH-H6) because none of them has a declared export or any consumer outside
+  their own `test/t03-*.test.js` and the fixture/OpenAPI generators -- they are
+  repository tooling, not shipped product code.
 - `parity/java/` — test-only checksum-pinned Gradle 8.8/Java 21 Networknt
   harness; it is not part of the npm package payload. It is also not a Java
   consumer's starting point: a Java consumer of this package generates its own

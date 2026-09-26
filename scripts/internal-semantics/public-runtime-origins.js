@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 
-import { canonicalizeJcsBytes } from './canonical-jcs.js';
-import { validateRfc3339 } from './portable-scalars.js';
+import { canonicalizeJcsBytes } from '../../src/internal/canonical-jcs.js';
+import { validateRfc3339 } from '../../src/internal/portable-scalars.js';
 
 const DOMAIN = 'GALA-PUBLIC-RUNTIME-ORIGINS-V2\0';
 const MAXIMUM_VALIDITY_MILLISECONDS = 300_000;
