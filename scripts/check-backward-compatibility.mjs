@@ -10,6 +10,13 @@ const BASELINE_DIRECTORY = path.resolve(
   'baseline-schemas',
 );
 const SCHEMAS_DIRECTORY = path.resolve(import.meta.dirname, '..', 'schemas');
+const SCHEMA_INVENTORY_PATH = path.resolve(
+  import.meta.dirname,
+  '..',
+  'docs',
+  'catalogs',
+  'schema-inventory.json',
+);
 
 /** Numeric-bound keywords, and whether raising the bound is additive. */
 const RELAXES_WHEN_RAISED = new Set([
@@ -531,17 +538,91 @@ export function diffSchema(pointer, baseline, current, findings) {
 }
 
 /**
- * Diff every baseline root against its current committed schema.
+ * The set of root schema files this gate must diff, derived from
+ * `docs/catalogs/schema-inventory.json` (SCH-M12) rather than a directory
+ * listing: the inventory is the one generated, gated ledger of "which
+ * roots exist" (`npm run codegen:check` fails if it drifts from
+ * `schemas/`), so deriving the baseline listing from it gives that ledger
+ * an actual consumer instead of being read by nobody.
+ *
+ * @returns {Promise<string[]>} `<contract>.schema.json` basenames, sorted
+ */
+export async function inventorySchemaFiles() {
+  const inventory = JSON.parse(await readFile(SCHEMA_INVENTORY_PATH, 'utf8'));
+  const files = /** @type {{contracts?: unknown}} */ (inventory).contracts;
+  if (!Array.isArray(files)) {
+    throw new TypeError(
+      `${SCHEMA_INVENTORY_PATH} has no "contracts" array; cannot derive the compatibility baseline listing from it`,
+    );
+  }
+  return files
+    .filter(
+      (entry) =>
+        typeof entry === 'object' &&
+        entry !== null &&
+        /** @type {{artifactKind?: unknown}} */ (entry).artifactKind ===
+          'JSON_SCHEMA',
+    )
+    .map((entry) => path.basename(/** @type {{path: string}} */ (entry).path))
+    .sort();
+}
+
+/**
+ * Diff every baseline root against its current committed schema. The set of
+ * roots diffed is derived from the schema inventory (see
+ * `inventorySchemaFiles`), and is cross-checked against both
+ * `compatibility/baseline-schemas/` and `schemas/` so an out-of-step
+ * inventory, a stale baseline snapshot, or a schema root added without
+ * refreshing either is reported as a finding of its own rather than
+ * silently skipped.
  *
  * @returns {Promise<CompatibilityFinding[]>} every finding, across all roots
  */
 export async function findCompatibilityChanges() {
-  const files = (await readdir(BASELINE_DIRECTORY)).filter((file) =>
-    file.endsWith('.schema.json'),
-  );
+  const files = await inventorySchemaFiles();
+  const baselineFiles = (await readdir(BASELINE_DIRECTORY))
+    .filter((file) => file.endsWith('.schema.json'))
+    .sort();
+  const currentFiles = (await readdir(SCHEMAS_DIRECTORY))
+    .filter((file) => file.endsWith('.schema.json'))
+    .sort();
   /** @type {CompatibilityFinding[]} */
   const findings = [];
-  for (const file of files) {
+  for (const file of new Set([...files, ...baselineFiles, ...currentFiles])) {
+    if (!files.includes(file)) {
+      findings.push({
+        path: file,
+        kind: 'breaking',
+        detail:
+          'present in compatibility/baseline-schemas/ or schemas/ but not in ' +
+          'docs/catalogs/schema-inventory.json -- regenerate the inventory ' +
+          '(npm run codegen:generate) before checking compatibility',
+      });
+      continue;
+    }
+    if (!baselineFiles.includes(file)) {
+      findings.push({
+        path: file,
+        kind: 'breaking',
+        detail:
+          'listed in the schema inventory but missing from ' +
+          'compatibility/baseline-schemas/ -- run ' +
+          '`npm run compatibility:baseline:update`',
+      });
+      continue;
+    }
+    if (!currentFiles.includes(file)) {
+      findings.push({
+        path: file,
+        kind: 'breaking',
+        detail: 'listed in the schema inventory but missing from schemas/',
+      });
+      continue;
+    }
+  }
+  for (const file of files.filter(
+    (file) => baselineFiles.includes(file) && currentFiles.includes(file),
+  )) {
     const [baseline, current] = await Promise.all([
       readFile(path.join(BASELINE_DIRECTORY, file), 'utf8').then(JSON.parse),
       readFile(path.join(SCHEMAS_DIRECTORY, file), 'utf8').then(JSON.parse),
