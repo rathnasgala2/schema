@@ -13,7 +13,7 @@ repositories {
 dependencies {
     implementation("com.networknt:json-schema-validator:2.0.1")
     implementation("org.jruby.joni:joni:2.2.6")
-    runtimeOnly("org.slf4j:slf4j-nop:2.0.17")
+    runtimeOnly("org.slf4j:slf4j-nop:2.0.20")
 }
 
 dependencyLocking {
