@@ -66,9 +66,7 @@ test('the schema roots use exactly the closed format vocabulary (SCH-M9)', async
   );
   const used = new Set();
   for (const file of files) {
-    const schema = JSON.parse(
-      await readFile(`schemas/${file}`, 'utf8'),
-    );
+    const schema = JSON.parse(await readFile(`schemas/${file}`, 'utf8'));
     collectFormats(schema, used);
   }
   for (const format of used) {

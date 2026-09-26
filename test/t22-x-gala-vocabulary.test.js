@@ -79,9 +79,7 @@ test('the JSON Schema roots use exactly the closed x-gala-* keyword vocabulary (
 test('the OpenAPI bundle uses exactly the closed x-gala-* extension vocabulary (SCH-M10)', async () => {
   const source = await readFile('openapi/openapi.yaml', 'utf8');
   const used = new Set(
-    [...source.matchAll(/\bx-gala-[a-zA-Z0-9-]+\b/gu)].map((match) =>
-      match[0],
-    ),
+    [...source.matchAll(/\bx-gala-[a-zA-Z0-9-]+\b/gu)].map((match) => match[0]),
   );
   assert.deepEqual(
     [...used].sort(),

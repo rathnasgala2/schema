@@ -194,15 +194,15 @@ divergences reconciled, some tightening validation) and new generated output
   while verifying this change against the full fixture corpus).
 - **SCH-M1**: README.md's date-time pattern note said nineteen roots keep
   enforcing the requirement; all twenty do.
-- **SCH-M2**: `SECURITY.md` states the actual `2.x` support line, a 5-business-day
-  acknowledgement window, and the advisory channel, instead of saying no
-  package had ever been released.
+- **SCH-M2**: `SECURITY.md` states the actual `2.x` support line, a
+  5-business-day acknowledgement window, and the advisory channel, instead of
+  saying no package had ever been released.
 - **SCH-M3**: the orphaned second `## [Unreleased]` heading (holding ~285 lines
   covering 2.0.0 through 2.4.0 that were never renamed to a version) is split
   into six proper version sections using each entry's own stated version
   transition.
-- **SCH-M4**: every version heading now has a `[x.y.z]: https://...` compare-link
-  definition.
+- **SCH-M4**: every version heading now has a `[x.y.z]: https://...`
+  compare-link definition.
 - **SCH-M5**: `generated/typescript`'s `validateGeneratedDocument` delegates
   directly to `.`'s exact precompiled validator instead of additionally running
   a second, weaker standalone structural core and ANDing the two (the weaker
@@ -216,12 +216,12 @@ divergences reconciled, some tightening validation) and new generated output
   `{minItems, maxItems, uniqueItems}` shape instead of recompiling on every
   call.
 - **SCH-M8**: documented the URN namespace rule (`urn:gala:metadata:` is for a
-  root whose canonical home is as a record embedded in another root's
-  envelope) and pinned the one exception (`build-provenance`) with a test.
+  root whose canonical home is as a record embedded in another root's envelope)
+  and pinned the one exception (`build-provenance`) with a test.
 - **SCH-M9**: pinned the closed integer-string format vocabulary (five
   overlapping formats under three naming conventions) with a test, so a sixth
-  cannot appear by accident; consolidating the vocabulary itself is deferred
-  (a `format` rename is a breaking compatibility event under SCH-C5a).
+  cannot appear by accident; consolidating the vocabulary itself is deferred (a
+  `format` rename is a breaking compatibility event under SCH-C5a).
 - **SCH-M10**: pinned the closed `x-gala-*` vocabulary on both the JSON Schema
   and OpenAPI sides; unifying the two naming conventions is deferred for the
   same reason as SCH-M9.
@@ -240,10 +240,10 @@ divergences reconciled, some tightening validation) and new generated output
   (`src/internal/schema-validator.js` is the one documented exception).
 - **SCH-M16**: `nightly.yml` files or updates a tracking issue on failure
   instead of only writing a `::error::` annotation nobody is notified of.
-- **SCH-M17**: documented that `diagnostics/parity-expectations.json` is
-  genuine cross-language evidence only under `npm run parity:check` (which
-  spawns the Java harness); under plain `npm test` it is a same-language
-  regression snapshot.
+- **SCH-M17**: documented that `diagnostics/parity-expectations.json` is genuine
+  cross-language evidence only under `npm run parity:check` (which spawns the
+  Java harness); under plain `npm test` it is a same-language regression
+  snapshot.
 - **SCH-M18**: added a direct structural comparison between
   `PortableProblemDocument` and `schemas/problem.schema.json`, rather than
   relying solely on the whole-bundle regeneration byte-check.
@@ -1380,18 +1380,17 @@ release changes narrows what a client may send or what a server may return.
 
 ## Pre-release history (never published)
 
-Everything in this section predates this package's first npm publish.
-`2.11.0` (2026-09-22T11:03:42Z, per the npm registry's own `time`
-metadata) is the only version ever published to `@rathnasgala2/schemas`;
-none of `2.0.0` through `2.5.0` was independently published, tagged, or
-installable. The `2026-09-16` dates previously attached to these entries
-recorded only when this block was retitled from an orphaned
-`## [Unreleased]` section (SCH-M3), not a real release date, so they have
-been removed rather than corrected -- there is no publish record to
-correct them against. The version numbers and their content are kept
-because they document real, sequential contract and catalog changes made
-during development; read them as local development history, not as a
-release ledger with independently verifiable dates.
+Everything in this section predates this package's first npm publish. Per the
+npm registry's own `time` metadata, `2.11.0 (2026-09-22T11:03:42Z)` is the only
+version ever published to `@rathnasgala2/schemas`; none of `2.0.0` through
+`2.5.0` was independently published, tagged, or installable. The `2026-09-16`
+dates previously attached to these entries recorded only when this block was
+retitled from an orphaned `## [Unreleased]` section (SCH-M3), not a real release
+date, so they have been removed rather than corrected -- there is no publish
+record to correct them against. The version numbers and their content are kept
+because they document real, sequential contract and catalog changes made during
+development; read them as local development history, not as a release ledger
+with independently verifiable dates.
 
 ### 2.5.0
 
@@ -1664,8 +1663,8 @@ release ledger with independently verifiable dates.
 
 ### Fixed
 
-- SBOM regeneration: `sbom.cdx.json` was stale after the version bump and
-  is now current.
+- SBOM regeneration: `sbom.cdx.json` was stale after the version bump and is now
+  current.
 
 ### 2.2.0
 

@@ -40,8 +40,7 @@ module.exports = {
       name: 'src-internal-module-is-reachable-from-a-declared-export',
       severity: 'error',
       from: {
-        path:
-          '^src/(index|runtime-origins|digest-profiles|frozen-envelope)\\.js$',
+        path: '^src/(index|runtime-origins|digest-profiles|frozen-envelope)\\.js$',
       },
       to: {
         path: '^src/internal/',

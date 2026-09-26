@@ -2277,7 +2277,10 @@ test('PortableProblemDocument matches problem.schema.json on shape and bounds (S
   const component = /** @type {JsonObject} */ (
     bundle.components.schemas.PortableProblemDocument
   );
-  assert.equal(bundle.components.schemas.Problem.$ref, '#/components/schemas/PortableProblemDocument');
+  assert.equal(
+    bundle.components.schemas.Problem.$ref,
+    '#/components/schemas/PortableProblemDocument',
+  );
 
   assert.deepEqual(
     Object.keys(component.properties).sort(),

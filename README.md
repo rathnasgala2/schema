@@ -15,21 +15,21 @@ contracts (`problem`, `event-envelope`, and `public-runtime-origins`).
 **URN namespace rule (SCH-M8):** every root's `$id` is
 `urn:gala:schema:<contract>:2.0.0` except `build-provenance`, which is
 `urn:gala:metadata:<contract>:2.0.0`. `urn:gala:metadata:` is for a root whose
-canonical home is as a record *embedded in* another root's envelope
+canonical home is as a record _embedded in_ another root's envelope
 (`build-provenance` is `artifact-manifest`'s `#/$defs/buildProvenance`,
 published standalone only so the API can validate the record directly at the
 workload boundary) and that is published standalone purely as a secondary,
 already-embedded convenience -- not for every root that happens to describe
-metadata-shaped content in general (`artifact-manifest` itself is metadata-shaped
-too, and stays `urn:gala:schema:`, because it has no other root's envelope it is
-first and foremost a member of). `src/internal/validator-core.js` special-cases
-this one root's namespace at `contractFromSchemaId`; the next metadata-shaped
-root should apply this same test before picking a namespace, so the exception
-does not grow without a rule behind it. Every
-`$defs` name shared by more than one root is byte-identical everywhere it
-appears (`npm run schemas:shared-defs:check`, SCH-C3); a name whose meaning
-deliberately differs by root role is not shared -- it gets a distinct name
-instead (`authoredAdapterIdentity` vs. `adapterIdentity`,
+metadata-shaped content in general (`artifact-manifest` itself is
+metadata-shaped too, and stays `urn:gala:schema:`, because it has no other
+root's envelope it is first and foremost a member of).
+`src/internal/validator-core.js` special-cases this one root's namespace at
+`contractFromSchemaId`; the next metadata-shaped root should apply this same
+test before picking a namespace, so the exception does not grow without a rule
+behind it. Every `$defs` name shared by more than one root is byte-identical
+everywhere it appears (`npm run schemas:shared-defs:check`, SCH-C3); a name
+whose meaning deliberately differs by root role is not shared -- it gets a
+distinct name instead (`authoredAdapterIdentity` vs. `adapterIdentity`,
 `manifestRenderPolicyIdentity` vs. `recordRenderPolicyIdentity`). The package
 also carries the deterministic full valid, boundary, invalid-with-code,
 unknown-field, and adversarial fixture corpus. Of the adversarial corpus's
@@ -331,13 +331,13 @@ Two gates enforce browser safety:
   the `.json` documents they import, which is what a bundler inlines — and fails
   `./runtime-origins` if it exceeds its declared 1,250,000-byte cap.
   `./generated/typescript` is a declared export subpath but is intentionally
-  excluded from this walk: `validateGeneratedDocument` now delegates directly
-  to `.`'s exact precompiled validator (SCH-M5, no more CommonJS structural
-  core, no more `node:module`'s `createRequire`), so its runtime is already
-  plain ESM with no reachable Node builtin, but every consumer today reaches
-  it only through `import type` (erased at compile time, never entering a
-  runtime browser bundle), so it has no declared closure byte cap yet — that
-  is a follow-up once a real runtime consumer exists.
+  excluded from this walk: `validateGeneratedDocument` now delegates directly to
+  `.`'s exact precompiled validator (SCH-M5, no more CommonJS structural core,
+  no more `node:module`'s `createRequire`), so its runtime is already plain ESM
+  with no reachable Node builtin, but every consumer today reaches it only
+  through `import type` (erased at compile time, never entering a runtime
+  browser bundle), so it has no declared closure byte cap yet — that is a
+  follow-up once a real runtime consumer exists.
 - `npm test` (via `test/browser-smoke.test.js`) spawns
   `scripts/browser-smoke.mjs` under `node --experimental-vm-modules`, which
   links the real `.` export's ESM source inside a genuine jsdom-realm `vm`
@@ -477,12 +477,12 @@ remediation, and documentation URL fields without including authored values.
   per-contract narrow projections (today `public-runtime-origins`, for the
   narrow browser export), and `parity-expectations.json` (SCH-M17): the
   JS-computed expected result for every parity case. `npm run parity:check`
-  (which spawns the Java harness) diffs the Java-computed actual result
-  against this file, which is genuine cross-language evidence. Plain `npm
-  test` never spawns Java, so `test/t05-parity-corpus.test.js`'s use of the
-  same file is a same-language regression snapshot -- JS re-checked against
-  its own prior committed output -- not cross-language coverage by itself;
-  do not read a green fast test suite as proof of Java parity.
+  (which spawns the Java harness) diffs the Java-computed actual result against
+  this file, which is genuine cross-language evidence. Plain `npm test` never
+  spawns Java, so `test/t05-parity-corpus.test.js`'s use of the same file is a
+  same-language regression snapshot -- JS re-checked against its own prior
+  committed output -- not cross-language coverage by itself; do not read a green
+  fast test suite as proof of Java parity.
 - `examples/valid/` — canonical valid roots and rule-level accepted vectors.
   Exported as `./examples/*` (SCH-H7): the sibling `template` repo already
   resolved this directory by walking the installed package, so this declares the
@@ -500,9 +500,9 @@ remediation, and documentation URL fields without including authored values.
 - `generated/typescript/` — strict root types and an ESM API
   (`validateGeneratedDocument`) that delegates directly to the `.` export's
   exact precompiled validator; it no longer also runs a separate, weaker
-  standalone structural core in parallel (SCH-M5) -- that used a second
-  2.73 MB Ajv standalone CommonJS core whose result could never disagree with
-  the exact one, so it added no assertion and doubled the work.
+  standalone structural core in parallel (SCH-M5) -- that used a second 2.73 MB
+  Ajv standalone CommonJS core whose result could never disagree with the exact
+  one, so it added no assertion and doubled the work.
 - `docs/catalogs/schema-inventory.json` — exact 20 JSON Schema roots plus the
   materialized OpenAPI identity.
 - `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`

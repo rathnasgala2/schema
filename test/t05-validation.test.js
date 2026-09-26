@@ -274,9 +274,8 @@ const STRICT_ALLOWLIST_BASELINE = new Set([
 ]);
 
 test('the strict-composition allowlist only shrinks (SCH-H1)', async () => {
-  const { LEGACY_STRICT_TYPES_ALLOWLIST } = await import(
-    '../src/internal/validator-core.js'
-  );
+  const { LEGACY_STRICT_TYPES_ALLOWLIST } =
+    await import('../src/internal/validator-core.js');
   for (const contract of LEGACY_STRICT_TYPES_ALLOWLIST) {
     assert.ok(
       STRICT_ALLOWLIST_BASELINE.has(contract),
@@ -299,9 +298,8 @@ test('every root compiles under strict schema/format/number/tuple checking (SCH-
   // zero *additional* strictTypes/strictRequired diagnostics beyond what is
   // already known, so a schema-authoring typo is caught here rather than
   // silently validating nothing.
-  const { LEGACY_STRICT_TYPES_ALLOWLIST } = await import(
-    '../src/internal/validator-core.js'
-  );
+  const { LEGACY_STRICT_TYPES_ALLOWLIST } =
+    await import('../src/internal/validator-core.js');
   const files = (await readdir('schemas')).filter((file) =>
     file.endsWith('.schema.json'),
   );
@@ -481,9 +479,8 @@ test('createValidatorSuite never exposes the internal registry or fragmentAjv (S
   // returns never leaks the registry (and therefore fragmentAjv) itself, so a
   // future caller cannot reach it through the returned suite even if it did
   // gain a reachable import path.
-  const { createValidatorSuite } = await import(
-    '../src/internal/validator-core.js'
-  );
+  const { createValidatorSuite } =
+    await import('../src/internal/validator-core.js');
   const schema = { $id: 'urn:gala:schema:problem:2.0.0', type: 'object' };
   const suite = createValidatorSuite({
     schemas: [schema],

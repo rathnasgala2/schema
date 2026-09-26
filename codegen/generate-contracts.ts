@@ -624,7 +624,7 @@ function generateTypescriptIndex(
     '',
     '/**',
     " * Validate one generated root through Galascribe's exact semantic",
-    ' * validator (`.`\'s precompiled ESM standalone core, SCH-C2). This used',
+    " * validator (`.`'s precompiled ESM standalone core, SCH-C2). This used",
     ' * to additionally run a separate, weaker standalone structural core',
     ' * (every custom format compiled as an unconditional pass) and AND the',
     ' * two results together (SCH-M5); since the weaker core can never turn a',
