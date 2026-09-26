@@ -127,13 +127,47 @@ jobs:
 
       # test/t04-fixture-corpus.test.js regenerates and re-verifies the full
       # 833-file fixture corpus; it alone takes over two minutes locally,
-      # more than the rest of the suite combined. It stays out of the fast
-      # gate; it runs nightly as part of the complete `npm test`.
+      # more than the rest of the suite combined. It stays out of this fast
+      # job and runs in its own parallel job below, so it still gates every
+      # pull request without lengthening this job's critical path.
       - name: Run the fast unit test suite
         shell: bash
         run: |
-          files="$(find test -maxdepth 1 -name '*.test.js' ! -name 't04-fixture-corpus.test.js' | sort)"
-          node --test $files
+          mapfile -t files < <(find test -maxdepth 1 -name '*.test.js' ! -name 't04-fixture-corpus.test.js' | sort)
+          node --test "${files[@]}"
+
+  fixture-corpus:
+    name: Per-schema fixture coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install the pinned Node.js distribution
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Verify toolchain pins
+        shell: bash
+        run: |
+          test "$(node --version)" = "v24.18.0"
+          test "$(npm --version)" = "11.16.0"
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      # The only test file that walks the manifest and asserts every schema
+      # has its valid / boundary / invalid-with-code / unknown-field /
+      # adversarial fixture families. It must gate merges, not run
+      # post-merge only -- a PR adding a schema root with no fixtures must
+      # fail here, not the following night.
+      - name: Run the fixture-corpus coverage test
+        run: node --test test/t04-fixture-corpus.test.js
 
   quality:
     name: Package payload and secret scan
@@ -198,23 +232,29 @@ jobs:
           node-version-file: .node-version
           cache: npm
 
+      - name: Verify toolchain pins
+        shell: bash
+        run: |
+          test "$(node --version)" = "v24.18.0"
+          test "$(npm --version)" = "11.16.0"
+
       - name: Install locked dependencies
         run: npm ci
 
       - name: Audit dependencies
         run: npm run audit
 
-  # Runs only on a push to main (never on a pull request, so the PR gate
-  # stays fast) and only when parity-relevant paths changed, because the
-  # cross-language parity harness (Java 21) takes ~5 minutes -- far more
-  # than the rest of this fast gate combined. This is schema's core
-  # guarantee (LOCAL-67 adversarial review: it must not be nightly-only),
-  # so it is a separate job on the merge path rather than folded into the
-  # PR-fast gate. nightly.yml's `npm run verify` still exercises it daily
-  # regardless of which paths changed.
+  # Runs on both the pull-request path and push to main, and only when
+  # parity-relevant paths changed, because the cross-language parity harness
+  # (Java 21) takes ~5 minutes -- far more than the rest of this fast gate
+  # combined. This is schema's core guarantee (LOCAL-67 adversarial review:
+  # it must not be nightly-only, and must not be post-merge-only either --
+  # a parity break must be caught on the branch that caused it, not fixed
+  # forward on main after everyone else has pulled it). nightly.yml's
+  # `npm run verify` still exercises it daily regardless of which paths
+  # changed.
   parity:
-    name: Cross-language parity check (push to main)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Cross-language parity check
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
