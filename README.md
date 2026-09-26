@@ -553,7 +553,7 @@ remediation, and documentation URL fields without including authored values.
   (SCH-H6) because none of them has a declared export or any consumer outside
   their own `test/t03-*.test.js` and the fixture/OpenAPI generators -- they are
   repository tooling, not shipped product code.
-- `parity/java/` — test-only checksum-pinned Gradle 8.8/Java 21 Networknt
+- `parity/java/` — test-only checksum-pinned Gradle 8.14.5/Java 21 Networknt
   harness; it is not part of the npm package payload. It is also not a Java
   consumer's starting point: a Java consumer of this package generates its own
   request/response types from `openapi/openapi.yaml` (the `api` repository does
