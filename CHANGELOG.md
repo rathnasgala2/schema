@@ -1438,7 +1438,7 @@ release changes narrows what a client may send or what a server may return.
   the first `;` in `screenJob`) remain unchanged. Regenerated catalogs to match.
   This is a backward-compatible, user-visible catalog content change.
 
-## [Unreleased]
+## [2.4.0] - 2026-09-16
 
 ### Added
 
@@ -1481,91 +1481,8 @@ release changes narrows what a client may send or what a server may return.
   content-key `defaultMessage` values moved). No route's `routeId`,
   `pathTemplate`, `screenId`, `authenticationClass`, `apiOperationIds`,
   `requiredStates` or `componentIds` changed.
-- LOCAL-21 (App route): `catalog-sources/app-routes.json` admits a 21st MVP App
-  route, `/invitations/accept` (derived `routeId` `invitations.accept`,
-  `screenId` `invitations.accept.screen`), so the invitee's one-time accept link
-  (`https://localhost:5173/invitations/accept?token=...`, App origin, never the
-  API origin) resolves to a registered App screen. `originClass` is `APP` (not
-  `TRANSACTIONAL_LINK`: unlike the deferred `/t/**` template family, this route
-  is served by the App after the invitee signs in, so `pathTemplate` carries no
-  `{token}` path segment and `tokenBearing` is `false`; the token travels as a
-  query parameter the App reads client-side and never as part of the routed
-  path). `authenticationClass` is `SESSION_REQUIRED`: the invitee must sign in
-  first, and the App preserves `/invitations/accept?token=...` as the
-  post-sign-in return route. `apiOperationIds` is exactly
-  `["postMembershipInvitationsByTokenAccept"]` (verified against
-  `openapi/openapi.yaml`); that operation's `x-gala-capability-key` is `null`,
-  so `capabilityKeys` is empty. `mutation` is `true` and `collection` is
-  `false`, so the generator assigns the closed 13-state required set (`LOADING`,
-  `READY`, `FORBIDDEN`, `NOT_FOUND`, `CAPABILITY_UNAVAILABLE`, `RECONCILING`,
-  `TERMINAL_FAILURE`, `DIRTY`, `VALIDATING`, `SUBMITTING`, `CONFLICTED`,
-  `RATE_LIMITED`, `SUCCESS`) and the document 07 ordered component set
-  `AppShell`, `Breadcrumbs`, `ContextHeader`, `StatePanel`, `FormField`,
-  `ValidationSummary`, `AsyncCommand` (no `ConsequentialConfirmation`: the
-  operation is `POST`, not `DELETE`, and its path carries none of the
-  destructive-consequence tokens). The screen's pending/submitting state is
-  `SUBMITTING`, its accepted state (linking to the destination organization) is
-  `SUCCESS`, and its failed state is `TERMINAL_FAILURE`; the operation's
-  non-enumerating design declares only one reachable failure problem,
-  `INVALID_SOURCE_STATE` (alongside `AUTHENTICATION_REQUIRED`,
-  `REQUEST_FIELD_UNKNOWN` and `VALIDATION_FAILED`, none of them
-  route-screen-specific), so an expired token, an already-used token and an
-  unrecognized token are indistinguishable at the API and are presented
-  identically by the failed state. No new App component or content key shape was
-  needed; the generator projects the existing 15-component, closed 16-state
-  vocabulary onto the new route mechanically. Regenerated
-  `docs/catalogs/app-routes.json` and `docs/catalogs/app-components.json` (route
-  count 20 -> 21, content-key count 578 -> 606, both digest-bound and
-  cross-validated against `openapi/openapi.yaml` and `openapi/http-catalog.json`
-  by `npm run app-catalogs:check`). This is a backward-compatible additive
-  change (no existing route, component or content key changed), so the package
-  version moves from `2.1.0` to `2.2.0` per this repository's Semantic
-  Versioning policy; regenerated the schema inventory digest, license inventory
-  and SBOM to match.
 
-- LOCAL-21: `PostOrganizationsByOrganizationIdMembershipInvitationsResponse`
-  (the 201 response of
-  `POST /v2/organizations/{organizationId}/membership-invitations`) gains an
-  optional `token` string property: the plaintext single-use invitation token,
-  present exactly once on the response that creates the invitation, absent on an
-  idempotent replay of the same request and absent from every read of an
-  invitation (`GET .../membership-invitations/{invitationId}` uses its own
-  unchanged read schema, which never carried a `token` field). The invitee
-  redeems it with the existing `POST /v2/membership-invitations/{token}:accept`
-  operation; `token` reuses that operation's already-declared `{token}` path
-  parameter length bounds (`minLength: 32`, `maxLength: 256`, plain string, no
-  new pattern) rather than inventing a stricter format, even though the API
-  currently generates 32 random bytes hex-encoded (64 lowercase hex characters)
-  into that range. `token` is documented as a credential that must never be
-  logged. This is a backward-compatible additive change (no other schema,
-  operation, or problem catalog changed), so the package version moves from
-  `2.0.0` to `2.1.0` per this repository's Semantic Versioning policy; the
-  `urn:gala:schema:openapi:2.0.0` contract identity, `openapi/source/root.yaml`
-  design revision, `docs/catalogs/schema-inventory.json`'s `version` field, and
-  `compatibility/compatibility.json` are unchanged because none of them are
-  keyed to the npm package version and no gate ties them together
-  (`docs/catalogs/schema-inventory.json`'s `sourceDigest` for the `openapi`
-  contract regenerates with the new bundle content, as expected).
-
-- S4-T01: added the separately bound, generated `fixtures/s4/` deployment/
-  certification consumer-fixture family (`deployment-intent-destinations`,
-  `deployment-observation-matrix`, `deployment-receipt-no-signatures`,
-  `public-generation-marker-closed`, `adapter-capability-destinations`) and its
-  `fixtures/s4/manifest.json`, mirroring the `fixtures/s2/` precedent. It covers
-  `local-directory`/`github-pages`/`do-spaces` deployment-intent and
-  adapter-capability rows, the deployment-observation class/outcome/
-  destinationChanged matrix, the managed `deployment-receipt` with no
-  `signatures` member (and its rejection when one is added), and the closed
-  `public-generation-marker` root, each with positive and adversarial cases and
-  cross-runtime (Ajv/Networknt) semantic parity through the existing shared
-  `validateGalaDocument` engine. No eleventh schema root was added; the five S4
-  problem codes (`VERIFICATION_EVIDENCE_LIMIT_EXCEEDED`,
-  `DESTINATION_MUTATION_IN_PROGRESS`, `RATE_LIMITED`,
-  `REPORTING_CAPABILITY_INVALID`, `RESPONSE_REPRESENTATION_LIMIT_EXCEEDED`) and
-  the two workload operations (`POST /v2/workloads/github/receipt-exchanges`,
-  `POST /v2/workloads/deployment-receipts`) were already frozen and required no
-  change. The pre-S2 766-file legacy corpus and the existing S2 family remain
-  byte-identical.
+## [2.2.2] - 2026-09-16
 
 ### Fixed
 
@@ -1636,22 +1553,111 @@ release changes narrows what a client may send or what a server may return.
   provides a genuine, purpose-built browser-shaped global realm). No public
   schema, wire format, or canonical byte semantics changed. Package version
   moves from `2.2.1` to `2.2.2` (patch bug fix).
-- 2.2.1 SBOM regeneration: `sbom.cdx.json` was stale after the version bump and
+
+## [2.2.1] - 2026-09-16
+
+### Fixed
+
+- SBOM regeneration: `sbom.cdx.json` was stale after the version bump and
   is now current.
-- S5-T00b: added `docs/catalogs/app-routes.json` and
-  `docs/catalogs/app-components.json` to the `files` array in `package.json`;
-  S5-T00 generated both catalogs but omitted them from the published package
-  payload.
-- S3-T02: verified the section 7 managed-GitHub-binding routes, their reachable
-  problem codes, and the `repository_binding`/`repository_change` event-catalog
-  families against the S3 slice brief; the frozen 65-operation surface,
-  problem-code catalog, and 18-family/74-action event catalog already satisfy S3
-  exactly, so no operation, schema root, or problem code was added. Repaired two
-  pre-existing build-gate defects found during verification: a missing committed
-  `types/internal/http-problem-contract.d.ts` declaration, and a stale
-  `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
+
+## [2.2.0] - 2026-09-16
 
 ### Added
+
+- LOCAL-21 (App route): `catalog-sources/app-routes.json` admits a 21st MVP App
+  route, `/invitations/accept` (derived `routeId` `invitations.accept`,
+  `screenId` `invitations.accept.screen`), so the invitee's one-time accept link
+  (`https://localhost:5173/invitations/accept?token=...`, App origin, never the
+  API origin) resolves to a registered App screen. `originClass` is `APP` (not
+  `TRANSACTIONAL_LINK`: unlike the deferred `/t/**` template family, this route
+  is served by the App after the invitee signs in, so `pathTemplate` carries no
+  `{token}` path segment and `tokenBearing` is `false`; the token travels as a
+  query parameter the App reads client-side and never as part of the routed
+  path). `authenticationClass` is `SESSION_REQUIRED`: the invitee must sign in
+  first, and the App preserves `/invitations/accept?token=...` as the
+  post-sign-in return route. `apiOperationIds` is exactly
+  `["postMembershipInvitationsByTokenAccept"]` (verified against
+  `openapi/openapi.yaml`); that operation's `x-gala-capability-key` is `null`,
+  so `capabilityKeys` is empty. `mutation` is `true` and `collection` is
+  `false`, so the generator assigns the closed 13-state required set (`LOADING`,
+  `READY`, `FORBIDDEN`, `NOT_FOUND`, `CAPABILITY_UNAVAILABLE`, `RECONCILING`,
+  `TERMINAL_FAILURE`, `DIRTY`, `VALIDATING`, `SUBMITTING`, `CONFLICTED`,
+  `RATE_LIMITED`, `SUCCESS`) and the document 07 ordered component set
+  `AppShell`, `Breadcrumbs`, `ContextHeader`, `StatePanel`, `FormField`,
+  `ValidationSummary`, `AsyncCommand` (no `ConsequentialConfirmation`: the
+  operation is `POST`, not `DELETE`, and its path carries none of the
+  destructive-consequence tokens). The screen's pending/submitting state is
+  `SUBMITTING`, its accepted state (linking to the destination organization) is
+  `SUCCESS`, and its failed state is `TERMINAL_FAILURE`; the operation's
+  non-enumerating design declares only one reachable failure problem,
+  `INVALID_SOURCE_STATE` (alongside `AUTHENTICATION_REQUIRED`,
+  `REQUEST_FIELD_UNKNOWN` and `VALIDATION_FAILED`, none of them
+  route-screen-specific), so an expired token, an already-used token and an
+  unrecognized token are indistinguishable at the API and are presented
+  identically by the failed state. No new App component or content key shape was
+  needed; the generator projects the existing 15-component, closed 16-state
+  vocabulary onto the new route mechanically. Regenerated
+  `docs/catalogs/app-routes.json` and `docs/catalogs/app-components.json` (route
+  count 20 -> 21, content-key count 578 -> 606, both digest-bound and
+  cross-validated against `openapi/openapi.yaml` and `openapi/http-catalog.json`
+  by `npm run app-catalogs:check`). This is a backward-compatible additive
+  change (no existing route, component or content key changed), so the package
+  version moves from `2.1.0` to `2.2.0` per this repository's Semantic
+  Versioning policy; regenerated the schema inventory digest, license inventory
+  and SBOM to match.
+
+## [2.1.0] - 2026-09-16
+
+### Added
+
+- LOCAL-21: `PostOrganizationsByOrganizationIdMembershipInvitationsResponse`
+  (the 201 response of
+  `POST /v2/organizations/{organizationId}/membership-invitations`) gains an
+  optional `token` string property: the plaintext single-use invitation token,
+  present exactly once on the response that creates the invitation, absent on an
+  idempotent replay of the same request and absent from every read of an
+  invitation (`GET .../membership-invitations/{invitationId}` uses its own
+  unchanged read schema, which never carried a `token` field). The invitee
+  redeems it with the existing `POST /v2/membership-invitations/{token}:accept`
+  operation; `token` reuses that operation's already-declared `{token}` path
+  parameter length bounds (`minLength: 32`, `maxLength: 256`, plain string, no
+  new pattern) rather than inventing a stricter format, even though the API
+  currently generates 32 random bytes hex-encoded (64 lowercase hex characters)
+  into that range. `token` is documented as a credential that must never be
+  logged. This is a backward-compatible additive change (no other schema,
+  operation, or problem catalog changed), so the package version moves from
+  `2.0.0` to `2.1.0` per this repository's Semantic Versioning policy; the
+  `urn:gala:schema:openapi:2.0.0` contract identity, `openapi/source/root.yaml`
+  design revision, `docs/catalogs/schema-inventory.json`'s `version` field, and
+  `compatibility/compatibility.json` are unchanged because none of them are
+  keyed to the npm package version and no gate ties them together
+  (`docs/catalogs/schema-inventory.json`'s `sourceDigest` for the `openapi`
+  contract regenerates with the new bundle content, as expected).
+
+## [2.0.0] - 2026-09-16
+
+### Added
+
+- S4-T01: added the separately bound, generated `fixtures/s4/` deployment/
+  certification consumer-fixture family (`deployment-intent-destinations`,
+  `deployment-observation-matrix`, `deployment-receipt-no-signatures`,
+  `public-generation-marker-closed`, `adapter-capability-destinations`) and its
+  `fixtures/s4/manifest.json`, mirroring the `fixtures/s2/` precedent. It covers
+  `local-directory`/`github-pages`/`do-spaces` deployment-intent and
+  adapter-capability rows, the deployment-observation class/outcome/
+  destinationChanged matrix, the managed `deployment-receipt` with no
+  `signatures` member (and its rejection when one is added), and the closed
+  `public-generation-marker` root, each with positive and adversarial cases and
+  cross-runtime (Ajv/Networknt) semantic parity through the existing shared
+  `validateGalaDocument` engine. No eleventh schema root was added; the five S4
+  problem codes (`VERIFICATION_EVIDENCE_LIMIT_EXCEEDED`,
+  `DESTINATION_MUTATION_IN_PROGRESS`, `RATE_LIMITED`,
+  `REPORTING_CAPABILITY_INVALID`, `RESPONSE_REPRESENTATION_LIMIT_EXCEEDED`) and
+  the two workload operations (`POST /v2/workloads/github/receipt-exchanges`,
+  `POST /v2/workloads/deployment-receipts`) were already frozen and required no
+  change. The pre-S2 766-file legacy corpus and the existing S2 family remain
+  byte-identical.
 
 - S5-T00 reviewed `catalog-sources/app-components.json` and
   `catalog-sources/app-routes.json` source ledgers plus the deterministic
@@ -1724,3 +1730,18 @@ release changes narrows what a client may send or what a server may return.
 - Formatting, lint, type, architecture, duplication, test, workflow-pin,
   license-inventory, and reproducible-SBOM gates.
 - Full-SHA-pinned continuous-integration workflow and dependency update policy.
+
+### Fixed
+
+- S5-T00b: added `docs/catalogs/app-routes.json` and
+  `docs/catalogs/app-components.json` to the `files` array in `package.json`;
+  S5-T00 generated both catalogs but omitted them from the published package
+  payload.
+- S3-T02: verified the section 7 managed-GitHub-binding routes, their reachable
+  problem codes, and the `repository_binding`/`repository_change` event-catalog
+  families against the S3 slice brief; the frozen 65-operation surface,
+  problem-code catalog, and 18-family/74-action event catalog already satisfy S3
+  exactly, so no operation, schema root, or problem code was added. Repaired two
+  pre-existing build-gate defects found during verification: a missing committed
+  `types/internal/http-problem-contract.d.ts` declaration, and a stale
+  `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
