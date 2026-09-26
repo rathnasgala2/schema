@@ -81,7 +81,8 @@ function contractFromSchemaId(schemaId) {
  * @typedef {{
  *   schemasById: ReadonlyMap<string, Record<string, unknown>>,
  *   validatorsById: ReadonlyMap<string, import('ajv').ValidateFunction>,
- *   ajv: import('ajv/dist/2020.js').default
+ *   strictAjv: import('ajv/dist/2020.js').default,
+ *   legacyAjv: import('ajv/dist/2020.js').default
  * }} Registry
  */
 
@@ -190,32 +191,62 @@ function collectFormats(value, formats) {
 }
 
 /**
- * Create the immutable schema and validator registries.
+ * Roots whose `allOf`/`if`/`then`/`else` composition Ajv's `strictTypes`/
+ * `strictRequired` cannot see across: a conditional branch's `properties`/
+ * `required` describes a value or a required member declared by a
+ * *sibling* branch in the same `allOf`, not locally, and strict mode flags
+ * that as if it were a typo (SCH-H1).
+ *
+ * This is a **shrinking-only** allowlist: `test/t15-strict-allowlist.test.js`
+ * asserts it is a subset of the set recorded there when the allowlist was
+ * introduced, so a new root or a reconciled `$defs` shape can be added to
+ * this file only by removing an existing entry, never by adding one net
+ * new. Every root *not* listed here already compiles clean under full
+ * `strictTypes`/`strictRequired` and must stay that way.
+ *
+ * As of this allowlist's introduction, the 14 listed roots account for 756
+ * strict-mode diagnostics (`strictTypes` + `strictRequired` combined); the
+ * remaining 6 roots (`appearance`, `event-envelope`,
+ * `public-generation-marker`, `public-runtime-origins`, `repository`,
+ * `template-composition`) have zero.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const LEGACY_STRICT_TYPES_ALLOWLIST = new Set([
+  'adapter-capability',
+  'artifact-manifest',
+  'author',
+  'build-input',
+  'build-provenance',
+  'content-frontmatter',
+  'deployment-intent',
+  'deployment-observation',
+  'deployment-receipt',
+  'lock',
+  'navigation',
+  'problem',
+  'publication',
+  'theme-contract',
+]);
+
+/**
+ * Build one Ajv instance with Gala's formats and keywords registered.
  *
  * @param {readonly Record<string, unknown>[]} schemas schema documents, in registration order
  * @param {(formatName: string, value: string) => boolean} validateFormat Gala format dispatcher
- * @returns {Registry} registries
+ * @param {boolean} strictComposition whether `strictTypes`/`strictRequired`
+ *   are enabled (see `LEGACY_STRICT_TYPES_ALLOWLIST`)
+ * @returns {import('ajv/dist/2020.js').default} configured Ajv instance
  */
-function createRegistry(schemas, validateFormat) {
+function buildAjv(schemas, validateFormat, strictComposition) {
   const formats = new Set();
   for (const schema of schemas) collectFormats(schema, formats);
 
   const ajv = new Ajv2020({
     allErrors: true,
     strict: true,
-    // strictTypes and strictRequired are relaxed for one deliberate,
-    // repository-wide compositional style: every deployment-* root
-    // expresses its state machine as `allOf` of `if`/`then`/`else`
-    // fragments, where a conditional's `properties`/`required` describe a
-    // value or a required member declared by a *sibling* branch in the
-    // same `allOf`, not locally. Ajv's strict mode cannot see across that
-    // composition and flags ~168 such sites as if they were typos. Every
-    // other strict-mode check -- unknown keywords, unknown formats, tuple
-    // and number strictness -- stays on, which is what catches the classes
-    // of mistake (a misspelled keyword, an unregistered format) SCH-H1
-    // exists to catch.
-    strictTypes: false,
-    strictRequired: false,
+    strictTypes: strictComposition,
+    strictRequired: strictComposition,
   });
   /** @type {import('ajv-formats').default} */ (
     /** @type {unknown} */ (formatsPlugin)
@@ -230,14 +261,52 @@ function createRegistry(schemas, validateFormat) {
       });
     }
   }
+  return ajv;
+}
+
+/**
+ * Create the immutable schema and validator registries. Every root compiles
+ * under full `strict: true` (unknown keywords, unknown formats, tuple and
+ * number strictness); roots on `LEGACY_STRICT_TYPES_ALLOWLIST` compile with
+ * `strictTypes`/`strictRequired` relaxed, every other root compiles with
+ * both enabled (SCH-H1).
+ *
+ * @param {readonly Record<string, unknown>[]} schemas schema documents, in registration order
+ * @param {(formatName: string, value: string) => boolean} validateFormat Gala format dispatcher
+ * @returns {Registry} registries
+ */
+function createRegistry(schemas, validateFormat) {
+  const strictAjv = buildAjv(schemas, validateFormat, true);
+  const legacyAjv = buildAjv(schemas, validateFormat, false);
+
   const schemasById = new Map();
   const validatorsById = new Map();
   for (const schema of schemas) {
     const schemaId = String(schema.$id);
+    const contract = contractFromSchemaId(schemaId);
+    const ajv = LEGACY_STRICT_TYPES_ALLOWLIST.has(contract)
+      ? legacyAjv
+      : strictAjv;
     schemasById.set(schemaId, schema);
     validatorsById.set(schemaId, ajv.compile(schema));
   }
-  return { schemasById, validatorsById, ajv };
+  return { schemasById, validatorsById, strictAjv, legacyAjv };
+}
+
+/**
+ * Pick the Ajv instance a given schema identity's root was compiled on
+ * (see `LEGACY_STRICT_TYPES_ALLOWLIST`), so a fragment lookup by `$id`
+ * resolves against the instance that actually holds it.
+ *
+ * @param {Registry} registry compiled schema registry
+ * @param {string} schemaId exact immutable schema identity
+ * @returns {import('ajv/dist/2020.js').default} the owning Ajv instance
+ */
+function ajvForSchemaId(registry, schemaId) {
+  const contract = contractFromSchemaId(schemaId);
+  return LEGACY_STRICT_TYPES_ALLOWLIST.has(contract)
+    ? registry.legacyAjv
+    : registry.strictAjv;
 }
 
 /**
@@ -593,7 +662,9 @@ function validateFragment(
   schemaPointer,
   value,
 ) {
-  const validator = registry.ajv.getSchema(`${schemaId}${schemaPointer}`);
+  const validator = ajvForSchemaId(registry, schemaId).getSchema(
+    `${schemaId}${schemaPointer}`,
+  );
   if (!validator) {
     throw new Error(
       `Registered schema fragment is absent: ${schemaId}${schemaPointer}`,
@@ -668,7 +739,7 @@ function validateArrayCardinality(registry, diagnosticMap, schema, length) {
     ...(schema.maxItems === undefined ? {} : { maxItems: schema.maxItems }),
     ...(schema.uniqueItems === true ? { uniqueItems: true } : {}),
   };
-  const validator = registry.ajv.compile(cardinalitySchema);
+  const validator = registry.strictAjv.compile(cardinalitySchema);
   const values = schema.uniqueItems
     ? Array.from({ length }, (_, index) => index)
     : Array.from({ length }, () => null);

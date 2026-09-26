@@ -393,10 +393,17 @@ function generateValidatorCore(
   schemas: SchemaDocument[],
   revision: string,
 ): string {
-  // See src/internal/validator-core.js's createRegistry for why strictTypes
-  // and strictRequired are relaxed: the deployment-* roots' allOf/if/then
-  // state-machine composition declares required/properties across sibling
-  // branches, which strict mode cannot see across.
+  // src/internal/validator-core.js's real registry compiles most roots
+  // under full strictTypes/strictRequired and only relaxes the two checks
+  // for the roots on its shrinking LEGACY_STRICT_TYPES_ALLOWLIST (their
+  // allOf/if/then composition declares required/properties across sibling
+  // branches, which strict mode cannot see across -- see SCH-H1). This
+  // standalone core compiles all twenty schemas into one shared Ajv
+  // instance so `standaloneCode` can emit one module referencing all of
+  // them, so it cannot split per root the way the runtime registry does;
+  // it relaxes both checks uniformly instead. strict:true (unknown
+  // keywords, unknown formats, tuple/number strictness) still applies to
+  // every root here, which is what actually catches an authoring typo.
   const ajv = new Ajv2020({
     code: { source: true },
     strict: true,

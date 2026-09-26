@@ -247,16 +247,61 @@ test('one diagnostic map owns every executable fixture code', async () => {
   }
 });
 
+/**
+ * A frozen record of `LEGACY_STRICT_TYPES_ALLOWLIST` at the moment the
+ * split-registry allowlist was introduced (SCH-H1). `validator-core.js`'s
+ * allowlist may only shrink from here -- a PR that adds a root not in this
+ * set fails the assertion below, so a new schema root must compile clean
+ * under full `strictTypes`/`strictRequired` from day one, and reconciling
+ * an existing root's composition out of the allowlist is a one-line delete
+ * in both places.
+ */
+const STRICT_ALLOWLIST_BASELINE = new Set([
+  'adapter-capability',
+  'artifact-manifest',
+  'author',
+  'build-input',
+  'build-provenance',
+  'content-frontmatter',
+  'deployment-intent',
+  'deployment-observation',
+  'deployment-receipt',
+  'lock',
+  'navigation',
+  'problem',
+  'publication',
+  'theme-contract',
+]);
+
+test('the strict-composition allowlist only shrinks (SCH-H1)', async () => {
+  const { LEGACY_STRICT_TYPES_ALLOWLIST } = await import(
+    '../src/internal/validator-core.js'
+  );
+  for (const contract of LEGACY_STRICT_TYPES_ALLOWLIST) {
+    assert.ok(
+      STRICT_ALLOWLIST_BASELINE.has(contract),
+      `"${contract}" is not in the recorded SCH-H1 baseline; a root may be ` +
+        'removed from LEGACY_STRICT_TYPES_ALLOWLIST but never added',
+    );
+  }
+});
+
 test('every root compiles under strict schema/format/number/tuple checking (SCH-H1)', async () => {
-  // src/internal/validator-core.js's real registry runs with `strict: true`,
-  // relaxing only strictTypes and strictRequired -- see its createRegistry
-  // for why (the deployment-* roots' allOf/if/then composition declares
+  // src/internal/validator-core.js's real registry runs with `strict: true`
+  // for every root. Roots outside LEGACY_STRICT_TYPES_ALLOWLIST additionally
+  // compile with strictTypes/strictRequired enabled; roots on the allowlist
+  // relax those two checks only (their allOf/if/then composition declares
   // required/properties across sibling branches, which strict mode cannot
   // see across). This test pins that every other strict-mode check --
   // unknown keywords (a misspelled keyword like `requred`/`maxItmes`),
   // unknown formats, strict numbers and strict tuples -- reports zero
-  // diagnostics across every root, so a schema-authoring typo is caught
-  // here rather than silently validating nothing.
+  // diagnostics across every root, and that the allowlisted roots report
+  // zero *additional* strictTypes/strictRequired diagnostics beyond what is
+  // already known, so a schema-authoring typo is caught here rather than
+  // silently validating nothing.
+  const { LEGACY_STRICT_TYPES_ALLOWLIST } = await import(
+    '../src/internal/validator-core.js'
+  );
   const files = (await readdir('schemas')).filter((file) =>
     file.endsWith('.schema.json'),
   );
@@ -281,24 +326,6 @@ test('every root compiles under strict schema/format/number/tuple checking (SCH-
   );
   for (const schema of schemas) collectGalaKeywords(schema);
 
-  const diagnostics = /** @type {string[]} */ ([]);
-  const ajv = new Ajv2020({
-    allErrors: true,
-    strict: 'log',
-    strictTypes: false,
-    strictRequired: false,
-    logger: {
-      log() {},
-      warn: (/** @type {string} */ message) => diagnostics.push(message),
-      error: (/** @type {string} */ message) => diagnostics.push(message),
-    },
-  });
-  /** @type {(ajv: unknown) => void} */ (
-    /** @type {unknown} */ (formatsPlugin)
-  )(ajv);
-  for (const keyword of galaKeywords) {
-    ajv.addKeyword({ keyword, validate: () => true });
-  }
   const collectFormats = (
     /** @type {unknown} */ value,
     /** @type {Set<string>} */ target,
@@ -317,12 +344,53 @@ test('every root compiles under strict schema/format/number/tuple checking (SCH-
   };
   const formats = new Set();
   for (const schema of schemas) collectFormats(schema, formats);
-  for (const format of formats) {
-    if (ajv.formats[format] === undefined) {
-      ajv.addFormat(format, { type: 'string', validate: () => true });
-    }
-  }
-  for (const schema of schemas) ajv.compile(schema);
 
-  assert.deepEqual(diagnostics, []);
+  /**
+   * @param {boolean} strictComposition strictTypes/strictRequired setting
+   * @returns {{ajv: import('ajv').default, diagnostics: string[]}} a fresh
+   *   Ajv instance with Gala's keywords/formats registered, plus its
+   *   diagnostic sink
+   */
+  function buildAjv(strictComposition) {
+    const diagnostics = /** @type {string[]} */ ([]);
+    const ajv = new Ajv2020({
+      allErrors: true,
+      strict: 'log',
+      strictTypes: strictComposition,
+      strictRequired: strictComposition,
+      logger: {
+        log() {},
+        warn: (/** @type {string} */ message) => diagnostics.push(message),
+        error: (/** @type {string} */ message) => diagnostics.push(message),
+      },
+    });
+    /** @type {(ajv: unknown) => void} */ (
+      /** @type {unknown} */ (formatsPlugin)
+    )(ajv);
+    for (const keyword of galaKeywords) {
+      ajv.addKeyword({ keyword, validate: () => true });
+    }
+    for (const format of formats) {
+      if (ajv.formats[format] === undefined) {
+        ajv.addFormat(format, { type: 'string', validate: () => true });
+      }
+    }
+    return { ajv, diagnostics };
+  }
+
+  const strict = buildAjv(true);
+  const legacy = buildAjv(false);
+  for (const schema of schemas) {
+    const contract = String(schema.$id).replace(
+      /^urn:gala:(?:schema|metadata):([a-z0-9-]+):.*$/u,
+      '$1',
+    );
+    const { ajv } = LEGACY_STRICT_TYPES_ALLOWLIST.has(contract)
+      ? legacy
+      : strict;
+    ajv.compile(schema);
+  }
+
+  assert.deepEqual(strict.diagnostics, []);
+  assert.deepEqual(legacy.diagnostics, []);
 });
