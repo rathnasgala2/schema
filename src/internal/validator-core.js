@@ -83,7 +83,8 @@ function contractFromSchemaId(schemaId) {
  *   validatorsById: ReadonlyMap<string, import('ajv').ValidateFunction>,
  *   strictAjv: import('ajv/dist/2020.js').default,
  *   legacyAjv: import('ajv/dist/2020.js').default,
- *   fragmentAjv: import('ajv/dist/2020.js').default
+ *   fragmentAjv: import('ajv/dist/2020.js').default,
+ *   cardinalityValidators: Map<string, import('ajv').ValidateFunction>
  * }} Registry
  */
 
@@ -308,7 +309,14 @@ function createRegistry(schemas, validateFormat) {
     schemasById.set(schemaId, schema);
     validatorsById.set(schemaId, ajv.compile(schema));
   }
-  return { schemasById, validatorsById, strictAjv, legacyAjv, fragmentAjv };
+  return {
+    schemasById,
+    validatorsById,
+    strictAjv,
+    legacyAjv,
+    fragmentAjv,
+    cardinalityValidators: new Map(),
+  };
 }
 
 /**
@@ -726,6 +734,11 @@ function normalizedInlineResult(diagnosticMap, keywords) {
  *
  * Item schemas are validated separately by the parity harness so compact
  * recipes never allocate hundreds of thousands of complex object witnesses.
+ * The compiled validator for a given {minItems, maxItems, uniqueItems} shape
+ * is cached on the registry (SCH-M7): only a handful of distinct shapes
+ * exist across the fixture corpus, but this runs once per cardinality
+ * fixture case, so compiling on every call would recompile the same handful
+ * of schemas thousands of times over one parity run.
  *
  * @param {Registry} registry compiled schema registry
  * @param {DiagnosticMap} diagnosticMap shared diagnostic normalization map
@@ -741,7 +754,19 @@ function validateArrayCardinality(registry, diagnosticMap, schema, length) {
     ...(schema.maxItems === undefined ? {} : { maxItems: schema.maxItems }),
     ...(schema.uniqueItems === true ? { uniqueItems: true } : {}),
   };
-  const validator = registry.fragmentAjv.compile(cardinalitySchema);
+  // Only a handful of distinct {minItems, maxItems, uniqueItems} shapes
+  // exist across the whole fixture corpus, but this is called once per
+  // cardinality fixture case (thousands, across a full parity run).
+  // Compiling once per distinct shape and reusing the compiled validator
+  // (rather than ajv.compile()-ing the same shape repeatedly) is what
+  // SCH-M7 asks for; the cache lives on the registry so it is scoped to
+  // one createValidatorSuite call, not process-global.
+  const cacheKey = JSON.stringify(cardinalitySchema);
+  let validator = registry.cardinalityValidators.get(cacheKey);
+  if (validator === undefined) {
+    validator = registry.fragmentAjv.compile(cardinalitySchema);
+    registry.cardinalityValidators.set(cacheKey, validator);
+  }
   const values = schema.uniqueItems
     ? Array.from({ length }, (_, index) => index)
     : Array.from({ length }, () => null);

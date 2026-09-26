@@ -124,6 +124,7 @@ export type Registry = {
     strictAjv: import("ajv/dist/2020.js").default;
     legacyAjv: import("ajv/dist/2020.js").default;
     fragmentAjv: import("ajv/dist/2020.js").default;
+    cardinalityValidators: Map<string, import("ajv").ValidateFunction>;
 };
 /**
  * The callable shape both an `ajv.compile()`-produced validate function and
