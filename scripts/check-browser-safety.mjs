@@ -52,11 +52,54 @@ const BROWSER_ENTRY_SUBPATHS = Object.freeze([
  */
 const CLOSURE_BYTE_CAPS = Object.freeze({ './runtime-origins': 1_250_000 });
 
+// module.builtinModules never carries the "node:"-prefixed spelling, so a
+// bare specifier must have that prefix stripped before the membership test.
 const BUILTIN_MODULES = new Set(module.builtinModules);
+
+/**
+ * Test whether one bare (non-relative) import specifier names a Node
+ * builtin module, in either its bare ("fs") or "node:"-prefixed ("node:fs")
+ * spelling.
+ *
+ * @param {string} specifier bare import specifier
+ * @returns {boolean} true if the specifier resolves to a Node builtin
+ */
+function isBuiltinSpecifier(specifier) {
+  const name = specifier.startsWith('node:')
+    ? specifier.slice('node:'.length)
+    : specifier;
+  return BUILTIN_MODULES.has(name);
+}
 
 const IMPORT_SPECIFIER_PATTERN =
   /(?:import|export)(?:[^'"();]*?from\s*)?\s*['"]([^'"]+)['"]/gu;
 const BARE_IDENTIFIER_PATTERN = /\b(?:Buffer|process)\b/gu;
+// `new Function(...)`, a bare `Function(...)` call (not a declaration or a
+// property/method access like `myFunction(`), and `eval(...)` are the three
+// ways a module can compile code from a string at runtime -- exactly what
+// forces `'unsafe-eval'` into a consumer's CSP (SCH-C2). A dynamic
+// `import(...)` with a specifier that is not a string/template literal is
+// included for the same reason: an unresolvable specifier defeats static
+// bundling and can load arbitrary code at runtime.
+const EVAL_LIKE_PATTERN =
+  /(?:\bnew\s+Function|(?<![\w$.])Function|\beval)\s*\(/gu;
+const DYNAMIC_IMPORT_PATTERN = /\bimport\s*\(/gu;
+
+/**
+ * Strip line and block comments only, preserving string literal contents
+ * (unlike `blankCommentsAndStrings`) so a real import/export specifier
+ * survives while a specifier-shaped string inside a comment does not
+ * (SCH-L3). This is a deliberately simple lexical pass, not a full parser,
+ * matching this repository's existing minimal-dependency script style.
+ *
+ * @param {string} source module source text
+ * @returns {string} source with comments blanked
+ */
+function blankComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/gu, (match) =>
+    match.replace(/[^\n]/gu, ' '),
+  );
+}
 
 /**
  * Strip line and block comments and string literal contents that would
@@ -98,20 +141,22 @@ function resolveExportEntry(subpath) {
 }
 
 /**
- * Extract relative import/export specifiers from one module's source text.
+ * Extract every static import/export specifier from one module's source
+ * text, relative and bare alike -- a bare specifier must still be tested
+ * against the Node builtin list (SCH-H3: only relative specifiers survived
+ * the previous filter, so that test could never fire).
  *
- * @param {string} source module source text
- * @returns {string[]} relative specifiers (starting with ".")
+ * @param {string} commentFreeSource module source text with comments blanked
+ *   (`blankComments`), so a specifier-shaped string inside a comment is
+ *   never walked as a real edge (SCH-L3)
+ * @returns {string[]} import/export specifiers, in source order
  */
-function extractRelativeSpecifiers(source) {
+function extractSpecifiers(commentFreeSource) {
   const specifiers = [];
   IMPORT_SPECIFIER_PATTERN.lastIndex = 0;
   let match;
-  while ((match = IMPORT_SPECIFIER_PATTERN.exec(source)) !== null) {
-    const specifier = match[1];
-    if (specifier !== undefined && specifier.startsWith('.')) {
-      specifiers.push(specifier);
-    }
+  while ((match = IMPORT_SPECIFIER_PATTERN.exec(commentFreeSource)) !== null) {
+    if (match[1] !== undefined) specifiers.push(match[1]);
   }
   return specifiers;
 }
@@ -143,13 +188,19 @@ async function walkImportGraph(root, entryRelativePath) {
 
     const absolutePath = path.resolve(root, relativePath);
     const source = await readFile(absolutePath, 'utf8');
+    const commentFree = blankComments(source);
     const cleaned = blankCommentsAndStrings(source);
 
-    for (const specifier of extractRelativeSpecifiers(source)) {
-      if (BUILTIN_MODULES.has(specifier)) {
-        diagnostics.push(
-          `${relativePath}: imports Node builtin "${specifier}"`,
-        );
+    for (const specifier of extractSpecifiers(commentFree)) {
+      if (!specifier.startsWith('.')) {
+        // Bare specifier: only a Node builtin is this gate's concern (an
+        // external package like `ajv` is shared with the rest of a
+        // consumer's bundle and is not walked further).
+        if (isBuiltinSpecifier(specifier)) {
+          diagnostics.push(
+            `${relativePath}: imports Node builtin "${specifier}"`,
+          );
+        }
         continue;
       }
       const resolved = path.relative(
@@ -174,17 +225,42 @@ async function walkImportGraph(root, entryRelativePath) {
         `${relativePath}: references browser-unsafe global "${identifier}"`,
       );
     }
+
+    EVAL_LIKE_PATTERN.lastIndex = 0;
+    if (EVAL_LIKE_PATTERN.test(cleaned)) {
+      diagnostics.push(
+        `${relativePath}: calls eval(), Function(), or new Function(), which requires 'unsafe-eval' in a browser CSP`,
+      );
+    }
+
+    DYNAMIC_IMPORT_PATTERN.lastIndex = 0;
+    let dynamicImportMatch;
+    while (
+      (dynamicImportMatch = DYNAMIC_IMPORT_PATTERN.exec(cleaned)) !== null
+    ) {
+      const afterParen = source
+        .slice(dynamicImportMatch.index + dynamicImportMatch[0].length)
+        .match(/^\s*(\S)/u);
+      const nextCharacter = afterParen?.[1];
+      if (
+        nextCharacter !== '"' &&
+        nextCharacter !== "'" &&
+        nextCharacter !== '`'
+      ) {
+        diagnostics.push(
+          `${relativePath}: dynamic import() with a non-literal specifier`,
+        );
+      }
+    }
   }
 
   return { diagnostics, closure: [...closure].sort() };
 }
 
 /**
- * Walk every declared bare-specifier import (including builtins) in a
- * module's source, without resolving relative specifiers. Used only to
- * detect bare (non-relative, non-builtin) package imports, which this gate
- * does not otherwise police but which would indicate an unexpected runtime
- * dependency if ever added to a browser-reachable module.
+ * Measure one entry point's package-owned module closure: the total byte
+ * size, on disk, of every `.js`/`.json` file the entry point statically
+ * reaches, which is what a bundler would inline into the chunk.
  *
  * @param {string} root repository root
  * @param {string} entryRelativePath entry file, relative to root
@@ -236,7 +312,7 @@ async function main() {
   }
 
   process.stdout.write(
-    `Verified browser-consumed subpath(s) ${BROWSER_ENTRY_SUBPATHS.join(', ')}: no reachable Node builtin import or Buffer/process reference.\n`,
+    `Verified browser-consumed subpath(s) ${BROWSER_ENTRY_SUBPATHS.join(', ')}: no reachable Node builtin import, Buffer/process reference, eval()/Function() call, or non-literal dynamic import().\n`,
   );
 }
 
