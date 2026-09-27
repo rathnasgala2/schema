@@ -18,34 +18,31 @@ pinned to 2.12.0 changes nothing but the package version to move to 2.13.0.
 
 - New operation `POST /v2/github/installations/{installationId}/repositories`
   (`postGithubInstallationsByInstallationIdRepositories`), modelled on the
-  existing repository-binding create operation for headers (correlation id,
-  CSRF token, idempotency key), session security, activation/state guards and
-  problem mapping. Request: `name` (GitHub repository-name rules),
-  `visibility` (`PRIVATE` | `PUBLIC`, default `PRIVATE`), optional single-line
-  `description` (up to 350 characters). Response `201`: the same repository
-  summary shape `GET .../installations/{installationId}/repositories`
-  returns, plus `installationAccess` (`GRANTED` | `NOT_GRANTED`). The
-  operation is session-authenticated like the two installation reads and
-  carries no capability key. `403 AUTHORIZATION_DENIED` distinguishes GitHub's
-  refusal reason (`CREATION_NOT_PERMITTED` | `PERMISSION_NOT_ACCEPTED`)
-  through the same pointed `errors[].code`/`errors[].pointer` mechanism the
-  contract already uses for other structured problem detail (pointer
-  `/reason`), not a new envelope. Every other listed problem
-  (`400 REQUEST_FIELD_UNKNOWN`/`VALIDATION_FAILED`,
-  `401 REAUTH_REQUIRED`/`AUTHENTICATION_REQUIRED`,
-  `404 RESOURCE_NOT_FOUND`, `409 COMMAND_REPLAY_CONFLICT`/`INVALID_SOURCE_STATE`
-  (duplicate name, pointed at `/name`), `422 VALIDATION_FAILED`,
-  `429 RATE_LIMITED`, `503 CAPABILITY_UNAVAILABLE`/`DEPENDENCY_UNAVAILABLE`) is
-  declared and mapped. New schemas `GithubInstallationAccess`,
-  `GithubRepositoryVisibility`,
+  existing repository-binding create operation for headers (correlation id, CSRF
+  token, idempotency key), session security, activation/state guards and problem
+  mapping. Request: `name` (GitHub repository-name rules), `visibility`
+  (`PRIVATE` | `PUBLIC`, default `PRIVATE`), optional single-line `description`
+  (up to 350 characters). Response `201`: the same repository summary shape
+  `GET .../installations/{installationId}/repositories` returns, plus
+  `installationAccess` (`GRANTED` | `NOT_GRANTED`). The operation is
+  session-authenticated like the two installation reads and carries no
+  capability key. `403 AUTHORIZATION_DENIED` distinguishes GitHub's refusal
+  reason (`CREATION_NOT_PERMITTED` | `PERMISSION_NOT_ACCEPTED`) through the same
+  pointed `errors[].code`/`errors[].pointer` mechanism the contract already uses
+  for other structured problem detail (pointer `/reason`), not a new envelope.
+  Every other listed problem (`400 REQUEST_FIELD_UNKNOWN`/`VALIDATION_FAILED`,
+  `401 REAUTH_REQUIRED`/`AUTHENTICATION_REQUIRED`, `404 RESOURCE_NOT_FOUND`,
+  `409 COMMAND_REPLAY_CONFLICT`/`INVALID_SOURCE_STATE` (duplicate name, pointed
+  at `/name`), `422 VALIDATION_FAILED`, `429 RATE_LIMITED`,
+  `503 CAPABILITY_UNAVAILABLE`/`DEPENDENCY_UNAVAILABLE`) is declared and mapped.
+  New schemas `GithubInstallationAccess`, `GithubRepositoryVisibility`,
   `PostGithubInstallationsByInstallationIdRepositoriesRequest`/`Response`.
-  `catalog-sources/app-routes.json` adds the new operation id to the
-  publication Source route's `apiOperationIds`; the App's per-screen states
-  the Source screen's create-repository flow needs (loading, submitting,
-  validation, conflicted, forbidden, rate-limited, capability-unavailable) are
-  already members of the existing generic closed state vocabulary this
-  catalog pins for every screen, so no new content keys or component states
-  were needed.
+  `catalog-sources/app-routes.json` adds the new operation id to the publication
+  Source route's `apiOperationIds`; the App's per-screen states the Source
+  screen's create-repository flow needs (loading, submitting, validation,
+  conflicted, forbidden, rate-limited, capability-unavailable) are already
+  members of the existing generic closed state vocabulary this catalog pins for
+  every screen, so no new content keys or component states were needed.
 
 ### Fixed
 
@@ -1901,7 +1898,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.13.0...HEAD
+[2.13.0]: https://github.com/rathnasgala2/schema/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/rathnasgala2/schema/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/rathnasgala2/schema/compare/v2.10.0...v2.11.0
 [2.10.0]: https://github.com/rathnasgala2/schema/compare/v2.9.1...v2.10.0

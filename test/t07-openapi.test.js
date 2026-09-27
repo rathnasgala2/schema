@@ -112,6 +112,7 @@ POST /v2/workloads/deployment-receipts
 POST /v2/callbacks/github/app
 GET /v2/github/app
 GET /v2/github/installations/{installationId}/repositories
+POST /v2/github/installations/{installationId}/repositories
 GET /v2/organizations/{organizationId}/operations
 GET /v2/organizations/{organizationId}/roles
 POST /v2/organizations/{organizationId}/publications/{publicationId}:previewRetirement
@@ -410,7 +411,7 @@ function withoutBundleLiftedKeys(schema) {
   );
 }
 
-test('source fragments, bundle and catalog contain exactly the 75-operation MVP plus health', async () => {
+test('source fragments, bundle and catalog contain exactly the 76-operation MVP plus health', async () => {
   const { bundle, catalog, sourceOperations } = await readProjections();
   const sourceIdentities = sourceOperations
     .map(({ method, path: route }) => `${method} ${route}`)
@@ -418,7 +419,7 @@ test('source fragments, bundle and catalog contain exactly the 75-operation MVP 
   const catalogIdentities = catalog.operations
     .map(({ method, path: route }) => `${method} ${route}`)
     .sort();
-  assert.equal(EXPECTED_OPERATIONS.length, 76);
+  assert.equal(EXPECTED_OPERATIONS.length, 77);
   assert.deepEqual(sourceIdentities, EXPECTED_OPERATIONS);
   assert.deepEqual(bundleIdentities(bundle.paths), EXPECTED_OPERATIONS);
   assert.deepEqual(catalogIdentities, EXPECTED_OPERATIONS);
@@ -430,7 +431,7 @@ test('source fragments, bundle and catalog contain exactly the 75-operation MVP 
   assert.equal(
     catalog.operations.filter(({ path: route }) => route.startsWith('/v2/'))
       .length,
-    75,
+    76,
   );
 });
 
@@ -476,7 +477,7 @@ test('every operation uses mechanical unique naming and complete executable meta
     );
     assert.deepEqual(operation.tags, [row.sourceFragment]);
   }
-  assert.equal(new Set(operationIds).size, 76);
+  assert.equal(new Set(operationIds).size, 77);
 });
 
 test('recovery-code regeneration declares both lifecycle families', async () => {
@@ -2330,16 +2331,20 @@ test('PortableProblemDocument matches problem.schema.json on shape and bounds (S
 test('README.md states the MVP operation count consistently (SCH-L1)', async () => {
   const readme = await readFile('README.md', 'utf8');
   assert.ok(
-    readme.includes('75 MVP operations plus'),
-    'README.md no longer says "75 MVP operations plus"',
+    readme.includes('76 MVP operations plus'),
+    'README.md no longer says "76 MVP operations plus"',
   );
   assert.match(
     readme,
-    /exact 75 MVP\s+operations plus health/u,
-    'README.md no longer says "exact 75 MVP operations plus health"',
+    /exact 76 MVP\s+operations plus health/u,
+    'README.md no longer says "exact 76 MVP operations plus health"',
   );
   assert.ok(
     !/\b73 MVP\b/u.test(readme),
-    'README.md still claims 73 MVP operations somewhere; it is 75',
+    'README.md still claims 73 MVP operations somewhere; it is 76',
+  );
+  assert.ok(
+    !/\b75 MVP\b/u.test(readme),
+    'README.md still claims 75 MVP operations somewhere; it is 76',
   );
 });

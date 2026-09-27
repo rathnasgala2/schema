@@ -59,9 +59,10 @@ removed it as unconsumed -- see "Package layout"). The schema inventory adds the
 separately owned OpenAPI contract as the twenty-first identity and carries
 DEC-091's domain-separated `sourceDesignRevision`. S0-T07 materializes the
 reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
-HTTP catalog for exactly 75 MVP operations plus `/internal/health` (76 catalog
-rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads and the two SCHEMA-2.10.0
-publication-destination reads/writes). The bundle includes the accepted DEC-097
+HTTP catalog for exactly 76 MVP operations plus `/internal/health` (77 catalog
+rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads, the two SCHEMA-2.10.0
+publication-destination reads/writes, and the SCHEMA-2.13.0 repository create).
+The bundle includes the accepted DEC-097
 receipt-exchange and deployment-receipt amendments and serializes the fixed
 OpenAPI Generator 7.25.0 option sets. Every operation also declares its tenant
 scope, lifecycle and activation guards, maps every reachable problem, and
@@ -535,7 +536,7 @@ remediation, and documentation URL fields without including authored values.
   fragments grouped by the first literal resource token. A build input, not part
   of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
   a consumer reads the materialized `openapi/openapi.yaml` instead.
-- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 75 MVP
+- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 76 MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
   capability inventory, including `conditionalCapabilityKeys` (SCHEMA-2.7.1) and
