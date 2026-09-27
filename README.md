@@ -62,34 +62,33 @@ reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
 HTTP catalog for exactly 76 MVP operations plus `/internal/health` (77 catalog
 rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads, the two SCHEMA-2.10.0
 publication-destination reads/writes, and the SCHEMA-2.13.0 repository create).
-The bundle includes the accepted DEC-097
-receipt-exchange and deployment-receipt amendments and serializes the fixed
-OpenAPI Generator 7.25.0 option sets. Every operation also declares its tenant
-scope, lifecycle and activation guards, maps every reachable problem, and
-carries schema-validated nominal and problem examples. S0-T08 projects the exact
-19 admitted transition families into 77 independently identified event actions
-(SCHEMA-2.11.0 adds the `github_installation` family so the worker-only
-compare-and-set writer can retire into the sole aggregate gateway). Each action
-binds its aggregate and organization or publication scope, exact
-predecessor/target states, the closed DEC-101 payload, the transactional outbox
-producer, and a non-empty registered consumer set. S5-T00 materializes document
-07's closed 15-component App semantic catalog and document 14's 20-entry MVP App
-route registry (S5 brief section 4) as `docs/catalogs/app-components.json` and
-`docs/catalogs/app-routes.json`, with every `apiOperationIds` entry validated
-against `openapi/openapi.yaml`, every `componentIds`/`contentKeyIds` entry
-validated against the component catalog, and `capabilityKeys` projected from
-`openapi/http-catalog.json`. S4-T01 adds the separately generated `fixtures/s4/`
-deployment/certification consumer-fixture family (deployment-intent,
-deployment-observation, deployment-receipt, public-generation-marker, and
-adapter-capability rows for `local-directory`, `github-pages`, and `do-spaces`)
-alongside the existing `fixtures/s2/` family, each with its own manifest.
-LOCAL-21 admits a 21st App route, `/invitations/accept` (`routeId`
-`invitations.accept`), an ordinary `SESSION_REQUIRED` `APP` route (not
-`TRANSACTIONAL_LINK`: it is served by the App origin after sign-in, unlike the
-deferred `/t/**` template family) that calls
-`postMembershipInvitationsByTokenAccept`; its non-enumerating failure states
-collapse onto that operation's single declared `INVALID_SOURCE_STATE` problem,
-which covers an expired, already-used or unknown token alike.
+The bundle includes the accepted DEC-097 receipt-exchange and deployment-receipt
+amendments and serializes the fixed OpenAPI Generator 7.25.0 option sets. Every
+operation also declares its tenant scope, lifecycle and activation guards, maps
+every reachable problem, and carries schema-validated nominal and problem
+examples. S0-T08 projects the exact 19 admitted transition families into 77
+independently identified event actions (SCHEMA-2.11.0 adds the
+`github_installation` family so the worker-only compare-and-set writer can
+retire into the sole aggregate gateway). Each action binds its aggregate and
+organization or publication scope, exact predecessor/target states, the closed
+DEC-101 payload, the transactional outbox producer, and a non-empty registered
+consumer set. S5-T00 materializes document 07's closed 15-component App semantic
+catalog and document 14's 20-entry MVP App route registry (S5 brief section 4)
+as `docs/catalogs/app-components.json` and `docs/catalogs/app-routes.json`, with
+every `apiOperationIds` entry validated against `openapi/openapi.yaml`, every
+`componentIds`/`contentKeyIds` entry validated against the component catalog,
+and `capabilityKeys` projected from `openapi/http-catalog.json`. S4-T01 adds the
+separately generated `fixtures/s4/` deployment/certification consumer-fixture
+family (deployment-intent, deployment-observation, deployment-receipt,
+public-generation-marker, and adapter-capability rows for `local-directory`,
+`github-pages`, and `do-spaces`) alongside the existing `fixtures/s2/` family,
+each with its own manifest. LOCAL-21 admits a 21st App route,
+`/invitations/accept` (`routeId` `invitations.accept`), an ordinary
+`SESSION_REQUIRED` `APP` route (not `TRANSACTIONAL_LINK`: it is served by the
+App origin after sign-in, unlike the deferred `/t/**` template family) that
+calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
+states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
+problem, which covers an expired, already-used or unknown token alike.
 
 SCHEMA-2.7.1 (LOCAL-50) adds the optional operation-level vendor extension
 `x-gala-conditional-capability-keys`: an array of `{capabilityKey, condition}`
