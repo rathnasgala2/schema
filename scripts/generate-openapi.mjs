@@ -18,7 +18,7 @@ const CATALOG_PATH = path.resolve('openapi/http-catalog.json');
 const PATH_FRAGMENT_COUNTS = Object.freeze({
   authentication: 4,
   callbacks: 2,
-  github: 3,
+  github: 4,
   internal: 1,
   'membership-invitations': 1,
   organizations: 46,
@@ -641,6 +641,7 @@ function validateContractClosure(records, components) {
     if (
       [
         'getCallbacksGithubOauth',
+        'postGithubInstallationsByInstallationIdRepositories',
         'postWorkloadsGithubReceiptExchanges',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
@@ -710,16 +711,16 @@ async function readOperationRecords(schemas) {
   );
   const operationIds = records.map(({ operation }) => operation.operationId);
   if (
-    records.length !== 76 ||
-    new Set(identities).size !== 76 ||
-    new Set(operationIds).size !== 76 ||
+    records.length !== 77 ||
+    new Set(identities).size !== 77 ||
+    new Set(operationIds).size !== 77 ||
     records.filter(({ path: route }) => route === '/internal/health').length !==
       1 ||
     records.filter(({ path: route }) => route !== '/internal/health').length !==
-      75
+      76
   ) {
     throw new Error(
-      'Source fragments are not exactly 75 MVP operations plus health',
+      'Source fragments are not exactly 76 MVP operations plus health',
     );
   }
   return records;

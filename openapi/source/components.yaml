@@ -1481,6 +1481,11 @@ components:
         - organizations
         - capabilities
       type: object
+    GithubInstallationAccess:
+      enum:
+        - GRANTED
+        - NOT_GRANTED
+      type: string
     GithubInstallationObservation:
       additionalProperties: false
       description:
@@ -1561,6 +1566,11 @@ components:
         - defaultBranch
         - private
       type: object
+    GithubRepositoryVisibility:
+      enum:
+        - PRIVATE
+        - PUBLIC
+      type: string
     KernelAttemptSubmission:
       additionalProperties: false
       allOf:
@@ -3130,6 +3140,72 @@ components:
           const: true
       required:
         - accepted
+      type: object
+    PostGithubInstallationsByInstallationIdRepositoriesRequest:
+      additionalProperties: false
+      properties:
+        description:
+          description:
+            Single-line repository description, GitHub-side free text.
+          maxLength: 350
+          minLength: 1
+          pattern: ^[^\n\r]*$
+          type: string
+        name:
+          description: GitHub repository-name rules.
+          maxLength: 100
+          minLength: 1
+          pattern: ^(?!\.\.?$)(?!.*\.git$)[A-Za-z0-9._-]{1,100}$
+          type: string
+        visibility:
+          $ref: '#/components/schemas/GithubRepositoryVisibility'
+      required:
+        - name
+      type: object
+    PostGithubInstallationsByInstallationIdRepositoriesResponse:
+      additionalProperties: false
+      description:
+        The created repository, in exactly the shape `GET
+        .../installations/{installationId}/repositories` returns, plus
+        whether this installation can already see it.
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        fullName:
+          description: GitHub's `owner/name` identity, for display.
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,38}/[A-Za-z0-9._-]{1,100}$
+          type: string
+        installationAccess:
+          $ref: '#/components/schemas/GithubInstallationAccess'
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        ownerId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        ownerLogin:
+          maxLength: 80
+          minLength: 1
+          type: string
+        private:
+          type: boolean
+        repositoryId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+      required:
+        - repositoryId
+        - ownerId
+        - ownerLogin
+        - name
+        - fullName
+        - defaultBranch
+        - private
+        - installationAccess
       type: object
     PostMembershipInvitationsByTokenAcceptRequest:
       additionalProperties: false
