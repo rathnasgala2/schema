@@ -22,7 +22,7 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       },
       STALE_AGGREGATE_VERSION: { statuses: [412], retryable: false },
       VALIDATION_FAILED: {
-        statuses: [400, 413, 415, 422],
+        statuses: [400, 413, 415, 416, 422],
         retryable: false,
       },
       VERIFICATION_EVIDENCE_LIMIT_EXCEEDED: {

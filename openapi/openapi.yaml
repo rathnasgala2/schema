@@ -1,5 +1,12 @@
 components:
   headers:
+    AcceptRanges:
+      description: Advertises byte-range support (SCHEMA-2.17.0), so a sound or video player can seek without downloading the whole file first.
+      required: true
+      schema:
+        pattern: ^bytes$
+        type: string
+        x-gala-const: bytes
     CacheControlNoStore:
       required: true
       schema:
@@ -12,6 +19,12 @@ components:
         pattern: ^inline$
         type: string
         x-gala-const: inline
+    ContentRange:
+      description: RFC 9110 `Content-Range`. `bytes <start>-<end>/<total>` on `206`; `bytes */<total>` on `416`, naming the asset's real total length so the caller can retry with a satisfiable range.
+      required: true
+      schema:
+        pattern: ^bytes (?:[0-9]+-[0-9]+|\*)/[0-9]+$
+        type: string
     ETag:
       required: true
       schema:
@@ -95,6 +108,15 @@ components:
         maximum: 100
         minimum: 1
         type: integer
+    Range:
+      description: RFC 9110 single-range `Range` request header (SCHEMA-2.17.0), honoured for sound and video so a player can seek. Absent means the whole asset. A multi-range request is not supported and is treated as absent.
+      example: bytes=0-1023
+      in: header
+      name: Range
+      required: false
+      schema:
+        pattern: ^bytes=[0-9]+-[0-9]*$
+        type: string
     XCorrelationId:
       example: 018f0000-0000-7000-8000-000000000001
       in: header
@@ -294,14 +316,60 @@ components:
               - bytesBase64
               - contentType
               - contentDigest
+        - if:
+            properties:
+              contentType:
+                enum:
+                  - image/png
+                  - image/jpeg
+                  - image/webp
+                  - image/gif
+                  - image/avif
+            required:
+              - contentType
+          then:
+            properties:
+              bytesBase64:
+                maxLength: 6990512
+        - if:
+            properties:
+              contentType:
+                enum:
+                  - audio/mpeg
+                  - audio/mp4
+                  - audio/ogg
+                  - audio/wav
+            required:
+              - contentType
+          then:
+            properties:
+              bytesBase64:
+                maxLength: 27962032
+        - if:
+            properties:
+              contentType:
+                enum:
+                  - video/mp4
+                  - video/webm
+            required:
+              - contentType
+          then:
+            properties:
+              bytesBase64:
+                maxLength: 69905072
       description: |
         One asset write or delete inside a batch `content-changes:plan`
-        request. `bytesBase64` is base64 over the raw asset bytes; the 5 MiB
-        per-asset bound is measured on the decoded byte length, not this
-        field's text length. `contentType` is the closed vocabulary the
-        asset read declares; `image/svg+xml` is deliberately absent (an SVG
-        can carry script). `DELETE` names only the path it removes and
-        carries none of the write-only members.
+        request -- an article's cover image, or an image, sound or video
+        file referenced from its body (pass-through: copied unchanged into
+        the built site, no resizing and no derived formats for in-text
+        media). `bytesBase64` is base64 over the raw asset bytes; the
+        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB) is
+        measured on the decoded byte length, not this field's text length,
+        and `bytesBase64`'s own `maxLength` is the base64 ceiling for that
+        same decoded bound. `contentType` is the closed vocabulary the asset
+        read declares; `image/svg+xml` is deliberately absent everywhere in
+        this contract (an SVG can carry script). `DELETE` names only the
+        path it removes and carries none of the write-only members.
       properties:
         action:
           enum:
@@ -309,7 +377,7 @@ components:
             - DELETE
           type: string
         bytesBase64:
-          maxLength: 6990512
+          maxLength: 69905072
           pattern: ^[A-Za-z0-9+/]+={0,2}$
           type: string
         contentDigest:
@@ -322,6 +390,12 @@ components:
             - image/webp
             - image/gif
             - image/avif
+            - audio/mpeg
+            - audio/mp4
+            - audio/ogg
+            - audio/wav
+            - video/mp4
+            - video/webm
           type: string
         path:
           maxLength: 512
@@ -9715,20 +9789,22 @@ components:
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
         (`baseRevision` and at least one of `documents`/`assets`) plans up
-        to 20 documents and 20 assets -- each `PUT` with its own text or
+        to 20 documents and 40 assets -- each `PUT` with its own text or
         bytes and digest, each `DELETE` naming only its path -- in one
         change, against the exact expected main-branch head asserted as
         `baseRevision`. A request mixing the two shapes, or a batch request
         naming neither `documents` nor `assets`, is `422 VALIDATION_FAILED`.
-        The change's total serialized size must not exceed 20 MiB;
+        The change's total serialized size must not exceed 100 MiB;
         `assets[].bytesBase64` is base64 over raw bytes, so what counts
-        against the 5 MiB per-asset and 20 MiB per-change bounds is the
-        decoded byte length, not this field's text length.
+        against the per-asset and 100 MiB per-change bounds is the decoded
+        byte length, not this field's text length. Per-asset, by media
+        category: image 5 MiB, sound 20 MiB, video 50 MiB (documents are
+        unchanged since 2.14.0: 20 documents, 1 MiB text each).
       properties:
         assets:
           items:
             $ref: "#/components/schemas/ContentChangeAssetEntry"
-          maxItems: 20
+          maxItems: 40
           type: array
         baseRevision:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
@@ -20601,12 +20677,23 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/content/assets:
     get:
       description: |
-        Bytes of one image under a declared asset root, with the same
-        `revision` rule as the document read. `Content-Type` is exactly one of
-        the six closed values below, sniffed from the asset's own bytes rather
-        than trusted from what was written at plan time, with
-        `X-Content-Type-Options: nosniff` and `Content-Disposition: inline` so
-        a browser renders it and never executes it. An asset over 5 MiB is
+        Bytes of one image, sound or video file under a declared asset root
+        (an article's cover image, or a file referenced from its body,
+        copied through unchanged: no resizing, no derived formats), with the
+        same `revision` rule as the document read. `Content-Type` is exactly
+        one of the twelve closed values below, sniffed from the asset's own
+        bytes rather than trusted from what was written at plan time, with
+        `X-Content-Type-Options: nosniff` and `Content-Disposition: inline`
+        so a browser renders it and never executes it. `image/svg+xml` is
+        readable here only because a file already in the repository may
+        predate this contract; SCHEMA-2.14.0 through this version all
+        refuse it on write (`content-changes:plan`'s `ContentChangeAssetEntry`
+        never accepts it, an SVG can carry script). Every response declares
+        `Accept-Ranges: bytes` and honours a single-range `Range` request
+        header for sound and video, so a player can seek: a satisfiable
+        range is `206` with `Content-Range`; an unsatisfiable one is `416`
+        with `Content-Range: bytes */<total>`. An asset over its
+        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB) is
         `422 VALIDATION_FAILED` pointed at `/path`.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets
       parameters:
@@ -20643,9 +20730,26 @@ paths:
           schema:
             pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
             type: string
+        - $ref: "#/components/parameters/Range"
       responses:
         "200":
           content:
+            audio/mp4:
+              schema:
+                format: binary
+                type: string
+            audio/mpeg:
+              schema:
+                format: binary
+                type: string
+            audio/ogg:
+              schema:
+                format: binary
+                type: string
+            audio/wav:
+              schema:
+                format: binary
+                type: string
             image/avif:
               schema:
                 format: binary
@@ -20670,12 +20774,86 @@ paths:
               schema:
                 format: binary
                 type: string
+            video/mp4:
+              schema:
+                format: binary
+                type: string
+            video/webm:
+              schema:
+                format: binary
+                type: string
           description: read one content asset succeeded
           headers:
+            Accept-Ranges:
+              $ref: "#/components/headers/AcceptRanges"
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
             Content-Disposition:
               $ref: "#/components/headers/ContentDispositionInline"
+            X-Content-Type-Options:
+              $ref: "#/components/headers/XContentTypeOptionsNosniff"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "206":
+          content:
+            audio/mp4:
+              schema:
+                format: binary
+                type: string
+            audio/mpeg:
+              schema:
+                format: binary
+                type: string
+            audio/ogg:
+              schema:
+                format: binary
+                type: string
+            audio/wav:
+              schema:
+                format: binary
+                type: string
+            image/avif:
+              schema:
+                format: binary
+                type: string
+            image/gif:
+              schema:
+                format: binary
+                type: string
+            image/jpeg:
+              schema:
+                format: binary
+                type: string
+            image/png:
+              schema:
+                format: binary
+                type: string
+            image/svg+xml:
+              schema:
+                format: binary
+                type: string
+            image/webp:
+              schema:
+                format: binary
+                type: string
+            video/mp4:
+              schema:
+                format: binary
+                type: string
+            video/webm:
+              schema:
+                format: binary
+                type: string
+          description: read a satisfiable byte range of one content asset succeeded
+          headers:
+            Accept-Ranges:
+              $ref: "#/components/headers/AcceptRanges"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Content-Disposition:
+              $ref: "#/components/headers/ContentDispositionInline"
+            Content-Range:
+              $ref: "#/components/headers/ContentRange"
             X-Content-Type-Options:
               $ref: "#/components/headers/XContentTypeOptionsNosniff"
             X-Correlation-Id:
@@ -20788,6 +20966,37 @@ paths:
               $ref: "#/components/headers/XCorrelationId"
           x-gala-problem-codes:
             - RESOURCE_NOT_FOUND
+        "416":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: The requested Range is not satisfiable against this asset's real length, named on Content-Range. See the operation contract.
+                    errors:
+                      - code: VALIDATION_FAILED
+                        pointer: /
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 416
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Content-Range:
+              $ref: "#/components/headers/ContentRange"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
         "422":
           content:
             application/problem+json:
@@ -20797,7 +21006,7 @@ paths:
                   value:
                     code: VALIDATION_FAILED
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: The asset exceeds the 5 MiB read bound, or its content type is not one of the six accepted image types. See the operation contract.
+                    detail: The asset exceeds its per-category read bound (image 5 MiB, sound 20 MiB, video 50 MiB), or its content type is not one of the twelve accepted types. See the operation contract.
                     errors:
                       - code: VALIDATION_FAILED
                         pointer: /path

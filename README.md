@@ -91,6 +91,36 @@ calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
 states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
 problem, which covers an expired, already-used or unknown token alike.
 
+SCHEMA-2.17.0 (design `scrap/20260928_write-preview-publish.md` section 9) is
+media in articles: a cover image, and images, sound and video referenced from an
+article's body, both pass-through -- copied unchanged into the built site, no
+resizing and no derived formats for in-text media (the cover image still goes
+through the renderer's existing, unrelated resizing pipeline).
+`build-input.schema.json`'s `contentBuildRecord` gains an optional `media` array
+(new `$defs` entry `contentBuildMediaFile`: `path`, `sourceDigest`, `mediaType`,
+`byteLength`; up to 200 entries) of files the article body refers to;
+`mediaType` is a closed image/audio/video list (SVG stays refused, an SVG can
+carry script) and `byteLength` is bounded per category (image 5 MiB, audio 20
+MiB, video 50 MiB) via an `allOf`/`if`/`then` chain keyed on an explicit `enum`
+per category rather than a `pattern`-matched prefix, since the fixture generator
+cannot synthesize an unconstrained `pattern` string.
+`artifact-manifest.schema.json`'s `manifestAsset`/`manifestRoute` (and the
+byte-identical `build-provenance.schema.json` copy, sharing one JS-source
+`MANIFEST_MEDIA_TYPES` constant) admit the same seven added types for the site's
+own built assets. On the OpenAPI side, `content-changes:plan`'s
+`ContentChangeAssetEntry` admits the same eleven types (still no SVG) with a
+per-category `bytesBase64` bound; `assets` grows from 20 to 40 items and 20 MiB
+to 100 MiB per change, documents unchanged (20, 1 MiB each).
+`GET .../content/assets`'s closed `Content-Type` list grows from six to twelve
+(SVG stays readable only because a file may predate this contract; writes have
+refused it since 2.14.0), and the operation now declares `Accept-Ranges: bytes`
+and honours a single-range `Range` request header for sound and video: `206`
+with `Content-Range` for a satisfiable range, the new `416`
+(`VALIDATION_FAILED`) with `Content-Range: bytes */<total>` for an unsatisfiable
+one -- both fit the existing generator machinery with no special-casing, so no
+prose-only fallback was needed here. New shared OpenAPI components: headers
+`AcceptRanges`/`ContentRange`, parameter `Range`.
+
 SCHEMA-2.16.0 corrects a fault SCHEMA-2.14.0 introduced:
 `POST .../repository-changes/{changeId}:bring-up-to-date`'s
 `x-gala-state-guards` admitted only `REQUESTED|PLANNED|AWAITING_CONFIRMATION`,

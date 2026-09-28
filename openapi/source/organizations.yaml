@@ -11803,12 +11803,23 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/content/assets:
     get:
       description: |
-        Bytes of one image under a declared asset root, with the same
-        `revision` rule as the document read. `Content-Type` is exactly one of
-        the six closed values below, sniffed from the asset's own bytes rather
-        than trusted from what was written at plan time, with
-        `X-Content-Type-Options: nosniff` and `Content-Disposition: inline` so
-        a browser renders it and never executes it. An asset over 5 MiB is
+        Bytes of one image, sound or video file under a declared asset root
+        (an article's cover image, or a file referenced from its body,
+        copied through unchanged: no resizing, no derived formats), with the
+        same `revision` rule as the document read. `Content-Type` is exactly
+        one of the twelve closed values below, sniffed from the asset's own
+        bytes rather than trusted from what was written at plan time, with
+        `X-Content-Type-Options: nosniff` and `Content-Disposition: inline`
+        so a browser renders it and never executes it. `image/svg+xml` is
+        readable here only because a file already in the repository may
+        predate this contract; SCHEMA-2.14.0 through this version all
+        refuse it on write (`content-changes:plan`'s `ContentChangeAssetEntry`
+        never accepts it, an SVG can carry script). Every response declares
+        `Accept-Ranges: bytes` and honours a single-range `Range` request
+        header for sound and video, so a player can seek: a satisfiable
+        range is `206` with `Content-Range`; an unsatisfiable one is `416`
+        with `Content-Range: bytes */<total>`. An asset over its
+        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB) is
         `422 VALIDATION_FAILED` pointed at `/path`.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets
       parameters:
@@ -11845,6 +11856,7 @@ paths:
           schema:
             pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
             type: string
+        - $ref: '#/components/parameters/Range'
       responses:
         '200':
           content:
@@ -11872,12 +11884,103 @@ paths:
               schema:
                 format: binary
                 type: string
+            audio/mpeg:
+              schema:
+                format: binary
+                type: string
+            audio/mp4:
+              schema:
+                format: binary
+                type: string
+            audio/ogg:
+              schema:
+                format: binary
+                type: string
+            audio/wav:
+              schema:
+                format: binary
+                type: string
+            video/mp4:
+              schema:
+                format: binary
+                type: string
+            video/webm:
+              schema:
+                format: binary
+                type: string
           description: read one content asset succeeded
           headers:
+            Accept-Ranges:
+              $ref: '#/components/headers/AcceptRanges'
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
             Content-Disposition:
               $ref: '#/components/headers/ContentDispositionInline'
+            X-Content-Type-Options:
+              $ref: '#/components/headers/XContentTypeOptionsNosniff'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '206':
+          content:
+            image/png:
+              schema:
+                format: binary
+                type: string
+            image/jpeg:
+              schema:
+                format: binary
+                type: string
+            image/webp:
+              schema:
+                format: binary
+                type: string
+            image/gif:
+              schema:
+                format: binary
+                type: string
+            image/avif:
+              schema:
+                format: binary
+                type: string
+            image/svg+xml:
+              schema:
+                format: binary
+                type: string
+            audio/mpeg:
+              schema:
+                format: binary
+                type: string
+            audio/mp4:
+              schema:
+                format: binary
+                type: string
+            audio/ogg:
+              schema:
+                format: binary
+                type: string
+            audio/wav:
+              schema:
+                format: binary
+                type: string
+            video/mp4:
+              schema:
+                format: binary
+                type: string
+            video/webm:
+              schema:
+                format: binary
+                type: string
+          description:
+            read a satisfiable byte range of one content asset succeeded
+          headers:
+            Accept-Ranges:
+              $ref: '#/components/headers/AcceptRanges'
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Content-Disposition:
+              $ref: '#/components/headers/ContentDispositionInline'
+            Content-Range:
+              $ref: '#/components/headers/ContentRange'
             X-Content-Type-Options:
               $ref: '#/components/headers/XContentTypeOptionsNosniff'
             X-Correlation-Id:
@@ -11990,6 +12093,40 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - RESOURCE_NOT_FOUND
+        '416':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      "The requested Range is not satisfiable against this
+                      asset's real length, named on Content-Range. See the
+                      operation contract."
+                    errors:
+                      - code: VALIDATION_FAILED
+                        pointer: /
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 416
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Content-Range:
+              $ref: '#/components/headers/ContentRange'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
         '422':
           content:
             application/problem+json:
@@ -12000,9 +12137,10 @@ paths:
                     code: VALIDATION_FAILED
                     correlationId: 018f0000-0000-7000-8000-000000000001
                     detail:
-                      'The asset exceeds the 5 MiB read bound, or its content
-                      type is not one of the six accepted image types. See the
-                      operation contract.'
+                      'The asset exceeds its per-category read bound (image 5
+                      MiB, sound 20 MiB, video 50 MiB), or its content type is
+                      not one of the twelve accepted types. See the operation
+                      contract.'
                     errors:
                       - code: VALIDATION_FAILED
                         pointer: /path

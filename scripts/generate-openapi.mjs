@@ -41,6 +41,12 @@ export const BINARY_ASSET_CONTENT_TYPES = Object.freeze([
   'image/gif',
   'image/avif',
   'image/svg+xml',
+  'audio/mpeg',
+  'audio/mp4',
+  'audio/ogg',
+  'audio/wav',
+  'video/mp4',
+  'video/webm',
 ]);
 // SCHEMA-2.7.1: closed vocabulary for `x-gala-conditional-capability-keys[].condition`.
 // `read-only` names an alternate capability that admits a GET/query operation without

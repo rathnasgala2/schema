@@ -8,6 +8,41 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.17.0] - 2026-09-28
+
+Media in articles: a cover image, and images, sound and video referenced from an
+article's body, copied through unchanged into the built site (no resizing, no
+derived formats for in-text media). Additive minor; a consumer pinned to 2.16.0
+changes nothing but the package version to move to 2.17.0.
+
+### Added
+
+- `build-input.schema.json`'s `contentBuildRecord` gains an optional `media`
+  array (new `$defs` entry `contentBuildMediaFile`: `path`, `sourceDigest`,
+  `mediaType`, `byteLength`; up to 200 entries) listing the files an article's
+  body refers to. `mediaType` is the closed image/audio/video list (`image/png`,
+  `image/jpeg`, `image/webp`, `image/avif`, `image/gif`, `audio/mpeg`,
+  `audio/mp4`, `audio/ogg`, `audio/wav`, `video/mp4`, `video/webm`); SVG stays
+  refused. `byteLength` is bounded per category: image 5 MiB, audio 20 MiB,
+  video 50 MiB.
+- `artifact-manifest.schema.json`'s `manifestAsset` and `manifestRoute` (and the
+  byte-identical `build-provenance.schema.json` copy) admit the same seven added
+  media types for the site's own built assets.
+- OpenAPI `content-changes:plan`'s `ContentChangeAssetEntry` admits the same
+  eleven media types (SVG excluded); `assets` grows from 20 to 40 items and 20
+  MiB to 100 MiB per change, with a per-category `bytesBase64` bound matching
+  the per-file limit (image 5 MiB, sound 20 MiB, video 50 MiB). Documents are
+  unchanged: 20 documents, 1 MiB text each.
+- `GET .../content/assets`'s closed `Content-Type` list grows from six to twelve
+  values (the same media types, `image/svg+xml` still readable only because a
+  file may predate this contract -- writes have refused it since 2.14.0). The
+  operation now declares `Accept-Ranges: bytes` on every response and honours a
+  single-range `Range` request header for sound and video: a satisfiable range
+  is the new `206` with `Content-Range`, an unsatisfiable one is the new `416`
+  (`VALIDATION_FAILED`) with `Content-Range: bytes */<total>`. New shared
+  components: header `Accept-Ranges` (`AcceptRanges`), header `Content-Range`
+  (`ContentRange`), parameter `Range`.
+
 ## [2.16.0] - 2026-09-28
 
 Additive minor; a consumer pinned to 2.15.0 changes nothing but the package
@@ -2055,7 +2090,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.16.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.17.0...HEAD
+[2.17.0]: https://github.com/rathnasgala2/schema/compare/v2.16.0...v2.17.0
 [2.16.0]: https://github.com/rathnasgala2/schema/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/rathnasgala2/schema/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/rathnasgala2/schema/compare/v2.13.0...v2.14.0

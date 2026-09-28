@@ -1,5 +1,12 @@
 components:
   headers:
+    AcceptRanges:
+      description:
+        Advertises byte-range support (SCHEMA-2.17.0), so a sound or video
+        player can seek without downloading the whole file first.
+      required: true
+      schema:
+        const: bytes
     CacheControlNoStore:
       required: true
       schema:
@@ -8,6 +15,15 @@ components:
       required: true
       schema:
         const: inline
+    ContentRange:
+      description:
+        RFC 9110 `Content-Range`. `bytes <start>-<end>/<total>` on `206`; `bytes
+        */<total>` on `416`, naming the asset's real total length so the caller
+        can retry with a satisfiable range.
+      required: true
+      schema:
+        pattern: ^bytes (?:[0-9]+-[0-9]+|\*)/[0-9]+$
+        type: string
     ETag:
       required: true
       schema:
@@ -78,6 +94,18 @@ components:
       required: true
       schema:
         pattern: ^"[0-9]+"$
+        type: string
+    Range:
+      description:
+        RFC 9110 single-range `Range` request header (SCHEMA-2.17.0), honoured
+        for sound and video so a player can seek. Absent means the whole asset.
+        A multi-range request is not supported and is treated as absent.
+      example: bytes=0-1023
+      in: header
+      name: Range
+      required: false
+      schema:
+        pattern: ^bytes=[0-9]+-[0-9]*$
         type: string
     Limit:
       example: 1
@@ -3582,14 +3610,60 @@ components:
                     - contentType
                 - required:
                     - contentDigest
+        - if:
+            properties:
+              contentType:
+                enum:
+                  - image/png
+                  - image/jpeg
+                  - image/webp
+                  - image/gif
+                  - image/avif
+            required:
+              - contentType
+          then:
+            properties:
+              bytesBase64:
+                maxLength: 6990512
+        - if:
+            properties:
+              contentType:
+                enum:
+                  - audio/mpeg
+                  - audio/mp4
+                  - audio/ogg
+                  - audio/wav
+            required:
+              - contentType
+          then:
+            properties:
+              bytesBase64:
+                maxLength: 27962032
+        - if:
+            properties:
+              contentType:
+                enum:
+                  - video/mp4
+                  - video/webm
+            required:
+              - contentType
+          then:
+            properties:
+              bytesBase64:
+                maxLength: 69905072
       description: |
         One asset write or delete inside a batch `content-changes:plan`
-        request. `bytesBase64` is base64 over the raw asset bytes; the 5 MiB
-        per-asset bound is measured on the decoded byte length, not this
-        field's text length. `contentType` is the closed vocabulary the
-        asset read declares; `image/svg+xml` is deliberately absent (an SVG
-        can carry script). `DELETE` names only the path it removes and
-        carries none of the write-only members.
+        request -- an article's cover image, or an image, sound or video
+        file referenced from its body (pass-through: copied unchanged into
+        the built site, no resizing and no derived formats for in-text
+        media). `bytesBase64` is base64 over the raw asset bytes; the
+        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB) is
+        measured on the decoded byte length, not this field's text length,
+        and `bytesBase64`'s own `maxLength` is the base64 ceiling for that
+        same decoded bound. `contentType` is the closed vocabulary the asset
+        read declares; `image/svg+xml` is deliberately absent everywhere in
+        this contract (an SVG can carry script). `DELETE` names only the
+        path it removes and carries none of the write-only members.
       properties:
         action:
           enum:
@@ -3597,7 +3671,7 @@ components:
             - DELETE
           type: string
         bytesBase64:
-          maxLength: 6990512
+          maxLength: 69905072
           pattern: ^[A-Za-z0-9+/]+={0,2}$
           type: string
         contentDigest:
@@ -3610,6 +3684,12 @@ components:
             - image/webp
             - image/gif
             - image/avif
+            - audio/mpeg
+            - audio/mp4
+            - audio/ogg
+            - audio/wav
+            - video/mp4
+            - video/webm
           type: string
         path:
           maxLength: 512
@@ -4122,20 +4202,22 @@ components:
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
         (`baseRevision` and at least one of `documents`/`assets`) plans up
-        to 20 documents and 20 assets -- each `PUT` with its own text or
+        to 20 documents and 40 assets -- each `PUT` with its own text or
         bytes and digest, each `DELETE` naming only its path -- in one
         change, against the exact expected main-branch head asserted as
         `baseRevision`. A request mixing the two shapes, or a batch request
         naming neither `documents` nor `assets`, is `422 VALIDATION_FAILED`.
-        The change's total serialized size must not exceed 20 MiB;
+        The change's total serialized size must not exceed 100 MiB;
         `assets[].bytesBase64` is base64 over raw bytes, so what counts
-        against the 5 MiB per-asset and 20 MiB per-change bounds is the
-        decoded byte length, not this field's text length.
+        against the per-asset and 100 MiB per-change bounds is the decoded
+        byte length, not this field's text length. Per-asset, by media
+        category: image 5 MiB, sound 20 MiB, video 50 MiB (documents are
+        unchanged since 2.14.0: 20 documents, 1 MiB text each).
       properties:
         assets:
           items:
             $ref: '#/components/schemas/ContentChangeAssetEntry'
-          maxItems: 20
+          maxItems: 40
           type: array
         baseRevision:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
