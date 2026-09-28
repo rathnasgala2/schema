@@ -40,6 +40,20 @@ components:
         format: uuid
         type: string
   parameters:
+    ContentLimit:
+      description: |
+        Same bound as the shared `Limit` parameter, with a higher default
+        appropriate to a content list row: the server may return fewer items
+        than `limit` even when more are available.
+      example: 1
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 50
+        maximum: 100
+        minimum: 1
+        type: integer
     Cursor:
       example: example
       in: query
@@ -3655,6 +3669,12 @@ components:
       $ref: ../schemas/content-frontmatter.schema.json
     ContentInventoryItem:
       additionalProperties: false
+      description: |
+        Exactly one of `summary` or `unreadable` is present on every item the
+        server returns from schema 2.15.0 on; a strict validator does not
+        enforce this (it would make an older item with neither field, valid
+        before 2.15.0, invalid), so a reader checks for both being absent
+        defensively.
       properties:
         blobId:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
@@ -3670,20 +3690,91 @@ components:
           format: int64
           minimum: 0
           type: integer
+        summary:
+          $ref: '#/components/schemas/ContentInventoryItemSummary'
+        unreadable:
+          $ref: '#/components/schemas/ContentInventoryItemUnreadable'
       required:
         - path
         - kind
         - blobId
         - size
       type: object
+    ContentInventoryItemSummary:
+      additionalProperties: false
+      description: |
+        The header block's own facts about this item, read at inventory time.
+        `contentId` is the header's `id`; `status` is the header's `status`
+        upper-cased to this contract's enum style.
+      properties:
+        contentId:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/stableId
+        createdAt:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
+        language:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/bcp47
+        publishedAt:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
+        slug:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/slug
+        status:
+          $ref: '#/components/schemas/ContentItemStatus'
+        title:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 200
+            minimum: 1
+        updatedAt:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
+      required:
+        - contentId
+        - title
+        - slug
+        - status
+        - language
+        - createdAt
+      type: object
+    ContentInventoryItemUnreadable:
+      additionalProperties: false
+      properties:
+        reason:
+          $ref: '#/components/schemas/ContentItemUnreadableReason'
+      required:
+        - reason
+      type: object
     ContentItemKind:
       description:
-        Which declared content root a document lives under -- ARTICLE for
-        `content/articles/`, PAGE for `content/pages/` -- derived from the path,
-        never from parsing the file.
+        Which content root a document lives under -- ARTICLE for
+        `content/articles/`, PAGE for `content/pages/`. Since schema 2.15.0 this
+        comes from the header's own `kind` when the inventory item's `summary`
+        is present; before that, and whenever `unreadable` is present instead,
+        it is derived from the path alone.
       enum:
         - ARTICLE
         - PAGE
+      type: string
+    ContentItemStatus:
+      description:
+        The header's `status`, upper-cased to this contract's enum style.
+      enum:
+        - DRAFT
+        - PUBLISHED
+        - UNLISTED
+        - ARCHIVED
+      type: string
+    ContentItemUnreadableReason:
+      description: |
+        Why an inventory item's header could not be read. `HEADER_MISSING`:
+        the file has no header block at all. `HEADER_UNPARSABLE`: the header
+        block does not parse. `HEADER_INVALID`: it parses but does not
+        validate against `content-frontmatter.schema.json`. `TOO_LARGE`: the
+        file exceeds the document read's 1 MiB bound, so the header was never
+        read.
+      enum:
+        - HEADER_MISSING
+        - HEADER_UNPARSABLE
+        - HEADER_INVALID
+        - TOO_LARGE
       type: string
     ContentPublicationAuthorSummary:
       additionalProperties: false

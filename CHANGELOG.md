@@ -8,6 +8,35 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.15.0] - 2026-09-28
+
+Content list rows need title, kind, status and last-changed without a round trip
+per row. Additive minor; a consumer pinned to 2.14.0 changes nothing but the
+package version to move to 2.15.0.
+
+### Added
+
+- `ContentInventoryItem` (`GET .../content`) gains two optional members, exactly
+  one of which is present on every item the server returns from this version on:
+  `summary` (new schema `ContentInventoryItemSummary` -- `contentId`, `title`,
+  `slug`, `status` (new closed `ContentItemStatus`:
+  `DRAFT`/`PUBLISHED`/`UNLISTED`/`ARCHIVED`), `language`, `createdAt` required;
+  `updatedAt`, `publishedAt` optional -- read from the header block the server
+  now reads for each listed path, bounded, from the person's repository, nothing
+  stored) or `unreadable` (new schema `ContentInventoryItemUnreadable`:
+  `{reason}`, new closed `ContentItemUnreadableReason`:
+  `HEADER_MISSING`/`HEADER_UNPARSABLE`/ `HEADER_INVALID`/`TOO_LARGE`). `kind`
+  now comes from the header's own `kind` when `summary` is present, and from the
+  content root as before when it is not. Member types reuse
+  `content-frontmatter.schema.json`'s `$defs`, the way
+  `ContentFrontmatter`/`ContentPublicationSummary` already do. This is
+  prose-stated, not schema-enforced (a strict validator does not require either
+  field, so a pre-2.15.0 item with neither stays valid).
+- `GET .../content` gains a dedicated `limit` bound (new parameter
+  `ContentLimit`): default 50 instead of the shared default of 25, maximum 100
+  unchanged from 2.14.0 (a maximum cannot be lowered additively). The server may
+  return fewer items than `limit` even when more are available.
+
 ## [2.14.0] - 2026-09-28
 
 Write, preview and publish content (design
@@ -1990,7 +2019,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.15.0...HEAD
+[2.15.0]: https://github.com/rathnasgala2/schema/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/rathnasgala2/schema/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/rathnasgala2/schema/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/rathnasgala2/schema/compare/v2.11.0...v2.12.0

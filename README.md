@@ -91,6 +91,30 @@ calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
 states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
 problem, which covers an expired, already-used or unknown token alike.
 
+SCHEMA-2.15.0 closes a Content-list gap SCHEMA-2.14.0 left: with `kind` the only
+fact the inventory carried about a flat file, a row could not show title, kind,
+status or last-changed, and a client could not check web-address uniqueness,
+without one round trip per row. `ContentInventoryItem` gains two optional
+members, exactly one of which the server returns on every item from this version
+on: `summary` (`ContentInventoryItemSummary` --
+`contentId`/`title`/`slug`/`status`/`language`/`createdAt` required,
+`updatedAt`/`publishedAt` optional; `status` is the new closed
+`ContentItemStatus`, `DRAFT`/`PUBLISHED`/`UNLISTED`/`ARCHIVED`) when the header
+block the server now reads for every listed path parses, or `unreadable`
+(`ContentInventoryItemUnreadable`, `{reason}`, the new closed
+`ContentItemUnreadableReason`: `HEADER_MISSING`/`HEADER_UNPARSABLE`/
+`HEADER_INVALID`/`TOO_LARGE`) when it does not. `kind` itself now comes from the
+header when `summary` is present, from the content root as before when it is
+not. This is stated in the operation description rather than schema- enforced,
+because a `oneOf` requiring one of the two would make a pre-2.15.0 item -- one
+with neither field, valid until now -- invalid; member types reuse
+`content-frontmatter.schema.json`'s `$defs`, matching how
+`ContentFrontmatter`/`ContentPublicationSummary` already do. `GET .../content`
+also gains its own `limit` bound (`ContentLimit`): default 50 in place of the
+shared default of 25, the existing 100 maximum kept unchanged since lowering a
+maximum is never additive; the server may return fewer items than `limit` even
+when more are available.
+
 SCHEMA-2.14.0 (design `scrap/20260928_write-preview-publish.md` section 3) is
 additive, closing the write/preview/publish content journey. Nine operations
 join the contract under

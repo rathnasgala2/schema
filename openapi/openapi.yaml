@@ -46,6 +46,20 @@ components:
         pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
         type: string
   parameters:
+    ContentLimit:
+      description: |
+        Same bound as the shared `Limit` parameter, with a higher default
+        appropriate to a content list row: the server may return fewer items
+        than `limit` even when more are available.
+      example: 1
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 50
+        maximum: 100
+        minimum: 1
+        type: integer
     Cursor:
       example: example
       in: query
@@ -369,6 +383,12 @@ components:
       $ref: "#/components/schemas/PortableContentFrontmatterDocument"
     ContentInventoryItem:
       additionalProperties: false
+      description: |
+        Exactly one of `summary` or `unreadable` is present on every item the
+        server returns from schema 2.15.0 on; a strict validator does not
+        enforce this (it would make an older item with neither field, valid
+        before 2.15.0, invalid), so a reader checks for both being absent
+        defensively.
       properties:
         blobId:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
@@ -384,17 +404,85 @@ components:
           format: int64
           minimum: 0
           type: integer
+        summary:
+          $ref: "#/components/schemas/ContentInventoryItemSummary"
+        unreadable:
+          $ref: "#/components/schemas/ContentInventoryItemUnreadable"
       required:
         - path
         - kind
         - blobId
         - size
       type: object
+    ContentInventoryItemSummary:
+      additionalProperties: false
+      description: |
+        The header block's own facts about this item, read at inventory time.
+        `contentId` is the header's `id`; `status` is the header's `status`
+        upper-cased to this contract's enum style.
+      properties:
+        contentId:
+          $ref: "#/components/schemas/PortableContentFrontmatterStableId"
+        createdAt:
+          $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+        language:
+          $ref: "#/components/schemas/PortableContentFrontmatterBcp47"
+        publishedAt:
+          $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+        slug:
+          $ref: "#/components/schemas/PortableContentFrontmatterSlug"
+        status:
+          $ref: "#/components/schemas/ContentItemStatus"
+        title:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+          x-gala-graphemeLength:
+            maximum: 200
+            minimum: 1
+        updatedAt:
+          $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+      required:
+        - contentId
+        - title
+        - slug
+        - status
+        - language
+        - createdAt
+      type: object
+    ContentInventoryItemUnreadable:
+      additionalProperties: false
+      properties:
+        reason:
+          $ref: "#/components/schemas/ContentItemUnreadableReason"
+      required:
+        - reason
+      type: object
     ContentItemKind:
-      description: Which declared content root a document lives under -- ARTICLE for `content/articles/`, PAGE for `content/pages/` -- derived from the path, never from parsing the file.
+      description: Which content root a document lives under -- ARTICLE for `content/articles/`, PAGE for `content/pages/`. Since schema 2.15.0 this comes from the header's own `kind` when the inventory item's `summary` is present; before that, and whenever `unreadable` is present instead, it is derived from the path alone.
       enum:
         - ARTICLE
         - PAGE
+      type: string
+    ContentItemStatus:
+      description: The header's `status`, upper-cased to this contract's enum style.
+      enum:
+        - DRAFT
+        - PUBLISHED
+        - UNLISTED
+        - ARCHIVED
+      type: string
+    ContentItemUnreadableReason:
+      description: |
+        Why an inventory item's header could not be read. `HEADER_MISSING`:
+        the file has no header block at all. `HEADER_UNPARSABLE`: the header
+        block does not parse. `HEADER_INVALID`: it parses but does not
+        validate against `content-frontmatter.schema.json`. `TOO_LARGE`: the
+        file exceeds the document read's 1 MiB bound, so the header was never
+        read.
+      enum:
+        - HEADER_MISSING
+        - HEADER_UNPARSABLE
+        - HEADER_INVALID
+        - TOO_LARGE
       type: string
     ContentPublicationAuthorSummary:
       additionalProperties: false
@@ -19901,12 +19989,22 @@ paths:
     get:
       description: |
         One git-trees read per declared content root at the linked repository's
-        current main branch head, bounded at 2,000 entries with no file bodies
-        read. `kind` is derived from which declared content root a path is
-        under (ARTICLE for `content/articles/`, PAGE for `content/pages/`), not
-        from parsing the file. `setUp` reports whether `gala/repository.json`
-        is present on main, matching `GET .../repository/setup`'s `state`.
-        `publication` is read from the settings files
+        current main branch head, bounded at 2,000 entries. For each listed
+        path the server additionally reads that file's header block (bounded,
+        from the person's repository, nothing stored) to fill `summary`.
+        Exactly one of `summary` or `unreadable` is present on every item this
+        operation returns from schema 2.15.0 on: `summary` when the header
+        parses, `unreadable` (with a closed `reason`) when it does not or the
+        file exceeds the read bound. `kind` comes from the header's own
+        `kind` when `summary` is present, and from which declared content
+        root the path is under (ARTICLE for `content/articles/`, PAGE for
+        `content/pages/`) when it is not. `limit` defaults to 50 here (the
+        shared default is 25) because a content list row needs more per
+        round trip than most lists; the server may return fewer items than
+        `limit` even when more are available. `setUp` reports whether
+        `gala/repository.json` is present on main, matching
+        `GET .../repository/setup`'s `state`. `publication` is read from the
+        settings files
         (`gala/repository.json`, `gala/appearance.json`, `gala/authors/`) at
         this same main-branch head, and is returned on every page of the
         inventory, not only the first, so the editor has these facts
@@ -19932,7 +20030,7 @@ paths:
             pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
             type: string
         - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/ContentLimit"
       responses:
         "200":
           content:
@@ -19944,7 +20042,24 @@ paths:
                     defaultBranch: main
                     hasMore: false
                     head: sha1:0000000000000000000000000000000000000000
-                    items: []
+                    items:
+                      - blobId: sha1:0000000000000000000000000000000000000000
+                        kind: ARTICLE
+                        path: content/articles/example.md
+                        size: 128
+                        summary:
+                          contentId: 018f0000-0000-7000-8000-000000000001
+                          createdAt: "2026-09-28T00:00:00.000Z"
+                          language: en
+                          slug: example
+                          status: DRAFT
+                          title: Example
+                      - blobId: sha1:0000000000000000000000000000000000000000
+                        kind: ARTICLE
+                        path: content/articles/unreadable.md
+                        size: 2097152
+                        unreadable:
+                          reason: TOO_LARGE
                     publication:
                       authors:
                         - displayName: Example Author
