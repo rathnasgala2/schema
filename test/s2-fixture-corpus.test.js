@@ -156,8 +156,15 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // appearance, artifact-manifest, build-input, build-provenance,
     // deployment-intent, deployment-observation, deployment-receipt,
     // navigation, theme-contract), and added 9 new fixture files.
+    //
+    // SCHEMA-2.17.0: media in articles widened artifact-manifest/
+    // build-provenance's manifestAsset/manifestRoute mediaType enum and
+    // added build-input's optional contentBuildRecord.media (new $defs
+    // entry contentBuildMediaFile), regenerating the affected valid/
+    // boundary/invalid build-input fixture files. File count unchanged
+    // (826): only content changed, no fixture file added or removed.
     aggregate.digest('hex'),
-    'dfe795e06bb501f964d0fadbddfe477a1dc706392d2d2b646dbc0dd5c9185e65',
+    'eb840a3a62bd66352ab44400c4b77c28f3f82b5e4fb56deda696a4a592231045',
   );
 });
 
