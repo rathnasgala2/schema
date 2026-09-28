@@ -3730,7 +3730,31 @@ components:
       type: string
     RepositoryChangeSummary:
       additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: CONTENT
+            required:
+              - kind
+          then:
+            required:
+              - baseRevision
       properties:
+        baseRevision:
+          description:
+            The main-branch head this change was planned against. Required when
+            `kind` is `CONTENT`; absent for a managed-file change kind that
+            predates this field.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        broughtUpToDateFromChangeId:
+          description:
+            Present when this change was planned by `:bring-up-to-date`, naming
+            the change it merged.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
         changeId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -3757,6 +3781,14 @@ components:
             type: string
           maxItems: 40
           type: array
+        proposedRevision:
+          description:
+            The commit this change would create, once it exists. Absent until
+            the underlying commit is created; never asserted by the caller.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type:
+            - string
+            - 'null'
         publishId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$

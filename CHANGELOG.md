@@ -25,17 +25,25 @@ pinned to 2.13.0 changes nothing but the package version to move to 2.14.0.
   closed six-member list, `X-Content-Type-Options: nosniff`,
   `Content-Disposition: inline`). All three accept an optional `revision`,
   enforced against the database as the main head, this publication's own
-  proposed-change commit, or its own published revision -- never accepted on the
-  caller's assertion.
+  `RepositoryChange`'s `proposedRevision` or `baseRevision`, or its own
+  published revision -- never accepted on the caller's assertion.
 - `GET .../repository-changes` and `GET .../repository-changes/{changeId}`: list
-  and read proposed repository changes -- state, kind, changed paths, who
-  proposed the change and when, and the review and publish it led to -- modelled
-  on the reviews list and read, so nobody types a commit id.
-- `POST .../repository-changes/{changeId}:bring-up-to-date`: plans a new change
-  merging a proposed change onto the current main branch head, from blob ids. An
-  identical-path edit with different content on both sides is never resolved
-  silently: the merged document's body carries both texts under conflict
-  markers, readable through the document read like any other planned change.
+  and read proposed repository changes -- state, kind, changed paths,
+  `baseRevision`/`proposedRevision`, who proposed the change and when, and the
+  review and publish it led to -- modelled on the reviews list and read, so
+  nobody types a commit id. `RepositoryChangeSummary` gains `baseRevision`
+  (required for a `CONTENT`-kind change), `proposedRevision` (absent until the
+  commit exists), and `broughtUpToDateFromChangeId`.
+- `POST .../repository-changes/{changeId}:bring-up-to-date`: a file-level
+  three-way merge from blob ids only -- the server never merges text and never
+  writes conflict markers into a person's repository. Every path merging cleanly
+  plans a new change and returns `201`; any path conflicting writes nothing and
+  creates no change, returning `409 INVALID_SOURCE_STATE` with one `errors[]`
+  entry per conflicting path (`code: CONTENT_CONFLICT`, `pointer` a JSON Pointer
+  under `/documents/` or `/assets/`) and the live main head on
+  `X-Gala-Current-Head`, so the App reads Before/Yours/Theirs through the
+  document read, merges in the browser, and submits a new
+  `content-changes:plan`.
 - `POST .../repository:set-up` and `GET .../repository/setup`: add the user
   template repository's missing files to an already-linked repository as one
   commit on main, writing nothing when a user template file already exists with

@@ -11582,7 +11582,28 @@ components:
       type: string
     RepositoryChangeSummary:
       additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              kind:
+                pattern: ^CONTENT$
+                type: string
+                x-gala-const: CONTENT
+            required:
+              - kind
+          then:
+            required:
+              - baseRevision
       properties:
+        baseRevision:
+          description: The main-branch head this change was planned against. Required when `kind` is `CONTENT`; absent for a managed-file change kind that predates this field.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        broughtUpToDateFromChangeId:
+          description: Present when this change was planned by `:bring-up-to-date`, naming the change it merged.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
         changeId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -11605,6 +11626,12 @@ components:
             type: string
           maxItems: 40
           type: array
+        proposedRevision:
+          description: The commit this change would create, once it exists. Absent until the underlying commit is created; never asserted by the caller.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type:
+            - string
+            - "null"
         publishId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -20695,10 +20722,13 @@ paths:
         `revision` omitted reads `path` at the linked repository's current main
         branch head. A caller-supplied `revision` is checked against the
         database, never accepted on assertion alone: it must be the current
-        main head, the proposed commit of a `RepositoryChange` this publication
-        owns, or a revision this publication has published. Any other value is
-        `404 RESOURCE_NOT_FOUND`, exactly as an unknown path is, so the read
-        never discloses which revisions exist elsewhere. `frontmatter` is the
+        main head, the `proposedRevision` or the `baseRevision` of a
+        `RepositoryChange` this publication owns, or a revision this
+        publication has published -- the `baseRevision` clause is what keeps
+        a bring-up-to-date conflict's Before version readable even after the
+        main branch has moved again. Any other value is `404
+        RESOURCE_NOT_FOUND`, exactly as an unknown path is, so the read never
+        discloses which revisions exist elsewhere. `frontmatter` is the
         header block validated against `content-frontmatter.schema.json`;
         `unknownFrontmatter` carries every header member the schema does not
         name, byte-preserved for a later write. A file whose header block does
@@ -24470,6 +24500,7 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
+                    baseRevision: sha1:0000000000000000000000000000000000000000
                     changeId: 018f0000-0000-7000-8000-000000000001
                     createdAt: "2026-09-28T00:00:00.000Z"
                     createdByPrincipalId: 018f0000-0000-7000-8000-000000000001
@@ -24620,14 +24651,24 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:bring-up-to-date:
     post:
       description: |
-        Computes a three-way merge of `changeId`'s content onto the repository's
-        current main branch head, from blob ids, and plans the result as a new
-        `RepositoryChange`. An identical-path edit with different content on
-        both sides is never resolved silently: the merged document's body
-        carries both texts under conflict markers, and the new change's
-        documents are readable through the document read exactly like any other
-        planned change, so the App reopens the editor on the merged text
-        (journey state P4). `changeId` itself is untouched.
+        A file-level three-way merge of `changeId` onto the repository's
+        current main branch head, computed from blob ids only. The server
+        never merges text and never writes conflict markers into a person's
+        repository: when every path merges cleanly (no path was changed on
+        both sides to different content, and no path was edited on one side
+        and deleted on the other), a new `RepositoryChange` is planned from
+        the merged blob set and returned `201`. When any path conflicts,
+        nothing is written and no change is created; `409
+        INVALID_SOURCE_STATE` names each conflicting path in `errors[]`
+        (`code: CONTENT_CONFLICT`, `pointer: /documents/<path>` or
+        `/assets/<path>`, each path one RFC 6901-escaped JSON Pointer token)
+        and carries the live main head on `X-Gala-Current-Head`. The App
+        then reads three versions of each conflicting document through the
+        document read -- Before (`changeId`'s `baseRevision`), Yours
+        (`changeId`'s `proposedRevision`), Theirs (the head named by
+        `X-Gala-Current-Head`) -- merges in the browser, and submits a new
+        `content-changes:plan` with `baseRevision` set to that head (journey
+        state P4). `changeId` itself is untouched either way.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -24834,8 +24875,12 @@ paths:
                   value:
                     code: INVALID_SOURCE_STATE
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
+                    detail: "One or more paths conflict at file level between changeId and the current main head: nothing was written and no change was created. Read each named path through the document or asset read at baseRevision (Before), proposedRevision (Yours) and X-Gala-Current-Head (Theirs), merge in the browser, and submit a new content-changes:plan. This code is also used, with an empty errors[], when changeId is no longer in a state bring-up-to-date admits (already committed or cancelled). See the operation contract."
+                    errors:
+                      - code: CONTENT_CONFLICT
+                        pointer: /documents/content~1articles~1example.md
+                      - code: CONTENT_CONFLICT
+                        pointer: /assets/example.png
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0
@@ -24850,6 +24895,8 @@ paths:
               $ref: "#/components/headers/CacheControlNoStore"
             X-Correlation-Id:
               $ref: "#/components/headers/XCorrelationId"
+            X-Gala-Current-Head:
+              $ref: "#/components/headers/XGalaCurrentHead"
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_SOURCE_STATE

@@ -100,43 +100,50 @@ join the contract under
 the file), `GET .../content/documents` and `GET .../content/assets` (one
 document or one binary image, `revision` omitted meaning the main head and
 otherwise enforced against the database -- the main head, this publication's own
-proposed-change commit, or its own published revision -- never accepted on the
-caller's assertion), `GET`/single-read `.../repository-changes` (list and read
-proposed changes across every plan kind, modelled on the reviews list and read),
-`POST .../repository-changes/{changeId}:bring-up-to-date` (a three-way merge of
-a proposed change onto the current main head, planned as a new change; an
-identical-path conflict is never resolved silently -- both texts land in the
-merged document under conflict markers, readable through the document read),
-`POST .../repository:set-up` and `GET .../repository/setup` (add the user
-template repository's missing files to an already-linked repository, never
-overwriting a path that exists with different content), and
-`POST .../publishes/{publishId}:update-default-branch` (retry moving the linked
-repository's default branch forward after GitHub refused it).
-`content-changes:plan` is extended, additively: the 2.13.0 single-document shape
-(`path`, `contentDigest`, `expectedHead`) stays accepted, and a new batch shape
-(`baseRevision` plus `documents[]`/`assets[]`, each entry `PUT` or `DELETE`, up
-to 20 of each, a document capped at 1 MiB and an asset at 5 MiB) plans up to 20
-MiB in one change; every path is checked against a closed safety pattern that
-makes `gala/`, `gala.lock.json`, `.github/`, dot-directories, absolute paths,
-`..` segments, backslashes and control characters unrepresentable, and every
-asset write names its `contentType` from the same five-member closed list the
-asset read serves (`image/svg+xml` is deliberately not among them). A stale
-`expectedHead`/`baseRevision` is `409 INVALID_SOURCE_STATE` carrying the live
-main head on the new `X-Gala-Current-Head` response header, so the App can merge
-without ever holding a commit id itself. `POST .../publishes` gains the declared
-refusal `SOURCE_OUT_OF_DATE` (an `errors[].code` on the same
-`409 INVALID_SOURCE_STATE`, pointed at `/sourceRevision`, described in prose
-alongside the existing `/scheduledFor` cause since the generator admits one
-example per problem code per operation): a publish is refused unless the current
-default-branch head is an ancestor of the revision being published, which is
-what a verified publish's own worker then fast-forwards the default branch to,
-non-forced, retryable through `update-default-branch` when GitHub reports the
-branch protected (`BLOCKED_BY_PROTECTION`) or moved since (`DIVERGED`) -- the
-site stays live either way. `DeploymentSummary` gains the optional
-`defaultBranchUpdate` block (`state`
-PENDING/UPDATED/BLOCKED_BY_PROTECTION/DIVERGED/FAILED, optional `updatedAt`),
-and repository creation's `startFrom` (`USER_TEMPLATE`, the default, or `EMPTY`)
-chooses whether the created repository generates from the
+`RepositoryChange`'s `proposedRevision` or `baseRevision`, or its own published
+revision -- never accepted on the caller's assertion), `GET`/single-read
+`.../repository-changes` (list and read proposed changes across every plan kind,
+modelled on the reviews list and read),
+`POST .../repository-changes/{changeId}:bring-up-to-date` (a file-level
+three-way merge from blob ids only, never a text merge: every path merging
+cleanly plans a new change and returns `201`; any path conflicting writes
+nothing and returns `409 INVALID_SOURCE_STATE` naming each conflicting path, so
+the App merges the text itself in the browser from the document read and submits
+a new `content-changes:plan`), `POST .../repository:set-up` and
+`GET .../repository/setup` (add the user template repository's missing files to
+an already-linked repository, never overwriting a path that exists with
+different content), and `POST .../publishes/{publishId}:update-default-branch`
+(retry moving the linked repository's default branch forward after GitHub
+refused it). `content-changes:plan` is extended, additively: the 2.13.0
+single-document shape (`path`, `contentDigest`, `expectedHead`) stays accepted,
+and a new batch shape (`baseRevision` plus `documents[]`/`assets[]`, each entry
+`PUT` or `DELETE`, up to 20 of each, a document capped at 1 MiB and an asset at
+5 MiB) plans up to 20 MiB in one change; every path is checked against a closed
+safety pattern that makes `gala/`, `gala.lock.json`, `.github/`,
+dot-directories, absolute paths, `..` segments, backslashes and control
+characters unrepresentable, and every asset write names its `contentType` from
+the same five-member closed list the asset read serves (`image/svg+xml` is
+deliberately not among them). A stale `expectedHead`/`baseRevision` is
+`409 INVALID_SOURCE_STATE` carrying the live main head on the new
+`X-Gala-Current-Head` response header, so the App can merge without ever holding
+a commit id itself; `bring-up-to-date`'s file-level conflict reuses the same
+header, with one `errors[]` entry per conflicting path
+(`code: CONTENT_CONFLICT`, `pointer` a JSON Pointer under `/documents/` or
+`/assets/`). `RepositoryChangeSummary` gains `baseRevision` (required for a
+`CONTENT`-kind change), `proposedRevision` (absent until the commit exists), and
+`broughtUpToDateFromChangeId`. `POST .../publishes` gains the declared refusal
+`SOURCE_OUT_OF_DATE` (an `errors[].code` on the same `409 INVALID_SOURCE_STATE`,
+pointed at `/sourceRevision`, described in prose alongside the existing
+`/scheduledFor` cause since the generator admits one example per problem code
+per operation): a publish is refused unless the current default-branch head is
+an ancestor of the revision being published, which is what a verified publish's
+own worker then fast-forwards the default branch to, non-forced, retryable
+through `update-default-branch` when GitHub reports the branch protected
+(`BLOCKED_BY_PROTECTION`) or moved since (`DIVERGED`) -- the site stays live
+either way. `DeploymentSummary` gains the optional `defaultBranchUpdate` block
+(`state` PENDING/UPDATED/BLOCKED_BY_PROTECTION/DIVERGED/FAILED, optional
+`updatedAt`), and repository creation's `startFrom` (`USER_TEMPLATE`, the
+default, or `EMPTY`) chooses whether the created repository generates from the
 `rathnasgala2/user-template` GitHub template. `docs/catalogs/app-routes.json`'s
 Content route gains the new operation ids and its `screenJob` no longer says the
 screen is unavailable; the Source route gains the two set-up operations and
