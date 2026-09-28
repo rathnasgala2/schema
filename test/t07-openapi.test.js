@@ -9,6 +9,8 @@ import formatsPlugin from 'ajv-formats';
 import { parse as parseYaml } from 'yaml';
 
 import {
+  BINARY_ASSET_CONTENT_TYPES,
+  BINARY_RESPONSE_OPERATIONS,
   CAPABILITY_KEY_PATTERN,
   CONDITIONAL_CAPABILITY_KEY_CONDITIONS,
   createOpenApiArtifacts,
@@ -118,6 +120,15 @@ GET /v2/organizations/{organizationId}/roles
 POST /v2/organizations/{organizationId}/publications/{publicationId}:previewRetirement
 GET /v2/organizations/{organizationId}/publications/{publicationId}/destination
 PUT /v2/organizations/{organizationId}/publications/{publicationId}/destination
+GET /v2/organizations/{organizationId}/publications/{publicationId}/content
+GET /v2/organizations/{organizationId}/publications/{publicationId}/content/documents
+GET /v2/organizations/{organizationId}/publications/{publicationId}/content/assets
+GET /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes
+GET /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}
+POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:bring-up-to-date
+POST /v2/organizations/{organizationId}/publications/{publicationId}/repository:set-up
+GET /v2/organizations/{organizationId}/publications/{publicationId}/repository/setup
+POST /v2/organizations/{organizationId}/publications/{publicationId}/publishes/{publishId}:update-default-branch
 `
   .trim()
   .split('\n')
@@ -411,7 +422,7 @@ function withoutBundleLiftedKeys(schema) {
   );
 }
 
-test('source fragments, bundle and catalog contain exactly the 76-operation MVP plus health', async () => {
+test('source fragments, bundle and catalog contain exactly the 85-operation MVP plus health', async () => {
   const { bundle, catalog, sourceOperations } = await readProjections();
   const sourceIdentities = sourceOperations
     .map(({ method, path: route }) => `${method} ${route}`)
@@ -419,7 +430,7 @@ test('source fragments, bundle and catalog contain exactly the 76-operation MVP 
   const catalogIdentities = catalog.operations
     .map(({ method, path: route }) => `${method} ${route}`)
     .sort();
-  assert.equal(EXPECTED_OPERATIONS.length, 77);
+  assert.equal(EXPECTED_OPERATIONS.length, 86);
   assert.deepEqual(sourceIdentities, EXPECTED_OPERATIONS);
   assert.deepEqual(bundleIdentities(bundle.paths), EXPECTED_OPERATIONS);
   assert.deepEqual(catalogIdentities, EXPECTED_OPERATIONS);
@@ -431,7 +442,7 @@ test('source fragments, bundle and catalog contain exactly the 76-operation MVP 
   assert.equal(
     catalog.operations.filter(({ path: route }) => route.startsWith('/v2/'))
       .length,
-    76,
+    85,
   );
 });
 
@@ -477,7 +488,7 @@ test('every operation uses mechanical unique naming and complete executable meta
     );
     assert.deepEqual(operation.tags, [row.sourceFragment]);
   }
-  assert.equal(new Set(operationIds).size, 77);
+  assert.equal(new Set(operationIds).size, 86);
 });
 
 test('recovery-code regeneration declares both lifecycle families', async () => {
@@ -506,7 +517,16 @@ test('request and success components follow the frozen mechanical names', async 
     );
     assert.ok(success);
     const [status, response] = success;
-    if (!['204', '303'].includes(status)) {
+    if (BINARY_RESPONSE_OPERATIONS.includes(row.operationId)) {
+      assert.deepEqual(
+        Object.keys(response.content).sort(),
+        [...BINARY_ASSET_CONTENT_TYPES].sort(),
+      );
+      for (const entry of Object.values(response.content)) {
+        assert.equal(entry.schema.type, 'string');
+        assert.equal(entry.schema.format, 'binary');
+      }
+    } else if (!['204', '303'].includes(status)) {
       assert.equal(
         response.content['application/json'].schema.$ref,
         `#/components/schemas/${stem}Response`,
@@ -769,7 +789,7 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
       schema.properties?.hasMore !== undefined &&
       schema.properties?.nextCursor !== undefined,
   );
-  assert.equal(collections.length, 12);
+  assert.equal(collections.length, 14);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),
@@ -834,7 +854,7 @@ test('keyset list reads answer a bad cursor or limit with 400, never 422', async
         (parameter) => parameter.in === 'query' && parameter.name === 'cursor',
       );
   });
-  assert.equal(keysetReads.length, 12);
+  assert.equal(keysetReads.length, 14);
   for (const row of keysetReads) {
     const operation = operationAt(bundle, row.method, row.path);
     const response = resolveLocalComponent(
@@ -2331,20 +2351,24 @@ test('PortableProblemDocument matches problem.schema.json on shape and bounds (S
 test('README.md states the MVP operation count consistently (SCH-L1)', async () => {
   const readme = await readFile('README.md', 'utf8');
   assert.ok(
-    readme.includes('76 MVP operations plus'),
-    'README.md no longer says "76 MVP operations plus"',
+    readme.includes('85 MVP operations plus'),
+    'README.md no longer says "85 MVP operations plus"',
   );
   assert.match(
     readme,
-    /exact 76 MVP\s+operations plus health/u,
-    'README.md no longer says "exact 76 MVP operations plus health"',
+    /exact 85 MVP\s+operations plus health/u,
+    'README.md no longer says "exact 85 MVP operations plus health"',
   );
   assert.ok(
     !/\b73 MVP\b/u.test(readme),
-    'README.md still claims 73 MVP operations somewhere; it is 76',
+    'README.md still claims 73 MVP operations somewhere; it is 85',
   );
   assert.ok(
     !/\b75 MVP\b/u.test(readme),
-    'README.md still claims 75 MVP operations somewhere; it is 76',
+    'README.md still claims 75 MVP operations somewhere; it is 85',
+  );
+  assert.ok(
+    !/\b76 MVP\b/u.test(readme),
+    'README.md still claims 76 MVP operations somewhere; it is 85',
   );
 });

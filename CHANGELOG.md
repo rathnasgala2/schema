@@ -8,6 +8,85 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.14.0] - 2026-09-28
+
+Write, preview and publish content (design
+`scrap/20260928_write-preview-publish.md` section 3). Additive minor; a consumer
+pinned to 2.13.0 changes nothing but the package version to move to 2.14.0.
+
+### Added
+
+- Content reads: `GET .../content` (bounded git-trees inventory of this
+  publication's content at the linked repository's main branch head, `items`
+  each an ARTICLE or PAGE path with its blob id and size, `setUp` matching
+  `GET .../repository/setup`), `GET .../content/documents` (one document's
+  parsed header block, unknown header fields preserved separately, and body),
+  and `GET .../content/assets` (raw bytes of one image, `Content-Type` from a
+  closed six-member list, `X-Content-Type-Options: nosniff`,
+  `Content-Disposition: inline`). All three accept an optional `revision`,
+  enforced against the database as the main head, this publication's own
+  proposed-change commit, or its own published revision -- never accepted on the
+  caller's assertion.
+- `GET .../repository-changes` and `GET .../repository-changes/{changeId}`: list
+  and read proposed repository changes -- state, kind, changed paths, who
+  proposed the change and when, and the review and publish it led to -- modelled
+  on the reviews list and read, so nobody types a commit id.
+- `POST .../repository-changes/{changeId}:bring-up-to-date`: plans a new change
+  merging a proposed change onto the current main branch head, from blob ids. An
+  identical-path edit with different content on both sides is never resolved
+  silently: the merged document's body carries both texts under conflict
+  markers, readable through the document read like any other planned change.
+- `POST .../repository:set-up` and `GET .../repository/setup`: add the user
+  template repository's missing files to an already-linked repository as one
+  commit on main, writing nothing when a user template file already exists with
+  different content (`state: CONFLICT`, the conflicting paths named).
+- `POST .../publishes/{publishId}:update-default-branch`: retry the fast-forward
+  of the linked repository's default branch to a published revision after GitHub
+  reported it protected or diverged. Never a forced update, never a delete,
+  never any branch but the default.
+- `content-changes:plan` extended, additively: the 2.13.0 single-document shape
+  (`path`, `contentDigest`, `expectedHead`) stays accepted, and a new batch
+  shape (`baseRevision` plus `documents[]`/`assets[]`, each entry `PUT` or
+  `DELETE`, at most 20 of each, a document capped at 1 MiB text and an asset at
+  5 MiB bytes, a change at 20 MiB overall) plans several writes and deletes in
+  one change. New schemas `ContentChangeDocumentEntry` and
+  `ContentChangeAssetEntry`; every path in the contract -- inventory items,
+  document/asset reads, and both new entry schemas -- is checked against a
+  closed safety pattern that makes `gala/`, `gala.lock.json`, `.github/`,
+  dot-directories, absolute paths, `..` segments, backslashes and control
+  characters unrepresentable, and every asset write's `contentType` comes from
+  the same closed five-member list the asset read serves (`image/svg+xml` is
+  deliberately not among them). A stale `expectedHead`/`baseRevision` is
+  `409 INVALID_SOURCE_STATE`, now also carrying the live main branch head on the
+  new `X-Gala-Current-Head` response header, so the App can merge without ever
+  holding a commit id.
+- `POST /v2/github/installations/{installationId}/repositories` gains the
+  optional `startFrom` (`USER_TEMPLATE`, the default, or `EMPTY`):
+  `USER_TEMPLATE` generates the new repository from the
+  `rathnasgala2/user-template` GitHub template, which already carries the
+  settings files, a content folder and the publish workflow.
+- `POST .../publishes` gains the declared refusal `SOURCE_OUT_OF_DATE`: the same
+  `409 INVALID_SOURCE_STATE` this operation already declared, with a second
+  cause described in prose (the generator admits one example per problem code
+  per operation, as 2.13.0 also found) -- `errors[].code SOURCE_OUT_OF_DATE`
+  pointed at `/sourceRevision`, refusing a publish unless the linked
+  repository's current default-branch head is an ancestor of the revision being
+  published, so a publish can never drop content published after it was written.
+- `DeploymentSummary` gains the optional `defaultBranchUpdate` (`state`
+  `PENDING`/`UPDATED`/`BLOCKED_BY_PROTECTION`/`DIVERGED`/`FAILED`, optional
+  `updatedAt`), reported on both the deployments list and the single deployment
+  read: whether the worker that fast-forwards the default branch to a verified
+  deployment's published revision has run, and how it ended.
+  `BLOCKED_BY_PROTECTION` and `DIVERGED` both leave the site live and are
+  retryable through `update-default-branch`.
+- `catalog-sources/app-routes.json`: the Content route's `screenJob` no longer
+  says the screen is unavailable, and gains the new content and
+  repository-change operation ids; the Source route gains the two set-up
+  operation ids; the Releases route gains the default-branch retry. The
+  15-component App semantic catalog and its shared closed state vocabulary
+  already cover every state this journey needs, so
+  `catalog-sources/app-components.json` is unchanged.
+
 ## [2.13.0] - 2026-09-27
 
 Create a new repository from the Source screen (design
@@ -1898,7 +1977,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.13.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.14.0...HEAD
+[2.14.0]: https://github.com/rathnasgala2/schema/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/rathnasgala2/schema/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/rathnasgala2/schema/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/rathnasgala2/schema/compare/v2.10.0...v2.11.0

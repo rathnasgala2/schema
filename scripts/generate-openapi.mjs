@@ -21,12 +21,27 @@ const PATH_FRAGMENT_COUNTS = Object.freeze({
   github: 4,
   internal: 1,
   'membership-invitations': 1,
-  organizations: 46,
+  organizations: 55,
   self: 14,
   session: 3,
   workloads: 2,
 });
 const HTTP_METHODS = new Set(['delete', 'get', 'patch', 'post', 'put']);
+// SCHEMA-2.14.0: the sole operation whose success response is asset bytes rather
+// than an `application/json` envelope, so it is exempt from the JSON response
+// component naming rule below and separately validated to be exactly the closed
+// asset content-type list, each `type: string, format: binary`.
+export const BINARY_RESPONSE_OPERATIONS = Object.freeze([
+  'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
+]);
+export const BINARY_ASSET_CONTENT_TYPES = Object.freeze([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+  'image/svg+xml',
+]);
 // SCHEMA-2.7.1: closed vocabulary for `x-gala-conditional-capability-keys[].condition`.
 // `read-only` names an alternate capability that admits a GET/query operation without
 // granting the write the primary capability key governs. `field:<name>` names one request
@@ -267,7 +282,21 @@ function validateOperation(record, schemas) {
       throw new Error(`${identity}: request component naming drift`);
     }
   }
-  if (!['204', '303'].includes(status)) {
+  if (BINARY_RESPONSE_OPERATIONS.includes(operation.operationId)) {
+    const contentTypes = Object.keys(success.content ?? {}).sort();
+    const expectedTypes = [...BINARY_ASSET_CONTENT_TYPES].sort();
+    const shapesAreBinary = Object.values(success.content ?? {}).every(
+      (entry) =>
+        entry.schema?.type === 'string' && entry.schema?.format === 'binary',
+    );
+    if (
+      contentTypes.length !== expectedTypes.length ||
+      contentTypes.some((type, index) => type !== expectedTypes[index]) ||
+      !shapesAreBinary
+    ) {
+      throw new Error(`${identity}: binary response content-type drift`);
+    }
+  } else if (!['204', '303'].includes(status)) {
     const responseReference =
       success.content?.['application/json']?.schema?.$ref;
     if (
@@ -641,7 +670,13 @@ function validateContractClosure(records, components) {
     if (
       [
         'getCallbacksGithubOauth',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdContent',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
         'postGithubInstallationsByInstallationIdRepositories',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp',
         'postWorkloadsGithubReceiptExchanges',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
@@ -711,16 +746,16 @@ async function readOperationRecords(schemas) {
   );
   const operationIds = records.map(({ operation }) => operation.operationId);
   if (
-    records.length !== 77 ||
-    new Set(identities).size !== 77 ||
-    new Set(operationIds).size !== 77 ||
+    records.length !== 86 ||
+    new Set(identities).size !== 86 ||
+    new Set(operationIds).size !== 86 ||
     records.filter(({ path: route }) => route === '/internal/health').length !==
       1 ||
     records.filter(({ path: route }) => route !== '/internal/health').length !==
-      76
+      85
   ) {
     throw new Error(
-      'Source fragments are not exactly 76 MVP operations plus health',
+      'Source fragments are not exactly 85 MVP operations plus health',
     );
   }
   return records;

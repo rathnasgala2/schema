@@ -19,9 +19,12 @@ const CLOSED_JSON_SCHEMA_X_GALA_KEYWORDS = new Set([
 
 /**
  * The closed set of `x-gala-*` extensions the OpenAPI bundle carries
- * (SCH-M10). Two of these (`x-gala-asciiByteLength`, `x-gala-graphemeLength`,
- * `x-gala-maximum`, `x-gala-utf8ByteLength`) are the JSON-Schema-side
- * camelCase assertion keywords surfacing unchanged in the bundle; the rest
+ * (SCH-M10). Five of these (`x-gala-asciiByteLength`, `x-gala-graphemeLength`,
+ * `x-gala-maxCanonicalBytes`, `x-gala-maximum`, `x-gala-utf8ByteLength`) are
+ * the JSON-Schema-side camelCase assertion keywords surfacing unchanged in
+ * the bundle -- `x-gala-maxCanonicalBytes` since SCHEMA-2.14.0 embeds
+ * `content-frontmatter.schema.json`'s `extensionMap` definition, which
+ * carries it, directly into the bundle; the rest
  * are kebab-case OpenAPI-only metadata extensions with no JSON Schema
  * equivalent. Unifying the two conventions (or documenting the intended
  * per-keyword mapping) is deliberately deferred -- SCH-M10 calls it out as
@@ -45,6 +48,7 @@ const CLOSED_OPENAPI_X_GALA_EXTENSIONS = new Set([
   'x-gala-contract-id',
   'x-gala-example-profile',
   'x-gala-graphemeLength',
+  'x-gala-maxCanonicalBytes',
   'x-gala-maximum',
   'x-gala-nullability',
   'x-gala-problem-codes',

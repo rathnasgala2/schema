@@ -4,6 +4,10 @@ components:
       required: true
       schema:
         const: no-store
+    ContentDispositionInline:
+      required: true
+      schema:
+        const: inline
     ETag:
       required: true
       schema:
@@ -21,6 +25,15 @@ components:
         maximum: 86400
         minimum: 1
         type: integer
+    XContentTypeOptionsNosniff:
+      required: true
+      schema:
+        const: nosniff
+    XGalaCurrentHead:
+      required: true
+      schema:
+        pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+        type: string
     XCorrelationId:
       required: true
       schema:
@@ -364,6 +377,8 @@ components:
         artifactDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        defaultBranchUpdate:
+          $ref: '#/components/schemas/DeploymentDefaultBranchUpdate'
         generationId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -3157,6 +3172,8 @@ components:
           minLength: 1
           pattern: ^(?!\.\.?$)(?!.*\.git$)[A-Za-z0-9._-]{1,100}$
           type: string
+        startFrom:
+          $ref: '#/components/schemas/GithubRepositoryStartFrom'
         visibility:
           $ref: '#/components/schemas/GithubRepositoryVisibility'
       required:
@@ -3528,12 +3545,443 @@ components:
         - expectedHead
         - diffDigest
       type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanRequest:
+    ContentChangeAssetEntry:
       additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              action:
+                const: PUT
+            required:
+              - action
+          then:
+            required:
+              - bytesBase64
+              - contentType
+              - contentDigest
+          else:
+            not:
+              anyOf:
+                - required:
+                    - bytesBase64
+                - required:
+                    - contentType
+                - required:
+                    - contentDigest
+      description: |
+        One asset write or delete inside a batch `content-changes:plan`
+        request. `bytesBase64` is base64 over the raw asset bytes; the 5 MiB
+        per-asset bound is measured on the decoded byte length, not this
+        field's text length. `contentType` is the closed vocabulary the
+        asset read declares; `image/svg+xml` is deliberately absent (an SVG
+        can carry script). `DELETE` names only the path it removes and
+        carries none of the write-only members.
       properties:
+        action:
+          enum:
+            - PUT
+            - DELETE
+          type: string
+        bytesBase64:
+          maxLength: 6990512
+          pattern: ^[A-Za-z0-9+/]+={0,2}$
+          type: string
         contentDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        contentType:
+          enum:
+            - image/png
+            - image/jpeg
+            - image/webp
+            - image/gif
+            - image/avif
+          type: string
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+      required:
+        - path
+        - action
+      type: object
+    ContentChangeDocumentEntry:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              action:
+                const: PUT
+            required:
+              - action
+          then:
+            required:
+              - text
+              - contentDigest
+          else:
+            not:
+              anyOf:
+                - required:
+                    - text
+                - required:
+                    - contentDigest
+      description: |
+        One document write or delete inside a batch `content-changes:plan`
+        request. `DELETE` names only the path it removes and carries
+        neither `text` nor `contentDigest`.
+      properties:
+        action:
+          enum:
+            - PUT
+            - DELETE
+          type: string
+        contentDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        text:
+          maxLength: 1048576
+          type: string
+      required:
+        - path
+        - action
+      type: object
+    ContentFrontmatter:
+      $ref: ../schemas/content-frontmatter.schema.json
+    ContentInventoryItem:
+      additionalProperties: false
+      properties:
+        blobId:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        kind:
+          $ref: '#/components/schemas/ContentItemKind'
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        size:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - path
+        - kind
+        - blobId
+        - size
+      type: object
+    ContentItemKind:
+      description:
+        Which declared content root a document lives under -- ARTICLE for
+        `content/articles/`, PAGE for `content/pages/` -- derived from the path,
+        never from parsing the file.
+      enum:
+        - ARTICLE
+        - PAGE
+      type: string
+    DefaultBranchUpdateState:
+      description: |
+        Where a publish's attempt to move the linked repository's default
+        branch forward stands. `PENDING` is not yet attempted or awaiting
+        retry; `UPDATED` is the terminal success. `BLOCKED_BY_PROTECTION`
+        (GitHub refused because the branch is protected) and `DIVERGED` (the
+        branch moved since the publish was accepted) are both retryable
+        without republishing, because the site is already live either way;
+        `FAILED` covers every other cause.
+      enum:
+        - PENDING
+        - UPDATED
+        - BLOCKED_BY_PROTECTION
+        - DIVERGED
+        - FAILED
+      type: string
+    DeploymentDefaultBranchUpdate:
+      additionalProperties: false
+      description: |
+        Whether the worker that fast-forwards the linked repository's
+        default branch to this deployment's published revision has run, and
+        how it ended. Absent on a deployment generation predating this
+        field.
+      properties:
+        state:
+          $ref: '#/components/schemas/DefaultBranchUpdateState'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - state
+      type: object
+    GithubRepositoryStartFrom:
+      description: |
+        What a created repository starts from. `USER_TEMPLATE` (the default)
+        generates from the `rathnasgala2/user-template` GitHub template,
+        which already carries the settings files, a content folder and the
+        publish workflow, so the repository is set up for Galascribe from
+        the moment it exists. `EMPTY` creates a repository with none of
+        that; `POST .../repository:set-up` adds it afterward.
+      enum:
+        - USER_TEMPLATE
+        - EMPTY
+      type: string
+    RepositoryChangeSummary:
+      additionalProperties: false
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        createdByPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          description:
+            The plan operation's own classification of what this change contains
+            -- `CONTENT` for a `content-changes:plan` result, or a
+            `configuration-changes:plan`/`repository-changes:plan` `changeKind`
+            value -- carried verbatim from the plan that created it.
+          maxLength: 80
+          minLength: 1
+          type: string
+        paths:
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 40
+          type: array
+        publishId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/RepositoryChangeState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - changeId
+        - version
+        - state
+        - kind
+        - paths
+        - createdByPrincipalId
+        - createdAt
+      type: object
+    RepositorySetupState:
+      description: |
+        `NOT_SET_UP` and `FAILED` both admit `POST .../repository:set-up`;
+        `SETTING_UP` is the commit in flight; `SET_UP` means every user
+        template file already exists; `CONFLICT` means a user template file
+        exists with different content, so `set-up` wrote nothing and
+        `conflicts` names the paths.
+      enum:
+        - NOT_SET_UP
+        - SETTING_UP
+        - SET_UP
+        - CONFLICT
+        - FAILED
+      type: string
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        hasMore:
+          type: boolean
+        head:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/ContentInventoryItem'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        setUp:
+          type: boolean
+      required:
+        - head
+        - defaultBranch
+        - setUp
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse:
+      additionalProperties: false
+      properties:
+        blobId:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        body:
+          maxLength: 1048576
+          type: string
+        digest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        frontmatter:
+          $ref: '#/components/schemas/ContentFrontmatter'
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        revision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        unknownFrontmatter:
+          additionalProperties: true
+          type: object
+      required:
+        - path
+        - revision
+        - blobId
+        - frontmatter
+        - unknownFrontmatter
+        - body
+        - digest
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/RepositoryChangeSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/RepositoryChangeSummary'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetupResponse:
+      additionalProperties: false
+      properties:
+        conflicts:
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          type: array
+        missing:
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          type: array
+        state:
+          $ref: '#/components/schemas/RepositorySetupState'
+      required:
+        - state
+        - missing
+        - conflicts
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanRequest:
+      additionalProperties: false
+      description: |
+        Two request shapes, both accepted. The 2.13.0 single-document shape
+        (`path`, `contentDigest`, `expectedHead`) plans one document write
+        against the exact expected head. The additive batch shape
+        (`baseRevision` and at least one of `documents`/`assets`) plans up
+        to 20 documents and 20 assets -- each `PUT` with its own text or
+        bytes and digest, each `DELETE` naming only its path -- in one
+        change, against the exact expected main-branch head asserted as
+        `baseRevision`. A request mixing the two shapes, or a batch request
+        naming neither `documents` nor `assets`, is `422 VALIDATION_FAILED`.
+        The change's total serialized size must not exceed 20 MiB;
+        `assets[].bytesBase64` is base64 over raw bytes, so what counts
+        against the 5 MiB per-asset and 20 MiB per-change bounds is the
+        decoded byte length, not this field's text length.
+      properties:
+        assets:
+          items:
+            $ref: '#/components/schemas/ContentChangeAssetEntry'
+          maxItems: 20
+          type: array
+        baseRevision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        contentDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        documents:
+          items:
+            $ref: '#/components/schemas/ContentChangeDocumentEntry'
+          maxItems: 20
+          type: array
         expectedHead:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
           type: string
@@ -3541,10 +3989,7 @@ components:
           maxLength: 512
           minLength: 1
           type: string
-      required:
-        - expectedHead
-        - path
-        - contentDigest
+      required: []
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse:
       additionalProperties: false
@@ -3664,6 +4109,19 @@ components:
         - version
         - state
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranchRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranchResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesRequest:
       additionalProperties: false
       properties:
@@ -3827,7 +4285,52 @@ components:
         - expectedHead
         - diffDigest
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDateRequest:
+      additionalProperties: false
+      properties: {}
+      required: []
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDateResponse:
+      additionalProperties: false
+      description: |
+        The new `RepositoryChange` planned by merging `changeId` onto the
+        current main-branch head, in exactly the shape
+        `content-changes:plan` returns. `changeId` itself is untouched;
+        this is a distinct change the App reopens the editor on (journey
+        state P4).
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        diffDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: '#/components/schemas/RepositoryChangeState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - changeId
+        - version
+        - state
+        - expectedHead
+        - diffDigest
+      type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmResponse:
+      allOf:
+        - $ref: '#/components/schemas/OperationResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUpRequest:
+      additionalProperties: false
+      properties: {}
+      required: []
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUpResponse:
       allOf:
         - $ref: '#/components/schemas/OperationResponse'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlanRequest:

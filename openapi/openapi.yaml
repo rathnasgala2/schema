@@ -6,6 +6,12 @@ components:
         pattern: ^no-store$
         type: string
         x-gala-const: no-store
+    ContentDispositionInline:
+      required: true
+      schema:
+        pattern: ^inline$
+        type: string
+        x-gala-const: inline
     ETag:
       required: true
       schema:
@@ -23,10 +29,21 @@ components:
         maximum: 86400
         minimum: 1
         type: integer
+    XContentTypeOptionsNosniff:
+      required: true
+      schema:
+        pattern: ^nosniff$
+        type: string
+        x-gala-const: nosniff
     XCorrelationId:
       required: true
       schema:
         format: uuid
+        type: string
+    XGalaCurrentHead:
+      required: true
+      schema:
+        pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
         type: string
   parameters:
     Cursor:
@@ -238,6 +255,163 @@ components:
         - kind
         - label
       type: object
+    ContentChangeAssetEntry:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              anyOf:
+                - required:
+                    - bytesBase64
+                - required:
+                    - contentType
+                - required:
+                    - contentDigest
+          if:
+            properties:
+              action:
+                pattern: ^PUT$
+                type: string
+                x-gala-const: PUT
+            required:
+              - action
+          then:
+            required:
+              - bytesBase64
+              - contentType
+              - contentDigest
+      description: |
+        One asset write or delete inside a batch `content-changes:plan`
+        request. `bytesBase64` is base64 over the raw asset bytes; the 5 MiB
+        per-asset bound is measured on the decoded byte length, not this
+        field's text length. `contentType` is the closed vocabulary the
+        asset read declares; `image/svg+xml` is deliberately absent (an SVG
+        can carry script). `DELETE` names only the path it removes and
+        carries none of the write-only members.
+      properties:
+        action:
+          enum:
+            - PUT
+            - DELETE
+          type: string
+        bytesBase64:
+          maxLength: 6990512
+          pattern: ^[A-Za-z0-9+/]+={0,2}$
+          type: string
+        contentDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        contentType:
+          enum:
+            - image/png
+            - image/jpeg
+            - image/webp
+            - image/gif
+            - image/avif
+          type: string
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+      required:
+        - path
+        - action
+      type: object
+    ContentChangeDocumentEntry:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              anyOf:
+                - required:
+                    - text
+                - required:
+                    - contentDigest
+          if:
+            properties:
+              action:
+                pattern: ^PUT$
+                type: string
+                x-gala-const: PUT
+            required:
+              - action
+          then:
+            required:
+              - text
+              - contentDigest
+      description: |
+        One document write or delete inside a batch `content-changes:plan`
+        request. `DELETE` names only the path it removes and carries
+        neither `text` nor `contentDigest`.
+      properties:
+        action:
+          enum:
+            - PUT
+            - DELETE
+          type: string
+        contentDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        text:
+          maxLength: 1048576
+          type: string
+      required:
+        - path
+        - action
+      type: object
+    ContentFrontmatter:
+      $ref: "#/components/schemas/PortableContentFrontmatterDocument"
+    ContentInventoryItem:
+      additionalProperties: false
+      properties:
+        blobId:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        kind:
+          $ref: "#/components/schemas/ContentItemKind"
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        size:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - path
+        - kind
+        - blobId
+        - size
+      type: object
+    ContentItemKind:
+      description: Which declared content root a document lives under -- ARTICLE for `content/articles/`, PAGE for `content/pages/` -- derived from the path, never from parsing the file.
+      enum:
+        - ARTICLE
+        - PAGE
+      type: string
+    DefaultBranchUpdateState:
+      description: |
+        Where a publish's attempt to move the linked repository's default
+        branch forward stands. `PENDING` is not yet attempted or awaiting
+        retry; `UPDATED` is the terminal success. `BLOCKED_BY_PROTECTION`
+        (GitHub refused because the branch is protected) and `DIVERGED` (the
+        branch moved since the publish was accepted) are both retryable
+        without republishing, because the site is already live either way;
+        `FAILED` covers every other cause.
+      enum:
+        - PENDING
+        - UPDATED
+        - BLOCKED_BY_PROTECTION
+        - DIVERGED
+        - FAILED
+      type: string
     DeleteOrganizationsByOrganizationIdPublicationsByPublicationIdRequest:
       additionalProperties: false
       properties:
@@ -308,6 +482,21 @@ components:
         - DETECTED
         - ABANDONED
       type: string
+    DeploymentDefaultBranchUpdate:
+      additionalProperties: false
+      description: |
+        Whether the worker that fast-forwards the linked repository's
+        default branch to this deployment's published revision has run, and
+        how it ended. Absent on a deployment generation predating this
+        field.
+      properties:
+        state:
+          $ref: "#/components/schemas/DefaultBranchUpdateState"
+        updatedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+      required:
+        - state
+      type: object
     DeploymentGenerationState:
       enum:
         - CANDIDATE
@@ -327,6 +516,8 @@ components:
         artifactDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        defaultBranchUpdate:
+          $ref: "#/components/schemas/DeploymentDefaultBranchUpdate"
         generationId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -713,6 +904,94 @@ components:
         - state
         - operationId
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse:
+      additionalProperties: false
+      properties:
+        blobId:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        body:
+          maxLength: 1048576
+          type: string
+        digest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        frontmatter:
+          $ref: "#/components/schemas/ContentFrontmatter"
+        path:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        revision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        unknownFrontmatter:
+          additionalProperties: true
+          type: object
+      required:
+        - path
+        - revision
+        - blobId
+        - frontmatter
+        - unknownFrontmatter
+        - body
+        - digest
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: "null"
+          if:
+            properties:
+              hasMore:
+                not:
+                  enum:
+                    - false
+                type: boolean
+                x-gala-const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        defaultBranch:
+          maxLength: 80
+          minLength: 1
+          type: string
+        hasMore:
+          type: boolean
+        head:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/ContentInventoryItem"
+          maxItems: 100
+          type: array
+        nextCursor:
+          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false. The length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+        setUp:
+          type: boolean
+      required:
+        - head
+        - defaultBranch
+        - setUp
+        - items
+        - hasMore
+      type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdResponse:
       allOf:
         - $ref: "#/components/schemas/DeploymentSummary"
@@ -1001,6 +1280,75 @@ components:
         - repositoryId
         - installationId
         - defaultBranch
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdResponse:
+      allOf:
+        - $ref: "#/components/schemas/RepositoryChangeSummary"
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: "null"
+          if:
+            properties:
+              hasMore:
+                not:
+                  enum:
+                    - false
+                type: boolean
+                x-gala-const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: "#/components/schemas/RepositoryChangeSummary"
+          maxItems: 100
+          type: array
+        nextCursor:
+          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false. The length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetupResponse:
+      additionalProperties: false
+      properties:
+        conflicts:
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          type: array
+        missing:
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          type: array
+        state:
+          $ref: "#/components/schemas/RepositorySetupState"
+      required:
+        - state
+        - missing
+        - conflicts
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdResponse:
       additionalProperties: false
@@ -1495,6 +1843,18 @@ components:
         - accountId
         - accountLogin
       type: object
+    GithubRepositoryStartFrom:
+      description: |
+        What a created repository starts from. `USER_TEMPLATE` (the default)
+        generates from the `rathnasgala2/user-template` GitHub template,
+        which already carries the settings files, a content folder and the
+        publish workflow, so the repository is set up for Galascribe from
+        the moment it exists. `EMPTY` creates a repository with none of
+        that; `POST .../repository:set-up` adds it afterward.
+      enum:
+        - USER_TEMPLATE
+        - EMPTY
+      type: string
     GithubRepositorySummary:
       additionalProperties: false
       properties:
@@ -2945,6 +3305,227 @@ components:
         - label
         - createdAt
       type: object
+    PortableContentFrontmatterBcp47:
+      description: Structurally valid canonical BCP-47 language tag.
+      format: gala-bcp47
+      maxLength: 255
+      minLength: 1
+      pattern: ^[A-Za-z0-9-]+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 255
+        minimum: 1
+    PortableContentFrontmatterCanonicalRoute:
+      description: Absolute normalized route with no query, fragment, dot segment, double slash, or non-normalized percent encoding.
+      format: gala-canonical-route
+      minLength: 1
+      pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+      type: string
+    PortableContentFrontmatterDocument:
+      $comment: The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks.
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              properties:
+                publishedAt: {}
+              required:
+                - publishedAt
+          if:
+            properties:
+              status:
+                enum:
+                  - published
+                  - unlisted
+            required:
+              - status
+          then:
+            properties:
+              publishedAt: {}
+            required:
+              - publishedAt
+      dependentRequired:
+        seriesOrder:
+          - series
+      properties:
+        authors:
+          items:
+            $ref: "#/components/schemas/PortableContentFrontmatterStableId"
+          maxItems: 32
+          minItems: 1
+          type: array
+        createdAt:
+          $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+        description:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+          x-gala-graphemeLength:
+            maximum: 500
+            minimum: 0
+        extensions:
+          $ref: "#/components/schemas/PortableContentFrontmatterExtensionMap"
+        hero:
+          $ref: "#/components/schemas/PortableContentFrontmatterMediaRef"
+        id:
+          $ref: "#/components/schemas/PortableContentFrontmatterStableId"
+        kind:
+          enum:
+            - article
+            - page
+        language:
+          $ref: "#/components/schemas/PortableContentFrontmatterBcp47"
+        newsletter:
+          enum:
+            - ineligible
+            - eligible
+        publishedAt:
+          $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+        redirects:
+          items:
+            $ref: "#/components/schemas/PortableContentFrontmatterCanonicalRoute"
+          maxItems: 32
+          minItems: 0
+          type: array
+          uniqueItems: true
+        route:
+          $ref: "#/components/schemas/PortableContentFrontmatterCanonicalRoute"
+        schemaId:
+          pattern: ^urn:gala:schema:content-frontmatter:2\.0\.0$
+          type: string
+          x-gala-const: urn:gala:schema:content-frontmatter:2.0.0
+        schemaVersion:
+          pattern: ^2\.0\.0$
+          type: string
+          x-gala-const: 2.0.0
+        series:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
+        seriesOrder:
+          maximum: 1000000
+          minimum: 1
+          type: integer
+        slug:
+          $ref: "#/components/schemas/PortableContentFrontmatterSlug"
+        socialImageRef:
+          $ref: "#/components/schemas/PortableContentFrontmatterRepoRelativePath"
+        status:
+          enum:
+            - draft
+            - published
+            - unlisted
+            - archived
+        tags:
+          items:
+            $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
+          maxItems: 32
+          minItems: 0
+          type: array
+          uniqueItems: true
+        title:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+          x-gala-graphemeLength:
+            maximum: 200
+            minimum: 1
+        updatedAt:
+          $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+      required:
+        - schemaId
+        - schemaVersion
+        - id
+        - kind
+        - title
+        - language
+        - authors
+        - tags
+        - status
+        - createdAt
+        - slug
+        - redirects
+        - extensions
+      title: Gala content-frontmatter contract
+      type: object
+    PortableContentFrontmatterExtensionKey:
+      description: Reverse-DNS extension namespace that cannot shadow a core key.
+      format: gala-extension-key
+      type: string
+    PortableContentFrontmatterExtensionMap:
+      additionalProperties:
+        x-gala-maxCanonicalBytes: 16384
+      maxProperties: 32
+      propertyNames:
+        $ref: "#/components/schemas/PortableContentFrontmatterExtensionKey"
+      type: object
+      x-gala-maxCanonicalBytes: 131072
+    PortableContentFrontmatterMediaRef:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              alt:
+                minLength: 1
+                type: string
+          if:
+            properties:
+              role:
+                pattern: ^decorative$
+                type: string
+                x-gala-const: decorative
+            required:
+              - role
+          then:
+            properties:
+              alt:
+                pattern: ^$
+                type: string
+                x-gala-const: ""
+      properties:
+        alt:
+          type: string
+          x-gala-graphemeLength:
+            maximum: 300
+            minimum: 0
+        path:
+          $ref: "#/components/schemas/PortableContentFrontmatterRepoRelativePath"
+        role:
+          enum:
+            - informative
+            - decorative
+      required:
+        - path
+        - alt
+        - role
+      type: object
+    PortableContentFrontmatterPlainLabel:
+      description: Normalized Unicode plain text without markup, controls, or bidi overrides.
+      format: gala-plain-label
+      type: string
+      x-gala-graphemeLength:
+        maximum: 80
+        minimum: 1
+    PortableContentFrontmatterPlainText:
+      description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
+      format: gala-plain-text
+      type: string
+    PortableContentFrontmatterRepoRelativePath:
+      description: NFC UTF-8 repository-relative path using slash separators, with no leading slash, dot segment, NUL, backslash, or percent-decoded traversal.
+      format: gala-repository-relative-path
+      maxLength: 512
+      minLength: 1
+      pattern: ^(?!/)(?!.*\\)(?!.*\u0000).+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 512
+    PortableContentFrontmatterRfc3339:
+      description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+      format: date-time
+      type: string
+    PortableContentFrontmatterSlug:
+      maxLength: 80
+      minLength: 1
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+      type: string
+    PortableContentFrontmatterStableId:
+      description: Lowercase canonical UUIDv7. Once published, it is immutable; its time ordering conveys neither chronology nor authority.
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      type: string
     PortableDeploymentIntentAdapterIdentity:
       additionalProperties: false
       properties:
@@ -8614,6 +9195,8 @@ components:
           minLength: 1
           pattern: ^(?!\.\.?$)(?!.*\.git$)[A-Za-z0-9._-]{1,100}$
           type: string
+        startFrom:
+          $ref: "#/components/schemas/GithubRepositoryStartFrom"
         visibility:
           $ref: "#/components/schemas/GithubRepositoryVisibility"
       required:
@@ -8976,10 +9559,37 @@ components:
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanRequest:
       additionalProperties: false
+      description: |
+        Two request shapes, both accepted. The 2.13.0 single-document shape
+        (`path`, `contentDigest`, `expectedHead`) plans one document write
+        against the exact expected head. The additive batch shape
+        (`baseRevision` and at least one of `documents`/`assets`) plans up
+        to 20 documents and 20 assets -- each `PUT` with its own text or
+        bytes and digest, each `DELETE` naming only its path -- in one
+        change, against the exact expected main-branch head asserted as
+        `baseRevision`. A request mixing the two shapes, or a batch request
+        naming neither `documents` nor `assets`, is `422 VALIDATION_FAILED`.
+        The change's total serialized size must not exceed 20 MiB;
+        `assets[].bytesBase64` is base64 over raw bytes, so what counts
+        against the 5 MiB per-asset and 20 MiB per-change bounds is the
+        decoded byte length, not this field's text length.
       properties:
+        assets:
+          items:
+            $ref: "#/components/schemas/ContentChangeAssetEntry"
+          maxItems: 20
+          type: array
+        baseRevision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
         contentDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        documents:
+          items:
+            $ref: "#/components/schemas/ContentChangeDocumentEntry"
+          maxItems: 20
+          type: array
         expectedHead:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
           type: string
@@ -8987,10 +9597,7 @@ components:
           maxLength: 512
           minLength: 1
           type: string
-      required:
-        - expectedHead
-        - path
-        - contentDigest
+      required: []
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse:
       additionalProperties: false
@@ -9107,6 +9714,19 @@ components:
         - version
         - state
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranchRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranchResponse:
+      allOf:
+        - $ref: "#/components/schemas/OperationResponse"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesRequest:
       additionalProperties: false
       properties:
@@ -9236,6 +9856,43 @@ components:
         - installationId
         - defaultBranch
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDateRequest:
+      additionalProperties: false
+      properties: {}
+      required: []
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDateResponse:
+      additionalProperties: false
+      description: |
+        The new `RepositoryChange` planned by merging `changeId` onto the
+        current main-branch head, in exactly the shape
+        `content-changes:plan` returns. `changeId` itself is untouched;
+        this is a distinct change the App reopens the editor on (journey
+        state P4).
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        diffDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        expectedHead:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        state:
+          $ref: "#/components/schemas/RepositoryChangeState"
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - changeId
+        - version
+        - state
+        - expectedHead
+        - diffDigest
+      type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmRequest:
       additionalProperties: false
       properties:
@@ -9326,6 +9983,14 @@ components:
         - diffDigest
         - managedPathSetDigest
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUpRequest:
+      additionalProperties: false
+      properties: {}
+      required: []
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUpResponse:
+      allOf:
+        - $ref: "#/components/schemas/OperationResponse"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideRequest:
       additionalProperties: false
       properties:
@@ -10914,6 +11579,68 @@ components:
         - UNKNOWN_RECONCILING
         - FAILED_NO_CHANGE
         - CANCELLED
+      type: string
+    RepositoryChangeSummary:
+      additionalProperties: false
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        createdByPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          description: The plan operation's own classification of what this change contains -- `CONTENT` for a `content-changes:plan` result, or a `configuration-changes:plan`/`repository-changes:plan` `changeKind` value -- carried verbatim from the plan that created it.
+          maxLength: 80
+          minLength: 1
+          type: string
+        paths:
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 40
+          type: array
+        publishId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: "#/components/schemas/RepositoryChangeState"
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - changeId
+        - version
+        - state
+        - kind
+        - paths
+        - createdByPrincipalId
+        - createdAt
+      type: object
+    RepositorySetupState:
+      description: |
+        `NOT_SET_UP` and `FAILED` both admit `POST .../repository:set-up`;
+        `SETTING_UP` is the commit in flight; `SET_UP` means every user
+        template file already exists; `CONFLICT` means a user template file
+        exists with different content, so `set-up` wrote nothing and
+        `conflicts` names the paths.
+      enum:
+        - NOT_SET_UP
+        - SETTING_UP
+        - SET_UP
+        - CONFLICT
+        - FAILED
       type: string
     RetirementConsequence:
       additionalProperties: false
@@ -19080,6 +19807,262 @@ paths:
         - RepositoryChange:REQUESTED -> PLANNED
       x-gala-success-category: create
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/content:
+    get:
+      description: |
+        One git-trees read per declared content root at the linked repository's
+        current main branch head, bounded at 2,000 entries with no file bodies
+        read. `kind` is derived from which declared content root a path is
+        under (ARTICLE for `content/articles/`, PAGE for `content/pages/`), not
+        from parsing the file. `setUp` reports whether `gala/repository.json`
+        is present on main, matching `GET .../repository/setup`'s `state`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContent
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    defaultBranch: main
+                    hasMore: false
+                    head: sha1:0000000000000000000000000000000000000000
+                    items: []
+                    setUp: true
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse"
+          description: inventory this publication's content at the main branch head succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: inventory this publication's content at the main branch head
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: inventory this publication's content at the main branch head
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/content-changes:plan:
     post:
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan
@@ -19283,8 +20266,10 @@ paths:
                   value:
                     code: INVALID_SOURCE_STATE
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
+                    detail: expectedHead/baseRevision no longer matches the live main head. The X-Gala-Current-Head response header carries that live head so the App can merge (journey state P4). See the operation contract.
+                    errors:
+                      - code: INVALID_SOURCE_STATE
+                        pointer: /expectedHead
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0
@@ -19299,6 +20284,8 @@ paths:
               $ref: "#/components/headers/CacheControlNoStore"
             X-Correlation-Id:
               $ref: "#/components/headers/XCorrelationId"
+            X-Gala-Current-Head:
+              $ref: "#/components/headers/XGalaCurrentHead"
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_SOURCE_STATE
@@ -19385,6 +20372,644 @@ paths:
         - RepositoryBinding:ACTIVE
         - RepositoryChange:REQUESTED -> PLANNED
       x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/content/assets:
+    get:
+      description: |
+        Bytes of one image under a declared asset root, with the same
+        `revision` rule as the document read. `Content-Type` is exactly one of
+        the six closed values below, sniffed from the asset's own bytes rather
+        than trusted from what was written at plan time, with
+        `X-Content-Type-Options: nosniff` and `Content-Disposition: inline` so
+        a browser renders it and never executes it. An asset over 5 MiB is
+        `422 VALIDATION_FAILED` pointed at `/path`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: assets/example.png
+          in: query
+          name: path
+          required: true
+          schema:
+            maxLength: 512
+            minLength: 1
+            pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+            type: string
+        - example: sha1:0000000000000000000000000000000000000000
+          in: query
+          name: revision
+          required: false
+          schema:
+            pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+            type: string
+      responses:
+        "200":
+          content:
+            image/avif:
+              schema:
+                format: binary
+                type: string
+            image/gif:
+              schema:
+                format: binary
+                type: string
+            image/jpeg:
+              schema:
+                format: binary
+                type: string
+            image/png:
+              schema:
+                format: binary
+                type: string
+            image/svg+xml:
+              schema:
+                format: binary
+                type: string
+            image/webp:
+              schema:
+                format: binary
+                type: string
+          description: read one content asset succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Content-Disposition:
+              $ref: "#/components/headers/ContentDispositionInline"
+            X-Content-Type-Options:
+              $ref: "#/components/headers/XContentTypeOptionsNosniff"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "422":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: The asset exceeds the 5 MiB read bound, or its content type is not one of the six accepted image types. See the operation contract.
+                    errors:
+                      - code: VALIDATION_FAILED
+                        pointer: /path
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read one content asset
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read one content asset
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/content/documents:
+    get:
+      description: |
+        `revision` omitted reads `path` at the linked repository's current main
+        branch head. A caller-supplied `revision` is checked against the
+        database, never accepted on assertion alone: it must be the current
+        main head, the proposed commit of a `RepositoryChange` this publication
+        owns, or a revision this publication has published. Any other value is
+        `404 RESOURCE_NOT_FOUND`, exactly as an unknown path is, so the read
+        never discloses which revisions exist elsewhere. `frontmatter` is the
+        header block validated against `content-frontmatter.schema.json`;
+        `unknownFrontmatter` carries every header member the schema does not
+        name, byte-preserved for a later write. A file whose header block does
+        not parse, or whose size exceeds 1 MiB, is `422 VALIDATION_FAILED`
+        pointed at `/path`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: content/articles/example.md
+          in: query
+          name: path
+          required: true
+          schema:
+            maxLength: 512
+            minLength: 1
+            pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+            type: string
+        - example: sha1:0000000000000000000000000000000000000000
+          in: query
+          name: revision
+          required: false
+          schema:
+            pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    blobId: sha1:0000000000000000000000000000000000000000
+                    body: |
+                      # Example
+                    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                    frontmatter:
+                      authors:
+                        - 018f0000-0000-7000-8000-000000000001
+                      createdAt: "2026-09-28T00:00:00.000Z"
+                      extensions: {}
+                      id: 018f0000-0000-7000-8000-000000000001
+                      kind: article
+                      language: en
+                      redirects: []
+                      schemaId: urn:gala:schema:content-frontmatter:2.0.0
+                      schemaVersion: 2.0.0
+                      slug: example
+                      status: draft
+                      tags: []
+                      title: Example
+                    path: content/articles/example.md
+                    revision: sha1:0000000000000000000000000000000000000000
+                    unknownFrontmatter: {}
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse"
+          description: read one content document succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "422":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: The file's header block could not be parsed, or the file exceeds the 1 MiB read bound. See the operation contract.
+                    errors:
+                      - code: VALIDATION_FAILED
+                        pointer: /path
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read one content document
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read one content document
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/deployments:
     get:
@@ -20902,6 +22527,16 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/publishes:
     post:
+      description: |
+        `409 INVALID_SOURCE_STATE` covers two distinct causes, one per
+        example below: a scheduling conflict (pointed at `/scheduledFor`)
+        and, additively as of schema 2.14.0, a publish whose `sourceRevision`
+        is not ordered after the linked repository's current default-branch
+        head (`errors[].code SOURCE_OUT_OF_DATE`, pointed at
+        `/sourceRevision`) -- publishing it would drop content published
+        after it was written. The App's remedy for the second cause is
+        `POST .../repository-changes/{changeId}:bring-up-to-date` followed
+        by review and publish again (journey state U2).
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -21574,6 +23209,355 @@ paths:
       x-gala-state-guards:
         - PublicationOperation:ACCEPTED|EXECUTING -> CANCELLED_NO_EFFECT with proof no effect crossed
       x-gala-success-category: update
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/publishes/{publishId}:update-default-branch:
+    post:
+      description: |
+        The site stays live independently of this: a verified publish
+        fast-forwards the repository's default branch to the published
+        revision, and if GitHub refuses because the branch is protected
+        (`BLOCKED_BY_PROTECTION`) or the branch moved since
+        (`DIVERGED`), this retries the same fast-forward after the person has
+        resolved it on GitHub. Never a forced update, never a delete, never any
+        branch but the default.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publishId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  reasonCode: example
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranchRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    commandId: 018f0000-0000-7000-8000-000000000001
+                    operationId: 018f0000-0000-7000-8000-000000000002
+                    phase: accepted
+                    resourceVersion: 0
+                    statusUrl: /v2/organizations/018f0000-0000-7000-8000-000000000001/operations/018f0000-0000-7000-8000-000000000002
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranchResponse"
+          description: retry moving the default branch forward to a published revision succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - INVALID_SOURCE_STATE
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: retry moving the default branch forward to a published revision
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Current generation, verification policy and binding epoch
+      x-gala-capability-key: publication.publish
+      x-gala-concurrency: generation-and-destination-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: retry moving the default branch forward to a published revision
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - COMMAND_REPLAY_CONFLICT
+        - DEPENDENCY_UNAVAILABLE
+        - INVALID_SOURCE_STATE
+        - RATE_LIMITED
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - DefaultBranchUpdate:BLOCKED_BY_PROTECTION|DIVERGED|FAILED -> PENDING
+      x-gala-success-category: async
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings:
     post:
@@ -22248,6 +24232,727 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes:
+    get:
+      description: |
+        Every `repository_change` this publication has -- content edits and
+        managed-file changes alike -- newest first, on a stable keyset cursor,
+        optionally narrowed to one lifecycle state. This is what a Content
+        screen's "Proposed changes" section reads to show a change's stage
+        without the reader ever holding a commit id.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - description: |
+            Which repository-change lifecycle state to list. Absent lists every
+            state.
+          example: PLANNED
+          in: query
+          name: state
+          required: false
+          schema:
+            enum:
+              - REQUESTED
+              - PLANNED
+              - AWAITING_CONFIRMATION
+              - COMMIT_REQUESTED
+              - COMMITTING
+              - COMMITTED
+              - UNKNOWN_RECONCILING
+              - FAILED_NO_CHANGE
+              - CANCELLED
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items: []
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesResponse"
+          description: list proposed repository changes of this publication succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: list proposed repository changes of this publication
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: repository-change-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list proposed repository changes of this publication
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:
+    get:
+      description: |
+        The change's state, kind, changed paths, who proposed it and when, and
+        the review and publish it led to, if any.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: changeId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    changeId: 018f0000-0000-7000-8000-000000000001
+                    createdAt: "2026-09-28T00:00:00.000Z"
+                    createdByPrincipalId: 018f0000-0000-7000-8000-000000000001
+                    kind: CONTENT
+                    paths: []
+                    state: PLANNED
+                    version: 0
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdResponse"
+          description: read one proposed repository change succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read one proposed repository change
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: repository-change-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read one proposed repository change
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:bring-up-to-date:
+    post:
+      description: |
+        Computes a three-way merge of `changeId`'s content onto the repository's
+        current main branch head, from blob ids, and plans the result as a new
+        `RepositoryChange`. An identical-path edit with different content on
+        both sides is never resolved silently: the merged document's body
+        carries both texts under conflict markers, and the new change's
+        documents are readable through the document read exactly like any other
+        planned change, so the App reopens the editor on the merged text
+        (journey state P4). `changeId` itself is untouched.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: changeId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value: {}
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    changeId: 018f0000-0000-7000-8000-000000000002
+                    diffDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                    expectedHead: sha1:0000000000000000000000000000000000000000
+                    state: PLANNED
+                    version: 0
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDateResponse"
+          description: plan a new change merging a proposed change onto the current main head succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - INVALID_SOURCE_STATE
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: plan a new change merging a proposed change onto the current main head
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active binding epoch and admitted author-source contract
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: plan a new change merging a proposed change onto the current main head
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - COMMAND_REPLAY_CONFLICT
+        - DEPENDENCY_UNAVAILABLE
+        - INVALID_SOURCE_STATE
+        - RATE_LIMITED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - RepositoryChange:REQUESTED|PLANNED|AWAITING_CONFIRMATION -> PLANNED (new change)
+      x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:confirm:
     post:
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm
@@ -22848,6 +25553,524 @@ paths:
         - Publication:ACTIVE
         - RepositoryBinding:ACTIVE
         - RepositoryChange:REQUESTED -> PLANNED
+      x-gala-success-category: async
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/repository/setup:
+    get:
+      description: |
+        Whether the linked repository already carries the user template files
+        `POST .../repository:set-up` adds. `missing` names the user template
+        files
+        not yet present; `conflicts` names ones present with different content,
+        populated only while `state` is `CONFLICT`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    conflicts: []
+                    missing: []
+                    state: NOT_SET_UP
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetupResponse"
+          description: read this publication's repository set-up state succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read this publication's repository set-up state
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read this publication's repository set-up state
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/repository:set-up:
+    post:
+      description: |
+        Computes the user template repository's files that are missing from the linked
+        repository's main branch and commits only those, so that nothing already
+        present is changed. A path that exists with different content is a
+        conflict: nothing is written, and `GET .../repository/setup` reports it
+        under `conflicts`. On a GitHub Pages destination this also enables
+        Pages with the workflow build type; a `403 AUTHORIZATION_DENIED` names
+        that the installation has not accepted the `pages: write` permission.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value: {}
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUpRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    commandId: 018f0000-0000-7000-8000-000000000001
+                    operationId: 018f0000-0000-7000-8000-000000000002
+                    phase: accepted
+                    resourceVersion: 0
+                    statusUrl: /v2/organizations/018f0000-0000-7000-8000-000000000001/operations/018f0000-0000-7000-8000-000000000002
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUpResponse"
+          description: add the user template files to a linked repository that lacks them succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: "GitHub refused, or the installation has not accepted the `pages: write` permission this destination needs. See the operation contract."
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: The repository is already set up, or a user template file exists with different content (`GET .../repository/setup` reports it under `conflicts`). See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - INVALID_SOURCE_STATE
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: add the user template files to a linked repository that lacks them
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.integrations.manage
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: add the user template files to a linked repository that lacks them
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - COMMAND_REPLAY_CONFLICT
+        - DEPENDENCY_UNAVAILABLE
+        - INVALID_SOURCE_STATE
+        - RATE_LIMITED
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - RepositorySetup:NOT_SET_UP|FAILED -> SETTING_UP
       x-gala-success-category: async
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/reviews:

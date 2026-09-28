@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:5d997a363085652fa2d78b6ffd7f3e307edabecbcb18cc56ed785353bcf33896",
+  "openApiDigest": "sha256:c0be5695c54def8910653ab5f9df04a2f9b552395d12523ca42424fce0a5fa46",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -477,11 +477,47 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content",
+      "purpose": "inventory this publication's content at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content-changes:plan",
       "purpose": "plan source edit against exact Git head without database source authority",
       "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content/assets",
+      "purpose": "read one content asset",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content/documents",
+      "purpose": "read one content document",
+      "capabilityKey": "publication.view",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -587,6 +623,18 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/publishes/{publishId}:update-default-branch",
+      "purpose": "retry moving the default branch forward to a published revision",
+      "capabilityKey": "publication.publish",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindings",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings",
@@ -625,10 +673,46 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository-changes",
+      "purpose": "list proposed repository changes of this publication",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlan",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository-changes:plan",
       "purpose": "calculate managed-file change against expected head",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}",
+      "purpose": "read one proposed repository change",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:bring-up-to-date",
+      "purpose": "plan a new change merging a proposed change onto the current main head",
       "capabilityKey": "publication.source.write",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -642,6 +726,30 @@
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:confirm",
       "purpose": "create candidate ref and commit after exact confirmation",
       "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository:set-up",
+      "purpose": "add the user template files to a linked repository that lacks them",
+      "capabilityKey": "publication.integrations.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/repository/setup",
+      "purpose": "read this publication's repository set-up state",
+      "capabilityKey": "publication.view",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -941,5 +1049,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:002edc7aa9c72f1b459d3d534af24c1f00fb4a6fd1d94bbcec5f611eb58eca77"
+  "digest": "sha256:97b4745078254350b4b89b5ea954fd40d44ee176a55e1b2e67319fa7d315a52c"
 }

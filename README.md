@@ -59,22 +59,23 @@ removed it as unconsumed -- see "Package layout"). The schema inventory adds the
 separately owned OpenAPI contract as the twenty-first identity and carries
 DEC-091's domain-separated `sourceDesignRevision`. S0-T07 materializes the
 reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
-HTTP catalog for exactly 76 MVP operations plus `/internal/health` (77 catalog
+HTTP catalog for exactly 85 MVP operations plus `/internal/health` (86 catalog
 rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads, the two SCHEMA-2.10.0
-publication-destination reads/writes, and the SCHEMA-2.13.0 repository create).
-The bundle includes the accepted DEC-097 receipt-exchange and deployment-receipt
-amendments and serializes the fixed OpenAPI Generator 7.25.0 option sets. Every
-operation also declares its tenant scope, lifecycle and activation guards, maps
-every reachable problem, and carries schema-validated nominal and problem
-examples. S0-T08 projects the exact 19 admitted transition families into 77
-independently identified event actions (SCHEMA-2.11.0 adds the
-`github_installation` family so the worker-only compare-and-set writer can
-retire into the sole aggregate gateway). Each action binds its aggregate and
-organization or publication scope, exact predecessor/target states, the closed
-DEC-101 payload, the transactional outbox producer, and a non-empty registered
-consumer set. S5-T00 materializes document 07's closed 15-component App semantic
-catalog and document 14's 20-entry MVP App route registry (S5 brief section 4)
-as `docs/catalogs/app-components.json` and `docs/catalogs/app-routes.json`, with
+publication-destination reads/writes, the SCHEMA-2.13.0 repository create, and
+the nine SCHEMA-2.14.0 write/preview/publish operations). The bundle includes
+the accepted DEC-097 receipt-exchange and deployment-receipt amendments and
+serializes the fixed OpenAPI Generator 7.25.0 option sets. Every operation also
+declares its tenant scope, lifecycle and activation guards, maps every reachable
+problem, and carries schema-validated nominal and problem examples. S0-T08
+projects the exact 19 admitted transition families into 77 independently
+identified event actions (SCHEMA-2.11.0 adds the `github_installation` family so
+the worker-only compare-and-set writer can retire into the sole aggregate
+gateway). Each action binds its aggregate and organization or publication scope,
+exact predecessor/target states, the closed DEC-101 payload, the transactional
+outbox producer, and a non-empty registered consumer set. S5-T00 materializes
+document 07's closed 15-component App semantic catalog and document 14's
+20-entry MVP App route registry (S5 brief section 4) as
+`docs/catalogs/app-components.json` and `docs/catalogs/app-routes.json`, with
 every `apiOperationIds` entry validated against `openapi/openapi.yaml`, every
 `componentIds`/`contentKeyIds` entry validated against the component catalog,
 and `capabilityKeys` projected from `openapi/http-catalog.json`. S4-T01 adds the
@@ -89,6 +90,62 @@ App origin after sign-in, unlike the deferred `/t/**` template family) that
 calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
 states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
 problem, which covers an expired, already-used or unknown token alike.
+
+SCHEMA-2.14.0 (design `scrap/20260928_write-preview-publish.md` section 3) is
+additive, closing the write/preview/publish content journey. Nine operations
+join the contract under
+`/v2/organizations/{organizationId}/publications/{publicationId}`:
+`GET .../content` (bounded git-trees inventory at the main branch head,
+`items[].kind` ARTICLE/PAGE derived from the content root, never from parsing
+the file), `GET .../content/documents` and `GET .../content/assets` (one
+document or one binary image, `revision` omitted meaning the main head and
+otherwise enforced against the database -- the main head, this publication's own
+proposed-change commit, or its own published revision -- never accepted on the
+caller's assertion), `GET`/single-read `.../repository-changes` (list and read
+proposed changes across every plan kind, modelled on the reviews list and read),
+`POST .../repository-changes/{changeId}:bring-up-to-date` (a three-way merge of
+a proposed change onto the current main head, planned as a new change; an
+identical-path conflict is never resolved silently -- both texts land in the
+merged document under conflict markers, readable through the document read),
+`POST .../repository:set-up` and `GET .../repository/setup` (add the user
+template repository's missing files to an already-linked repository, never
+overwriting a path that exists with different content), and
+`POST .../publishes/{publishId}:update-default-branch` (retry moving the linked
+repository's default branch forward after GitHub refused it).
+`content-changes:plan` is extended, additively: the 2.13.0 single-document shape
+(`path`, `contentDigest`, `expectedHead`) stays accepted, and a new batch shape
+(`baseRevision` plus `documents[]`/`assets[]`, each entry `PUT` or `DELETE`, up
+to 20 of each, a document capped at 1 MiB and an asset at 5 MiB) plans up to 20
+MiB in one change; every path is checked against a closed safety pattern that
+makes `gala/`, `gala.lock.json`, `.github/`, dot-directories, absolute paths,
+`..` segments, backslashes and control characters unrepresentable, and every
+asset write names its `contentType` from the same five-member closed list the
+asset read serves (`image/svg+xml` is deliberately not among them). A stale
+`expectedHead`/`baseRevision` is `409 INVALID_SOURCE_STATE` carrying the live
+main head on the new `X-Gala-Current-Head` response header, so the App can merge
+without ever holding a commit id itself. `POST .../publishes` gains the declared
+refusal `SOURCE_OUT_OF_DATE` (an `errors[].code` on the same
+`409 INVALID_SOURCE_STATE`, pointed at `/sourceRevision`, described in prose
+alongside the existing `/scheduledFor` cause since the generator admits one
+example per problem code per operation): a publish is refused unless the current
+default-branch head is an ancestor of the revision being published, which is
+what a verified publish's own worker then fast-forwards the default branch to,
+non-forced, retryable through `update-default-branch` when GitHub reports the
+branch protected (`BLOCKED_BY_PROTECTION`) or moved since (`DIVERGED`) -- the
+site stays live either way. `DeploymentSummary` gains the optional
+`defaultBranchUpdate` block (`state`
+PENDING/UPDATED/BLOCKED_BY_PROTECTION/DIVERGED/FAILED, optional `updatedAt`),
+and repository creation's `startFrom` (`USER_TEMPLATE`, the default, or `EMPTY`)
+chooses whether the created repository generates from the
+`rathnasgala2/user-template` GitHub template. `docs/catalogs/app-routes.json`'s
+Content route gains the new operation ids and its `screenJob` no longer says the
+screen is unavailable; the Source route gains the two set-up operations and
+Releases gains the default-branch retry. The 15-component App semantic catalog
+and its shared closed state vocabulary already cover every state this journey
+needs, so `catalog-sources/app-components.json` is unchanged. The 80-domain
+digest inventory, every existing operation id, schema, enum member and required
+field are unchanged; a consumer pinned to 2.13.0 changes nothing but the package
+version to move to 2.14.0.
 
 SCHEMA-2.7.1 (LOCAL-50) adds the optional operation-level vendor extension
 `x-gala-conditional-capability-keys`: an array of `{capabilityKey, condition}`
@@ -535,7 +592,7 @@ remediation, and documentation URL fields without including authored values.
   fragments grouped by the first literal resource token. A build input, not part
   of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
   a consumer reads the materialized `openapi/openapi.yaml` instead.
-- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 76 MVP
+- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 85 MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
   capability inventory, including `conditionalCapabilityKeys` (SCHEMA-2.7.1) and
