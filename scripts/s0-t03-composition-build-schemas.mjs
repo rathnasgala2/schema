@@ -50,9 +50,16 @@ const MANIFEST_MEDIA_TYPES = [
   'image/jpeg',
   'image/webp',
   'image/avif',
+  'image/gif',
   'image/svg+xml',
   'font/woff2',
   'application/octet-stream',
+  'audio/mpeg',
+  'audio/mp4',
+  'audio/ogg',
+  'audio/wav',
+  'video/mp4',
+  'video/webm',
 ];
 
 const THEME_PACKAGES = [

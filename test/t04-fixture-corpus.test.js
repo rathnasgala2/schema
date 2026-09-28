@@ -48,7 +48,13 @@ const T03_SCHEMA_HASHES = {
     // renderPolicyIdentity/reproducibleBuildRecord renamed to
     // manifestRenderPolicyIdentity/manifestReproducibleBuildRecord to
     // disambiguate from the deployment-* roots' record-shaped variants.
-    '722ea75b9820ecadb5ee907e4c92fd560f9d1b298cab2824cbbcfa6fcf10b652',
+    //
+    // SCHEMA-2.17.0: manifestRoute/manifestAsset's shared mediaType enum
+    // (MANIFEST_MEDIA_TYPES) gains image/gif, audio/mpeg, audio/mp4,
+    // audio/ogg, audio/wav, video/mp4, video/webm for pass-through media
+    // referenced from article bodies. Additive (enum widened); the
+    // byte-identical build-provenance.schema.json copy moves with it.
+    'ee2107c4ae162bc975ceac5e3c543a77ca57aa50892a037fc55a9878a57785cf',
   author: '86774ba476ba5a11b298bdca0d949d2584bd698d375e4b5dbeac6203d5133730',
   'build-input':
     // 2026-09-25 code-discipline review, SCH-C3: adapterIdentity renamed to

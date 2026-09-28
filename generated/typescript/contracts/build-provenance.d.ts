@@ -113,9 +113,16 @@ export type BuildProvenanceManifestAsset = Readonly<{
     | 'image/jpeg'
     | 'image/webp'
     | 'image/avif'
+    | 'image/gif'
     | 'image/svg+xml'
     | 'font/woff2'
-    | 'application/octet-stream';
+    | 'application/octet-stream'
+    | 'audio/mpeg'
+    | 'audio/mp4'
+    | 'audio/ogg'
+    | 'audio/wav'
+    | 'video/mp4'
+    | 'video/webm';
   readonly path: BuildProvenanceRepoRelativePath;
   readonly sha256: BuildProvenanceDigest;
 }>;
@@ -258,9 +265,16 @@ export type BuildProvenanceManifestRoute = Readonly<{
     | 'image/jpeg'
     | 'image/webp'
     | 'image/avif'
+    | 'image/gif'
     | 'image/svg+xml'
     | 'font/woff2'
-    | 'application/octet-stream';
+    | 'application/octet-stream'
+    | 'audio/mpeg'
+    | 'audio/mp4'
+    | 'audio/ogg'
+    | 'audio/wav'
+    | 'video/mp4'
+    | 'video/webm';
   readonly path: BuildProvenanceRepoRelativePath;
   readonly routeClass: 'html' | 'feed' | 'sitemap' | 'asset' | 'error';
   readonly sha256: BuildProvenanceDigest;
