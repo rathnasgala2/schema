@@ -20680,20 +20680,26 @@ paths:
         Bytes of one image, sound or video file under a declared asset root
         (an article's cover image, or a file referenced from its body,
         copied through unchanged: no resizing, no derived formats), with the
-        same `revision` rule as the document read. `Content-Type` is exactly
-        one of the twelve closed values below, sniffed from the asset's own
-        bytes rather than trusted from what was written at plan time, with
-        `X-Content-Type-Options: nosniff` and `Content-Disposition: inline`
-        so a browser renders it and never executes it. `image/svg+xml` is
-        readable here only because a file already in the repository may
-        predate this contract; SCHEMA-2.14.0 through this version all
-        refuse it on write (`content-changes:plan`'s `ContentChangeAssetEntry`
-        never accepts it, an SVG can carry script). Every response declares
+        same `revision` rule as the document read. `Content-Type` is
+        sniffed from the asset's own bytes rather than trusted from what was
+        written at plan time, with `X-Content-Type-Options: nosniff` and
+        `Content-Disposition: inline` so a browser renders it and never
+        executes it. This operation serves eleven types. `image/svg+xml`
+        remains in the `200` response's declared content-type list only
+        because it was published there since SCHEMA-2.14.0, and removing it
+        would not be additive; no server version has ever answered with it.
+        A stored SVG is refused with the declared `422` on read exactly as
+        on write (`content-changes:plan`'s `ContentChangeAssetEntry` never
+        accepts it either): an SVG can carry script, and this operation
+        answers `Content-Disposition: inline` from the application's own
+        origin, so serving one would let a file in a repository run script
+        in a signed-in person's session. Every response declares
         `Accept-Ranges: bytes` and honours a single-range `Range` request
         header for sound and video, so a player can seek: a satisfiable
         range is `206` with `Content-Range`; an unsatisfiable one is `416`
         with `Content-Range: bytes */<total>`. An asset over its
-        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB) is
+        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB), or
+        whose sniffed type is not one of the eleven served types, is
         `422 VALIDATION_FAILED` pointed at `/path`.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets
       parameters:
@@ -20825,10 +20831,6 @@ paths:
                 format: binary
                 type: string
             image/png:
-              schema:
-                format: binary
-                type: string
-            image/svg+xml:
               schema:
                 format: binary
                 type: string
@@ -21006,7 +21008,7 @@ paths:
                   value:
                     code: VALIDATION_FAILED
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: The asset exceeds its per-category read bound (image 5 MiB, sound 20 MiB, video 50 MiB), or its content type is not one of the twelve accepted types. See the operation contract.
+                    detail: The asset exceeds its per-category read bound (image 5 MiB, sound 20 MiB, video 50 MiB), its sniffed content type is not one of the eleven served types, or it is image/svg+xml (never served, script risk). See the operation contract.
                     errors:
                       - code: VALIDATION_FAILED
                         pointer: /path

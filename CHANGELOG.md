@@ -33,15 +33,20 @@ changes nothing but the package version to move to 2.17.0.
   MiB to 100 MiB per change, with a per-category `bytesBase64` bound matching
   the per-file limit (image 5 MiB, sound 20 MiB, video 50 MiB). Documents are
   unchanged: 20 documents, 1 MiB text each.
-- `GET .../content/assets`'s closed `Content-Type` list grows from six to twelve
-  values (the same media types, `image/svg+xml` still readable only because a
-  file may predate this contract -- writes have refused it since 2.14.0). The
-  operation now declares `Accept-Ranges: bytes` on every response and honours a
-  single-range `Range` request header for sound and video: a satisfiable range
-  is the new `206` with `Content-Range`, an unsatisfiable one is the new `416`
-  (`VALIDATION_FAILED`) with `Content-Range: bytes */<total>`. New shared
-  components: header `Accept-Ranges` (`AcceptRanges`), header `Content-Range`
-  (`ContentRange`), parameter `Range`.
+- `GET .../content/assets` serves eleven types (up from five). The `200`
+  response's declared `Content-Type` list stays at the twelve published since
+  2.14.0, `image/svg+xml` included: removing an already-shipped value would not
+  be additive, but no server version has ever answered with it -- a stored SVG
+  is refused with the declared `422` on read exactly as on write, since it can
+  carry script and this operation answers `Content-Disposition: inline` from the
+  application's own origin. The new `206` response's content-type list is the
+  eleven served types, SVG correctly absent. The operation now declares
+  `Accept-Ranges: bytes` on every response and honours a single-range `Range`
+  request header for sound and video: a satisfiable range is the new `206` with
+  `Content-Range`, an unsatisfiable one is the new `416` (`VALIDATION_FAILED`)
+  with `Content-Range: bytes */<total>`. New shared components: header
+  `Accept-Ranges` (`AcceptRanges`), header `Content-Range` (`ContentRange`),
+  parameter `Range`.
 
 ## [2.16.0] - 2026-09-28
 

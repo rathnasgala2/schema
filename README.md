@@ -111,15 +111,20 @@ own built assets. On the OpenAPI side, `content-changes:plan`'s
 `ContentChangeAssetEntry` admits the same eleven types (still no SVG) with a
 per-category `bytesBase64` bound; `assets` grows from 20 to 40 items and 20 MiB
 to 100 MiB per change, documents unchanged (20, 1 MiB each).
-`GET .../content/assets`'s closed `Content-Type` list grows from six to twelve
-(SVG stays readable only because a file may predate this contract; writes have
-refused it since 2.14.0), and the operation now declares `Accept-Ranges: bytes`
-and honours a single-range `Range` request header for sound and video: `206`
-with `Content-Range` for a satisfiable range, the new `416`
-(`VALIDATION_FAILED`) with `Content-Range: bytes */<total>` for an unsatisfiable
-one -- both fit the existing generator machinery with no special-casing, so no
-prose-only fallback was needed here. New shared OpenAPI components: headers
-`AcceptRanges`/`ContentRange`, parameter `Range`.
+`GET .../content/assets` serves eleven types, growing from the five it served
+before (the `200` response's declared content-type list stays at the published
+twelve, `image/svg+xml` included, since removing an already-shipped value is not
+additive; no server version has ever answered with it -- a stored SVG is refused
+with the declared `422` on read exactly as on write, since it can carry script
+and this operation answers `Content-Disposition: inline` from the application's
+own origin). The new `206` response's content-type list is the eleven
+actually-served types, SVG correctly absent. The operation now declares
+`Accept-Ranges: bytes` and honours a single-range `Range` request header for
+sound and video: `206` with `Content-Range` for a satisfiable range, the new
+`416` (`VALIDATION_FAILED`) with `Content-Range: bytes */<total>` for an
+unsatisfiable one -- both fit the existing generator machinery with no
+special-casing, so no prose-only fallback was needed here. New shared OpenAPI
+components: headers `AcceptRanges`/`ContentRange`, parameter `Range`.
 
 SCHEMA-2.16.0 corrects a fault SCHEMA-2.14.0 introduced:
 `POST .../repository-changes/{changeId}:bring-up-to-date`'s
