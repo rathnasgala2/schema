@@ -64,7 +64,13 @@ const T03_SCHEMA_HASHES = {
     // githubPositiveDecimal, positiveInt64 and renderPolicyIdentity
     // reconciled with their sibling roots (see adapter-capability and
     // artifact-manifest above).
-    '0828f9658b0515f9608ca7b2482089eb4e411380002001cd87eeeaed21cf21bb',
+    //
+    // SCHEMA-2.17.0: contentBuildRecord gains the optional media array
+    // (new $defs/contentBuildMediaFile: path, sourceDigest, mediaType,
+    // byteLength, the same closed media types as artifact-manifest's
+    // widened list minus SVG, per-mediaType byteLength bound). Additive
+    // (new optional property, new $defs entry).
+    '342260092fc16bdd6ba6b38490fbdaeca6817212fe51f8082b464b70d01469d0',
   'content-frontmatter':
     'd033644fd188af7d55c596a7c910b2c9ca9a1c8d8d8b092860f04eec8a5273a0',
   'deployment-intent':

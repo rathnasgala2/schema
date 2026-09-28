@@ -84,11 +84,31 @@ export type BuildInputColorMode = Readonly<{
 }> &
   unknown;
 
+export type BuildInputContentBuildMediaFile = Readonly<{
+  readonly byteLength: number;
+  readonly mediaType:
+    | 'image/png'
+    | 'image/jpeg'
+    | 'image/webp'
+    | 'image/avif'
+    | 'image/gif'
+    | 'audio/mpeg'
+    | 'audio/mp4'
+    | 'audio/ogg'
+    | 'audio/wav'
+    | 'video/mp4'
+    | 'video/webm';
+  readonly path: BuildInputRepoRelativePath;
+  readonly sourceDigest: BuildInputDigest;
+}> &
+  unknown;
+
 export type BuildInputContentBuildRecord = Readonly<{
   readonly body: string;
   readonly bodyDigest: BuildInputDigest;
   readonly bodyMediaType: 'text/html';
   readonly frontmatter: BuildInputContentFrontmatterNormalized;
+  readonly media?: ReadonlyArray<BuildInputContentBuildMediaFile>;
   readonly renderPolicy: BuildInputManifestRenderPolicyIdentity;
   readonly resolvedAuthorIds: ReadonlyArray<BuildInputStableId>;
   readonly sourceDigest: BuildInputDigest;

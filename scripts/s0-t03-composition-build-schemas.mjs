@@ -62,6 +62,32 @@ const MANIFEST_MEDIA_TYPES = [
   'video/webm',
 ];
 
+// SCHEMA-2.17.0: the closed media types an article body may refer to (cover
+// image and in-text images/sound/video, pass-through, no derived formats).
+// SVG stays refused (arbitrary script), so it is deliberately absent here
+// even though MANIFEST_MEDIA_TYPES admits it for the theme's own built
+// assets. Split by category (rather than a `pattern`-matched prefix) so the
+// per-category byteLength bound below stays fixture-synthesizable.
+const CONTENT_IMAGE_MEDIA_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/avif',
+  'image/gif',
+];
+const CONTENT_AUDIO_MEDIA_TYPES = [
+  'audio/mpeg',
+  'audio/mp4',
+  'audio/ogg',
+  'audio/wav',
+];
+const CONTENT_VIDEO_MEDIA_TYPES = ['video/mp4', 'video/webm'];
+const CONTENT_MEDIA_TYPES = [
+  ...CONTENT_IMAGE_MEDIA_TYPES,
+  ...CONTENT_AUDIO_MEDIA_TYPES,
+  ...CONTENT_VIDEO_MEDIA_TYPES,
+];
+
 const THEME_PACKAGES = [
   '@rathnasgala2/theme-default',
   '@rathnasgala2/theme-amaze',
@@ -815,6 +841,43 @@ export function createCompositionBuildSchemas(language) {
     },
   );
 
+  const contentBuildMediaFile = closedObject(
+    {
+      path: ref('repoRelativePath'),
+      sourceDigest: ref('digest'),
+      mediaType: { enum: CONTENT_MEDIA_TYPES },
+      byteLength: { type: 'integer', minimum: 1 },
+    },
+    ['path', 'sourceDigest', 'mediaType', 'byteLength'],
+    {
+      allOf: [
+        {
+          if: {
+            properties: { mediaType: { enum: CONTENT_IMAGE_MEDIA_TYPES } },
+            required: ['mediaType'],
+          },
+          then: { properties: { byteLength: { maximum: 5_242_880 } } },
+        },
+        {
+          if: {
+            properties: { mediaType: { enum: CONTENT_AUDIO_MEDIA_TYPES } },
+            required: ['mediaType'],
+          },
+          then: { properties: { byteLength: { maximum: 20_971_520 } } },
+        },
+        {
+          if: {
+            properties: { mediaType: { enum: CONTENT_VIDEO_MEDIA_TYPES } },
+            required: ['mediaType'],
+          },
+          then: { properties: { byteLength: { maximum: 52_428_800 } } },
+        },
+      ],
+      $comment:
+        'Per-mediaType byteLength bound: image 5 MiB, audio 20 MiB, video 50 MiB, matching the OpenAPI contract’s declared per-file media limits.',
+    },
+  );
+
   const contentBuildRecord = closedObject(
     {
       frontmatter: ref('contentFrontmatterNormalized'),
@@ -826,6 +889,7 @@ export function createCompositionBuildSchemas(language) {
       sourceRevision: ref('gitObjectId'),
       sourceDigest: ref('digest'),
       resolvedAuthorIds: arrayOf(ref('stableId'), 1, 32),
+      media: arrayOf(ref('contentBuildMediaFile'), 0, 200),
     },
     [
       'frontmatter',
@@ -1772,6 +1836,7 @@ export function createCompositionBuildSchemas(language) {
         semanticTokens,
         appearanceNormalized,
         contentFrontmatterNormalized,
+        contentBuildMediaFile,
         contentBuildRecord,
         moduleBuildSelection: closedObject({}, [], { maxProperties: 0 }),
         authoredAdapterIdentity,
