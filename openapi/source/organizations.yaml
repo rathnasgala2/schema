@@ -11183,6 +11183,12 @@ paths:
         under (ARTICLE for `content/articles/`, PAGE for `content/pages/`), not
         from parsing the file. `setUp` reports whether `gala/repository.json`
         is present on main, matching `GET .../repository/setup`'s `state`.
+        `publication` is read from the settings files
+        (`gala/repository.json`, `gala/appearance.json`, `gala/authors/`) at
+        this same main-branch head, and is returned on every page of the
+        inventory, not only the first, so the editor has these facts
+        regardless of which page it opened; it carries no personal data
+        beyond what each author file itself already publishes.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContent
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -11216,6 +11222,12 @@ paths:
                     hasMore: false
                     head: sha1:0000000000000000000000000000000000000000
                     items: []
+                    publication:
+                      authors:
+                        - displayName: Example Author
+                          id: 018f0000-0000-7000-8000-000000000001
+                      defaultLanguage: en
+                      theme: '@rathnasgala2/theme-default@^2.0.0'
                     setUp: true
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse'

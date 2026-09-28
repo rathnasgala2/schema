@@ -19,14 +19,19 @@ pinned to 2.13.0 changes nothing but the package version to move to 2.14.0.
 - Content reads: `GET .../content` (bounded git-trees inventory of this
   publication's content at the linked repository's main branch head, `items`
   each an ARTICLE or PAGE path with its blob id and size, `setUp` matching
-  `GET .../repository/setup`), `GET .../content/documents` (one document's
-  parsed header block, unknown header fields preserved separately, and body),
-  and `GET .../content/assets` (raw bytes of one image, `Content-Type` from a
-  closed six-member list, `X-Content-Type-Options: nosniff`,
-  `Content-Disposition: inline`). All three accept an optional `revision`,
-  enforced against the database as the main head, this publication's own
-  `RepositoryChange`'s `proposedRevision` or `baseRevision`, or its own
-  published revision -- never accepted on the caller's assertion.
+  `GET .../repository/setup`, and the required `publication` object --
+  `defaultLanguage`, `theme`, and up to 200 `authors` (`id`, `displayName`) --
+  read from `gala/repository.json`, `gala/appearance.json` and `gala/authors/`
+  at the same main head and returned on every page, not only the first, carrying
+  no personal data beyond what each author file itself publishes),
+  `GET .../content/documents` (one document's parsed header block, unknown
+  header fields preserved separately, and body), and `GET .../content/assets`
+  (raw bytes of one image, `Content-Type` from a closed six-member list,
+  `X-Content-Type-Options: nosniff`, `Content-Disposition: inline`). All three
+  accept an optional `revision`, enforced against the database as the main head,
+  this publication's own `RepositoryChange`'s `proposedRevision` or
+  `baseRevision`, or its own published revision -- never accepted on the
+  caller's assertion.
 - `GET .../repository-changes` and `GET .../repository-changes/{changeId}`: list
   and read proposed repository changes -- state, kind, changed paths,
   `baseRevision`/`proposedRevision`, who proposed the change and when, and the

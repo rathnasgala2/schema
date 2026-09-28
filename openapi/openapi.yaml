@@ -396,6 +396,46 @@ components:
         - ARTICLE
         - PAGE
       type: string
+    ContentPublicationAuthorSummary:
+      additionalProperties: false
+      properties:
+        displayName:
+          $ref: "#/components/schemas/PortableAuthorPlainText"
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - displayName
+      type: object
+    ContentPublicationSummary:
+      additionalProperties: false
+      description: |
+        Read from this publication's settings files (`gala/repository.json`,
+        `gala/appearance.json`, `gala/authors/`) at the same main-branch head
+        as the inventory, and returned on every page of the inventory, not
+        only the first -- the editor needs these facts regardless of which
+        page it opened. Carries no personal data beyond what each author
+        file itself already publishes.
+      properties:
+        authors:
+          items:
+            $ref: "#/components/schemas/ContentPublicationAuthorSummary"
+          maxItems: 200
+          type: array
+        defaultLanguage:
+          $ref: "#/components/schemas/PortablePublicationBcp47"
+        theme:
+          $ref: "#/components/schemas/PortableAppearancePackageRange"
+      required:
+        - defaultLanguage
+        - theme
+        - authors
+      type: object
     DefaultBranchUpdateState:
       description: |
         Where a publish's attempt to move the linked repository's default
@@ -983,6 +1023,8 @@ components:
           type:
             - string
             - "null"
+        publication:
+          $ref: "#/components/schemas/ContentPublicationSummary"
         setUp:
           type: boolean
       required:
@@ -991,6 +1033,7 @@ components:
         - setUp
         - items
         - hasMore
+        - publication
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdResponse:
       allOf:
@@ -3305,6 +3348,16 @@ components:
         - label
         - createdAt
       type: object
+    PortableAppearancePackageRange:
+      description: Lowercase npm package identity and admitted semver range; Git, file, URL, and alias sources are invalid.
+      format: gala-package-range
+      minLength: 3
+      pattern: ^(?:@[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?|[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)@(?:\S+|\S+ \S+)$
+      type: string
+    PortableAuthorPlainText:
+      description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
+      format: gala-plain-text
+      type: string
     PortableContentFrontmatterBcp47:
       description: Structurally valid canonical BCP-47 language tag.
       format: gala-bcp47
@@ -8900,6 +8953,16 @@ components:
       format: uri
       pattern: ^https://(?![^/?#]*@)
       type: string
+    PortablePublicationBcp47:
+      description: Structurally valid canonical BCP-47 language tag.
+      format: gala-bcp47
+      maxLength: 255
+      minLength: 1
+      pattern: ^[A-Za-z0-9-]+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 255
+        minimum: 1
     PostAuthenticationGithubTransactionsRequest:
       additionalProperties: false
       properties:
@@ -19843,6 +19906,12 @@ paths:
         under (ARTICLE for `content/articles/`, PAGE for `content/pages/`), not
         from parsing the file. `setUp` reports whether `gala/repository.json`
         is present on main, matching `GET .../repository/setup`'s `state`.
+        `publication` is read from the settings files
+        (`gala/repository.json`, `gala/appearance.json`, `gala/authors/`) at
+        this same main-branch head, and is returned on every page of the
+        inventory, not only the first, so the editor has these facts
+        regardless of which page it opened; it carries no personal data
+        beyond what each author file itself already publishes.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContent
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -19876,6 +19945,12 @@ paths:
                     hasMore: false
                     head: sha1:0000000000000000000000000000000000000000
                     items: []
+                    publication:
+                      authors:
+                        - displayName: Example Author
+                          id: 018f0000-0000-7000-8000-000000000001
+                      defaultLanguage: en
+                      theme: "@rathnasgala2/theme-default@^2.0.0"
                     setUp: true
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse"

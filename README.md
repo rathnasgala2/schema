@@ -97,13 +97,17 @@ join the contract under
 `/v2/organizations/{organizationId}/publications/{publicationId}`:
 `GET .../content` (bounded git-trees inventory at the main branch head,
 `items[].kind` ARTICLE/PAGE derived from the content root, never from parsing
-the file), `GET .../content/documents` and `GET .../content/assets` (one
-document or one binary image, `revision` omitted meaning the main head and
-otherwise enforced against the database -- the main head, this publication's own
-`RepositoryChange`'s `proposedRevision` or `baseRevision`, or its own published
-revision -- never accepted on the caller's assertion), `GET`/single-read
-`.../repository-changes` (list and read proposed changes across every plan kind,
-modelled on the reviews list and read),
+the file; the required `publication` object -- `defaultLanguage`, `theme`, and
+up to 200 `authors` -- is read from `gala/repository.json`,
+`gala/appearance.json` and `gala/authors/` at the same main head and returned on
+every page, not only the first, carrying no personal data beyond what each
+author file itself publishes), `GET .../content/documents` and
+`GET .../content/assets` (one document or one binary image, `revision` omitted
+meaning the main head and otherwise enforced against the database -- the main
+head, this publication's own `RepositoryChange`'s `proposedRevision` or
+`baseRevision`, or its own published revision -- never accepted on the caller's
+assertion), `GET`/single-read `.../repository-changes` (list and read proposed
+changes across every plan kind, modelled on the reviews list and read),
 `POST .../repository-changes/{changeId}:bring-up-to-date` (a file-level
 three-way merge from blob ids only, never a text merge: every path merging
 cleanly plans a new change and returns `201`; any path conflicting writes

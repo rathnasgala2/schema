@@ -3685,6 +3685,46 @@ components:
         - ARTICLE
         - PAGE
       type: string
+    ContentPublicationAuthorSummary:
+      additionalProperties: false
+      properties:
+        displayName:
+          $ref: ../schemas/author.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - displayName
+      type: object
+    ContentPublicationSummary:
+      additionalProperties: false
+      description: |
+        Read from this publication's settings files (`gala/repository.json`,
+        `gala/appearance.json`, `gala/authors/`) at the same main-branch head
+        as the inventory, and returned on every page of the inventory, not
+        only the first -- the editor needs these facts regardless of which
+        page it opened. Carries no personal data beyond what each author
+        file itself already publishes.
+      properties:
+        authors:
+          items:
+            $ref: '#/components/schemas/ContentPublicationAuthorSummary'
+          maxItems: 200
+          type: array
+        defaultLanguage:
+          $ref: ../schemas/publication.schema.json#/$defs/bcp47
+        theme:
+          $ref: ../schemas/appearance.schema.json#/$defs/packageRange
+      required:
+        - defaultLanguage
+        - theme
+        - authors
+      type: object
     DefaultBranchUpdateState:
       description: |
         Where a publish's attempt to move the linked repository's default
@@ -3870,6 +3910,8 @@ components:
           type:
             - string
             - 'null'
+        publication:
+          $ref: '#/components/schemas/ContentPublicationSummary'
         setUp:
           type: boolean
       required:
@@ -3878,6 +3920,7 @@ components:
         - setUp
         - items
         - hasMore
+        - publication
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse:
       additionalProperties: false
