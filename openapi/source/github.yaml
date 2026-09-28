@@ -406,6 +406,14 @@ paths:
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
     post:
+      description: |
+        With `startFrom: USER_TEMPLATE` (the default), the created
+        repository generates from the `rathnasgala2/user-template` GitHub
+        template; if that template is unreachable, this is `503
+        DEPENDENCY_UNAVAILABLE`, retryable, exactly the same declared
+        failure an unreachable GitHub for the create itself already answers.
+        A repository name already taken on the resolved account is `409
+        INVALID_SOURCE_STATE` pointed at `/name`, as already declared.
       operationId: postGithubInstallationsByInstallationIdRepositories
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -727,7 +735,11 @@ paths:
                   value:
                     code: DEPENDENCY_UNAVAILABLE
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
+                    detail:
+                      'GitHub did not answer the create. With startFrom
+                      USER_TEMPLATE this also covers the
+                      rathnasgala2/user-template GitHub template itself being
+                      unreachable. Retryable. See the operation contract.'
                     errors: []
                     retryable: true
                     schemaId: urn:gala:schema:problem:2.0.0

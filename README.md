@@ -91,6 +91,27 @@ calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
 states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
 problem, which covers an expired, already-used or unknown token alike.
 
+SCHEMA-2.16.0 corrects a fault SCHEMA-2.14.0 introduced:
+`POST .../repository-changes/{changeId}:bring-up-to-date`'s
+`x-gala-state-guards` admitted only `REQUESTED|PLANNED|AWAITING_CONFIRMATION`,
+and its `409` wording said an already-committed change was refused -- which
+defeated the operation's purpose, since a person's saved change IS committed (it
+carries a `proposedRevision`, and it was reviewed and approved) and it is
+exactly that change a publish refuses `SOURCE_OUT_OF_DATE`. The guard now also
+admits `COMMITTED`:
+`RepositoryChange:REQUESTED|PLANNED|AWAITING_CONFIRMATION|COMMITTED -> PLANNED (new change)`.
+Not admitted, and now stated as such: a change with a commit in flight
+(`COMMIT_REQUESTED`/`COMMITTING`/`UNKNOWN_RECONCILING`), one that already failed
+or was cancelled (`FAILED_NO_CHANGE`/`CANCELLED`), or one already published. Two
+smaller additions travel in the same release: `GET .../repository/setup`
+declares `503 CAPABILITY_UNAVAILABLE`/`DEPENDENCY_UNAVAILABLE` exactly as
+`POST .../repository:set-up` already does, since both depend on the same
+configured GitHub App identity; and repository creation's operation description
+now states that with `startFrom: USER_TEMPLATE` an unreachable
+`rathnasgala2/user-template` GitHub template is the existing
+`503 DEPENDENCY_UNAVAILABLE` this operation has declared since 2.13.0 (no new
+status was needed).
+
 SCHEMA-2.15.0 closes a Content-list gap SCHEMA-2.14.0 left: with `kind` the only
 fact the inventory carried about a flat file, a row could not show title, kind,
 status or last-changed, and a client could not check web-address uniqueness,

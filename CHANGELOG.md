@@ -8,6 +8,42 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.16.0] - 2026-09-28
+
+Additive minor; a consumer pinned to 2.15.0 changes nothing but the package
+version to move to 2.16.0.
+
+### Fixed
+
+- **Corrects a 2.14.0 fault:**
+  `POST .../repository-changes/{changeId}:bring-up-to-date` now admits a change
+  in `AWAITING_CONFIRMATION` or `COMMITTED` (`x-gala-state-guards`:
+  `RepositoryChange:REQUESTED|PLANNED|AWAITING_CONFIRMATION|COMMITTED -> PLANNED (new change)`),
+  not only `REQUESTED|PLANNED|AWAITING_CONFIRMATION`. 2.14.0's guard defeated
+  the operation's purpose: a person's saved change IS committed -- it has a
+  `proposedRevision`, and it was reviewed and approved -- and it is exactly that
+  change a publish refuses `SOURCE_OUT_OF_DATE` and which must then be brought
+  up to date. Not admitted: a change with a commit in flight
+  (`COMMIT_REQUESTED`, `COMMITTING`, `UNKNOWN_RECONCILING`), one that already
+  failed or was cancelled (`FAILED_NO_CHANGE`, `CANCELLED`), or one already
+  published. The 409 `INVALID_SOURCE_STATE` wording is updated to match: "This
+  code is also used, with an empty errors[], when the change is in flight,
+  failed, cancelled or already published."
+
+### Added
+
+- `GET .../repository/setup` declares `503 CAPABILITY_UNAVAILABLE` and
+  `DEPENDENCY_UNAVAILABLE`, exactly as `POST .../repository:set-up` already does
+  (the read depends on the same configured GitHub App identity); its
+  `x-gala-activation-guards` moves from `NONE` to that dependency.
+- `POST /v2/github/installations/{installationId}/repositories` gains an
+  operation `description` stating, for the first time in the contract, that with
+  `startFrom: USER_TEMPLATE` an unreachable `rathnasgala2/user-template` GitHub
+  template is the existing `503 DEPENDENCY_UNAVAILABLE`, retryable -- the same
+  declared failure an unreachable GitHub already answers for the create itself;
+  no new status was needed, since `DEPENDENCY_UNAVAILABLE` was already declared
+  here since 2.13.0.
+
 ## [2.15.0] - 2026-09-28
 
 Content list rows need title, kind, status and last-changed without a round trip
@@ -2019,7 +2055,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.15.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.16.0...HEAD
+[2.16.0]: https://github.com/rathnasgala2/schema/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/rathnasgala2/schema/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/rathnasgala2/schema/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/rathnasgala2/schema/compare/v2.12.0...v2.13.0

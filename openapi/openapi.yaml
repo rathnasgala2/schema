@@ -13406,6 +13406,14 @@ paths:
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
     post:
+      description: |
+        With `startFrom: USER_TEMPLATE` (the default), the created
+        repository generates from the `rathnasgala2/user-template` GitHub
+        template; if that template is unreachable, this is `503
+        DEPENDENCY_UNAVAILABLE`, retryable, exactly the same declared
+        failure an unreachable GitHub for the create itself already answers.
+        A repository name already taken on the resolved account is `409
+        INVALID_SOURCE_STATE` pointed at `/name`, as already declared.
       operationId: postGithubInstallationsByInstallationIdRepositories
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -13718,7 +13726,7 @@ paths:
                   value:
                     code: DEPENDENCY_UNAVAILABLE
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
+                    detail: GitHub did not answer the create. With startFrom USER_TEMPLATE this also covers the rathnasgala2/user-template GitHub template itself being unreachable. Retryable. See the operation contract.
                     errors: []
                     retryable: true
                     schemaId: urn:gala:schema:problem:2.0.0
@@ -24858,7 +24866,15 @@ paths:
         (`changeId`'s `proposedRevision`), Theirs (the head named by
         `X-Gala-Current-Head`) -- merges in the browser, and submits a new
         `content-changes:plan` with `baseRevision` set to that head (journey
-        state P4). `changeId` itself is untouched either way.
+        state P4). `changeId` itself is untouched either way. `changeId` may
+        be `AWAITING_CONFIRMATION` or already `COMMITTED`: a saved,
+        reviewed and approved change is exactly the case a publish refuses
+        `SOURCE_OUT_OF_DATE`, and it is that change bring-up-to-date must
+        admit. Not admitted: a change with a commit in flight
+        (`COMMIT_REQUESTED`, `COMMITTING`, `UNKNOWN_RECONCILING`), one that
+        already failed or was cancelled (`FAILED_NO_CHANGE`, `CANCELLED`),
+        or one already published (its `publishId` names a publish that
+        produced a live deployment).
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -25065,7 +25081,7 @@ paths:
                   value:
                     code: INVALID_SOURCE_STATE
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: "One or more paths conflict at file level between changeId and the current main head: nothing was written and no change was created. Read each named path through the document or asset read at baseRevision (Before), proposedRevision (Yours) and X-Gala-Current-Head (Theirs), merge in the browser, and submit a new content-changes:plan. This code is also used, with an empty errors[], when changeId is no longer in a state bring-up-to-date admits (already committed or cancelled). See the operation contract."
+                    detail: "One or more paths conflict at file level between changeId and the current main head: nothing was written and no change was created. Read each named path through the document or asset read at baseRevision (Before), proposedRevision (Yours) and X-Gala-Current-Head (Theirs), merge in the browser, and submit a new content-changes:plan. This code is also used, with an empty errors[], when the change is in flight, failed, cancelled or already published. See the operation contract."
                     errors:
                       - code: CONTENT_CONFLICT
                         pointer: /documents/content~1articles~1example.md
@@ -25187,7 +25203,7 @@ paths:
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
-        - RepositoryChange:REQUESTED|PLANNED|AWAITING_CONFIRMATION -> PLANNED (new change)
+        - RepositoryChange:REQUESTED|PLANNED|AWAITING_CONFIRMATION|COMMITTED -> PLANNED (new change)
       x-gala-success-category: create
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:confirm:
@@ -25797,9 +25813,11 @@ paths:
       description: |
         Whether the linked repository already carries the user template files
         `POST .../repository:set-up` adds. `missing` names the user template
-        files
-        not yet present; `conflicts` names ones present with different content,
-        populated only while `state` is `CONFLICT`.
+        files not yet present; `conflicts` names ones present with different
+        content, populated only while `state` is `CONFLICT`. Computing this
+        reads the linked repository through the same configured GitHub App
+        identity `POST .../repository:set-up` depends on, so the two
+        operations answer the same `503` the same way.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -25946,6 +25964,47 @@ paths:
               $ref: "#/components/headers/XCorrelationId"
           x-gala-problem-codes:
             - RESOURCE_NOT_FOUND
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
       security:
         - browserSession: []
       summary: read this publication's repository set-up state
@@ -25953,7 +26012,7 @@ paths:
         - organizations
       x-gala-activation-gate: MVP
       x-gala-activation-guards:
-        - NONE
+        - Active repository binding and configured GitHub App identity capability
       x-gala-capability-key: publication.view
       x-gala-concurrency: binding-epoch
       x-gala-conditional-capabilities: []
@@ -25963,6 +26022,8 @@ paths:
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
         - RESOURCE_NOT_FOUND
         - VALIDATION_FAILED
       x-gala-replay-identity: safe-query
