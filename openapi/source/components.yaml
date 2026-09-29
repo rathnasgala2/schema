@@ -490,6 +490,8 @@ components:
       properties:
         hasMore:
           type: boolean
+        pagesVisibilityPolicy:
+          $ref: '#/components/schemas/GithubPagesVisibilityPolicy'
         items:
           items:
             $ref: '#/components/schemas/GithubRepositorySummary'
@@ -508,6 +510,7 @@ components:
       required:
         - items
         - hasMore
+        - pagesVisibilityPolicy
       type: object
     GetGithubInstallationsResponse:
       additionalProperties: false
@@ -1627,6 +1630,17 @@ components:
       enum:
         - PRIVATE
         - PUBLIC
+      type: string
+    GithubPagesVisibilityPolicy:
+      description:
+        GitHub Pages repository visibility available to the selected account.
+        `PUBLIC_REQUIRED` and `PUBLIC_OR_PRIVATE` are provider-observed facts;
+        `UNKNOWN` means GitHub did not disclose enough plan information and
+        clients must not claim that the account is free or paid.
+      enum:
+        - PUBLIC_REQUIRED
+        - PUBLIC_OR_PRIVATE
+        - UNKNOWN
       type: string
     KernelAttemptSubmission:
       additionalProperties: false

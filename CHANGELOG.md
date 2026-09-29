@@ -8,6 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.18.0] - 2026-09-29
+
+### Added
+
+- Add the provider-observed GitHub Pages visibility policy to installation
+  repository-list responses so clients can force public repositories for known
+  Free accounts, offer both choices for known paid accounts, and state
+  explicitly when GitHub withholds the plan.
+
 ## [2.17.0] - 2026-09-28
 
 Media in articles: a cover image, and images, sound and video referenced from an
@@ -2095,7 +2104,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.17.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.18.0...HEAD
+[2.18.0]: https://github.com/rathnasgala2/schema/compare/v2.17.0...v2.18.0
 [2.17.0]: https://github.com/rathnasgala2/schema/compare/v2.16.0...v2.17.0
 [2.16.0]: https://github.com/rathnasgala2/schema/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/rathnasgala2/schema/compare/v2.14.0...v2.15.0

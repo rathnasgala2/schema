@@ -840,9 +840,12 @@ components:
           type:
             - string
             - "null"
+        pagesVisibilityPolicy:
+          $ref: "#/components/schemas/GithubPagesVisibilityPolicy"
       required:
         - items
         - hasMore
+        - pagesVisibilityPolicy
       type: object
     GetGithubInstallationsResponse:
       additionalProperties: false
@@ -2048,6 +2051,13 @@ components:
         - accountId
         - accountLogin
       type: object
+    GithubPagesVisibilityPolicy:
+      description: GitHub Pages repository visibility available to the selected account. `PUBLIC_REQUIRED` and `PUBLIC_OR_PRIVATE` are provider-observed facts; `UNKNOWN` means GitHub did not disclose enough plan information and clients must not claim that the account is free or paid.
+      enum:
+        - PUBLIC_REQUIRED
+        - PUBLIC_OR_PRIVATE
+        - UNKNOWN
+      type: string
     GithubRepositoryStartFrom:
       description: |
         What a created repository starts from. `USER_TEMPLATE` (the default)
