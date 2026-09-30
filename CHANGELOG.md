@@ -8,6 +8,25 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.20.0] - 2026-09-29
+
+### Changed
+
+- `POST .../repository-changes/{changeId}:confirm` now accepts an empty object
+  and derives `expectedHead` and `diffDigest` from the persisted plan. Either
+  member remains an optional compatibility assertion when supplied, so older
+  clients may continue echoing the exact plan facts unchanged while newer
+  clients can confirm a proposal in one action without carrying opaque digests
+  between requests.
+
+## [2.19.0] - 2026-09-29
+
+### Added
+
+- Add the optional `GithubPullRequestSummary` projection to repository-change
+  summaries so clients can link a committed candidate revision to its canonical
+  GitHub review surface without changing existing response requirements.
+
 ## [2.18.0] - 2026-09-29
 
 ### Added
@@ -2104,7 +2123,9 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.18.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.20.0...HEAD
+[2.20.0]: https://github.com/rathnasgala2/schema/compare/v2.19.0...v2.20.0
+[2.19.0]: https://github.com/rathnasgala2/schema/compare/v2.18.0...v2.19.0
 [2.18.0]: https://github.com/rathnasgala2/schema/compare/v2.17.0...v2.18.0
 [2.17.0]: https://github.com/rathnasgala2/schema/compare/v2.16.0...v2.17.0
 [2.16.0]: https://github.com/rathnasgala2/schema/compare/v2.15.0...v2.16.0

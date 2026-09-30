@@ -9152,7 +9152,10 @@ paths:
           application/json:
             examples:
               nominal:
-                summary: Nominal valid request
+                summary: Confirm using the server-persisted plan facts
+                value: {}
+              asserted:
+                summary: Confirm while asserting the echoed plan facts
                 value:
                   diffDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
                   expectedHead: sha1:0000000000000000000000000000000000000000
@@ -9175,7 +9178,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmResponse'
           description:
-            create candidate ref and commit after exact confirmation succeeded
+            candidate ref, commit and GitHub pull-request creation was accepted
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -9414,13 +9417,18 @@ paths:
             - CAPABILITY_UNAVAILABLE
       security:
         - browserSession: []
+      description: |
+        Confirm the persisted plan and enqueue creation of its candidate ref,
+        commit and GitHub pull request. `expectedHead` and `diffDigest` are
+        optional compatibility assertions: an omitted member is read from the
+        persisted plan, while a supplied member must match it exactly.
       summary: create candidate ref and commit after exact confirmation
       tags:
         - organizations
       x-gala-activation-gate: MVP
       x-gala-activation-guards:
-        - Unchanged expected Git head, normalized reviewed diff, schema version,
-          and actor confirmation
+        - Unchanged persisted expected Git head, normalized reviewed diff,
+          schema version, and actor confirmation
       x-gala-capability-key: publication.source.write
       x-gala-concurrency: planned-change-digest-and-expected-git-head
       x-gala-conditional-capabilities: []

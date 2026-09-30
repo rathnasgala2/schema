@@ -2058,6 +2058,55 @@ components:
         - PUBLIC_OR_PRIVATE
         - UNKNOWN
       type: string
+    GithubPullRequestSummary:
+      additionalProperties: false
+      description: |
+        GitHub's last authoritative observation of the pull request exposing
+        this exact candidate revision for review. The URL is always the
+        canonical web `github.com/{owner}/{repository}/pull/{number}` URL;
+        absence of this object means no pull request has been recorded yet.
+      properties:
+        baseRef:
+          description: The pull request's base branch name as reported by GitHub.
+          maxLength: 255
+          minLength: 1
+          type: string
+        headRef:
+          description: The pull request's head branch name as reported by GitHub.
+          maxLength: 255
+          minLength: 1
+          type: string
+        headRevision:
+          description: The exact commit observed at the pull request head.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        number:
+          format: int64
+          minimum: 1
+          type: integer
+        observedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        state:
+          description: GitHub's normalized pull-request lifecycle state.
+          enum:
+            - OPEN
+            - CLOSED
+            - MERGED
+          type: string
+        url:
+          description: The canonical GitHub pull-request URL.
+          format: uri
+          pattern: ^https://github[.]com/[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}/pull/[1-9][0-9]*$
+          type: string
+      required:
+        - number
+        - url
+        - headRef
+        - baseRef
+        - headRevision
+        - state
+        - observedAt
+      type: object
     GithubRepositoryStartFrom:
       description: |
         What a created repository starts from. `USER_TEMPLATE` (the default)
@@ -10132,16 +10181,26 @@ components:
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmRequest:
       additionalProperties: false
+      description: |
+        Optional compatibility assertions for the persisted plan. When a
+        member is omitted, the server uses the corresponding fact already
+        stored on `changeId`; when supplied, it must exactly match that fact.
+        An empty object therefore confirms the server-persisted plan without
+        requiring a client to echo opaque digests it just received.
       properties:
         diffDigest:
+          description: |
+            Optional assertion of the persisted planned-diff digest. Omit to
+            use the digest stored on `changeId`.
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
         expectedHead:
+          description: |
+            Optional assertion of the persisted expected Git head. Omit to
+            use the head stored on `changeId`.
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
           type: string
-      required:
-        - expectedHead
-        - diffDigest
+      required: []
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmResponse:
       allOf:
@@ -11873,6 +11932,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        pullRequest:
+          $ref: "#/components/schemas/GithubPullRequestSummary"
         reviewId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -13361,6 +13422,7 @@ paths:
                   value:
                     hasMore: false
                     items: []
+                    pagesVisibilityPolicy: UNKNOWN
               schema:
                 $ref: "#/components/schemas/GetGithubInstallationsByInstallationIdRepositoriesResponse"
           description: repositories this installation grants to the signed-in user succeeded
@@ -25429,6 +25491,11 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:confirm:
     post:
+      description: |
+        Confirm the persisted plan and enqueue creation of its candidate ref,
+        commit and GitHub pull request. `expectedHead` and `diffDigest` are
+        optional compatibility assertions: an omitted member is read from the
+        persisted plan, while a supplied member must match it exactly.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -25462,11 +25529,14 @@ paths:
         content:
           application/json:
             examples:
-              nominal:
-                summary: Nominal valid request
+              asserted:
+                summary: Confirm while asserting the echoed plan facts
                 value:
                   diffDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
                   expectedHead: sha1:0000000000000000000000000000000000000000
+              nominal:
+                summary: Confirm using the server-persisted plan facts
+                value: {}
             schema:
               $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmRequest"
         required: true
@@ -25485,7 +25555,7 @@ paths:
                     statusUrl: /v2/organizations/018f0000-0000-7000-8000-000000000001/operations/018f0000-0000-7000-8000-000000000002
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmResponse"
-          description: create candidate ref and commit after exact confirmation succeeded
+          description: candidate ref, commit and GitHub pull-request creation was accepted
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
@@ -25729,7 +25799,7 @@ paths:
         - organizations
       x-gala-activation-gate: MVP
       x-gala-activation-guards:
-        - Unchanged expected Git head, normalized reviewed diff, schema version, and actor confirmation
+        - Unchanged persisted expected Git head, normalized reviewed diff, schema version, and actor confirmation
       x-gala-capability-key: publication.source.write
       x-gala-concurrency: planned-change-digest-and-expected-git-head
       x-gala-conditional-capabilities: []

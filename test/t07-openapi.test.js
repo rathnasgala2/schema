@@ -2282,6 +2282,61 @@ test('workload unions carry explicit discriminator mappings a generated model ca
   }
 });
 
+test('repository-change summaries carry an optional closed GitHub pull-request projection', async () => {
+  const { bundle } = await readProjections();
+  const summary = bundle.components.schemas.RepositoryChangeSummary;
+  assert.equal(
+    summary.properties.pullRequest.$ref,
+    '#/components/schemas/GithubPullRequestSummary',
+  );
+  assert.equal(summary.required.includes('pullRequest'), false);
+
+  const validate = await compileResolvedSchema(bundle, summary);
+  const value = {
+    changeId: '018f0000-0000-7000-8000-000000000001',
+    version: 0,
+    state: 'COMMITTED',
+    kind: 'CONFIGURATION',
+    paths: ['gala/publication.json'],
+    createdByPrincipalId: '018f0000-0000-7000-8000-000000000002',
+    createdAt: '2026-09-29T00:00:00.000Z',
+    pullRequest: {
+      number: 42,
+      url: 'https://github.com/rathnasgala2/example/pull/42',
+      headRef: 'gala/candidate/018f0000-0000-7000-8000-000000000001',
+      baseRef: 'main',
+      headRevision: `sha1:${'a'.repeat(40)}`,
+      state: 'OPEN',
+      observedAt: '2026-09-29T00:00:01.000Z',
+    },
+  };
+  assert.equal(validate(value), true, JSON.stringify(validate.errors));
+  assert.equal(
+    validate({
+      ...value,
+      pullRequest: { ...value.pullRequest, state: 'DRAFT' },
+    }),
+    false,
+  );
+  assert.equal(
+    validate({
+      ...value,
+      pullRequest: {
+        ...value.pullRequest,
+        url: 'https://example.com/rathnasgala2/example/pull/42',
+      },
+    }),
+    false,
+  );
+  assert.equal(
+    validate({
+      ...value,
+      pullRequest: { ...value.pullRequest, providerNodeId: 'server-only' },
+    }),
+    false,
+  );
+});
+
 test('PortableProblemDocument matches problem.schema.json on shape and bounds (SCH-M18)', async () => {
   // The whole-bundle regeneration byte-check (above) proves the committed
   // bundle matches today's generator; it does not prove the generator's

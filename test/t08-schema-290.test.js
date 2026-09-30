@@ -805,6 +805,26 @@ test('requesting a review from a confirmed change no longer requires sourceRevis
   }
 });
 
+test('confirming a repository change may derive persisted plan facts', async () => {
+  const name =
+    'PostOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirmRequest';
+  const validate = await compileBundleComponent(name);
+  const expectedHead = `sha1:${'0'.repeat(40)}`;
+  const diffDigest = `sha256:${'0'.repeat(64)}`;
+  const cases = [
+    [{}, true],
+    [{ expectedHead }, true],
+    [{ diffDigest }, true],
+    [{ expectedHead, diffDigest }, true],
+    [{ expectedHead: 'main' }, false],
+    [{ diffDigest: expectedHead }, false],
+    [{ extra: true }, false],
+  ];
+  for (const [candidate, expected] of cases) {
+    assert.equal(validate(candidate), expected, JSON.stringify(candidate));
+  }
+});
+
 test('every profile function member is frozen', () => {
   for (const [name, profile] of Object.entries(ACTIVE_DIGEST_PROFILES)) {
     assert.ok(Object.isFrozen(profile), name);
@@ -821,7 +841,7 @@ test('every profile function member is frozen', () => {
 
 test('the record vectors ship with the package', async () => {
   const definition = await readJson('package.json');
-  assert.equal(definition.version, '2.17.0');
+  assert.equal(definition.version, '2.20.0');
   assert.equal(
     definition.exports['./parity/digest-record-vectors.json'],
     './parity/digest-record-vectors.json',
