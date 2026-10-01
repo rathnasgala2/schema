@@ -21,7 +21,7 @@ const PATH_FRAGMENT_COUNTS = Object.freeze({
   github: 4,
   internal: 1,
   'membership-invitations': 1,
-  organizations: 55,
+  organizations: 56,
   self: 14,
   session: 3,
   workloads: 2,
@@ -47,6 +47,9 @@ export const BINARY_ASSET_CONTENT_TYPES = Object.freeze([
   'audio/wav',
   'video/mp4',
   'video/webm',
+]);
+export const EVENT_STREAM_RESPONSE_OPERATIONS = Object.freeze([
+  'getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents',
 ]);
 // SCHEMA-2.7.1: closed vocabulary for `x-gala-conditional-capability-keys[].condition`.
 // `read-only` names an alternate capability that admits a GET/query operation without
@@ -301,6 +304,14 @@ function validateOperation(record, schemas) {
       !shapesAreBinary
     ) {
       throw new Error(`${identity}: binary response content-type drift`);
+    }
+  } else if (EVENT_STREAM_RESPONSE_OPERATIONS.includes(operation.operationId)) {
+    const responseReference = success.content?.['text/event-stream']?.schema?.$ref;
+    if (
+      responseReference !== `#/components/schemas/${stem}Response` ||
+      schemas[`${stem}Response`]?.type !== 'string'
+    ) {
+      throw new Error(`${identity}: event-stream response component naming drift`);
     }
   } else if (!['204', '303'].includes(status)) {
     const responseReference =
@@ -753,16 +764,16 @@ async function readOperationRecords(schemas) {
   );
   const operationIds = records.map(({ operation }) => operation.operationId);
   if (
-    records.length !== 86 ||
-    new Set(identities).size !== 86 ||
-    new Set(operationIds).size !== 86 ||
+    records.length !== 87 ||
+    new Set(identities).size !== 87 ||
+    new Set(operationIds).size !== 87 ||
     records.filter(({ path: route }) => route === '/internal/health').length !==
       1 ||
     records.filter(({ path: route }) => route !== '/internal/health').length !==
-      85
+      86
   ) {
     throw new Error(
-      'Source fragments are not exactly 85 MVP operations plus health',
+      'Source fragments are not exactly 86 MVP operations plus health',
     );
   }
   return records;

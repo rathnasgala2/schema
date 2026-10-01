@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:d2f0fca368b85337ab0960bea3ac7519e99bc5d201e8b73a9c26ba18a796e198",
+  "openApiDigest": "sha256:320edbae50adcda721d7d41acda313522fe09d1f9d702859808b09a30d1e24f1",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -809,6 +809,20 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/reviews/events",
+      "purpose": "stream review state-change notifications",
+      "capabilityKey": "publication.review",
+      "conditionalCapabilityKeys": [
+        "publication.view"
+      ],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdRoles",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/roles",
@@ -1049,5 +1063,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:efee512ea3eeef5c1ff9be78e6a037e2d174f88bdedb7255cda3d7444d7a0509"
+  "digest": "sha256:757a72ddda9194481b1208e98b9cdd6cbe15fbffbb8222ee09fe6e4b3d01e96b"
 }

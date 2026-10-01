@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.20.3] - 2026-09-30
+
+### Added
+
+- Add the authenticated publication review event stream. It emits notification
+  signals only; clients re-read canonical review and repository-change state.
+
 ### Fixed
 
 - Stop declaring user reauthentication for publishing when exact GitHub
