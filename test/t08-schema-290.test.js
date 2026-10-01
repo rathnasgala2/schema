@@ -841,7 +841,7 @@ test('every profile function member is frozen', () => {
 
 test('the record vectors ship with the package', async () => {
   const definition = await readJson('package.json');
-  assert.equal(definition.version, '2.20.0');
+  assert.equal(definition.version, '2.20.2');
   assert.equal(
     definition.exports['./parity/digest-record-vectors.json'],
     './parity/digest-record-vectors.json',

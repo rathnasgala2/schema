@@ -969,16 +969,29 @@
       "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/content",
       "screenId": "organizations.by-organization-id.publications.by-publication-id.content.screen",
       "authenticationClass": "SESSION_REQUIRED",
-      "capabilityKeys": ["publication.source.write", "publication.view"],
+      "capabilityKeys": [
+        "organization.view",
+        "publication.integrations.manage",
+        "publication.review",
+        "publication.source.write",
+        "publication.view"
+      ],
       "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate"
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews"
       ],
       "componentIds": [
         "AppShell",
@@ -1057,17 +1070,24 @@
         "organization.publications.admin",
         "organization.view",
         "publication.publish",
+        "publication.review",
         "publication.rollback",
+        "publication.source.write",
         "publication.view"
       ],
       "apiOperationIds": [
         "getOrganizationsByOrganizationIdOperationsByOperationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
         "postOrganizationsByOrganizationIdOperationsByOperationIdCancel",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdReconcile",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch"
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate"
       ],
       "componentIds": [
         "AppShell",
@@ -1143,10 +1163,16 @@
       "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/reviews",
       "screenId": "organizations.by-organization-id.publications.by-publication-id.reviews.screen",
       "authenticationClass": "SESSION_REQUIRED",
-      "capabilityKeys": ["publication.review"],
+      "capabilityKeys": [
+        "publication.review",
+        "publication.source.write",
+        "publication.view"
+      ],
       "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
       ],
@@ -1602,5 +1628,5 @@
       ]
     }
   ],
-  "digest": "sha256:80401d17e9366bb0c496db9c2fe7520a7f106b1fef24d3c1be11b4cace48581d"
+  "digest": "sha256:d642c9a2b300245d8f9fac1218786a63e114a3ec2863ef1605085d57ca015bde"
 }

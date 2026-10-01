@@ -8,6 +8,33 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Stop declaring user reauthentication for publishing when exact GitHub
+  pull-request verification loses the GitHub App installation authorization.
+  That provider failure is `503 CAPABILITY_UNAVAILABLE`; a recent user sign-in
+  cannot repair it.
+
+## [2.20.2] - 2026-09-30
+
+### Fixed
+
+- Make `POST .../repository:set-up` truthful to its synchronous execution:
+  success is now `200` with the observed `SET_UP` state, not `202` with an
+  operation identifier and status URL for an operation that was never created.
+- Declare every API operation actually used by the Content, Reviews, and
+  Releases routes, and describe Reviews as GitHub-owned discussion, review, and
+  merge followed by exact-merge verification in Galascribe.
+
+## [2.20.1] - 2026-09-30
+
+### Fixed
+
+- Treat synchronizing an exact reviewed revision with GitHub's authoritative
+  merge state as an ordinary authenticated-session operation. It no longer
+  requires a duplicate recent-sign-in ceremony or action grant after GitHub has
+  already authorized and recorded the merge.
+
 ## [2.20.0] - 2026-09-29
 
 ### Changed
@@ -2123,7 +2150,9 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.20.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.20.2...HEAD
+[2.20.2]: https://github.com/rathnasgala2/schema/compare/v2.20.1...v2.20.2
+[2.20.1]: https://github.com/rathnasgala2/schema/compare/v2.20.0...v2.20.1
 [2.20.0]: https://github.com/rathnasgala2/schema/compare/v2.19.0...v2.20.0
 [2.19.0]: https://github.com/rathnasgala2/schema/compare/v2.18.0...v2.19.0
 [2.18.0]: https://github.com/rathnasgala2/schema/compare/v2.17.0...v2.18.0

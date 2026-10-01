@@ -413,7 +413,7 @@ test('a review can be requested from a confirmed change without client-computed 
   );
 });
 
-test('review assurance is per operation and the decision is the step-up', async () => {
+test('review merge verification uses the authenticated session without a duplicate step-up', async () => {
   const document = await bundle();
   const catalog = JSON.parse(
     await readFile('openapi/http-catalog.json', 'utf8'),
@@ -431,7 +431,7 @@ test('review assurance is per operation and the decision is the step-up', async 
       'none',
     ],
     postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide:
-      ['RECENT_AUTHENTICATION', 'required'],
+      ['SESSION', 'none'],
   };
   for (const row of catalog.operations) {
     assert.ok(
@@ -459,6 +459,25 @@ test('review assurance is per operation and the decision is the step-up', async 
     'the review decision declares review-version concurrency but takes no If-Match',
   );
   assert.equal(decide['x-gala-concurrency'], 'review-version');
+});
+
+test('publish reports GitHub App authorization loss as provider capability failure, not user reauthentication', async () => {
+  const document = await bundle();
+  const publish =
+    document.paths[
+      '/v2/organizations/{organizationId}/publications/{publicationId}/publishes'
+    ].post;
+
+  assert.deepEqual(publish.responses['401']['x-gala-problem-codes'], [
+    'AUTHENTICATION_REQUIRED',
+  ]);
+  assert.deepEqual(publish.responses['503']['x-gala-problem-codes'], [
+    'CAPABILITY_UNAVAILABLE',
+  ]);
+  assert.equal(
+    publish['x-gala-reachable-problems'].includes('REAUTH_REQUIRED'),
+    false,
+  );
 });
 
 test('the safe review read no longer claims a stale-version refusal', async () => {
