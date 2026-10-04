@@ -21,7 +21,7 @@ const PATH_FRAGMENT_COUNTS = Object.freeze({
   github: 4,
   internal: 1,
   'membership-invitations': 1,
-  organizations: 56,
+  organizations: 57,
   self: 14,
   session: 3,
   workloads: 2,
@@ -306,12 +306,16 @@ function validateOperation(record, schemas) {
       throw new Error(`${identity}: binary response content-type drift`);
     }
   } else if (EVENT_STREAM_RESPONSE_OPERATIONS.includes(operation.operationId)) {
-    const responseReference = success.content?.['text/event-stream']?.schema?.$ref;
+    const responseReference =
+      success.content?.['text/event-stream']?.schema?.$ref;
     if (
       responseReference !== `#/components/schemas/${stem}Response` ||
-      schemas[`${stem}Response`]?.type !== 'string'
+      /** @type {{ type?: string } | undefined} */ (schemas[`${stem}Response`])
+        ?.type !== 'string'
     ) {
-      throw new Error(`${identity}: event-stream response component naming drift`);
+      throw new Error(
+        `${identity}: event-stream response component naming drift`,
+      );
     }
   } else if (!['204', '303'].includes(status)) {
     const responseReference =
@@ -687,6 +691,7 @@ function validateContractClosure(records, components) {
     if (
       [
         'getCallbacksGithubOauth',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContent',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
@@ -764,16 +769,16 @@ async function readOperationRecords(schemas) {
   );
   const operationIds = records.map(({ operation }) => operation.operationId);
   if (
-    records.length !== 87 ||
-    new Set(identities).size !== 87 ||
-    new Set(operationIds).size !== 87 ||
+    records.length !== 88 ||
+    new Set(identities).size !== 88 ||
+    new Set(operationIds).size !== 88 ||
     records.filter(({ path: route }) => route === '/internal/health').length !==
       1 ||
     records.filter(({ path: route }) => route !== '/internal/health').length !==
-      86
+      87
   ) {
     throw new Error(
-      'Source fragments are not exactly 86 MVP operations plus health',
+      'Source fragments are not exactly 87 MVP operations plus health',
     );
   }
   return records;

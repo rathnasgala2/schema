@@ -234,6 +234,24 @@ components:
         - activationDetectionPlanDigest
         - activationDetectionObservation
       type: object
+    AppearanceColorMode:
+      enum:
+        - light
+        - dark
+        - system
+      type: string
+    AppearanceThemeId:
+      description: |
+        The closed catalog of themes the server can select. `default` names
+        `@rathnasgala2/theme-default`, `amaze` names
+        `@rathnasgala2/theme-amaze`, and so on.
+      enum:
+        - default
+        - amaze
+        - flashy
+        - minimal
+        - zebra
+      type: string
     AuthenticatorState:
       enum:
         - ACTIVE
@@ -290,6 +308,20 @@ components:
         - state
         - kind
         - label
+      type: object
+    ContentChangeAppearanceEntry:
+      additionalProperties: false
+      description: |
+        The theme selection inside a batch `content-changes:plan` request.
+        Both members are required.
+      properties:
+        colorModeDefault:
+          $ref: "#/components/schemas/AppearanceColorMode"
+        themeId:
+          $ref: "#/components/schemas/AppearanceThemeId"
+      required:
+        - themeId
+        - colorModeDefault
       type: object
     ContentChangeAssetEntry:
       additionalProperties: false
@@ -1108,6 +1140,40 @@ components:
         - version
         - state
         - operationId
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdAppearanceResponse:
+      additionalProperties: false
+      properties:
+        built:
+          oneOf:
+            - $ref: "#/components/schemas/PublicationAppearanceBuilt"
+            - type: "null"
+        catalog:
+          items:
+            $ref: "#/components/schemas/PublicationAppearanceCatalogEntry"
+          maxItems: 5
+          type: array
+        consistent:
+          type: boolean
+        head:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        openChange:
+          oneOf:
+            - $ref: "#/components/schemas/PublicationAppearanceOpenChange"
+            - type: "null"
+        selected:
+          $ref: "#/components/schemas/PublicationAppearanceSelected"
+        setUp:
+          type: boolean
+      required:
+        - head
+        - setUp
+        - selected
+        - built
+        - consistent
+        - catalog
+        - openChange
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse:
       additionalProperties: false
@@ -9850,12 +9916,20 @@ components:
         Two request shapes, both accepted. The 2.13.0 single-document shape
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
-        (`baseRevision` and at least one of `documents`/`assets`) plans up
-        to 20 documents and 40 assets -- each `PUT` with its own text or
-        bytes and digest, each `DELETE` naming only its path -- in one
-        change, against the exact expected main-branch head asserted as
-        `baseRevision`. A request mixing the two shapes, or a batch request
-        naming neither `documents` nor `assets`, is `422 VALIDATION_FAILED`.
+        (`baseRevision` and at least one of `documents`/`assets`/`appearance`)
+        plans up to 20 documents and 40 assets -- each `PUT` with its own
+        text or bytes and digest, each `DELETE` naming only its path -- and
+        optionally one theme selection in one change, against the exact
+        expected main-branch head asserted as `baseRevision`. A request
+        mixing the two shapes, or a batch request naming none of
+        `documents`, `assets` and `appearance`, is `422 VALIDATION_FAILED`.
+        `appearance` names a catalog theme and a default colour mode; the
+        server writes `gala/appearance.json` (only `theme` and
+        `colorMode.default` change, every other member is preserved) and the
+        `gala.lock.json` `theme` block from its closed theme catalog, both
+        in the same change. An `appearance` equal to the current selection
+        is `422 VALIDATION_FAILED` pointed at `/appearance`. Document paths
+        under `gala/` and `gala.lock.json` remain forbidden.
         The change's total serialized size must not exceed 100 MiB;
         `assets[].bytesBase64` is base64 over raw bytes, so what counts
         against the per-asset and 100 MiB per-change bounds is the decoded
@@ -9863,6 +9937,8 @@ components:
         category: image 5 MiB, sound 20 MiB, video 50 MiB (documents are
         unchanged since 2.14.0: 20 documents, 1 MiB text each).
       properties:
+        appearance:
+          $ref: "#/components/schemas/ContentChangeAppearanceEntry"
         assets:
           items:
             $ref: "#/components/schemas/ContentChangeAssetEntry"
@@ -10920,6 +10996,88 @@ components:
       type: object
     Problem:
       $ref: "#/components/schemas/PortableProblemDocument"
+    PublicationAppearanceBuilt:
+      additionalProperties: false
+      description: |
+        From the `theme` block of `gala.lock.json`, the sole authority for the
+        theme a build uses. `themeId` is `null` when the locked package is not
+        in the catalog.
+      properties:
+        themeId:
+          oneOf:
+            - $ref: "#/components/schemas/AppearanceThemeId"
+            - type: "null"
+        themePackage:
+          maxLength: 214
+          minLength: 1
+          type: string
+        version:
+          maxLength: 256
+          minLength: 1
+          type: string
+      required:
+        - themeId
+        - themePackage
+        - version
+      type: object
+    PublicationAppearanceCatalogEntry:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 280
+          minLength: 1
+          type: string
+        displayName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        package:
+          maxLength: 214
+          minLength: 1
+          type: string
+        themeId:
+          $ref: "#/components/schemas/AppearanceThemeId"
+        version:
+          maxLength: 256
+          minLength: 1
+          type: string
+      required:
+        - themeId
+        - package
+        - version
+        - displayName
+        - description
+      type: object
+    PublicationAppearanceOpenChange:
+      additionalProperties: false
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - changeId
+      type: object
+    PublicationAppearanceSelected:
+      additionalProperties: false
+      description: |
+        From `gala/appearance.json`. `themeId` is `null` ("Custom theme") when
+        `themePackage` is not in the catalog. `themePackage` is the file's
+        `theme` value, a package with its version range.
+      properties:
+        colorModeDefault:
+          $ref: "#/components/schemas/AppearanceColorMode"
+        themeId:
+          oneOf:
+            - $ref: "#/components/schemas/AppearanceThemeId"
+            - type: "null"
+        themePackage:
+          $ref: "#/components/schemas/PortableAppearancePackageRange"
+      required:
+        - themeId
+        - themePackage
+        - colorModeDefault
+      type: object
     PublicationState:
       enum:
         - PROVISIONING
@@ -19833,6 +19991,280 @@ paths:
         - Publication:PAUSED -> ACTIVE
         - Publication:RETIRING|RETIRED -> PROVISIONING
       x-gala-success-category: update
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/appearance:
+    get:
+      description: |
+        Reads this publication's theme selection at the linked repository's
+        current main branch head: `selected` from `gala/appearance.json`
+        (`theme`, `colorMode.default`), `built` from the `theme` block of
+        `gala.lock.json`, and the closed five-theme `catalog` the server can
+        write. `selected.themeId` and `built.themeId` are `null` when that
+        file names a package outside the catalog ("Custom theme").
+        `consistent` is true when `selected` and `built` name the same
+        package. `setUp` matches `GET .../repository/setup`'s `state`.
+        `openChange` names an existing not-yet-published repository change
+        of this publication that touches appearance, or is `null`, so a
+        client links to it instead of planning a second one. The browser
+        never reads or edits `gala/appearance.json` or `gala.lock.json` as
+        text; `GET .../content/documents` still refuses both paths.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    built:
+                      themeId: default
+                      themePackage: "@rathnasgala2/theme-default"
+                      version: 2.0.0
+                    catalog:
+                      - description: The calm default look.
+                        displayName: Default
+                        package: "@rathnasgala2/theme-default"
+                        themeId: default
+                        version: 2.0.0
+                    consistent: true
+                    head: sha1:0000000000000000000000000000000000000000
+                    openChange: null
+                    selected:
+                      colorModeDefault: system
+                      themeId: default
+                      themePackage: "@rathnasgala2/theme-default@^2.0.0"
+                    setUp: true
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdAppearanceResponse"
+          description: read this publication's theme selection at the main branch head succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read this publication's theme selection at the main branch head
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read this publication's theme selection at the main branch head
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/configuration-changes:plan:
     post:

@@ -8,6 +8,22 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.21.0] - 2026-10-04
+
+### Added
+
+- Add
+  `GET /v2/organizations/{organizationId}/publications/{publicationId}/appearance`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance`,
+  `publication.view`): the publication's selected theme from
+  `gala/appearance.json`, the built theme from `gala.lock.json`, whether they
+  agree, the closed five-theme catalog, and any open appearance change.
+- Add an optional `appearance` member (`themeId`, `colorModeDefault`) to the
+  batch shape of `POST .../content-changes:plan`. The server writes
+  `gala/appearance.json` (only `theme` and `colorMode.default` change) and the
+  `gala.lock.json` `theme` block in one change; a no-op selection is
+  `422 VALIDATION_FAILED` at `/appearance`. Document paths still forbid `gala/`.
+
 ## [2.20.3] - 2026-09-30
 
 ### Added
@@ -2157,7 +2173,9 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.20.2...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.21.0...HEAD
+[2.21.0]: https://github.com/rathnasgala2/schema/compare/v2.20.3...v2.21.0
+[2.20.3]: https://github.com/rathnasgala2/schema/compare/v2.20.2...v2.20.3
 [2.20.2]: https://github.com/rathnasgala2/schema/compare/v2.20.1...v2.20.2
 [2.20.1]: https://github.com/rathnasgala2/schema/compare/v2.20.0...v2.20.1
 [2.20.0]: https://github.com/rathnasgala2/schema/compare/v2.19.0...v2.20.0

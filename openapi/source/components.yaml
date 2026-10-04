@@ -3601,6 +3601,120 @@ components:
         - expectedHead
         - diffDigest
       type: object
+    AppearanceColorMode:
+      enum:
+        - light
+        - dark
+        - system
+      type: string
+    AppearanceThemeId:
+      description: |
+        The closed catalog of themes the server can select. `default` names
+        `@rathnasgala2/theme-default`, `amaze` names
+        `@rathnasgala2/theme-amaze`, and so on.
+      enum:
+        - default
+        - amaze
+        - flashy
+        - minimal
+        - zebra
+      type: string
+    ContentChangeAppearanceEntry:
+      additionalProperties: false
+      description: |
+        The theme selection inside a batch `content-changes:plan` request.
+        Both members are required.
+      properties:
+        colorModeDefault:
+          $ref: '#/components/schemas/AppearanceColorMode'
+        themeId:
+          $ref: '#/components/schemas/AppearanceThemeId'
+      required:
+        - themeId
+        - colorModeDefault
+      type: object
+    PublicationAppearanceBuilt:
+      additionalProperties: false
+      description: |
+        From the `theme` block of `gala.lock.json`, the sole authority for the
+        theme a build uses. `themeId` is `null` when the locked package is not
+        in the catalog.
+      properties:
+        themePackage:
+          maxLength: 214
+          minLength: 1
+          type: string
+        themeId:
+          oneOf:
+            - $ref: '#/components/schemas/AppearanceThemeId'
+            - type: 'null'
+        version:
+          maxLength: 256
+          minLength: 1
+          type: string
+      required:
+        - themeId
+        - themePackage
+        - version
+      type: object
+    PublicationAppearanceCatalogEntry:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 280
+          minLength: 1
+          type: string
+        displayName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        package:
+          maxLength: 214
+          minLength: 1
+          type: string
+        themeId:
+          $ref: '#/components/schemas/AppearanceThemeId'
+        version:
+          maxLength: 256
+          minLength: 1
+          type: string
+      required:
+        - themeId
+        - package
+        - version
+        - displayName
+        - description
+      type: object
+    PublicationAppearanceOpenChange:
+      additionalProperties: false
+      properties:
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - changeId
+      type: object
+    PublicationAppearanceSelected:
+      additionalProperties: false
+      description: |
+        From `gala/appearance.json`. `themeId` is `null` ("Custom theme") when
+        `themePackage` is not in the catalog. `themePackage` is the file's
+        `theme` value, a package with its version range.
+      properties:
+        colorModeDefault:
+          $ref: '#/components/schemas/AppearanceColorMode'
+        themeId:
+          oneOf:
+            - $ref: '#/components/schemas/AppearanceThemeId'
+            - type: 'null'
+        themePackage:
+          $ref: ../schemas/appearance.schema.json#/$defs/packageRange
+      required:
+        - themeId
+        - themePackage
+        - colorModeDefault
+      type: object
     ContentChangeAssetEntry:
       additionalProperties: false
       allOf:
@@ -4160,6 +4274,40 @@ components:
         - hasMore
         - publication
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdAppearanceResponse:
+      additionalProperties: false
+      properties:
+        built:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceBuilt'
+            - type: 'null'
+        catalog:
+          items:
+            $ref: '#/components/schemas/PublicationAppearanceCatalogEntry'
+          maxItems: 5
+          type: array
+        consistent:
+          type: boolean
+        head:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        selected:
+          $ref: '#/components/schemas/PublicationAppearanceSelected'
+        setUp:
+          type: boolean
+      required:
+        - head
+        - setUp
+        - selected
+        - built
+        - consistent
+        - catalog
+        - openChange
+      type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse:
       additionalProperties: false
       properties:
@@ -4268,12 +4416,20 @@ components:
         Two request shapes, both accepted. The 2.13.0 single-document shape
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
-        (`baseRevision` and at least one of `documents`/`assets`) plans up
-        to 20 documents and 40 assets -- each `PUT` with its own text or
-        bytes and digest, each `DELETE` naming only its path -- in one
-        change, against the exact expected main-branch head asserted as
-        `baseRevision`. A request mixing the two shapes, or a batch request
-        naming neither `documents` nor `assets`, is `422 VALIDATION_FAILED`.
+        (`baseRevision` and at least one of `documents`/`assets`/`appearance`)
+        plans up to 20 documents and 40 assets -- each `PUT` with its own
+        text or bytes and digest, each `DELETE` naming only its path -- and
+        optionally one theme selection in one change, against the exact
+        expected main-branch head asserted as `baseRevision`. A request
+        mixing the two shapes, or a batch request naming none of
+        `documents`, `assets` and `appearance`, is `422 VALIDATION_FAILED`.
+        `appearance` names a catalog theme and a default colour mode; the
+        server writes `gala/appearance.json` (only `theme` and
+        `colorMode.default` change, every other member is preserved) and the
+        `gala.lock.json` `theme` block from its closed theme catalog, both
+        in the same change. An `appearance` equal to the current selection
+        is `422 VALIDATION_FAILED` pointed at `/appearance`. Document paths
+        under `gala/` and `gala.lock.json` remain forbidden.
         The change's total serialized size must not exceed 100 MiB;
         `assets[].bytesBase64` is base64 over raw bytes, so what counts
         against the per-asset and 100 MiB per-change bounds is the decoded
@@ -4281,6 +4437,8 @@ components:
         category: image 5 MiB, sound 20 MiB, video 50 MiB (documents are
         unchanged since 2.14.0: 20 documents, 1 MiB text each).
       properties:
+        appearance:
+          $ref: '#/components/schemas/ContentChangeAppearanceEntry'
         assets:
           items:
             $ref: '#/components/schemas/ContentChangeAssetEntry'

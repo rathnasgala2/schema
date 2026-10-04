@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:320edbae50adcda721d7d41acda313522fe09d1f9d702859808b09a30d1e24f1",
+  "openApiDigest": "sha256:e56f061a458515cd7d3b492d6f3397d4aed31a355a1a4820afdfb79558f42a16",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -455,6 +455,18 @@
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}:previewRetirement",
       "purpose": "preview the consequences of retiring this publication",
       "capabilityKey": "publication.retire",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/appearance",
+      "purpose": "read this publication's theme selection at the main branch head",
+      "capabilityKey": "publication.view",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -1063,5 +1075,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:757a72ddda9194481b1208e98b9cdd6cbe15fbffbb8222ee09fe6e4b3d01e96b"
+  "digest": "sha256:15b597ba9cb227bd300ce9b51e65f8e6faf43b36a4c8047b3de85a8bd0b3289a"
 }
