@@ -24,6 +24,12 @@ and this project adheres to
   `gala.lock.json` `theme` block in one change; a no-op selection is
   `422 VALIDATION_FAILED` at `/appearance`. Document paths still forbid `gala/`.
 
+### Security
+
+- Refresh the lockfile to clear `npm audit` findings: brace-expansion,
+  http-cache-semantics, fast-uri, ip-address. No change to `package.json` or the
+  published contents.
+
 ## [2.20.3] - 2026-09-30
 
 ### Added
