@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:e56f061a458515cd7d3b492d6f3397d4aed31a355a1a4820afdfb79558f42a16",
+  "openApiDigest": "sha256:f3d0acf21a5fe89857d94dfa3067bbb59486a3e3a7f263cdd261695238303290",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -474,6 +474,20 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/changes:publish",
+      "purpose": "publish a batch of changes with one deploy of the resulting main head",
+      "capabilityKey": "publication.publish",
+      "conditionalCapabilityKeys": [
+        "publication.schedule"
+      ],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/configuration-changes:plan",
@@ -602,6 +616,18 @@
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/destination",
       "purpose": "set publication destination",
       "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/history",
+      "purpose": "list the versions of this publication that went live",
+      "capabilityKey": "publication.view",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -829,6 +855,18 @@
       "conditionalCapabilityKeys": [
         "publication.view"
       ],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/site",
+      "purpose": "read the site summary of this publication",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
@@ -1075,5 +1113,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:15b597ba9cb227bd300ce9b51e65f8e6faf43b36a4c8047b3de85a8bd0b3289a"
+  "digest": "sha256:60cc9daaec10eda1f7fdfa827b76a337be99ab1b8498b0205dfc0a10a683b87c"
 }

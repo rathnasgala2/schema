@@ -318,6 +318,112 @@
       "collection": false,
       "screenJob": "Accept invitation; Accept an invitation to join an organization.",
       "apiOperationIds": ["postMembershipInvitationsByTokenAccept"]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Home; See whether your site is live and where, what is waiting to be published, and what needs attention, then publish the waiting changes together.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/posts",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Posts; Write, preview and save posts and pages as changes, ask for a review when the publication requires one, and publish them.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/look",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Look; See the site in each theme and colour mode, choose a look as a change, and publish it now or later.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm"
+      ]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/history",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "History; See the versions of the site that went live, who published them and what changed, and restore one that was live.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback"
+      ]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/settings",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Settings; Update this site's name and details, choose whether publishing needs a review and whether Galascribe merges pull requests, choose its deployment destination, repair its repository connection, or retire it.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
+      ]
     }
   ]
 }

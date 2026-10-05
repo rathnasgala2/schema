@@ -21,7 +21,7 @@ const PATH_FRAGMENT_COUNTS = Object.freeze({
   github: 4,
   internal: 1,
   'membership-invitations': 1,
-  organizations: 57,
+  organizations: 60,
   self: 14,
   session: 3,
   workloads: 2,
@@ -697,6 +697,7 @@ function validateContractClosure(records, components) {
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup',
         'postGithubInstallationsByInstallationIdRepositories',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp',
@@ -769,16 +770,16 @@ async function readOperationRecords(schemas) {
   );
   const operationIds = records.map(({ operation }) => operation.operationId);
   if (
-    records.length !== 88 ||
-    new Set(identities).size !== 88 ||
-    new Set(operationIds).size !== 88 ||
+    records.length !== 91 ||
+    new Set(identities).size !== 91 ||
+    new Set(operationIds).size !== 91 ||
     records.filter(({ path: route }) => route === '/internal/health').length !==
       1 ||
     records.filter(({ path: route }) => route !== '/internal/health').length !==
-      87
+      90
   ) {
     throw new Error(
-      'Source fragments are not exactly 87 MVP operations plus health',
+      'Source fragments are not exactly 90 MVP operations plus health',
     );
   }
   return records;

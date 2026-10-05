@@ -123,6 +123,9 @@ POST /v2/organizations/{organizationId}/publications/{publicationId}:previewReti
 GET /v2/organizations/{organizationId}/publications/{publicationId}/destination
 PUT /v2/organizations/{organizationId}/publications/{publicationId}/destination
 GET /v2/organizations/{organizationId}/publications/{publicationId}/appearance
+GET /v2/organizations/{organizationId}/publications/{publicationId}/site
+GET /v2/organizations/{organizationId}/publications/{publicationId}/history
+POST /v2/organizations/{organizationId}/publications/{publicationId}/changes:publish
 GET /v2/organizations/{organizationId}/publications/{publicationId}/content
 GET /v2/organizations/{organizationId}/publications/{publicationId}/content/documents
 GET /v2/organizations/{organizationId}/publications/{publicationId}/content/assets
@@ -425,7 +428,7 @@ function withoutBundleLiftedKeys(schema) {
   );
 }
 
-test('source fragments, bundle and catalog contain exactly the 87-operation MVP plus health', async () => {
+test('source fragments, bundle and catalog contain exactly the 90-operation MVP plus health', async () => {
   const { bundle, catalog, sourceOperations } = await readProjections();
   const sourceIdentities = sourceOperations
     .map(({ method, path: route }) => `${method} ${route}`)
@@ -433,7 +436,7 @@ test('source fragments, bundle and catalog contain exactly the 87-operation MVP 
   const catalogIdentities = catalog.operations
     .map(({ method, path: route }) => `${method} ${route}`)
     .sort();
-  assert.equal(EXPECTED_OPERATIONS.length, 88);
+  assert.equal(EXPECTED_OPERATIONS.length, 91);
   assert.deepEqual(sourceIdentities, EXPECTED_OPERATIONS);
   assert.deepEqual(bundleIdentities(bundle.paths), EXPECTED_OPERATIONS);
   assert.deepEqual(catalogIdentities, EXPECTED_OPERATIONS);
@@ -445,7 +448,7 @@ test('source fragments, bundle and catalog contain exactly the 87-operation MVP 
   assert.equal(
     catalog.operations.filter(({ path: route }) => route.startsWith('/v2/'))
       .length,
-    87,
+    90,
   );
 });
 
@@ -491,7 +494,7 @@ test('every operation uses mechanical unique naming and complete executable meta
     );
     assert.deepEqual(operation.tags, [row.sourceFragment]);
   }
-  assert.equal(new Set(operationIds).size, 88);
+  assert.equal(new Set(operationIds).size, 91);
 });
 
 test('recovery-code regeneration declares both lifecycle families', async () => {
@@ -798,7 +801,7 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
       schema.properties?.hasMore !== undefined &&
       schema.properties?.nextCursor !== undefined,
   );
-  assert.equal(collections.length, 14);
+  assert.equal(collections.length, 15);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),
@@ -863,7 +866,7 @@ test('keyset list reads answer a bad cursor or limit with 400, never 422', async
         (parameter) => parameter.in === 'query' && parameter.name === 'cursor',
       );
   });
-  assert.equal(keysetReads.length, 14);
+  assert.equal(keysetReads.length, 15);
   for (const row of keysetReads) {
     const operation = operationAt(bundle, row.method, row.path);
     const response = resolveLocalComponent(
@@ -973,7 +976,7 @@ test('path and query validation always maps to 400 VALIDATION_FAILED', async () 
   }
 });
 
-test('capability annotations are closed and only the seven documented conjunctions exist', async () => {
+test('capability annotations are closed and only the eight documented conjunctions exist', async () => {
   const { bundle, catalog } = await readProjections();
   const conditionalRows = catalog.operations.filter(
     ({ conditionalCapabilityKeys }) => conditionalCapabilityKeys.length > 0,
@@ -987,6 +990,10 @@ test('capability annotations are closed and only the seven documented conjunctio
       {
         path: '/v2/organizations/{organizationId}',
         conditionalCapabilityKeys: ['organization.lifecycle.manage'],
+      },
+      {
+        path: '/v2/organizations/{organizationId}/publications/{publicationId}/changes:publish',
+        conditionalCapabilityKeys: ['publication.schedule'],
       },
       {
         path: '/v2/organizations/{organizationId}/publications/{publicationId}/configuration-changes:plan',
@@ -2419,24 +2426,24 @@ test('PortableProblemDocument matches problem.schema.json on shape and bounds (S
 test('README.md states the MVP operation count consistently (SCH-L1)', async () => {
   const readme = await readFile('README.md', 'utf8');
   assert.ok(
-    readme.includes('87 MVP operations plus'),
-    'README.md no longer says "87 MVP operations plus"',
+    readme.includes('90 MVP operations plus'),
+    'README.md no longer says "90 MVP operations plus"',
   );
   assert.match(
     readme,
-    /exact 87 MVP\s+operations plus health/u,
-    'README.md no longer says "exact 87 MVP operations plus health"',
+    /exact 90 MVP\s+operations plus health/u,
+    'README.md no longer says "exact 90 MVP operations plus health"',
   );
   assert.ok(
     !/\b73 MVP\b/u.test(readme),
-    'README.md still claims 73 MVP operations somewhere; it is 87',
+    'README.md still claims 73 MVP operations somewhere; it is 90',
   );
   assert.ok(
     !/\b75 MVP\b/u.test(readme),
-    'README.md still claims 75 MVP operations somewhere; it is 87',
+    'README.md still claims 75 MVP operations somewhere; it is 90',
   );
   assert.ok(
     !/\b76 MVP\b/u.test(readme),
-    'README.md still claims 76 MVP operations somewhere; it is 87',
+    'README.md still claims 76 MVP operations somewhere; it is 90',
   );
 });

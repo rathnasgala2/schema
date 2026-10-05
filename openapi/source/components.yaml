@@ -1120,6 +1120,8 @@ components:
           format: int64
           minimum: 0
           type: integer
+        publishingPolicy:
+          $ref: '#/components/schemas/PublishingPolicy'
       required:
         - publicationId
         - version
@@ -2820,6 +2822,18 @@ components:
           maxLength: 80
           minLength: 1
           type: string
+        publishingPolicy:
+          additionalProperties: false
+          description:
+            'A partial update of `PublishingPolicy`: an omitted member keeps its
+            current value.'
+          minProperties: 1
+          properties:
+            galascribeMerges:
+              type: boolean
+            requireReview:
+              type: boolean
+          type: object
       required: []
       type: object
     PatchOrganizationsByOrganizationIdPublicationsByPublicationIdResponse:
@@ -2843,6 +2857,8 @@ components:
           format: int64
           minimum: 0
           type: integer
+        publishingPolicy:
+          $ref: '#/components/schemas/PublishingPolicy'
       required:
         - publicationId
         - version
@@ -6714,6 +6730,462 @@ components:
         - requiredVerificationEntryCount
         - canonicalFitRequestByteCount
       type: object
+    SiteActor:
+      additionalProperties: false
+      description:
+        A person named in words. The identity is the display name; no principal
+        id is exposed on this surface.
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+        - displayName
+      type: object
+    PublishingPolicy:
+      additionalProperties: false
+      description:
+        'How this publication publishes. Absence of the member on the
+        publication resource means the defaults: `requireReview` false,
+        `galascribeMerges` true.'
+      properties:
+        galascribeMerges:
+          description:
+            Default true. When true Galascribe opens and merges the pull request
+            itself through the GitHub App; when false each change must already
+            be merged on GitHub before it can be published.
+          type: boolean
+        requireReview:
+          description:
+            Default false. When true a change needs an approved review before it
+            can be published.
+          type: boolean
+      required:
+        - requireReview
+        - galascribeMerges
+      type: object
+    SiteThemeChange:
+      additionalProperties: false
+      properties:
+        from:
+          maxLength: 200
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        to:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+        - from
+        - to
+      type: object
+    SitePendingChange:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: LOOK
+            required:
+              - kind
+          then:
+            properties:
+              action:
+                const: CHANGE
+          else:
+            properties:
+              action:
+                enum:
+                  - CREATE
+                  - EDIT
+                  - DELETE
+      description:
+        'One unpublished change in words. Exactly one entry exists per path (and
+        one for the look): when several unpublished changes touch the same path
+        only the newest is listed and older ones are superseded and omitted.'
+      properties:
+        action:
+          enum:
+            - CREATE
+            - EDIT
+            - DELETE
+            - CHANGE
+          description:
+            '`CHANGE` is used for `LOOK` and only for `LOOK`; `POST` and `PAGE`
+            use `CREATE`, `EDIT` or `DELETE`.'
+          type: string
+        kind:
+          enum:
+            - POST
+            - PAGE
+            - LOOK
+          type: string
+        path:
+          description: Repository path of the post or page; absent for `LOOK`.
+          maxLength: 512
+          minLength: 1
+          type: string
+        theme:
+          $ref: '#/components/schemas/SiteThemeChange'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        author:
+          $ref: '#/components/schemas/SiteActor'
+        changeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        review:
+          description:
+            '`NOT_REQUIRED` when the publication does not require review;
+            otherwise `WAITING`, `APPROVED` or `CHANGES_REQUESTED`.'
+          enum:
+            - NOT_REQUIRED
+            - WAITING
+            - APPROVED
+            - CHANGES_REQUESTED
+          type: string
+        reviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+          description:
+            The review a reviewer decides through `POST
+            .../reviews/{reviewId}:decide`. Present when a review exists.
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - changeId
+        - kind
+        - action
+        - title
+        - review
+        - updatedAt
+        - author
+      type: object
+    SiteAttentionItem:
+      additionalProperties: false
+      description:
+        Something that needs a person to act. The list is empty when nothing
+        does.
+      properties:
+        code:
+          enum:
+            - REPOSITORY_NEEDS_UPDATE
+            - CONTENT_CONFLICT
+            - PUBLISH_FAILED
+            - AUTHORIZATION_LOST
+            - REPOSITORY_NOT_SET_UP
+            - DESTINATION_NOT_CHOSEN
+          type: string
+        relatedChangeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - code
+      type: object
+    SiteLastPublished:
+      additionalProperties: false
+      properties:
+        actor:
+          $ref: '#/components/schemas/SiteActor'
+        at:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - at
+        - actor
+      type: object
+    SitePublishing:
+      additionalProperties: false
+      properties:
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        stage:
+          enum:
+            - PREPARING
+            - BUILDING
+            - GOING_LIVE
+          type: string
+        startedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - operationId
+        - stage
+        - startedAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSiteResponse:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              state:
+                const: PUBLISHING
+            required:
+              - state
+          then:
+            required:
+              - publishing
+          else:
+            not:
+              required:
+                - publishing
+      description:
+        Everything a Home screen needs in one read. `url` is the live site
+        address, `null` when nothing has been published. `lastPublished` is
+        absent when `state` is `NEVER_PUBLISHED`. `publishing` is present
+        exactly while `state` is `PUBLISHING`.
+      properties:
+        attention:
+          items:
+            $ref: '#/components/schemas/SiteAttentionItem'
+          maxItems: 20
+          type: array
+        lastPublished:
+          $ref: '#/components/schemas/SiteLastPublished'
+        pendingChanges:
+          items:
+            $ref: '#/components/schemas/SitePendingChange'
+          maxItems: 200
+          type: array
+        publishing:
+          $ref: '#/components/schemas/SitePublishing'
+        state:
+          enum:
+            - LIVE
+            - PUBLISHING
+            - NEVER_PUBLISHED
+            - FAILED
+            - UNKNOWN
+          type: string
+        url:
+          maxLength: 2048
+          minLength: 1
+          pattern: ^https://
+          type:
+            - string
+            - 'null'
+      required:
+        - url
+        - state
+        - pendingChanges
+        - attention
+      type: object
+    HistoryChange:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: LOOK
+            required:
+              - kind
+          then:
+            properties:
+              action:
+                const: CHANGE
+          else:
+            properties:
+              action:
+                enum:
+                  - CREATE
+                  - EDIT
+                  - DELETE
+      properties:
+        action:
+          enum:
+            - CREATE
+            - EDIT
+            - DELETE
+            - CHANGE
+          description:
+            '`CHANGE` is used for `LOOK` and only for `LOOK`; `POST` and `PAGE`
+            use `CREATE`, `EDIT` or `DELETE`.'
+          type: string
+        kind:
+          enum:
+            - POST
+            - PAGE
+            - LOOK
+          type: string
+        path:
+          description: Repository path of the post or page; absent for `LOOK`.
+          maxLength: 512
+          minLength: 1
+          type: string
+        theme:
+          $ref: '#/components/schemas/SiteThemeChange'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+        - kind
+        - action
+        - title
+      type: object
+    HistoryFailedAttempts:
+      additionalProperties: false
+      description:
+        Failed publish attempts since the previous entry, folded into this one.
+      properties:
+        count:
+          minimum: 0
+          type: integer
+        lastReason:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - count
+      type: object
+    HistoryFailure:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+        retryable:
+          type: boolean
+      required:
+        - reasonCode
+        - retryable
+      type: object
+    HistoryEntry:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              outcome:
+                const: FAILED
+            required:
+              - outcome
+          then:
+            not:
+              required:
+                - versionId
+            required:
+              - failure
+          else:
+            not:
+              required:
+                - failure
+            required:
+              - versionId
+      description:
+        One version that went live, or the trailing failed attempt. `versionId`
+        is the deployment generation id and is accepted by `POST
+        .../deployments:rollback` as `generationId`.
+      properties:
+        actor:
+          $ref: '#/components/schemas/SiteActor'
+        at:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        changes:
+          items:
+            $ref: '#/components/schemas/HistoryChange'
+          maxItems: 200
+          type: array
+        failedAttemptsBefore:
+          $ref: '#/components/schemas/HistoryFailedAttempts'
+        failure:
+          $ref: '#/components/schemas/HistoryFailure'
+        outcome:
+          description:
+            '`LIVE`: serving visitors now. `REPLACED`: went live and was
+            superseded. `RESTORED`: went live by restoring an earlier version
+            (`restoredFromVersionId`); once superseded it reads `REPLACED`.
+            `FAILED`: only the trailing entry when the latest attempt failed.'
+          enum:
+            - LIVE
+            - REPLACED
+            - RESTORED
+            - FAILED
+          type: string
+        restoredFromVersionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        versionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - at
+        - actor
+        - outcome
+        - changes
+        - failedAttemptsBefore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdHistoryResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/HistoryEntry'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishRequest:
+      additionalProperties: false
+      properties:
+        changeIds:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+          uniqueItems: true
+        scheduledFor:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - changeIds
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishResponse:
+      allOf:
+        - $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesResponse'
   securitySchemes:
     browserSession:
       in: cookie

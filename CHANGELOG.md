@@ -8,6 +8,47 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.22.0] - 2026-10-05
+
+### Added
+
+- Add `publishingPolicy` (`requireReview`, `galascribeMerges`) to the
+  publication resource (`GET` and `PATCH .../publications/{publicationId}`
+  responses) and a partial `publishingPolicy` update member to the `PATCH`
+  request. Absence means the defaults: `requireReview` false, `galascribeMerges`
+  true.
+- Add
+  `POST /v2/organizations/{organizationId}/publications/{publicationId}/changes:publish`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish`,
+  `publication.publish`, plus `publication.schedule` when `scheduledFor` is
+  present): publish 1 to 20 changes with one deploy of the resulting main head.
+  Each change is brought up to date when clean; otherwise
+  `409 INVALID_SOURCE_STATE` with one `CONTENT_CONFLICT` error per path. With
+  `requireReview`, an unapproved change is `409 INVALID_SOURCE_STATE` with
+  `REVIEW_REQUIRED` at `/changeIds/<index>`; without `galascribeMerges`, an
+  unmerged change is `SOURCE_NOT_MERGED` at the same pointer. Returns `202` with
+  the publish acceptance.
+- Add `GET .../site`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdSite`,
+  `publication.view`): live URL, state (`LIVE`, `PUBLISHING`, `NEVER_PUBLISHED`,
+  `FAILED`, `UNKNOWN`), last publish, publish progress, one pending change per
+  path in words, and closed-vocabulary attention items.
+- Add `GET .../history`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory`,
+  `publication.view`): cursor-paged versions that went live with actor, time,
+  changed items, and folded failed attempts; a trailing `FAILED` entry carries
+  `failure.reasonCode` and `failure.retryable`.
+
+### Changed
+
+- Documentation only: `POST .../deployments:rollback` is the restore operation
+  for a history `versionId` (the generation id) and accepts only generations
+  that went live (`409 INVALID_SOURCE_STATE` otherwise);
+  `POST .../reviews/{reviewId}:decide` documents that with `galascribeMerges` an
+  approval triggers the merge.
+- Add `/v1/sites/{organizationId}/{publicationId}` (home), `/posts`, `/look`,
+  `/history` and `/settings` App route bindings.
+
 ## [2.21.0] - 2026-10-04
 
 ### Added
@@ -2179,7 +2220,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.21.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.22.0...HEAD
+[2.22.0]: https://github.com/rathnasgala2/schema/compare/v2.21.0...v2.22.0
 [2.21.0]: https://github.com/rathnasgala2/schema/compare/v2.20.3...v2.21.0
 [2.20.3]: https://github.com/rathnasgala2/schema/compare/v2.20.2...v2.20.3
 [2.20.2]: https://github.com/rathnasgala2/schema/compare/v2.20.1...v2.20.2

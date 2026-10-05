@@ -102,7 +102,7 @@ async function loadFixtures() {
 test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
   assert.equal(validateAppComponentSource(componentSourceValue).length, 15);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 22);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 27);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -127,7 +127,7 @@ test('generated catalogs match the committed projection', async () => {
   ]);
   assert.deepEqual(JSON.parse(committedComponentsText), components);
   assert.deepEqual(JSON.parse(committedRoutesText), routes);
-  assert.equal(authoredMessageCount, 302);
+  assert.equal(authoredMessageCount, 376);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
