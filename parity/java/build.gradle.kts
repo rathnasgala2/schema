@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.networknt:json-schema-validator:2.0.7")
+    implementation("com.networknt:json-schema-validator:2.0.8")
     implementation("org.jruby.joni:joni:2.2.7")
     runtimeOnly("org.slf4j:slf4j-nop:2.0.20")
 }
