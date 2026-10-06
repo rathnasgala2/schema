@@ -407,3 +407,37 @@ test('publication newsletter is an optional closed object with three required me
     false,
   );
 });
+
+test('build-input publicationNormalized carries the optional closed newsletter', async () => {
+  const id = 'urn:gala:schema:build-input:2.0.0';
+  const base = JSON.parse(
+    await readFile('examples/valid/build-input/canonical.json', 'utf8'),
+  );
+  assert.equal(validateGalaDocument(id, base).valid, true);
+  const newsletter = {
+    url: 'https://news.example.com/subscribe',
+    title: 'The weekly letter',
+    text: 'One email a week, no spam.',
+  };
+  const withNewsletter = (value) => ({
+    ...base,
+    publication: { ...base.publication, newsletter: value },
+  });
+  assert.equal(
+    validateGalaDocument(id, withNewsletter(newsletter)).valid,
+    true,
+  );
+  for (const bad of [
+    { ...newsletter, url: 'http://news.example.com/' },
+    { title: newsletter.title, text: newsletter.text },
+    { ...newsletter, text: '' },
+    { ...newsletter, extra: 'x' },
+    'x',
+  ]) {
+    assert.equal(
+      validateGalaDocument(id, withNewsletter(bad)).valid,
+      false,
+      JSON.stringify(bad),
+    );
+  }
+});

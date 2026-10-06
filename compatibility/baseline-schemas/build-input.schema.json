@@ -506,6 +506,19 @@
           },
           "additionalProperties": false
         },
+        "newsletter": {
+          "type": "object",
+          "required": ["url", "title", "text"],
+          "properties": {
+            "url": { "$ref": "#/$defs/urlHttps" },
+            "title": { "$ref": "#/$defs/plainLabel" },
+            "text": {
+              "$ref": "#/$defs/plainText",
+              "x-gala-graphemeLength": { "minimum": 1, "maximum": 300 }
+            }
+          },
+          "additionalProperties": false
+        },
         "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
         "sourceDigest": { "$ref": "#/$defs/digest" }
       },

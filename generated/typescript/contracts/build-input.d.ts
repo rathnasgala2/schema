@@ -238,6 +238,11 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly heading: BuildInputPlainText;
   }>;
   readonly id: BuildInputStableId;
+  readonly newsletter?: Readonly<{
+    readonly text: BuildInputPlainText;
+    readonly title: BuildInputPlainLabel;
+    readonly url: BuildInputUrlHttps;
+  }>;
   readonly profile?: Readonly<{
     readonly body: BuildInputRenderableBody;
     readonly route: BuildInputCanonicalRoute;

@@ -44,6 +44,8 @@ exist, so there is no migration path and no dual support: documents written for
 - `publication`: optional closed `newsletter` object (`{ url, title, text }`,
   all three required; `url` is an HTTPS URL, `title` a plain label, `text` plain
   text of 1 to 300 graphemes). Absent means no newsletter panel.
+- `build-input`: `publicationNormalized` carries the same optional closed
+  `newsletter` object, so a renderer build input can carry it.
 - `examples/valid/theme-contract/default-3.0.json`: a complete contract-3 token
   set for the Default theme, for downstream packages to reuse.
 - `scripts/internal-semantics/theme-token-grammar.js`: the single source of the

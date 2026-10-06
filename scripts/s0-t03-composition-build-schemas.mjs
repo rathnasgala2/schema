@@ -627,6 +627,14 @@ export function createCompositionBuildSchemas(language) {
         },
         ['enabled', 'heading', 'body', 'authorIds'],
       ),
+      newsletter: closedObject(
+        {
+          url: ref('urlHttps'),
+          title: ref('plainLabel'),
+          text: graphemeBound(ref('plainText'), 1, 300),
+        },
+        ['url', 'title', 'text'],
+      ),
       sourcePath: ref('repoRelativePath'),
       sourceDigest: ref('digest'),
     },
