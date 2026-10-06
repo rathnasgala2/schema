@@ -6,6 +6,7 @@ import {
   sha256Tagged,
 } from '../src/internal/canonical-jcs.js';
 import spdxData from '../src/internal/generated/spdx-3.28.0.json' with { type: 'json' };
+import { defaultThemeTokens } from '../scripts/default-theme-tokens.js';
 import { SemanticValidationError } from '../src/internal/semver.js';
 import {
   computeTemplateStylingContractDigest,
@@ -33,50 +34,12 @@ const GOLDEN_DIGESTS = Object.freeze({
   fixture:
     'sha256:61df55155fd42b82f931b75ba30f9a112657aab8f2f314f820e1c11fb4e84256',
   input:
-    'sha256:e6f35640273fcef03127dae563c489353f371d756632befae658cd3a25b483f7',
+    'sha256:1a5d0c8b833d56ff61519b0cb05d76275fed00e1471e25635f4da1b2528d7fd2',
   evidence:
-    'sha256:22133c7d98725683a60472add6daef7ac97340eac2f2a49f30f509d59c10e1af',
+    'sha256:abca4aa402f6e847c025576f97e3ece0aa448de43bf16da32bd8538b4c04a889',
   integrity:
-    'sha256:e35392c51d3a9c24fd0cb3ad5baf7fbc79dd3b587c4cb7e8da43ba2fcff2b642',
+    'sha256:3383da79fe8de3a6163d5bdcf752d498511db4ed4de036ad0f026571ab599d09',
 });
-
-const TOKEN_CATALOG = [
-  ['border-width', 'length'],
-  ['color-accent', 'color'],
-  ['color-border', 'color'],
-  ['color-canvas', 'color'],
-  ['color-code-canvas', 'color'],
-  ['color-code-text', 'color'],
-  ['color-danger', 'color'],
-  ['color-focus', 'color'],
-  ['color-link', 'color'],
-  ['color-link-visited', 'color'],
-  ['color-on-accent', 'color'],
-  ['color-selection', 'color'],
-  ['color-success', 'color'],
-  ['color-surface', 'color'],
-  ['color-surface-raised', 'color'],
-  ['color-text', 'color'],
-  ['color-text-muted', 'color'],
-  ['color-warning', 'color'],
-  ['content-measure', 'length'],
-  ['focus-width', 'length'],
-  ['font-body', 'font-family'],
-  ['font-heading', 'font-family'],
-  ['font-mono', 'font-family'],
-  ['radius-medium', 'length'],
-  ['radius-small', 'length'],
-  ['space-1', 'length'],
-  ['space-2', 'length'],
-  ['space-3', 'length'],
-  ['space-4', 'length'],
-  ['space-6', 'length'],
-  ['space-8', 'length'],
-  ['weight-heading', 'font-weight'],
-  ['weight-medium', 'font-weight'],
-  ['weight-normal', 'font-weight'],
-  ['weight-strong', 'font-weight'],
-];
 
 const THEME_IDENTITIES = [
   ['default', '@rathnasgala2/theme-default'],
@@ -175,27 +138,12 @@ function utf8Sort(values) {
 }
 
 /**
- * Construct the exact 35 theme token rows.
+ * Construct the exact contract-3 theme token rows (the Default theme values).
  *
  * @returns {UnknownRecord[]} token rows
  */
 function themeTokens() {
-  return TOKEN_CATALOG.map(([key, type], index) => {
-    if (!key || !type) throw new Error('invalid token fixture');
-    let light = '1rem';
-    let dark = '1rem';
-    if (type === 'color') {
-      light = `#${(index + 1).toString(16).padStart(6, '0')}`;
-      dark = `#${(index + 101).toString(16).padStart(6, '0')}`;
-    } else if (type === 'font-family') {
-      light = 'Open Sans, Arial';
-      dark = light;
-    } else if (type === 'font-weight') {
-      light = '400';
-      dark = light;
-    }
-    return { key, type, light, dark };
-  });
+  return defaultThemeTokens();
 }
 
 /**
@@ -683,7 +631,7 @@ test('template-composition admits only its two exact discriminator fields', () =
   }
 });
 
-test('the five identities and exact 35-token order, types, grammars, and palettes are closed', () => {
+test('the five identities and exact contract-3 token order, types, grammars, and palettes are closed', () => {
   const base = completeFixture();
   for (const [themeId, packageName] of THEME_IDENTITIES) {
     const candidate = structuredClone(base.theme);

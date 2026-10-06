@@ -9,6 +9,7 @@ import { validateGalaFormat } from '../src/internal/format-validators.js';
 import { digestPublicRuntimeOrigins } from './internal-semantics/public-runtime-origins.js';
 import { graphemeLength17 } from '../src/internal/unicode17.js';
 import { runIfMain } from './run-if-main.mjs';
+import { defaultThemeTokens } from './default-theme-tokens.js';
 
 const CONTRACT_VERSION = '2.0.0';
 const MANIFEST_VERSION = '1.0.0';
@@ -441,6 +442,11 @@ function stringValue(schema, pointer, variant = 0) {
     'nyc3',
     '#000000',
     '1px',
+    '1px 2px',
+    '1.5',
+    '160ms',
+    'linear',
+    'none',
     '400',
     'system-ui',
     'QQ==',
@@ -2827,7 +2833,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       {
         file: 'test/t03-theme-composition-semantics.test.js',
         testName:
-          'the five identities and exact 35-token order, types, grammars, and palettes are closed',
+          'the five identities and exact contract-3 token order, types, grammars, and palettes are closed',
       },
       {
         file: 'test/t03-theme-composition-semantics.test.js',
@@ -3259,6 +3265,12 @@ function createCorpus(schemas, schemaHashes) {
     outputs.set(validExample, canonical);
     outputs.set(boundaryFixture, canonical);
     outputs.set(unknownFieldFixture, { ...canonical, unexpected: true });
+    if (contract === 'theme-contract') {
+      outputs.set('examples/valid/theme-contract/default-3.0.json', {
+        ...canonical,
+        tokens: defaultThemeTokens(),
+      });
+    }
     if (contract === 'problem') {
       const httpsFile = 'examples/valid/problem/type-https.json';
       const urnFile = 'examples/valid/problem/type-gala-urn.json';

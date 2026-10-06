@@ -100,7 +100,7 @@ const T03_SCHEMA_HASHES = {
   'public-generation-marker':
     'de1a21327cd07eb11af5d04a323f05025f29d200a6d11034ab37ede99dff2093',
   publication:
-    '257401246e0de3b314003287da2f280c0be2e8286f7fdeb666179b95c9f93936',
+    'd29767cb37f9f42c38f5716736f9566c91ad0fa2b8d779510c9b7190533fafe1',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':
@@ -108,7 +108,7 @@ const T03_SCHEMA_HASHES = {
   'theme-contract':
     // 2026-09-25 code-discipline review, SCH-C3: positiveInt64 gained a real
     // upper bound (see artifact-manifest above).
-    '05eddb45e9faf95f28ab8a44a4f9dddba744292dbabe669d05f1816d66969bcd',
+    '4d586690db60767ed80b3bb15d3ac8ba6a68bfc9848acb58cbbeab4f7434bf56',
 };
 
 const ADVERSARIAL_CATEGORIES = [

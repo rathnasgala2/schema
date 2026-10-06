@@ -146,7 +146,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 826);
+  assert.equal(files.length, 827);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -163,8 +163,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // entry contentBuildMediaFile), regenerating the affected valid/
     // boundary/invalid build-input fixture files. File count unchanged
     // (826): only content changed, no fixture file added or removed.
+    //
+    // 3.0.0: theme contract 3 regenerated the theme-contract fixtures and
+    // publication gained `newsletter`; one file was added
+    // (examples/valid/theme-contract/default-3.0.json), making 827.
     aggregate.digest('hex'),
-    'eb840a3a62bd66352ab44400c4b77c28f3f82b5e4fb56deda696a4a592231045',
+    'c7b65fa857ec20ce184a35d20d831f33fe35759a1b748e973342f46957656f22',
   );
 });
 

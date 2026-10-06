@@ -59,7 +59,13 @@ const ROOT_LEDGERS = {
       'socialLinks',
       'extensions',
     ],
-    optional: ['contactRef', 'defaultImageRef', 'profile', 'footerCard'],
+    optional: [
+      'contactRef',
+      'defaultImageRef',
+      'profile',
+      'footerCard',
+      'newsletter',
+    ],
   },
   author: {
     required: [

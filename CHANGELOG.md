@@ -8,6 +8,48 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-06
+
+This is a deliberate breaking release of the theme contract. Only test users
+exist, so there is no migration path and no dual support: documents written for
+2.x theme contracts are rejected.
+
+### Changed (breaking)
+
+- `theme-contract`: the 35-token catalog is replaced by the contract-3 catalog
+  of 116 tokens, sorted by key in UTF-8 byte order, each position fixing both
+  key and type. Keys that exist only in the old catalog (`font-heading`,
+  `weight-heading`, `weight-medium`) are removed, and a theme carrying any key
+  outside the new list is rejected.
+- `theme-contract`: eight new value types, each an allow-list grammar rather
+  than a deny-list: `box`, `number`, `duration`, `easing`, `border`, `shadow`,
+  `paint`, and `keyword` (a per-key closed enum whose members are valid CSS
+  literals, for example `decor-size`: `auto` | `100% 46rem` and `media-filter`:
+  `none` | `grayscale(1)`). `length` now admits `em` and `%` as well as `px` and
+  `rem`, up to four fraction digits. `font-family` is unchanged; `font-weight`
+  is now any integer 1 to 1000 without leading zeros (was 100 to 900 in steps of
+  100). No value may contain `url(`, `var(`, `calc(`, `attr(`, `expression`,
+  `;`, `{`, `}`, `\`, or quotes.
+- `theme-contract`: only `color`, `paint`, `border`, and `shadow` tokens may
+  differ between `light` and `dark`; every other type must be byte-equal in both
+  modes (previously every non-color type, a strictly smaller variant set).
+- `theme-contract`: `slotHooks` `maxItems` is raised from 64 to 256, and the
+  template styling contract's `publicThemeSlotHooks` cap moves with it.
+- The `$id` and `schemaId` stay at `urn:gala:schema:theme-contract:2.0.0`: this
+  repository pins every root at `2.0.0` and versions the package instead (see
+  `docs/COMPATIBILITY.md`), so the break is this package major, 3.0.0.
+
+### Added
+
+- `publication`: optional closed `newsletter` object (`{ url, title, text }`,
+  all three required; `url` is an HTTPS URL, `title` a plain label, `text` plain
+  text of 1 to 300 graphemes). Absent means no newsletter panel.
+- `examples/valid/theme-contract/default-3.0.json`: a complete contract-3 token
+  set for the Default theme, for downstream packages to reuse.
+- `scripts/internal-semantics/theme-token-grammar.js`: the single source of the
+  token catalog, grammars, and keyword enums shared by the schema generator and
+  the semantic validator.
+
 ## [2.22.0] - 2026-10-05
 
 ### Added
@@ -2221,6 +2263,7 @@ with independently verifiable dates.
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
 [Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.22.0...HEAD
+[3.0.0]: https://github.com/rathnasgala2/schema/compare/v2.22.0...v3.0.0
 [2.22.0]: https://github.com/rathnasgala2/schema/compare/v2.21.0...v2.22.0
 [2.21.0]: https://github.com/rathnasgala2/schema/compare/v2.20.3...v2.21.0
 [2.20.3]: https://github.com/rathnasgala2/schema/compare/v2.20.2...v2.20.3

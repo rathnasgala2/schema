@@ -1,40 +1,11 @@
-const THEME_TOKEN_CATALOG = [
-  ['border-width', 'length'],
-  ['color-accent', 'color'],
-  ['color-border', 'color'],
-  ['color-canvas', 'color'],
-  ['color-code-canvas', 'color'],
-  ['color-code-text', 'color'],
-  ['color-danger', 'color'],
-  ['color-focus', 'color'],
-  ['color-link', 'color'],
-  ['color-link-visited', 'color'],
-  ['color-on-accent', 'color'],
-  ['color-selection', 'color'],
-  ['color-success', 'color'],
-  ['color-surface', 'color'],
-  ['color-surface-raised', 'color'],
-  ['color-text', 'color'],
-  ['color-text-muted', 'color'],
-  ['color-warning', 'color'],
-  ['content-measure', 'length'],
-  ['focus-width', 'length'],
-  ['font-body', 'font-family'],
-  ['font-heading', 'font-family'],
-  ['font-mono', 'font-family'],
-  ['radius-medium', 'length'],
-  ['radius-small', 'length'],
-  ['space-1', 'length'],
-  ['space-2', 'length'],
-  ['space-3', 'length'],
-  ['space-4', 'length'],
-  ['space-6', 'length'],
-  ['space-8', 'length'],
-  ['weight-heading', 'font-weight'],
-  ['weight-medium', 'font-weight'],
-  ['weight-normal', 'font-weight'],
-  ['weight-strong', 'font-weight'],
-];
+import {
+  KEYWORD_ENUMS,
+  MODE_VARIANT_TYPES,
+  THEME_TOKEN_CATALOG,
+  TOKEN_TYPES,
+  TOKEN_VALUE_MAX_LENGTH,
+  VALUE_PATTERNS,
+} from './internal-semantics/theme-token-grammar.js';
 
 const MANIFEST_MEDIA_TYPES = [
   'text/html; charset=utf-8',
@@ -355,103 +326,32 @@ export function createCompositionBuildSchemas(language) {
     maxItems: 4,
   };
 
+  /**
+   * @param {string} type token value type
+   * @param {string} pattern anchored grammar
+   * @returns {Record<string, unknown>} conditional rule
+   */
+  const patternRule = (type, pattern) => ({
+    if: { properties: { type: { const: type } }, required: ['type'] },
+    then: {
+      properties: { light: { pattern }, dark: { pattern } },
+    },
+  });
   const themeToken = closedObject(
     {
       key: { enum: THEME_TOKEN_CATALOG.map(([key]) => key) },
-      type: { enum: ['color', 'length', 'font-family', 'font-weight'] },
-      light: { type: 'string' },
-      dark: { type: 'string' },
+      type: { enum: [...TOKEN_TYPES] },
+      light: { type: 'string', maxLength: TOKEN_VALUE_MAX_LENGTH },
+      dark: { type: 'string', maxLength: TOKEN_VALUE_MAX_LENGTH },
     },
     ['key', 'type', 'light', 'dark'],
     {
       allOf: [
-        {
-          if: {
-            properties: { type: { const: 'color' } },
-            required: ['type'],
-          },
-          then: {
-            properties: {
-              light: { pattern: '^#[0-9a-f]{6}(?:[0-9a-f]{2})?$' },
-              dark: { pattern: '^#[0-9a-f]{6}(?:[0-9a-f]{2})?$' },
-            },
-          },
-        },
-        {
-          if: {
-            properties: { type: { const: 'length' } },
-            required: ['type'],
-          },
-          then: {
-            properties: {
-              light: {
-                pattern:
-                  '^(?:0|(?:[1-9][0-9]*(?:\\.[0-9]{0,3}[1-9])?|0\\.(?:[0-9]{0,3}[1-9]))(?:px|rem))$',
-              },
-              dark: {
-                pattern:
-                  '^(?:0|(?:[1-9][0-9]*(?:\\.[0-9]{0,3}[1-9])?|0\\.(?:[0-9]{0,3}[1-9]))(?:px|rem))$',
-              },
-            },
-          },
-        },
-        {
-          if: {
-            properties: { type: { const: 'font-family' } },
-            required: ['type'],
-          },
-          then: {
-            properties: {
-              light: {
-                pattern:
-                  '^[A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*(?:, [A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*){0,7}$',
-              },
-              dark: {
-                pattern:
-                  '^[A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*(?:, [A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*){0,7}$',
-              },
-            },
-          },
-        },
-        {
-          if: {
-            properties: { type: { const: 'font-weight' } },
-            required: ['type'],
-          },
-          then: {
-            properties: {
-              light: {
-                enum: [
-                  '100',
-                  '200',
-                  '300',
-                  '400',
-                  '500',
-                  '600',
-                  '700',
-                  '800',
-                  '900',
-                ],
-              },
-              dark: {
-                enum: [
-                  '100',
-                  '200',
-                  '300',
-                  '400',
-                  '500',
-                  '600',
-                  '700',
-                  '800',
-                  '900',
-                ],
-              },
-            },
-          },
-        },
+        ...Object.entries(VALUE_PATTERNS).map(([type, pattern]) =>
+          patternRule(type, pattern),
+        ),
       ],
-      $comment:
-        'For length, font-family, and font-weight tokens, light and dark must be byte-equal. Font-family components are each limited to 64 ASCII bytes.',
+      $comment: `Every value is checked against its type's allow-list grammar; keyword tokens carry a per-key enum on their tokens position. Only ${MODE_VARIANT_TYPES.join(', ')} tokens may differ between light and dark; every other type must be byte-equal in both modes (enforced by the semantic validator). Font-family components are each limited to 64 ASCII bytes.`,
     },
   );
 
@@ -460,7 +360,18 @@ export function createCompositionBuildSchemas(language) {
     prefixItems: THEME_TOKEN_CATALOG.map(([key, type]) => ({
       allOf: [
         ref('themeToken'),
-        { properties: { key: { const: key }, type: { const: type } } },
+        {
+          properties: {
+            key: { const: key },
+            type: { const: type },
+            ...(type === 'keyword'
+              ? {
+                  light: { enum: [...(KEYWORD_ENUMS[key] ?? [])] },
+                  dark: { enum: [...(KEYWORD_ENUMS[key] ?? [])] },
+                }
+              : {}),
+          },
+        },
       ],
     })),
     items: false,
@@ -1621,7 +1532,7 @@ export function createCompositionBuildSchemas(language) {
         templateRange: ref('semverRange'),
         stylesheets: arrayOf(ref('repoRelativePath'), 1, 16),
         cssLayers: arrayOf(ref('plainLabel'), 1, 16),
-        slotHooks: arrayOf(ref('plainLabel'), 1, 64, true),
+        slotHooks: arrayOf(ref('plainLabel'), 1, 256, true),
         tokens: themeTokens,
         modes: { const: ['dark', 'light', 'system'] },
         assets: arrayOf(ref('passiveAsset'), 0, 256),

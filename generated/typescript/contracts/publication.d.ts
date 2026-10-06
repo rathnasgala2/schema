@@ -24,6 +24,12 @@ export type PublicationGlob = string;
 
 export type PublicationIsoCountry = string;
 
+export type PublicationNewsletter = Readonly<{
+  readonly text: PublicationPlainText;
+  readonly title: PublicationPlainLabel;
+  readonly url: PublicationUrlHttps;
+}>;
+
 export type PublicationPackageExact = string;
 
 export type PublicationPackageRange = string;
@@ -81,6 +87,7 @@ export type PublicationDocument = Readonly<{
   readonly extensions: PublicationExtensionMap;
   readonly footerCard?: PublicationFooterCard;
   readonly id: PublicationStableId;
+  readonly newsletter?: PublicationNewsletter;
   readonly profile?: PublicationPublicationProfile;
   readonly schemaId: 'urn:gala:schema:publication:2.0.0';
   readonly schemaVersion: '2.0.0';

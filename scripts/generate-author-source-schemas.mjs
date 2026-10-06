@@ -276,6 +276,15 @@ const footerCard = closedObject(
   ['enabled', 'heading', 'body', 'authorIds'],
 );
 
+const newsletter = closedObject(
+  {
+    url: ref('urlHttps'),
+    title: ref('plainLabel'),
+    text: graphemeBound(ref('plainText'), 1, 300),
+  },
+  ['url', 'title', 'text'],
+);
+
 const localizedAuthor = closedObject(
   {
     language: ref('bcp47'),
@@ -459,6 +468,7 @@ const schemas = {
       defaultImageRef: ref('repoRelativePath'),
       profile: ref('publicationProfile'),
       footerCard: ref('footerCard'),
+      newsletter: ref('newsletter'),
       extensions: ref('extensionMap'),
     },
     [
@@ -472,7 +482,7 @@ const schemas = {
       'socialLinks',
       'extensions',
     ],
-    { socialLink, publicationProfile, footerCard, extensionMap },
+    { socialLink, publicationProfile, footerCard, newsletter, extensionMap },
   ),
   'author.schema.json': rootSchema(
     'author',

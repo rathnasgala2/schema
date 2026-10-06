@@ -67,43 +67,136 @@ export type ThemeContractThemeBudgets = Readonly<{
 export type ThemeContractThemeToken = Readonly<{
   readonly dark: string;
   readonly key:
+    | 'border-button'
+    | 'border-card'
+    | 'border-chip'
+    | 'border-code'
+    | 'border-media-divider'
+    | 'border-quote'
+    | 'border-row-divider'
+    | 'border-section-rule'
     | 'border-width'
+    | 'card-inset'
+    | 'card-pad'
+    | 'card-title-size'
+    | 'chip-pad'
     | 'color-accent'
+    | 'color-accent-2'
     | 'color-border'
+    | 'color-btn-panel'
+    | 'color-btn-panel-text'
+    | 'color-btn-text'
     | 'color-canvas'
+    | 'color-chip-text'
     | 'color-code-canvas'
     | 'color-code-text'
     | 'color-danger'
     | 'color-focus'
+    | 'color-footer'
+    | 'color-header'
+    | 'color-icon-accent'
+    | 'color-input'
+    | 'color-input-border'
     | 'color-link'
+    | 'color-link-underline'
+    | 'color-link-underline-hover'
     | 'color-link-visited'
     | 'color-on-accent'
+    | 'color-overlay'
+    | 'color-panel-muted'
+    | 'color-panel-text'
     | 'color-selection'
     | 'color-success'
     | 'color-surface'
     | 'color-surface-raised'
+    | 'color-syntax-comment'
+    | 'color-syntax-function'
+    | 'color-syntax-keyword'
+    | 'color-syntax-number'
+    | 'color-syntax-string'
     | 'color-text'
+    | 'color-text-faint'
     | 'color-text-muted'
+    | 'color-toc-active'
+    | 'color-toc-active-text'
     | 'color-warning'
     | 'content-measure'
+    | 'decor-size'
+    | 'display-max'
+    | 'display-style'
+    | 'duration-base'
+    | 'duration-fast'
+    | 'duration-slow'
+    | 'ease-spring'
+    | 'ease-standard'
     | 'focus-width'
     | 'font-body'
-    | 'font-heading'
+    | 'font-display'
+    | 'font-label'
     | 'font-mono'
+    | 'font-ui'
+    | 'label-transform'
+    | 'lift-x'
+    | 'lift-y'
+    | 'link-offset'
+    | 'link-offset-hover'
+    | 'link-skip-ink'
+    | 'link-thickness'
+    | 'media-filter'
+    | 'media-filter-hover'
+    | 'media-zoom'
+    | 'paint-button'
+    | 'paint-chip'
+    | 'paint-page-decor'
+    | 'paint-panel'
+    | 'prose-leading'
+    | 'prose-size'
+    | 'quote-align'
+    | 'quote-mark'
+    | 'quote-pad'
+    | 'quote-style'
+    | 'quote-transform'
+    | 'radius-avatar'
+    | 'radius-large'
+    | 'radius-media'
     | 'radius-medium'
+    | 'radius-pill'
     | 'radius-small'
+    | 'row-pad'
+    | 'shadow-avatar-ring'
+    | 'shadow-button'
+    | 'shadow-card'
+    | 'shadow-card-hover'
+    | 'shadow-dialog'
     | 'space-1'
     | 'space-2'
     | 'space-3'
     | 'space-4'
     | 'space-6'
     | 'space-8'
-    | 'weight-heading'
-    | 'weight-medium'
+    | 'title-transform'
+    | 'tracking-display'
+    | 'tracking-label'
+    | 'tracking-title'
+    | 'weight-display'
     | 'weight-normal'
-    | 'weight-strong';
+    | 'weight-strong'
+    | 'weight-title'
+    | 'weight-ui';
   readonly light: string;
-  readonly type: 'color' | 'length' | 'font-family' | 'font-weight';
+  readonly type:
+    | 'color'
+    | 'length'
+    | 'box'
+    | 'number'
+    | 'duration'
+    | 'easing'
+    | 'font-family'
+    | 'font-weight'
+    | 'border'
+    | 'shadow'
+    | 'paint'
+    | 'keyword';
 }> &
   unknown;
 
@@ -174,12 +267,77 @@ export type ThemeContractDocument = (
     readonly themeId: ThemeContractSlug;
     readonly tokens: readonly [
       Readonly<{
+        readonly key?: 'border-button';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-card';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-chip';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-code';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-media-divider';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-quote';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-row-divider';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'border-section-rule';
+        readonly type?: 'border';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'border-width';
         readonly type?: 'length';
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly key?: 'card-inset';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'card-pad';
+        readonly type?: 'box';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'card-title-size';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'chip-pad';
+        readonly type?: 'box';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'color-accent';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-accent-2';
         readonly type?: 'color';
       }> &
         ThemeContractThemeToken,
@@ -189,7 +347,27 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly key?: 'color-btn-panel';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-btn-panel-text';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-btn-text';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'color-canvas';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-chip-text';
         readonly type?: 'color';
       }> &
         ThemeContractThemeToken,
@@ -214,7 +392,42 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly key?: 'color-footer';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-header';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-icon-accent';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-input';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-input-border';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'color-link';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-link-underline';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-link-underline-hover';
         readonly type?: 'color';
       }> &
         ThemeContractThemeToken,
@@ -225,6 +438,21 @@ export type ThemeContractDocument = (
         ThemeContractThemeToken,
       Readonly<{
         readonly key?: 'color-on-accent';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-overlay';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-panel-muted';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-panel-text';
         readonly type?: 'color';
       }> &
         ThemeContractThemeToken,
@@ -249,12 +477,52 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly key?: 'color-syntax-comment';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-syntax-function';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-syntax-keyword';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-syntax-number';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-syntax-string';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'color-text';
         readonly type?: 'color';
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly key?: 'color-text-faint';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'color-text-muted';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-toc-active';
+        readonly type?: 'color';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'color-toc-active-text';
         readonly type?: 'color';
       }> &
         ThemeContractThemeToken,
@@ -269,6 +537,50 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly dark?: 'auto' | '100% 46rem';
+        readonly key?: 'decor-size';
+        readonly light?: 'auto' | '100% 46rem';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'display-max';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'normal' | 'italic';
+        readonly key?: 'display-style';
+        readonly light?: 'normal' | 'italic';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'duration-base';
+        readonly type?: 'duration';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'duration-fast';
+        readonly type?: 'duration';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'duration-slow';
+        readonly type?: 'duration';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'ease-spring';
+        readonly type?: 'easing';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'ease-standard';
+        readonly type?: 'easing';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'focus-width';
         readonly type?: 'length';
       }> &
@@ -279,7 +591,12 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
-        readonly key?: 'font-heading';
+        readonly key?: 'font-display';
+        readonly type?: 'font-family';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'font-label';
         readonly type?: 'font-family';
       }> &
         ThemeContractThemeToken,
@@ -289,13 +606,189 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
+        readonly key?: 'font-ui';
+        readonly type?: 'font-family';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'none' | 'uppercase';
+        readonly key?: 'label-transform';
+        readonly light?: 'none' | 'uppercase';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'lift-x';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'lift-y';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'link-offset';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'link-offset-hover';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'auto' | 'none';
+        readonly key?: 'link-skip-ink';
+        readonly light?: 'auto' | 'none';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'link-thickness';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'none' | 'grayscale(1)';
+        readonly key?: 'media-filter';
+        readonly light?: 'none' | 'grayscale(1)';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'none' | 'grayscale(1)';
+        readonly key?: 'media-filter-hover';
+        readonly light?: 'none' | 'grayscale(1)';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'media-zoom';
+        readonly type?: 'number';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'paint-button';
+        readonly type?: 'paint';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'paint-chip';
+        readonly type?: 'paint';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'paint-page-decor';
+        readonly type?: 'paint';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'paint-panel';
+        readonly type?: 'paint';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'prose-leading';
+        readonly type?: 'number';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'prose-size';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'start' | 'center';
+        readonly key?: 'quote-align';
+        readonly light?: 'start' | 'center';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'none' | 'open-quote';
+        readonly key?: 'quote-mark';
+        readonly light?: 'none' | 'open-quote';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'quote-pad';
+        readonly type?: 'box';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'normal' | 'italic';
+        readonly key?: 'quote-style';
+        readonly light?: 'normal' | 'italic';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly dark?: 'none' | 'uppercase';
+        readonly key?: 'quote-transform';
+        readonly light?: 'none' | 'uppercase';
+        readonly type?: 'keyword';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'radius-avatar';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'radius-large';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'radius-media';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
         readonly key?: 'radius-medium';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'radius-pill';
         readonly type?: 'length';
       }> &
         ThemeContractThemeToken,
       Readonly<{
         readonly key?: 'radius-small';
         readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'row-pad';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'shadow-avatar-ring';
+        readonly type?: 'shadow';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'shadow-button';
+        readonly type?: 'shadow';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'shadow-card';
+        readonly type?: 'shadow';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'shadow-card-hover';
+        readonly type?: 'shadow';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'shadow-dialog';
+        readonly type?: 'shadow';
       }> &
         ThemeContractThemeToken,
       Readonly<{
@@ -329,12 +822,29 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
       Readonly<{
-        readonly key?: 'weight-heading';
-        readonly type?: 'font-weight';
+        readonly dark?: 'none' | 'uppercase';
+        readonly key?: 'title-transform';
+        readonly light?: 'none' | 'uppercase';
+        readonly type?: 'keyword';
       }> &
         ThemeContractThemeToken,
       Readonly<{
-        readonly key?: 'weight-medium';
+        readonly key?: 'tracking-display';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'tracking-label';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'tracking-title';
+        readonly type?: 'length';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'weight-display';
         readonly type?: 'font-weight';
       }> &
         ThemeContractThemeToken,
@@ -345,6 +855,16 @@ export type ThemeContractDocument = (
         ThemeContractThemeToken,
       Readonly<{
         readonly key?: 'weight-strong';
+        readonly type?: 'font-weight';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'weight-title';
+        readonly type?: 'font-weight';
+      }> &
+        ThemeContractThemeToken,
+      Readonly<{
+        readonly key?: 'weight-ui';
         readonly type?: 'font-weight';
       }> &
         ThemeContractThemeToken,

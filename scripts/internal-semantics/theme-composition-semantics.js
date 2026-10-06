@@ -15,6 +15,11 @@ import {
   validateSpdxCatalogEvidence,
   validateSpdxExpression,
 } from '../../src/internal/spdx.js';
+import {
+  MODE_VARIANT_TYPES,
+  THEME_TOKEN_CATALOG,
+  isAdmittedTokenValue,
+} from './theme-token-grammar.js';
 import unicodeData from '../../src/internal/generated/unicode17.json' with { type: 'json' };
 import {
   assertUnicodeScalarString,
@@ -31,12 +36,6 @@ const POSITIVE_INT64_PATTERN = /^[1-9][0-9]*$/u;
 const NONNEGATIVE_INT64_PATTERN = /^(?:0|[1-9][0-9]*)$/u;
 const INT64_MAXIMUM = 9_223_372_036_854_775_807n;
 const STYLE_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u;
-const COLOR_PATTERN = /^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/u;
-const LENGTH_PATTERN =
-  /^(?:0|(?:[1-9][0-9]*(?:\.[0-9]{0,3}[1-9])?|0\.(?:[0-9]{0,3}[1-9]))(?:px|rem))$/u;
-const FONT_FAMILY_PATTERN =
-  /^[A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*(?:, [A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*){0,7}$/u;
-const FONT_WEIGHT_PATTERN = /^[1-9]00$/u;
 const PACKAGE_NAME_PATTERN =
   /^(?:[a-z0-9][a-z0-9._-]*|@[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*)$/u;
 
@@ -184,44 +183,6 @@ const PASSIVE_EVIDENCE_KEYS = [
   'sha256',
 ];
 const RUNNER_EVIDENCE_KEYS = ['runner', 'records'];
-
-const THEME_TOKEN_CATALOG = Object.freeze([
-  ['border-width', 'length'],
-  ['color-accent', 'color'],
-  ['color-border', 'color'],
-  ['color-canvas', 'color'],
-  ['color-code-canvas', 'color'],
-  ['color-code-text', 'color'],
-  ['color-danger', 'color'],
-  ['color-focus', 'color'],
-  ['color-link', 'color'],
-  ['color-link-visited', 'color'],
-  ['color-on-accent', 'color'],
-  ['color-selection', 'color'],
-  ['color-success', 'color'],
-  ['color-surface', 'color'],
-  ['color-surface-raised', 'color'],
-  ['color-text', 'color'],
-  ['color-text-muted', 'color'],
-  ['color-warning', 'color'],
-  ['content-measure', 'length'],
-  ['focus-width', 'length'],
-  ['font-body', 'font-family'],
-  ['font-heading', 'font-family'],
-  ['font-mono', 'font-family'],
-  ['radius-medium', 'length'],
-  ['radius-small', 'length'],
-  ['space-1', 'length'],
-  ['space-2', 'length'],
-  ['space-3', 'length'],
-  ['space-4', 'length'],
-  ['space-6', 'length'],
-  ['space-8', 'length'],
-  ['weight-heading', 'font-weight'],
-  ['weight-medium', 'font-weight'],
-  ['weight-normal', 'font-weight'],
-  ['weight-strong', 'font-weight'],
-]);
 
 const THEME_IDENTITIES = Object.freeze(
   Object.fromEntries(
@@ -833,7 +794,9 @@ export function validateTemplateComposition(value) {
 }
 
 /**
- * Validate one exact 35-row theme token catalog.
+ * Validate one exact theme token catalog: every row's key and type is fixed by
+ * position, every value is admitted by its type's allow-list grammar (or its
+ * keyword enum), and every mode-invariant type is byte-equal in both modes.
  *
  * @param {unknown} value candidate token array
  * @returns {void}
@@ -849,31 +812,16 @@ function validateThemeTokens(value) {
     if (!expected || token.key !== expected[0] || token.type !== expected[1]) {
       invalid(code);
     }
-    if (typeof token.light !== 'string' || typeof token.dark !== 'string') {
+    if (
+      !isAdmittedTokenValue(expected[0], expected[1], token.light) ||
+      !isAdmittedTokenValue(expected[0], expected[1], token.dark)
+    ) {
       invalid(code);
     }
-    let valid = false;
-    if (token.type === 'color') {
-      valid = COLOR_PATTERN.test(token.light) && COLOR_PATTERN.test(token.dark);
-    } else if (token.type === 'length') {
-      valid =
-        LENGTH_PATTERN.test(token.light) && LENGTH_PATTERN.test(token.dark);
-    } else if (token.type === 'font-family') {
-      valid =
-        FONT_FAMILY_PATTERN.test(token.light) &&
-        FONT_FAMILY_PATTERN.test(token.dark) &&
-        token.light
-          .split(', ')
-          .every((component) => Buffer.byteLength(component, 'ascii') <= 64) &&
-        token.dark
-          .split(', ')
-          .every((component) => Buffer.byteLength(component, 'ascii') <= 64);
-    } else if (token.type === 'font-weight') {
-      valid =
-        FONT_WEIGHT_PATTERN.test(token.light) &&
-        FONT_WEIGHT_PATTERN.test(token.dark);
-    }
-    if (!valid || (token.type !== 'color' && token.light !== token.dark)) {
+    if (
+      !MODE_VARIANT_TYPES.includes(expected[1]) &&
+      token.light !== token.dark
+    ) {
       invalid(code);
     }
   }
@@ -972,7 +920,7 @@ export function validateThemeContract(value) {
   requireSortedStringSet(
     theme.slotHooks,
     1,
-    64,
+    256,
     (entry) => requirePlainLabel(entry, code),
     code,
     compareJcsStrings,
@@ -1237,7 +1185,7 @@ export function validateTemplateStylingContract(value, context) {
   if (
     !Array.isArray(contract.publicThemeSlotHooks) ||
     contract.publicThemeSlotHooks.length < 1 ||
-    contract.publicThemeSlotHooks.length > 64
+    contract.publicThemeSlotHooks.length > 256
   ) {
     invalid(code);
   }

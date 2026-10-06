@@ -808,6 +808,71 @@
       "dependentRequired": { "seriesOrder": ["series"] },
       "$comment": "Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically."
     },
+    "contentBuildMediaFile": {
+      "type": "object",
+      "required": ["path", "sourceDigest", "mediaType", "byteLength"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repoRelativePath" },
+        "sourceDigest": { "$ref": "#/$defs/digest" },
+        "mediaType": {
+          "enum": [
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/avif",
+            "image/gif",
+            "audio/mpeg",
+            "audio/mp4",
+            "audio/ogg",
+            "audio/wav",
+            "video/mp4",
+            "video/webm"
+          ]
+        },
+        "byteLength": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mediaType": {
+                "enum": [
+                  "image/png",
+                  "image/jpeg",
+                  "image/webp",
+                  "image/avif",
+                  "image/gif"
+                ]
+              }
+            },
+            "required": ["mediaType"]
+          },
+          "then": { "properties": { "byteLength": { "maximum": 5242880 } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "mediaType": {
+                "enum": ["audio/mpeg", "audio/mp4", "audio/ogg", "audio/wav"]
+              }
+            },
+            "required": ["mediaType"]
+          },
+          "then": { "properties": { "byteLength": { "maximum": 20971520 } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "mediaType": { "enum": ["video/mp4", "video/webm"] }
+            },
+            "required": ["mediaType"]
+          },
+          "then": { "properties": { "byteLength": { "maximum": 52428800 } } }
+        }
+      ],
+      "$comment": "Per-mediaType byteLength bound: image 5 MiB, audio 20 MiB, video 50 MiB, matching the OpenAPI contract’s declared per-file media limits."
+    },
     "contentBuildRecord": {
       "type": "object",
       "required": [
@@ -835,6 +900,12 @@
           "items": { "$ref": "#/$defs/stableId" },
           "minItems": 1,
           "maxItems": 32
+        },
+        "media": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/contentBuildMediaFile" },
+          "minItems": 0,
+          "maxItems": 200
         }
       },
       "additionalProperties": false
