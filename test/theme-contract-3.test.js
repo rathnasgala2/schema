@@ -419,7 +419,7 @@ test('build-input publicationNormalized carries the optional closed newsletter',
     title: 'The weekly letter',
     text: 'One email a week, no spam.',
   };
-  const withNewsletter = (value) => ({
+  const withNewsletter = (/** @type {unknown} */ value) => ({
     ...base,
     publication: { ...base.publication, newsletter: value },
   });
@@ -439,5 +439,50 @@ test('build-input publicationNormalized carries the optional closed newsletter',
       false,
       JSON.stringify(bad),
     );
+  }
+});
+
+test('publication and build-input crawlers is an optional closed allow/block object', async () => {
+  const publication = JSON.parse(
+    await readFile('examples/valid/publication/canonical.json', 'utf8'),
+  );
+  const buildInput = JSON.parse(
+    await readFile('examples/valid/build-input/canonical.json', 'utf8'),
+  );
+  const cases = [
+    [
+      PUBLICATION_ID,
+      publication,
+      (/** @type {unknown} */ value) => ({ ...publication, crawlers: value }),
+    ],
+    [
+      'urn:gala:schema:build-input:2.0.0',
+      buildInput,
+      (/** @type {unknown} */ value) => ({
+        ...buildInput,
+        publication: { ...buildInput.publication, crawlers: value },
+      }),
+    ],
+  ];
+  for (const [id, base, withValue] of cases) {
+    assert.equal(validateGalaDocument(id, base).valid, true);
+    for (const ai of ['allow', 'block']) {
+      assert.equal(validateGalaDocument(id, withValue({ ai })).valid, true);
+    }
+    for (const bad of [
+      {},
+      { ai: 'deny' },
+      { ai: 'Allow' },
+      { ai: true },
+      { ai: 'allow', other: 'x' },
+      'allow',
+      [],
+    ]) {
+      assert.equal(
+        validateGalaDocument(id, withValue(bad)).valid,
+        false,
+        JSON.stringify(bad),
+      );
+    }
   }
 });

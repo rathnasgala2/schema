@@ -65,6 +65,7 @@ const ROOT_LEDGERS = {
       'profile',
       'footerCard',
       'newsletter',
+      'crawlers',
     ],
   },
   author: {

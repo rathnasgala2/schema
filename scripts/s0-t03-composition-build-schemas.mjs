@@ -627,6 +627,7 @@ export function createCompositionBuildSchemas(language) {
         },
         ['enabled', 'heading', 'body', 'authorIds'],
       ),
+      crawlers: closedObject({ ai: { enum: ['allow', 'block'] } }, ['ai']),
       newsletter: closedObject(
         {
           url: ref('urlHttps'),

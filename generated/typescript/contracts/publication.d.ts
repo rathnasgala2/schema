@@ -5,6 +5,10 @@ export type PublicationBcp47 = string;
 
 export type PublicationCanonicalRoute = string;
 
+export type PublicationCrawlers = Readonly<{
+  readonly ai: 'allow' | 'block';
+}>;
+
 export type PublicationDigest = string;
 
 export type PublicationExtensionKey = string;
@@ -81,6 +85,7 @@ export type PublicationDocument = Readonly<{
   readonly authors: ReadonlyArray<PublicationRepoRelativePath>;
   readonly canonicalBase: PublicationUrlHttps;
   readonly contactRef?: PublicationRepoRelativePath;
+  readonly crawlers?: PublicationCrawlers;
   readonly defaultImageRef?: PublicationRepoRelativePath;
   readonly defaultLanguage: PublicationBcp47;
   readonly description: PublicationPlainText;

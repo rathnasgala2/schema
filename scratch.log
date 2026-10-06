@@ -1,0 +1,614 @@
+
+> @rathnasgala2/schemas@3.0.0 verify
+> npm run build && npm run format:check && npm run lint && npm run typecheck && npm run architecture && npm run duplication && npm run workflows:check && npm run parity:supply-chain:check && npm test && npm run parity:check && npm run licenses:check && npm run sbom:check && npm run audit
+
+
+> @rathnasgala2/schemas@3.0.0 build
+> npm run source-data:check && npm run tables:check && npm run schemas:check && npm run schemas:shared-defs:check && npm run compatibility:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run app-catalogs:check && npm run browser-safety:check
+
+
+> @rathnasgala2/schemas@3.0.0 source-data:check
+> node scripts/verify-pinned-source-data.mjs
+
+Verified 17 pinned source-data artifacts.
+
+> @rathnasgala2/schemas@3.0.0 tables:check
+> node scripts/generate-portable-data-tables.mjs --check
+
+Generated portable data tables are current.
+
+> @rathnasgala2/schemas@3.0.0 schemas:check
+> node scripts/generate-author-source-schemas.mjs --check
+
+Committed author-source schemas match deterministic generation.
+
+> @rathnasgala2/schemas@3.0.0 schemas:shared-defs:check
+> node scripts/check-shared-defs.mjs
+
+Every $defs name shared by more than one root is byte-identical.
+
+> @rathnasgala2/schemas@3.0.0 compatibility:check
+> node scripts/check-backward-compatibility.mjs
+
+No breaking changes against the committed compatibility baseline.
+
+> @rathnasgala2/schemas@3.0.0 fixtures:check
+> node scripts/generate-fixture-corpus.mjs --check
+
+Committed fixture corpus covers 20 schemas and 843 files.
+
+> @rathnasgala2/schemas@3.0.0 diagnostics:check
+> node scripts/generate-diagnostic-map.mjs --check
+
+Shared diagnostic map is current.
+
+> @rathnasgala2/schemas@3.0.0 parity-expectations:check
+> node scripts/generate-parity-expectations.mjs --check
+
+Exact parity expectations are current.
+
+> @rathnasgala2/schemas@3.0.0 declarations:check
+> node scripts/check-declarations.mjs
+
+Committed declarations match a fresh isolated emit.
+
+> @rathnasgala2/schemas@3.0.0 openapi:check
+> node scripts/generate-openapi.mjs --check
+
+OpenAPI bundle and HTTP catalog are current.
+
+> @rathnasgala2/schemas@3.0.0 events:check
+> node scripts/generate-internal-event-actions.mjs --check
+
+Internal event catalog is current (19 families, 77 actions).
+
+> @rathnasgala2/schemas@3.0.0 codegen:check
+> npm run codegen:compile && node .build/codegen/generate-contracts.js --check
+
+
+> @rathnasgala2/schemas@3.0.0 codegen:compile
+> tsc --project tsconfig.codegen.json
+
+Generated TypeScript and catalog output is reproducible and current.
+
+> @rathnasgala2/schemas@3.0.0 app-catalogs:check
+> node scripts/generate-app-catalogs.mjs --check
+
+App catalogs are current (15 components, 806 content keys, 27 routes, 376 authored recovery messages).
+
+> @rathnasgala2/schemas@3.0.0 browser-safety:check
+> node scripts/check-browser-safety.mjs
+
+Verified browser-consumed subpath(s) ., ./runtime-origins, ./digest-profiles: no reachable Node builtin import, Buffer/process reference, eval()/Function() call, or non-literal dynamic import().
+
+> @rathnasgala2/schemas@3.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @rathnasgala2/schemas@3.0.0 lint
+> eslint .
+
+
+> @rathnasgala2/schemas@3.0.0 typecheck
+> tsc --project tsconfig.json
+
+
+> @rathnasgala2/schemas@3.0.0 architecture
+> depcruise --validate .dependency-cruiser.cjs src codegen scripts test eslint.config.js
+
+
+✔ no dependency violations found (169 modules, 537 dependencies cruised)
+
+
+> @rathnasgala2/schemas@3.0.0 duplication
+> jscpd src codegen scripts test eslint.config.js
+
+Using config from .jscpd.json
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/check-backward-compatibility.mjs[39m[22m [374:44 - 394:16] (21 lines, 129 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/check-backward-compatibility.mjs [399:45 - 419:16]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-app-catalogs.mjs[39m[22m [11:24 - 22:74] (12 lines, 73 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t09-app-catalogs.test.js [12:46 - 51:74]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-app-catalogs.mjs[39m[22m [230:1 - 246:9] (17 lines, 65 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/generate-internal-event-actions.mjs [91:1 - 107:9]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-app-catalogs.mjs[39m[22m [974:22 - 982:38] (9 lines, 71 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t09-app-catalogs.test.js [79:29 - 87:38]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-app-catalogs.mjs[39m[22m [998:30 - 1013:30] (16 lines, 99 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t09-app-catalogs.test.js [64:29 - 79:30]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [225:2 - 264:6] (40 lines, 144 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [464:4 - 503:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [288:75 - 299:6] (12 lines, 56 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [501:3 - 512:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [305:10 - 314:37] (10 lines, 59 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [451:12 - 460:39]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [320:32 - 347:33] (28 lines, 135 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [512:30 - 539:35]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [348:27 - 359:33] (12 lines, 66 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [540:25 - 551:35]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [460:5 - 466:37] (7 lines, 57 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [606:5 - 612:37]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [539:18 - 553:27] (15 lines, 99 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [555:21 - 569:23]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-author-source-schemas.mjs[39m[22m [585:5 - 590:30] (6 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [724:5 - 729:30]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-diagnostic-map.mjs[39m[22m [206:23 - 216:21] (11 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/generate-parity-expectations.mjs [80:14 - 90:21]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs[39m[22m [1087:37 - 1094:35] (8 lines, 58 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs [1684:56 - 1691:35]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs[39m[22m [1928:26 - 1948:16] (21 lines, 72 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs [2062:14 - 2082:16]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs[39m[22m [2684:62 - 2713:8] (30 lines, 137 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs [3109:62 - 3139:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs[39m[22m [2894:33 - 2905:15] (12 lines, 61 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/generate-fixture-corpus.mjs [3207:33 - 3218:15]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/generate-openapi.mjs[39m[22m [481:67 - 489:8] (9 lines, 57 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t07-openapi.test.js [913:62 - 921:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [82:3 - 108:6] (27 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js [40:76 - 65:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [184:3 - 211:2] (28 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [1818:9 - 1845:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [212:39 - 240:2] (29 lines, 56 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [1417:5 - 1445:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [215:3 - 240:2] (26 lines, 51 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-schemas.test.js [70:7 - 95:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [721:35 - 730:28] (10 lines, 70 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/frozen-envelope.js [214:42 - 223:28]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [741:36 - 769:9] (29 lines, 105 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/frozen-envelope.js [91:47 - 122:9]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [749:18 - 769:9] (21 lines, 100 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/theme-composition-semantics.js [407:25 - 427:9]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [749:36 - 755:16] (7 lines, 52 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/unicode17.js [113:51 - 119:16]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [826:15 - 850:21] (25 lines, 88 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js [391:30 - 415:21]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [1912:30 - 1925:7] (14 lines, 65 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js [574:20 - 587:5]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/build-artifact-semantics.js[39m[22m [2181:15 - 2202:21] (22 lines, 83 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js [740:21 - 761:21]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/deployment-record-semantics.js[39m[22m [2973:36 - 2983:12] (11 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/deployment-record-semantics.js [2990:36 - 3000:12]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/deployment-record-semantics.js[39m[22m [3204:3 - 3217:5] (14 lines, 56 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/deployment-record-semantics.js [3440:3 - 3453:5]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/managed-evidence-journal.js[39m[22m [46:3 - 51:6] (6 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/theme-composition-semantics.js [319:3 - 324:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/theme-composition-semantics.js[39m[22m [292:41 - 317:9] (26 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/spdx.js [59:68 - 83:9]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/theme-composition-semantics.js[39m[22m [2100:51 - 2110:4] (11 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/internal-semantics/theme-composition-semantics.js [2351:51 - 2361:4]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-adapter-schema.mjs[39m[22m [22:1 - 66:6] (45 lines, 50 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [12:1 - 56:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-adapter-schema.mjs[39m[22m [377:4 - 499:8] (123 lines, 445 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [454:4 - 579:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-adapter-schema.mjs[39m[22m [802:47 - 812:54] (11 lines, 63 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-adapter-schema.mjs [829:35 - 839:54]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [121:4 - 148:8] (28 lines, 76 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [383:77 - 407:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [164:3 - 176:8] (13 lines, 51 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [424:66 - 434:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [837:23 - 860:36] (24 lines, 74 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [942:37 - 965:36]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [839:7 - 859:35] (21 lines, 66 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs [1281:7 - 1301:35]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [1263:41 - 1286:58] (24 lines, 100 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [593:39 - 615:70]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [1297:13 - 1311:25] (15 lines, 79 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [623:72 - 637:25]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [1311:55 - 1339:8] (29 lines, 59 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [637:53 - 665:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [1421:7 - 1445:7] (25 lines, 50 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-schemas.test.js [71:7 - 95:7]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-composition-build-schemas.mjs[39m[22m [1817:7 - 1845:9] (29 lines, 57 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-schemas.test.js [99:15 - 127:7]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [190:10 - 196:7] (7 lines, 51 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [2185:16 - 2191:13]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [1471:70 - 1487:17] (17 lines, 61 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [1547:43 - 1563:17]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [1497:28 - 1514:11] (18 lines, 61 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [1571:28 - 1588:11]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [1961:13 - 1971:17] (11 lines, 76 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [2099:50 - 2109:17]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [2185:14 - 2192:11] (8 lines, 54 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [2205:17 - 2212:11]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [2186:21 - 2193:8] (8 lines, 51 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs [2206:21 - 2213:20]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [2540:26 - 2598:4] (59 lines, 116 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-schemas.test.js [131:15 - 189:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/s0-t03-deployment-schemas.mjs[39m[22m [2684:27 - 2722:4] (39 lines, 76 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-schemas.test.js [224:15 - 262:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs[39m[22m [393:46 - 418:10] (26 lines, 125 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs [476:49 - 501:10]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs[39m[22m [431:69 - 445:61] (15 lines, 52 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs [524:54 - 538:61]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs[39m[22m [502:5 - 509:10] (8 lines, 73 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/validator-core.js [750:3 - 764:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs[39m[22m [1291:24 - 1304:16] (14 lines, 56 tokens)
+   /Users/anand/ws/galascribe/v2/schema/scripts/validator-parity.mjs [1351:16 - 1364:16]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/src/internal/portable-scalars.js[39m[22m [24:44 - 40:8] (17 lines, 60 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/public-verification-semantics.js [483:43 - 499:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/src/internal/portable-scalars.js[39m[22m [155:3 - 162:25] (8 lines, 53 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/portable-scalars.js [195:3 - 202:25]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/src/internal/unicode17.js[39m[22m [280:9 - 285:17] (6 lines, 58 tokens)
+   /Users/anand/ws/galascribe/v2/schema/src/internal/unicode17.js [297:3 - 302:4]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/src/internal/validator-core.js[39m[22m [184:1 - 193:2] (10 lines, 93 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t10-runtime-origins-export.test.js [158:1 - 167:2]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/author-source-schemas.test.js[39m[22m [157:5 - 163:6] (7 lines, 53 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-schemas.test.js [342:5 - 348:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/s2-fixture-corpus.test.js[39m[22m [82:48 - 120:27] (39 lines, 142 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/s4-fixture-corpus.test.js [46:53 - 84:27]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/s2-fixture-corpus.test.js[39m[22m [182:62 - 192:25] (11 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/s4-fixture-corpus.test.js [101:62 - 111:25]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/s2-fixture-corpus.test.js[39m[22m [191:49 - 198:9] (8 lines, 56 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/s4-fixture-corpus.test.js [111:44 - 118:9]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/s2-fixture-corpus.test.js[39m[22m [215:72 - 247:6] (33 lines, 228 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/s4-fixture-corpus.test.js [135:72 - 167:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/s2-fixture-corpus.test.js[39m[22m [247:73 - 273:6] (27 lines, 140 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/s4-fixture-corpus.test.js [167:73 - 193:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-activation-fence.test.js[39m[22m [16:59 - 41:3] (26 lines, 87 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t08-schema-280.test.js [20:50 - 46:3]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-activation-fence.test.js[39m[22m [49:1 - 65:2] (17 lines, 55 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t08-schema-280.test.js [69:1 - 85:2]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js[39m[22m [817:5 - 829:38] (13 lines, 72 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js [1097:5 - 1109:38]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js[39m[22m [1522:65 - 1536:6] (15 lines, 57 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-build-artifact-semantics.test.js [1589:34 - 1603:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [841:5 - 868:8] (28 lines, 106 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [1294:13 - 1321:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [885:4 - 925:8] (41 lines, 176 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [1330:4 - 1370:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [1208:39 - 1220:39] (13 lines, 64 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [2308:41 - 2320:39]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [1466:58 - 1479:25] (14 lines, 57 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [1596:4 - 1609:25]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [1507:31 - 1533:28] (27 lines, 90 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [1652:28 - 1678:32]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [1509:32 - 1523:12] (15 lines, 53 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [1759:6 - 1773:12]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [1637:5 - 1652:26] (16 lines, 50 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [1788:4 - 1803:26]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [2211:33 - 2220:32] (10 lines, 51 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [2235:17 - 2244:32]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [2315:44 - 2339:6] (25 lines, 124 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [2354:44 - 2378:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js[39m[22m [2395:38 - 2409:6] (15 lines, 73 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-deployment-record-semantics.test.js [2418:40 - 2432:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js[39m[22m [611:102 - 617:8] (7 lines, 52 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js [1034:87 - 1040:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js[39m[22m [1131:43 - 1150:8] (20 lines, 76 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js [1676:43 - 1695:8]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js[39m[22m [1339:86 - 1350:17] (12 lines, 67 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js [1366:88 - 1377:17]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js[39m[22m [1370:17 - 1381:23] (12 lines, 51 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-public-verification-semantics.test.js [1594:5 - 1605:25]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-theme-composition-semantics.test.js[39m[22m [1084:3 - 1092:5] (9 lines, 57 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-theme-composition-semantics.test.js [1104:35 - 1112:5]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t03-theme-composition-semantics.test.js[39m[22m [1093:22 - 1101:8] (9 lines, 62 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t03-theme-composition-semantics.test.js [1113:19 - 1122:10]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t04-fixture-corpus.test.js[39m[22m [526:47 - 536:60] (11 lines, 64 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t04-fixture-corpus.test.js [550:57 - 560:58]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t08-schema-2100.test.js[39m[22m [130:23 - 145:36] (16 lines, 53 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t08-schema-290.test.js [65:50 - 81:36]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t08-schema-2100.test.js[39m[22m [358:5 - 369:6] (12 lines, 53 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t08-schema-2100.test.js [399:46 - 410:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t08-schema-2100.test.js[39m[22m [359:4 - 369:6] (11 lines, 50 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t08-schema-290.test.js [411:71 - 421:6]
+[1mClone found (javascript)[22m
+ - [1m[32m/Users/anand/ws/galascribe/v2/schema/test/t11-digest-profiles-export.test.js[39m[22m [149:1 - 154:40] (6 lines, 62 tokens)
+   /Users/anand/ws/galascribe/v2/schema/test/t12-frozen-envelope-export.test.js [224:1 - 229:40]
+[90m┌────────────┬────────────────┬─────────────┬──────────────┬──────────────┬──────────────────┬───────────────────┐[39m
+[90m│[39m[31m Format     [39m[90m│[39m[31m Files analyzed [39m[90m│[39m[31m Total lines [39m[90m│[39m[31m Total tokens [39m[90m│[39m[31m Clones found [39m[90m│[39m[31m Duplicated lines [39m[90m│[39m[31m Duplicated tokens [39m[90m│[39m
+[90m├────────────┼────────────────┼─────────────┼──────────────┼──────────────┼──────────────────┼───────────────────┤[39m
+[90m│[39m javascript [90m│[39m 106            [90m│[39m 68679       [90m│[39m 304781       [90m│[39m 94           [90m│[39m 1785 (2.60%)     [90m│[39m 7326 (2.40%)      [90m│[39m
+[90m├────────────┼────────────────┼─────────────┼──────────────┼──────────────┼──────────────────┼───────────────────┤[39m
+[90m│[39m typescript [90m│[39m 1              [90m│[39m 1055        [90m│[39m 5537         [90m│[39m 0            [90m│[39m 0 (0.00%)        [90m│[39m 0 (0.00%)         [90m│[39m
+[90m├────────────┼────────────────┼─────────────┼──────────────┼──────────────┼──────────────────┼───────────────────┤[39m
+[90m│[39m [1mTotal:[22m     [90m│[39m 107            [90m│[39m 69734       [90m│[39m 310318       [90m│[39m 94           [90m│[39m 1785 (2.56%)     [90m│[39m 7326 (2.36%)      [90m│[39m
+[90m└────────────┴────────────────┴─────────────┴──────────────┴──────────────┴──────────────────┴───────────────────┘[39m
+[90mFound 94 clones.[39m
+[90mtime: 31.382ms[39m
+
+> @rathnasgala2/schemas@3.0.0 workflows:check
+> node scripts/check-workflow-pins.mjs
+
+Verified 3 workflow file(s): all external references are immutable.
+
+> @rathnasgala2/schemas@3.0.0 parity:supply-chain:check
+> node scripts/check-java-parity-supply-chain.mjs
+
+Verified 13 locked Java parity components and Gradle 8.14.5 wrapper checksums.
+
+> @rathnasgala2/schemas@3.0.0 test
+> node --test
+
+✔ the six schemas have immutable Draft 2020-12 identities (16.495ms)
+✔ schema inventory drift rejects missing and unexpected entries (0.181417ms)
+✔ every schema embeds the same complete 20-scalar library (7.496334ms)
+✔ the unresolved visual catalogs fail closed (1.1395ms)
+✔ the scalar library fixes its portable syntax and semantic formats (1.12075ms)
+✔ root properties and requiredness exactly match the accepted ledger (2.886459ms)
+✔ all local references resolve to private definitions (3.330042ms)
+✔ content frontmatter encodes its portable cross-field conditions (0.439208ms)
+✔ navigation encodes exact target selection and a two-level tree (0.548833ms)
+✔ appearance requires the selected default mode to be allowed (1.003875ms)
+✔ media alternatives encode informative and decorative behavior (0.908ms)
+(node:33912) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the "." export runs cleanly inside a real browser-shaped (jsdom) global realm with no Buffer or process (1085.573583ms)
+✔ legacy generated fixtures remain byte-exact outside the S2 subtree (589.442833ms)
+✔ S2 manifest binds the exact inventory, family names, files, and case IDs (11.774541ms)
+✔ every S2 schema-bearing instance has its exact public diagnostics (267.062958ms)
+✔ the nine S2 families preserve their consumer-facing invariants (6.115458ms)
+✔ S4 manifest binds the exact inventory, family names, files, and case IDs (10.189208ms)
+✔ every S4 schema-bearing instance has its exact public diagnostics (50.895417ms)
+✔ the five S4 families preserve their consumer-facing invariants (3.968ms)
+✔ the runtime exposes only the accepted validation surface (0.734542ms)
+✔ package metadata pins the accepted runtime and package manager (3.889875ms)
+✔ declaration output exposes the accepted validation surface (1.12175ms)
+✔ declaration drift reports stale committed output (3.490792ms)
+✔ lint rejects exported functions without JSDoc (3249.918041ms)
+✔ lint rejects exported JSDoc with missing parameter and return types (30.222542ms)
+✔ workflow pin validation rejects tags and accepts full SHAs (4.134125ms)
+✔ workflow pin validation catches a flow-mapping step too (SCH-L7) (0.2335ms)
+✔ license inventory rejects a non-v3 lockfile (0.545459ms)
+✔ every activation fence admits the expect-nothing-served sentinel and refuses null (168.13825ms)
+✔ the sentinel cannot be mistaken for a generation identity (22.542042ms)
+✔ all required DEC-099 canonical vectors are accepted (1.849708ms)
+✔ preferred values, casing, extlang removal, and extension sorting are exact (0.521041ms)
+✔ required invalid vectors fail with BCP47_INVALID (0.307125ms)
+✔ private ranges, opaque private use, and extension ABNF remain bounded (0.519709ms)
+✔ every pinned whole-tag record obeys its canonicalization rule (2.623375ms)
+✔ every pinned subtag Preferred-Value is applied in its role (3.29175ms)
+✔ accepts the complete minimal lock/build/artifact/provenance/SPDX closure (53.54175ms)
+✔ fails closed on every exact root and context ledger (8.581875ms)
+✔ rejects independently substituted lock, package-byte, and source facts (48.379208ms)
+✔ rejects workload signature, workflow, carrier, and runner substitutions (58.34225ms)
+✔ rejects output, reproducibility, policy, theme-license, and SPDX substitutions (61.686625ms)
+✔ rejects coordinated action-definition and duplicate-coordinate substitutions (17.426708ms)
+✔ rejects action evidence and pins not derived from workflow bytes (11.417541ms)
+✔ rejects indistinguishable roots and coordinated unfrozen-index substitutions (52.690458ms)
+✔ rejects coordinated unrecognized first-party and empty-tag catalog rows (34.476917ms)
+✔ rejects coordinated non-plain policy profile substitutions (82.4735ms)
+✔ publishes the explicit external-owner constraint ledger (0.113708ms)
+✔ RFC 8785 canonicalization is byte-exact and uses UTF-16 key ordering (2.004792ms)
+✔ JCS rejects values outside duplicate-key-free I-JSON (1.407042ms)
+✔ tagged SHA-256 and domain-separated preimages match independent vectors (0.519417ms)
+✔ the exact DEC-099 SemVer and range grammar is enforced (0.944709ms)
+✔ SemVer comparison and caret expansion retain arbitrary precision (0.136417ms)
+✔ first-party evaluation agrees with the pinned oracle inside its domain (3.262208ms)
+✔ intent validates the full verified workload, source owners, plan, and digest (16.807ms)
+✔ intent rejects removal of the caller workflow witness after coordinated recomputation (2.245ms)
+✔ intent reservation derives consumed attempts, slots, and stream count from retained owners (10.486791ms)
+✔ operation journals take reservation transitions only from the durable operation ledger (11.607375ms)
+✔ intent issuance ignores caller-supplied reservation history (3.659666ms)
+✔ rerun reservation requires the immediately prior proved no-change close (10.3075ms)
+✔ an ordinary failed no-change journal authorizes the next run attempt (21.894083ms)
+✔ operation journals reject a cross-run verification-plan change (16.463042ms)
+✔ provider activation and public verification validate against real stage evidence (15.341417ms)
+✔ public probe coordinates are unique across operation-wide validation calls (23.939375ms)
+✔ a candidate-complete receipt validates through operation journals and retained submission (23.989875ms)
+✔ an attempt-only cutoff replays its exact controller transition (18.784708ms)
+✔ a direct public close accepts the inclusive trusted cutoff instant (34.43025ms)
+✔ a one-millisecond-late public fact cannot use a backdated direct close outside the receipt prefix (13.707875ms)
+✔ a cutoff public attempt must name its exact selected observation as causation (13.698833ms)
+✔ a direct public attempt must name its authenticated activation predecessor as causation (12.062416ms)
+✔ a missing-stream deadline pair replays its exact cutoff transition (13.069625ms)
+✔ a public terminal attempt cannot precede its stage-result observation (12.405291ms)
+✔ a direct public close requires an immediate observation-attempt pair (10.871041ms)
+✔ historical public-controller state remains valid after supersession (24.675667ms)
+✔ every terminal public attempt is replayed even when the receipt selects an earlier prefix (11.395833ms)
+✔ full-journal replay rejects a duplicate terminal attempt sequence outside the receipt prefix (5.256542ms)
+✔ receipt cannot select observation evidence committed after its journal head (12.643834ms)
+✔ submission projections cannot disagree with authenticated journal rows (6.697ms)
+✔ receipt ancestry binds the exact same-attempt predecessor (18.490875ms)
+✔ provider receipt claims require a matching Pages evidence preimage (13.9235ms)
+✔ deadline finalization validates its cutoff controller transition (10.716292ms)
+✔ cancellation finalization validates exact source owners and rejects substitution (5.114208ms)
+✔ both supersession finalization branches require drained owned leases (19.295875ms)
+✔ cancellation rejects incomplete controller and detector lease drains (5.068084ms)
+✔ the local probe owns exact payload bytes and a 10,000-operation transcript (262.601542ms)
+✔ the local probe rejects gaps, parity errors, partial reads, unknown fields, and false race winners (23.11425ms)
+✔ local observation state owns the exact five-field all-or-none ledger (2.309ms)
+✔ not-started and running evidence enforce their complete state ledgers (0.968625ms)
+✔ terminal stage evidence closes digest ownership, copies, and retained observation membership (19.431541ms)
+✔ observation references are a canonical sorted set with unique IDs (1.825833ms)
+✔ the retained managed failure catalog owns outcome, change, and retryability (22.722791ms)
+✔ record-set validation binds intent authority, attempt copies, times, and committed observations (0.956583ms)
+✔ closed records reject sequence leakage and stage-owned digest cycles (0.412917ms)
+✔ the active DEC-097/098 inventory is exact and uniquely terminal-NUL separated (0.621667ms)
+✔ every active domain reproduces its hardcoded preimage and SHA-256 golden (8.212834ms)
+✔ named self-exclusions omit only the authority-owned digest member (3.287417ms)
+✔ artifact validation excludes exactly both root owners and nested evidenceDigest (0.162708ms)
+✔ key-set projection sorts by kid and excludes non-authoritative JWK members (0.547625ms)
+✔ raw-byte and derived profiles retain their exact encodings (0.425125ms)
+✔ RAW32 journal chaining rejects every noncanonical tagged digest (0.204916ms)
+✔ the shared JCS helper includes one validated terminal NUL and exact JCS bytes (0.101833ms)
+✔ exact subset projectors reject missing members and the Pages union rejects ambiguity (0.105708ms)
+✔ validates a mixed route/asset envelope and returns every retained digest (7.338167ms)
+✔ accepts the exact structural empty-payload codec boundary (1.919625ms)
+✔ enforces 128-byte segments and the 512-byte path boundary (7.075042ms)
+✔ rejects every portable-path forbidden class and reserved stem (3.0645ms)
+✔ rejects invalid magic, count, lengths, truncation, and trailing bytes (0.985917ms)
+✔ rejects unknown kinds, wrong record order, and wrong metadata coordinates (0.950209ms)
+✔ rejects non-UTF-8, reserved, unsorted, duplicate, and folded-collision paths (3.962125ms)
+✔ requires duplicate-key-free compact JCS in all metadata records (2.357708ms)
+✔ rejects inventory, artifact, manifest, provenance, and SBOM digest substitutions (5.269833ms)
+✔ rejects metadata cap declarations before body slicing or allocation (0.303875ms)
+✔ RFC 3492 Punycode examples encode and decode byte-exactly (0.691583ms)
+✔ Unicode 17 UTS #46 uses nontransitional mapping and canonical ACE output (0.807375ms)
+✔ canonical stored DNS names reject alternate and fake spellings (0.524958ms)
+✔ label syntax and DNS byte bounds fail closed (1.525125ms)
+✔ Unicode 17 CheckJoiners distinguishes contextual failures (0.415125ms)
+✔ RFC 5893 Bidi validation applies to every label in a Bidi domain (0.192541ms)
+✔ IPv4 accepts only four canonical dotted-decimal octets (2.061375ms)
+✔ IPv6 uses lowercase longest-leftmost RFC 5952 compression (0.807583ms)
+✔ origin IPv6 applies the mapped-address mixed notation rule (1.127041ms)
+✔ pinned-registry CIDRs require canonical networks (0.584458ms)
+✔ a complete mixed journal validates to its receipt-bound head (4.356208ms)
+✔ missing, reordered, substituted and duplicated entries reject (1.823625ms)
+✔ entry and head digests reject independent tampering (0.817709ms)
+✔ closed entries, gap-free type streams and receipt counts are mandatory (0.979292ms)
+✔ the exact frozen network profile has a stable domain-separated digest (1.379208ms)
+✔ IPv4 classification uses the most-specific frozen IANA row (1.216417ms)
+✔ the explicit IPv4 multicast deny does not create an IPv4 catch-all (0.085084ms)
+✔ IPv6 classification applies registry specificity and explicit denies (0.527209ms)
+✔ out-of-width numeric addresses reject before classification (0.080709ms)
+✔ all 17 accepted source-data artifacts pass exact offline verification (48.9205ms)
+✔ every pinned artifact rejects a one-byte mutation and trailing bytes (46.4555ms)
+✔ every pinned UTF-8 text rejects BOM and CRLF byte transformations (112.503ms)
+✔ the IANA registry File-Date values equal the accepted pins (2.275166ms)
+✔ the duplicate-free SPDX graph has the exact accepted node counts (393.785292ms)
+✔ the installed SemVer oracle matches the accepted version and integrity (3.056375ms)
+✔ the generated license inventory covers every retained input and the oracle (3.470375ms)
+✔ the generated CycloneDX SBOM covers every retained input and the oracle (1.981083ms)
+✔ the canonical Gala UTC-millisecond subset validates Gregorian dates (1.903625ms)
+✔ repository globs implement the exact DEC-099 matching vectors (2.521667ms)
+✔ repository globs reject every excluded syntax family (1.497417ms)
+✔ include/exclude selection deduplicates and sorts by unsigned UTF-8 bytes (1.86775ms)
+✔ canonical origin-route joining enforces byte normalization and the 2048 bound (6.247125ms)
+✔ observed redirect locations admit canonical HTTP evidence but not unsafe forms (0.65175ms)
+✔ the credential-free request bytes and immutable transport constants are exact (0.620958ms)
+✔ trust-store framing enforces bounds, digest order, duplicates, and exact EOF (16.555958ms)
+✔ revocation sets require compact duplicate-free ordered JCS and exact validity bindings (5.266875ms)
+✔ TLS profile and negotiation validation bind every exact constant and reject forbidden features (1.4025ms)
+✔ TLS SAN matching distinguishes exact DNS, one-label wildcard, ACE, and native IP bytes (1.396959ms)
+✔ DNS evidence deduplicates and sorts native bytes while all-address admission fails closed (0.579292ms)
+✔ content-type and retained-header grammars close names, values, order, and head feasibility (0.756208ms)
+✔ HTTP framing admits only one canonical bounded Content-Length or chunked branch (0.516833ms)
+✔ plan validation closes sorting, redirects, limits, headers, prior order, and digest (6.462709ms)
+✔ plan capacity multiplies regions, attempts, and redirect hops with a 900-slot ceiling (11.720125ms)
+✔ policy and intent bindings close network, TLS source, profile, and plan digests (2.411541ms)
+✔ public-probe batches bind plan coordinates, chain links, selected contract, timestamps, and evidence digests (22.496625ms)
+✔ no-response probes remain bounded inconclusive evidence with no invented facts (1.706625ms)
+✔ ordinary probe leases bind every operation, plan, stream, and attempt coordinate (7.485042ms)
+✔ ordinary stream history closes attempt gaps, retry jitter, terminal suppression, and latest-safe-start gates (6.675166ms)
+✔ only 101 may be retained as a complete final informational-status mismatch (2.794375ms)
+✔ activation detection validates its exact plan, probe domain, append transition, and basis candidate (10.633542ms)
+✔ the T03 schemas have immutable closed Draft 2020-12 identities (21.821ms)
+✔ each T03 root property ledger exactly matches DEC-097 through DEC-099 (12.832292ms)
+✔ every T03 root embeds the exact same complete 20-scalar definitions (7.68725ms)
+✔ all T03 local references resolve to a private definition (6.863333ms)
+✔ buildProvenance stays nested in artifact-manifest and is also its own SCHEMA-2.10.0 root (4.034958ms)
+✔ the public marker has only its three DEC-097 members and no self-digest (0.292792ms)
+✔ the exact SPDX grammar, precedence, and canonical serializer are enforced (1.005917ms)
+✔ valid trees with noncanonical source bytes receive the dedicated diagnostic (0.580417ms)
+✔ invalid syntax, membership, deprecation, and identifier forms fail without rewrite (0.498ms)
+✔ SPDX expressions enforce the ASCII byte ceiling before parsing (0.334708ms)
+✔ catalog evidence is the exact active identifier/text closure in canonical set order (2.909583ms)
+✔ catalog validation preserves expression diagnostics (0.113417ms)
+✔ template-composition admits only its two exact discriminator fields (0.607667ms)
+✔ the five identities and exact contract-3 token order, types, grammars, and palettes are closed (65.319292ms)
+✔ the template styling contract closes every catalog, hook atom, constant, digest, and byte copy (6.663167ms)
+✔ fixture release and conformance rows enforce sort, set equality, derived state, and self-excluding digests (8.441875ms)
+✔ the complete package and composition validate with acyclic distinct digest projections (33.04925ms)
+✔ package inventory, modes, paths, byte bindings, manifests, licenses, and policy ceilings fail closed (71.936875ms)
+✔ package SPDX inheritance, exact overrides, and full-JCS set ordering admit (39.136416ms)
+✔ pinned CSS, SVG, and binary evidence binds runners, source bytes, projections, and limits (257.437375ms)
+✔ fixture, conformance-input, evidence, and final integrity copies cannot substitute for one another (74.730375ms)
+✔ Unicode 17 NFC and default case folding use generated pinned data (1.728041ms)
+✔ Unicode scalar validation rejects every lone-surrogate position (0.526958ms)
+✔ the complete Unicode 17 GraphemeBreakTest boundary corpus passes (10.05725ms)
+✔ Unicode 17 grapheme sentinels have their exact cluster counts (0.420417ms)
+✔ DEC-099 CheckJoiners uses CCC and complete joining-type scans (0.3315ms)
+✔ canonical origins parse into canonical DNS and public literal forms (1.899375ms)
+✔ scheme, authority and port alternate spellings reject (0.169292ms)
+✔ noncanonical or non-public IP literals reject (0.361ms)
+✔ DNS names must already equal canonical Unicode-17 ASCII output (0.715167ms)
+✔ common format validators preserve baseline path and text semantics (1.043792ms)
+✔ fixture manifest covers exactly twenty roots and every rule class (3027.337792ms)
+✔ invalid fixture files use the required schema and exact-code layout (78.500083ms)
+✔ each root has committed full-document valid, boundary and unknown-field fixtures (29.309333ms)
+✔ the required adversarial corpus is exact, closed and physically present (22.603458ms)
+✔ all preexisting schema bytes match their reviewed locks (5.229208ms)

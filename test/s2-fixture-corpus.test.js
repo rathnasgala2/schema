@@ -168,7 +168,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // publication gained `newsletter`; one file was added
     // (examples/valid/theme-contract/default-3.0.json), making 827.
     aggregate.digest('hex'),
-    'c7b65fa857ec20ce184a35d20d831f33fe35759a1b748e973342f46957656f22',
+    'c258e15db3b9468a7d325bc5a262bc3910c2f2db8cac07655ca34025432d6eb1',
   );
 });
 

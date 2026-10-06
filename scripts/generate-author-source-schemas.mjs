@@ -285,6 +285,8 @@ const newsletter = closedObject(
   ['url', 'title', 'text'],
 );
 
+const crawlers = closedObject({ ai: { enum: ['allow', 'block'] } }, ['ai']);
+
 const localizedAuthor = closedObject(
   {
     language: ref('bcp47'),
@@ -469,6 +471,7 @@ const schemas = {
       profile: ref('publicationProfile'),
       footerCard: ref('footerCard'),
       newsletter: ref('newsletter'),
+      crawlers: ref('crawlers'),
       extensions: ref('extensionMap'),
     },
     [
@@ -482,7 +485,14 @@ const schemas = {
       'socialLinks',
       'extensions',
     ],
-    { socialLink, publicationProfile, footerCard, newsletter, extensionMap },
+    {
+      socialLink,
+      publicationProfile,
+      footerCard,
+      newsletter,
+      crawlers,
+      extensionMap,
+    },
   ),
   'author.schema.json': rootSchema(
     'author',

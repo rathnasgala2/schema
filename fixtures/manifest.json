@@ -43,8 +43,8 @@
     {
       "contract": "build-input",
       "schemaId": "urn:gala:schema:build-input:2.0.0",
-      "schemaSha256": "732e32c122dd8b529f2122f35b577121b2c4a415524f892238c5345ddbed9f79",
-      "ruleCount": 440,
+      "schemaSha256": "6ff16c42597f2a42211ecc2cff40c364e9e4c589d7443d1d3f048b267ef9cdaa",
+      "ruleCount": 444,
       "validExample": "examples/valid/build-input/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-input/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/build-input/root.json"
@@ -151,8 +151,8 @@
     {
       "contract": "publication",
       "schemaId": "urn:gala:schema:publication:2.0.0",
-      "schemaSha256": "d29767cb37f9f42c38f5716736f9566c91ad0fa2b8d779510c9b7190533fafe1",
-      "ruleCount": 128,
+      "schemaSha256": "90ce1cc0d061bd87b18539d9822aca2ec762be2e5fadad9aca80d8351f7a872e",
+      "ruleCount": 132,
       "validExample": "examples/valid/publication/canonical.json",
       "boundaryFixture": "fixtures/boundary/publication/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/publication/root.json"
@@ -51337,6 +51337,98 @@
       "unknownField": {
         "file": "fixtures/unknown-field/build-input/rules.json",
         "caseId": "build-input-unknown-463216841286e49b"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/publicationNormalized/properties/crawlers:additionalProperties",
+      "schemaPointer": "#/$defs/publicationNormalized/properties/crawlers",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-5cd12f3ec2d6f40f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-d57132667b4fe56b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-13698720f3c60b26",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-5cd12f3ec2d6f40f"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/publicationNormalized/properties/crawlers:required:ai",
+      "schemaPointer": "#/$defs/publicationNormalized/properties/crawlers",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-5cd12f3ec2d6f40f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-d57132667b4fe56b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-9d6bf3c283842ebe",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-5cd12f3ec2d6f40f"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/publicationNormalized/properties/crawlers:type",
+      "schemaPointer": "#/$defs/publicationNormalized/properties/crawlers",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-5cd12f3ec2d6f40f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-d57132667b4fe56b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-75e9c756986e9150",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-5cd12f3ec2d6f40f"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/publicationNormalized/properties/crawlers/properties/ai:enum",
+      "schemaPointer": "#/$defs/publicationNormalized/properties/crawlers/properties/ai",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e8f6fa64797595d5"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-42b1fbeddb83c007"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "build-input-invalid-24c610e1d45fea08",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-5cd12f3ec2d6f40f"
       }
     },
     {
@@ -184165,6 +184257,98 @@
       "unknownField": {
         "file": "fixtures/unknown-field/publication/rules.json",
         "caseId": "publication-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/crawlers:additionalProperties",
+      "schemaPointer": "#/$defs/crawlers",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-a5c8f595a0500178"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-066bd9029dbb6d63"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "publication-invalid-394d118377affba1",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-a5c8f595a0500178"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/crawlers:required:ai",
+      "schemaPointer": "#/$defs/crawlers",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-a5c8f595a0500178"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-066bd9029dbb6d63"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "publication-invalid-a25411ee83d83079",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-a5c8f595a0500178"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/crawlers:type",
+      "schemaPointer": "#/$defs/crawlers",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-a5c8f595a0500178"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-066bd9029dbb6d63"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "publication-invalid-d595eb832c5d1c45",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-a5c8f595a0500178"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/crawlers/properties/ai:enum",
+      "schemaPointer": "#/$defs/crawlers/properties/ai",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-1b8cc44fb62cabb8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-9b3540bc711cc01a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "publication-invalid-2db6268544ac7f30",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-a5c8f595a0500178"
       }
     },
     {

@@ -228,6 +228,9 @@ export type BuildInputPublicationNormalized = Readonly<{
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly canonicalBase: BuildInputUrlHttps;
   readonly contactAuthorId?: BuildInputStableId;
+  readonly crawlers?: Readonly<{
+    readonly ai: 'allow' | 'block';
+  }>;
   readonly defaultImage?: BuildInputResolvedFile;
   readonly defaultLanguage: BuildInputBcp47;
   readonly description: BuildInputPlainText;

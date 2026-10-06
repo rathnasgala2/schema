@@ -70,7 +70,7 @@ const T03_SCHEMA_HASHES = {
     // byteLength, the same closed media types as artifact-manifest's
     // widened list minus SVG, per-mediaType byteLength bound). Additive
     // (new optional property, new $defs entry).
-    '342260092fc16bdd6ba6b38490fbdaeca6817212fe51f8082b464b70d01469d0',
+    '6ff16c42597f2a42211ecc2cff40c364e9e4c589d7443d1d3f048b267ef9cdaa',
   'content-frontmatter':
     'd033644fd188af7d55c596a7c910b2c9ca9a1c8d8d8b092860f04eec8a5273a0',
   'deployment-intent':
@@ -100,7 +100,7 @@ const T03_SCHEMA_HASHES = {
   'public-generation-marker':
     'de1a21327cd07eb11af5d04a323f05025f29d200a6d11034ab37ede99dff2093',
   publication:
-    'd29767cb37f9f42c38f5716736f9566c91ad0fa2b8d779510c9b7190533fafe1',
+    '90ce1cc0d061bd87b18539d9822aca2ec762be2e5fadad9aca80d8351f7a872e',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':
