@@ -11612,7 +11612,7 @@ paths:
       description: |
         The one read behind a Home screen: the live address, whether the site is live, publishing or has never been published, who published last, the unpublished changes in words, and what needs attention.
 
-        `pendingChanges` holds exactly one entry per path (and one for the look): the newest unpublished change for a path wins, older ones are superseded and omitted. `review` is `NOT_REQUIRED` unless the publication's `publishingPolicy.requireReview` is true. `attention[].code` is a closed vocabulary; `relatedChangeId` names the change that needs the action. `publishing.stage` follows `PREPARING`, `BUILDING`, `GOING_LIVE`. Read from the platform's own records; nothing is read from the person's repository.
+        `pendingChanges` holds exactly one entry per path (and one for the look): the newest unpublished change for a path wins, older ones are superseded and omitted. `review` is `NOT_REQUIRED` unless the publication's `publishingPolicy.requireReview` is true. `attention[].code` is a closed vocabulary; `relatedChangeId` names the change that needs the action. `publishing.stage` follows `QUEUED`, `PREPARING`, `BUILDING`, `GOING_LIVE`, `CHECKING_LIVE`; `publishing.runUrl` links the GitHub run and `publishing.stageSince` says when the stage began. Read from the platform's own records; nothing is read from the person's repository.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdSite
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

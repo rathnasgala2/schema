@@ -6887,6 +6887,11 @@ components:
             - AUTHORIZATION_LOST
             - REPOSITORY_NOT_SET_UP
             - DESTINATION_NOT_CHOSEN
+            - CHANGE_CLOSED_ON_GITHUB
+            - PUBLISH_WORKFLOW_UNAVAILABLE
+            - PAGES_NOT_AVAILABLE
+            - REPOSITORY_UNAVAILABLE
+            - REPOSITORY_MOVED
           type: string
         relatedChangeId:
           format: uuid
@@ -6913,12 +6918,22 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        runUrl:
+          description: The https address of the GitHub run doing the work.
+          maxLength: 500
+          minLength: 1
+          pattern: ^https://[^\s]+$
+          type: string
         stage:
           enum:
+            - QUEUED
             - PREPARING
             - BUILDING
             - GOING_LIVE
+            - CHECKING_LIVE
           type: string
+        stageSince:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         startedAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
       required:
@@ -7055,6 +7070,11 @@ components:
       additionalProperties: false
       properties:
         reasonCode:
+          description:
+            'A free string. Known values: RUN_NOT_STARTED, BUILD_FAILED,
+            RUN_CANCELLED, RUN_TIMED_OUT, WORKFLOW_UNAVAILABLE, DEPLOY_FAILED,
+            PAGES_NOT_AVAILABLE, REPORT_FAILED, LIVE_CHECK_FAILED,
+            CHANGE_CLOSED_ON_GITHUB. Clients must tolerate other values.'
           maxLength: 80
           minLength: 1
           type: string

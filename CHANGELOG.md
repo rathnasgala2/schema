@@ -8,6 +8,27 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-10-09
+
+Publishing state is observed from GitHub, so the site read exposes the real
+stage and the run link.
+
+### Added
+
+- `SitePublishing.stage`: `QUEUED` and `CHECKING_LIVE`; the order is `QUEUED`,
+  `PREPARING`, `BUILDING`, `GOING_LIVE`, `CHECKING_LIVE`.
+- `SitePublishing`: optional `runUrl` (https string, at most 500 characters,
+  modelled with a pattern rather than `format: uri`) and `stageSince` (RFC
+  3339).
+- `SiteAttentionItem.code`: `CHANGE_CLOSED_ON_GITHUB`,
+  `PUBLISH_WORKFLOW_UNAVAILABLE`, `PAGES_NOT_AVAILABLE`,
+  `REPOSITORY_UNAVAILABLE` and `REPOSITORY_MOVED`.
+- `HistoryFailure.reasonCode` stays a free string; its description now lists the
+  known values (`RUN_NOT_STARTED`, `BUILD_FAILED`, `RUN_CANCELLED`,
+  `RUN_TIMED_OUT`, `WORKFLOW_UNAVAILABLE`, `DEPLOY_FAILED`,
+  `PAGES_NOT_AVAILABLE`, `REPORT_FAILED`, `LIVE_CHECK_FAILED`,
+  `CHANGE_CLOSED_ON_GITHUB`).
+
 ## [3.1.0] - 2026-10-08
 
 Reader interactions: likes, reactions and comments on published articles, with
