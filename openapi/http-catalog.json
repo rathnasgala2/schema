@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:f3d0acf21a5fe89857d94dfa3067bbb59486a3e3a7f263cdd261695238303290",
+  "openApiDigest": "sha256:645e249d1e980e827d5d8a0f5262c2e2f71349e6fd0a3dc12a23d6af924bf228",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -635,6 +635,66 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregates",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interaction-aggregates",
+      "purpose": "read exact reaction and comment totals per article",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "moderation"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interaction-settings",
+      "purpose": "read this publication's reader interaction settings at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interaction-settings",
+      "purpose": "save this publication's reader interaction settings as a repository change",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/moderation/comments/{commentId}:decide",
+      "purpose": "record a moderation decision on one comment",
+      "capabilityKey": "publication.moderate",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "moderation"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/moderation/queue",
+      "purpose": "list comments awaiting or carrying a moderation outcome",
+      "capabilityKey": "publication.moderate",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "moderation"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/publishes",
@@ -885,6 +945,150 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "deletePublicCommentsByCommentId",
+      "method": "DELETE",
+      "path": "/v2/public/comments/{commentId}",
+      "purpose": "delete the reader's own comment",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "postPublicCommentsByCommentIdReports",
+      "method": "POST",
+      "path": "/v2/public/comments/{commentId}/reports",
+      "purpose": "report a comment as the signed-in reader",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "postPublicCommentsByCommentIdRevisions",
+      "method": "POST",
+      "path": "/v2/public/comments/{commentId}/revisions",
+      "purpose": "edit the reader's own comment inside the edit window",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "getPublicPublicationsByPublicationId",
+      "method": "GET",
+      "path": "/v2/public/publications/{publicationId}",
+      "purpose": "read the public identity of a live publication",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "getPublicPublicationsByPublicationIdContentsByContentIdComments",
+      "method": "GET",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/comments",
+      "purpose": "list the visible comments of one article",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "postPublicPublicationsByPublicationIdContentsByContentIdComments",
+      "method": "POST",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/comments",
+      "purpose": "post a comment or a reply as the signed-in reader",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "getPublicPublicationsByPublicationIdContentsByContentIdInteractions",
+      "method": "GET",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/interactions",
+      "purpose": "read the effective reader interactions and counts of one article",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey",
+      "method": "DELETE",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/reactions/{reactionKey}",
+      "purpose": "clear the signed-in reader's reaction on one article",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "putPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey",
+      "method": "PUT",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/reactions/{reactionKey}",
+      "purpose": "set the signed-in reader's reaction on one article",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "postReaderAuthorizations",
+      "method": "POST",
+      "path": "/v2/reader/authorizations",
+      "purpose": "authorize a visiting reader for one publication and return the redirect",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "reader"
+    },
+    {
+      "operationId": "postReaderTokens",
+      "method": "POST",
+      "path": "/v2/reader/tokens",
+      "purpose": "exchange a one-time authorization code for a publication-scoped reader token",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "reader"
+    },
+    {
+      "operationId": "deleteReaderTokensCurrent",
+      "method": "DELETE",
+      "path": "/v2/reader/tokens/current",
+      "purpose": "revoke the reader token that made the request",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "reader"
+    },
+    {
       "operationId": "getSelfAuthenticators",
       "method": "GET",
       "path": "/v2/self/authenticators",
@@ -1017,6 +1221,30 @@
       "sourceFragment": "self"
     },
     {
+      "operationId": "getSelfReaderConnections",
+      "method": "GET",
+      "path": "/v2/self/reader-connections",
+      "purpose": "list the publications this person is connected to as a reader",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "self"
+    },
+    {
+      "operationId": "deleteSelfReaderConnectionsByPublicationId",
+      "method": "DELETE",
+      "path": "/v2/self/reader-connections/{publicationId}",
+      "purpose": "revoke every reader token this person holds for one publication",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "self"
+    },
+    {
       "operationId": "postSelfRecoveryCodeSets",
       "method": "POST",
       "path": "/v2/self/recovery-code-sets",
@@ -1113,5 +1341,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:60cc9daaec10eda1f7fdfa827b76a337be99ab1b8498b0205dfc0a10a683b87c"
+  "digest": "sha256:e5d648f0e3b1d88ff3d1959b3071e59c0fe645ad4020901926abb3d25046fa3e"
 }

@@ -309,6 +309,280 @@ components:
         - kind
         - label
       type: object
+    CommentInternalState:
+      enum:
+        - VISIBLE_PENDING_SCAN
+        - VISIBLE
+        - VISIBLE_FLAGGED
+        - HELD_REVIEW
+        - REMOVED
+        - DELETED_BY_AUTHOR
+      type: string
+    CommentPublicState:
+      enum:
+        - VISIBLE
+        - REMOVED
+        - DELETED
+      type: string
+    CommentView:
+      additionalProperties: false
+      description: A comment with its replies. The tree is unrolled to four levels (depth 0 to 3) because the contract tooling does not admit recursive references; each level has the same members, and the last level carries no replies. For `REMOVED` and `DELETED` the author and body are null.
+      properties:
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/ReaderView"
+            - type: "null"
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: "null"
+        createdAt:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+          format: date-time
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+              format: date-time
+              type: string
+            - type: "null"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: "null"
+        replies:
+          items:
+            $ref: "#/components/schemas/CommentViewLevel1"
+          maxItems: 50
+          type: array
+        state:
+          $ref: "#/components/schemas/CommentPublicState"
+        viewer:
+          $ref: "#/components/schemas/CommentViewerState"
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewLevel1:
+      additionalProperties: false
+      description: Reply level 1; same members as CommentView.
+      properties:
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/ReaderView"
+            - type: "null"
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: "null"
+        createdAt:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+          format: date-time
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+              format: date-time
+              type: string
+            - type: "null"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: "null"
+        replies:
+          items:
+            $ref: "#/components/schemas/CommentViewLevel2"
+          maxItems: 50
+          type: array
+        state:
+          $ref: "#/components/schemas/CommentPublicState"
+        viewer:
+          $ref: "#/components/schemas/CommentViewerState"
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewLevel2:
+      additionalProperties: false
+      description: Reply level 2; same members as CommentView.
+      properties:
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/ReaderView"
+            - type: "null"
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: "null"
+        createdAt:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+          format: date-time
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+              format: date-time
+              type: string
+            - type: "null"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: "null"
+        replies:
+          items:
+            $ref: "#/components/schemas/CommentViewLevel3"
+          maxItems: 50
+          type: array
+        state:
+          $ref: "#/components/schemas/CommentPublicState"
+        viewer:
+          $ref: "#/components/schemas/CommentViewerState"
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewLevel3:
+      additionalProperties: false
+      description: Reply level 3; same members as CommentView.
+      properties:
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/ReaderView"
+            - type: "null"
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: "null"
+        createdAt:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+          format: date-time
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+              format: date-time
+              type: string
+            - type: "null"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: "null"
+        replies:
+          maxItems: 0
+          type: array
+        state:
+          $ref: "#/components/schemas/CommentPublicState"
+        viewer:
+          $ref: "#/components/schemas/CommentViewerState"
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewerState:
+      additionalProperties: false
+      properties:
+        canDelete:
+          type: boolean
+        canEdit:
+          type: boolean
+        canReply:
+          type: boolean
+        isAuthor:
+          type: boolean
+      required:
+        - isAuthor
+        - canEdit
+        - canDelete
+        - canReply
+      type: object
     ContentChangeAppearanceEntry:
       additionalProperties: false
       description: |
@@ -676,6 +950,24 @@ components:
       type: object
     DeleteOrganizationsByOrganizationIdPublicationsByPublicationIdResponse:
       $ref: "#/components/schemas/OperationResponse"
+    DeletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKeyResponse:
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+        count:
+          oneOf:
+            - $ref: "#/components/schemas/PublicCount"
+            - type: "null"
+        key:
+          maxLength: 32
+          minLength: 2
+          type: string
+      required:
+        - key
+        - active
+        - count
+      type: object
     DeploymentActivationEvidence:
       additionalProperties: false
       description: |
@@ -1554,6 +1846,96 @@ components:
         - items
         - hasMore
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregatesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: false
+            properties:
+              comments:
+                minimum: 0
+                type: integer
+              contentId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              reactions:
+                additionalProperties:
+                  minimum: 0
+                  type: integer
+                maxProperties: 16
+                type: object
+            required:
+              - contentId
+              - reactions
+              - comments
+            type: object
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+        totals:
+          additionalProperties: false
+          properties:
+            comments:
+              minimum: 0
+              type: integer
+            reactions:
+              additionalProperties:
+                minimum: 0
+                type: integer
+              maxProperties: 16
+              type: object
+          required:
+            - reactions
+            - comments
+          type: object
+      required:
+        - items
+        - totals
+        - nextCursor
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsResponse:
+      additionalProperties: false
+      properties:
+        openChange:
+          oneOf:
+            - $ref: "#/components/schemas/PublicationAppearanceOpenChange"
+            - type: "null"
+        setUp:
+          type: boolean
+        settings:
+          oneOf:
+            - $ref: "#/components/schemas/PortableInteractionsConfigDocument"
+            - type: "null"
+      required:
+        - settings
+        - openChange
+        - setUp
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueueResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/ModerationQueueItem"
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+      required:
+        - items
+        - nextCursor
+      type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrentResponse:
       additionalProperties: false
       properties:
@@ -1972,6 +2354,104 @@ components:
         - items
         - hasMore
       type: object
+    GetPublicPublicationsByPublicationIdContentsByContentIdCommentsResponse:
+      additionalProperties: false
+      properties:
+        count:
+          oneOf:
+            - $ref: "#/components/schemas/PublicCount"
+            - type: "null"
+        items:
+          items:
+            $ref: "#/components/schemas/CommentView"
+          maxItems: 50
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+      required:
+        - items
+        - nextCursor
+        - count
+      type: object
+    GetPublicPublicationsByPublicationIdContentsByContentIdInteractionsResponse:
+      additionalProperties: false
+      properties:
+        asOf:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+          format: date-time
+          type: string
+        comments:
+          additionalProperties: false
+          properties:
+            allowReplies:
+              type: boolean
+            enabled:
+              type: boolean
+            maxDepth:
+              maximum: 4
+              minimum: 1
+              type: integer
+            open:
+              type: boolean
+          required:
+            - enabled
+            - open
+            - allowReplies
+            - maxDepth
+          type: object
+        reactions:
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+            items:
+              items:
+                $ref: "#/components/schemas/PublicReactionItem"
+              maxItems: 17
+              type: array
+          required:
+            - enabled
+            - items
+          type: object
+        viewer:
+          oneOf:
+            - $ref: "#/components/schemas/ReaderView"
+            - type: "null"
+      required:
+        - reactions
+        - comments
+        - viewer
+        - asOf
+      type: object
+    GetPublicPublicationsByPublicationIdResponse:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        origin:
+          format: uri
+          maxLength: 255
+          type: string
+        publicBaseUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - publicationId
+        - name
+        - origin
+        - publicBaseUrl
+      type: object
     GetSelfAuthenticatorsResponse:
       additionalProperties: false
       allOf:
@@ -2067,6 +2547,47 @@ components:
         - version
         - state
         - downloadReady
+      type: object
+    GetSelfReaderConnectionsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: false
+            properties:
+              connectedAt:
+                description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+                format: date-time
+                type: string
+              lastUsedAt:
+                oneOf:
+                  - description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+                    format: date-time
+                    type: string
+                  - type: "null"
+              name:
+                maxLength: 120
+                minLength: 1
+                type: string
+              origin:
+                format: uri
+                maxLength: 255
+                type: string
+              publicationId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+            required:
+              - publicationId
+              - name
+              - origin
+              - connectedAt
+              - lastUsedAt
+            type: object
+          maxItems: 500
+          type: array
+      required:
+        - items
       type: object
     GetSelfSessionsResponse:
       additionalProperties: false
@@ -3399,6 +3920,141 @@ components:
         - state
         - principalId
         - roleId
+      type: object
+    ModerationDecision:
+      enum:
+        - HOLD
+        - RESTORE
+        - REMOVE
+        - DISMISS_REPORTS
+      type: string
+    ModerationQueueItem:
+      additionalProperties: false
+      properties:
+        assessment:
+          oneOf:
+            - additionalProperties: false
+              properties:
+                assessedAt:
+                  description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+                  format: date-time
+                  type: string
+                confidence:
+                  maximum: 1
+                  minimum: 0
+                  type: number
+                label:
+                  maxLength: 80
+                  minLength: 1
+                  type: string
+                providerRelease:
+                  maxLength: 120
+                  minLength: 1
+                  type: string
+              required:
+                - label
+                - confidence
+                - providerRelease
+                - assessedAt
+              type: object
+            - type: "null"
+        comment:
+          additionalProperties: false
+          properties:
+            author:
+              $ref: "#/components/schemas/ReaderView"
+            body:
+              maxLength: 20000
+              type: string
+            contentId:
+              format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            createdAt:
+              description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+              format: date-time
+              type: string
+            editedAt:
+              oneOf:
+                - description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+                  format: date-time
+                  type: string
+                - type: "null"
+            id:
+              format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            parentId:
+              oneOf:
+                - format: uuid
+                  pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                  type: string
+                - type: "null"
+            state:
+              $ref: "#/components/schemas/CommentInternalState"
+          required:
+            - id
+            - contentId
+            - parentId
+            - body
+            - state
+            - author
+            - createdAt
+            - editedAt
+          type: object
+        decisions:
+          items:
+            additionalProperties: false
+            properties:
+              decidedAt:
+                description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+                format: date-time
+                type: string
+              decidedBy:
+                additionalProperties: false
+                properties:
+                  displayName:
+                    maxLength: 80
+                    minLength: 1
+                    type: string
+                required:
+                  - displayName
+                type: object
+              decision:
+                $ref: "#/components/schemas/ModerationDecision"
+              note:
+                oneOf:
+                  - maxLength: 1000
+                    type: string
+                  - type: "null"
+            required:
+              - decision
+              - note
+              - decidedAt
+              - decidedBy
+            type: object
+          maxItems: 100
+          type: array
+        reports:
+          additionalProperties: false
+          properties:
+            count:
+              minimum: 0
+              type: integer
+            reasons:
+              items:
+                $ref: "#/components/schemas/ReaderReportReason"
+              maxItems: 8
+              type: array
+          required:
+            - count
+            - reasons
+          type: object
+      required:
+        - comment
+        - reports
+        - assessment
+        - decisions
       type: object
     ObservedRoute:
       additionalProperties: false
@@ -9380,6 +10036,139 @@ components:
       type: string
       x-gala-utf8ByteLength:
         maximum: 2048
+    PortableInteractionsConfigDocument:
+      $comment: "JSON Schema cannot express two rules; consumers enforce them: reaction keys are unique within definitions, and reaction orders are unique within definitions."
+      additionalProperties: false
+      properties:
+        comments:
+          additionalProperties: false
+          properties:
+            allowReplies:
+              type: boolean
+            enabled:
+              type: boolean
+            maxDepth:
+              maximum: 4
+              minimum: 1
+              type: integer
+          required:
+            - enabled
+            - allowReplies
+            - maxDepth
+          type: object
+        publicCounts:
+          additionalProperties: false
+          properties:
+            comments:
+              type: boolean
+            reactions:
+              type: boolean
+          required:
+            - reactions
+            - comments
+          type: object
+        reactions:
+          additionalProperties: false
+          properties:
+            definitions:
+              items:
+                $ref: "#/components/schemas/PortableInteractionsConfigReactionDefinition"
+              maxItems: 16
+              minItems: 0
+              type: array
+            enabled:
+              type: boolean
+          required:
+            - enabled
+            - definitions
+          type: object
+        schemaId:
+          pattern: ^urn:gala:schema:interactions-config:2\.0\.0$
+          type: string
+          x-gala-const: urn:gala:schema:interactions-config:2.0.0
+        schemaVersion:
+          pattern: ^2\.0\.0$
+          type: string
+          x-gala-const: 2.0.0
+      required:
+        - schemaId
+        - schemaVersion
+        - reactions
+        - comments
+        - publicCounts
+      title: Gala interactions-config contract
+      type: object
+    PortableInteractionsConfigPlainLabel:
+      description: Normalized Unicode plain text without markup, controls, or bidi overrides.
+      format: gala-plain-label
+      type: string
+      x-gala-graphemeLength:
+        maximum: 80
+        minimum: 1
+    PortableInteractionsConfigReactionDefinition:
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        key:
+          $ref: "#/components/schemas/PortableInteractionsConfigReactionKey"
+        label:
+          allOf:
+            - $ref: "#/components/schemas/PortableInteractionsConfigPlainLabel"
+          type: string
+          x-gala-graphemeLength:
+            maximum: 32
+            minimum: 1
+        order:
+          maximum: 16
+          minimum: 1
+          type: integer
+        visual:
+          $ref: "#/components/schemas/PortableInteractionsConfigReactionVisual"
+      required:
+        - key
+        - label
+        - visual
+        - order
+        - enabled
+      type: object
+    PortableInteractionsConfigReactionKey:
+      description: 'Stable reaction key. "like" is reserved: Like is implicit whenever reactions are enabled.'
+      not:
+        pattern: ^like$
+        type: string
+        x-gala-const: like
+      pattern: ^[a-z][a-z0-9-]{1,31}$
+      type: string
+    PortableInteractionsConfigReactionVisual:
+      additionalProperties: false
+      properties:
+        kind:
+          pattern: ^emoji$
+          type: string
+          x-gala-const: emoji
+        token:
+          enum:
+            - 👍
+            - ❤️
+            - 💡
+            - 🎉
+            - 😂
+            - 🤯
+            - 🙏
+            - 🔥
+            - 👏
+            - 😮
+            - 😢
+            - 🤔
+            - ✨
+            - 🚀
+            - 💯
+            - 👀
+      required:
+        - kind
+        - token
+      type: object
     PortableProblemCanonicalRoute:
       description: Absolute normalized route with no query, fragment, dot segment, double slash, or non-normalized percent encoding.
       format: gala-canonical-route
@@ -9511,6 +10300,7 @@ components:
       additionalProperties: false
       properties:
         continuationId:
+          description: Optional id of a server-side static continuation route, for example `home`, `organizations`, `account.security` or `reader.connect` (the App's `/reader/connect` route, used by the reader sign-in flow). The server maps an id to a static path with no query.
           maxLength: 80
           minLength: 1
           type: string
@@ -10295,6 +11085,19 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollbackResponse:
       allOf:
         - $ref: "#/components/schemas/OperationResponse"
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideRequest:
+      additionalProperties: false
+      properties:
+        decision:
+          $ref: "#/components/schemas/ModerationDecision"
+        note:
+          maxLength: 1000
+          type: string
+      required:
+        - decision
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideResponse:
+      $ref: "#/components/schemas/ModerationQueueItem"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirementResponse:
       additionalProperties: false
       description: The persisted consequence preview a retirement command must quote back. A client never fabricates `consequencePreviewId` or `consequenceDigest` (LOCAL-36 G-17).
@@ -10879,6 +11682,156 @@ components:
         - name
         - slug
       type: object
+    PostPublicCommentsByCommentIdReportsRequest:
+      additionalProperties: false
+      properties:
+        note:
+          maxLength: 1000
+          type: string
+        reasonCode:
+          $ref: "#/components/schemas/ReaderReportReason"
+      required:
+        - reasonCode
+      type: object
+    PostPublicCommentsByCommentIdReportsResponse:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - RECEIVED
+          type: string
+      required:
+        - status
+      type: object
+    PostPublicCommentsByCommentIdRevisionsRequest:
+      additionalProperties: false
+      properties:
+        body:
+          maxLength: 20000
+          type: string
+      required:
+        - body
+      type: object
+    PostPublicCommentsByCommentIdRevisionsResponse:
+      $ref: "#/components/schemas/CommentView"
+    PostPublicPublicationsByPublicationIdContentsByContentIdCommentsRequest:
+      additionalProperties: false
+      properties:
+        body:
+          maxLength: 20000
+          type: string
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: "null"
+      required:
+        - body
+        - parentId
+      type: object
+    PostPublicPublicationsByPublicationIdContentsByContentIdCommentsResponse:
+      $ref: "#/components/schemas/CommentView"
+    PostReaderAuthorizationsRequest:
+      additionalProperties: false
+      properties:
+        codeChallenge:
+          maxLength: 43
+          minLength: 43
+          pattern: ^[A-Za-z0-9_-]+$
+          type: string
+        codeChallengeMethod:
+          enum:
+            - S256
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        returnUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        state:
+          $ref: "#/components/schemas/ReaderAuthorizationState"
+      required:
+        - publicationId
+        - returnUrl
+        - state
+        - codeChallenge
+        - codeChallengeMethod
+      type: object
+    PostReaderAuthorizationsResponse:
+      additionalProperties: false
+      properties:
+        publication:
+          additionalProperties: false
+          properties:
+            name:
+              maxLength: 120
+              minLength: 1
+              type: string
+            origin:
+              format: uri
+              maxLength: 255
+              type: string
+          required:
+            - name
+            - origin
+          type: object
+        redirectUrl:
+          format: uri
+          maxLength: 4096
+          type: string
+      required:
+        - redirectUrl
+        - publication
+      type: object
+    PostReaderTokensRequest:
+      additionalProperties: false
+      properties:
+        code:
+          maxLength: 256
+          minLength: 16
+          pattern: ^[A-Za-z0-9_-]+$
+          type: string
+        codeVerifier:
+          maxLength: 128
+          minLength: 43
+          pattern: ^[A-Za-z0-9_-]+$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - code
+        - codeVerifier
+        - publicationId
+      type: object
+    PostReaderTokensResponse:
+      additionalProperties: false
+      properties:
+        accessToken:
+          maxLength: 256
+          minLength: 1
+          type: string
+        expiresAt:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
+          format: date-time
+          type: string
+        reader:
+          $ref: "#/components/schemas/ReaderView"
+        tokenType:
+          enum:
+            - Bearer
+          type: string
+      required:
+        - accessToken
+        - tokenType
+        - expiresAt
+        - reader
+      type: object
     PostSelfClosureRequest:
       additionalProperties: false
       properties:
@@ -11270,6 +12223,54 @@ components:
       type: object
     Problem:
       $ref: "#/components/schemas/PortableProblemDocument"
+    PublicCount:
+      additionalProperties: false
+      description: Downward lower-bound bucket (exact for 0-9, then 10+, 20+, 50+ ... 100K+). `label` is the accessible phrase, for example "At least 50 likes"; counts never say "people".
+      properties:
+        display:
+          maxLength: 8
+          minLength: 1
+          type: string
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+        lowerBound:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - lowerBound
+        - display
+        - label
+      type: object
+    PublicReactionItem:
+      additionalProperties: false
+      properties:
+        count:
+          oneOf:
+            - $ref: "#/components/schemas/PublicCount"
+            - type: "null"
+        key:
+          maxLength: 32
+          minLength: 2
+          pattern: ^[a-z][a-z0-9-]{1,31}$
+          type: string
+        label:
+          maxLength: 32
+          minLength: 1
+          type: string
+        viewerActive:
+          type: boolean
+        visual:
+          $ref: "#/components/schemas/ReactionVisual"
+      required:
+        - key
+        - label
+        - visual
+        - count
+        - viewerActive
+      type: object
     PublicationAppearanceBuilt:
       additionalProperties: false
       description: |
@@ -11679,6 +12680,88 @@ components:
         - publicationId
         - version
         - state
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsRequest:
+      additionalProperties: false
+      properties:
+        settings:
+          $ref: "#/components/schemas/PortableInteractionsConfigDocument"
+      required:
+        - settings
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse"
+      required:
+        - change
+      type: object
+    PutPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKeyResponse:
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+        count:
+          oneOf:
+            - $ref: "#/components/schemas/PublicCount"
+            - type: "null"
+        key:
+          maxLength: 32
+          minLength: 2
+          type: string
+      required:
+        - key
+        - active
+        - count
+      type: object
+    ReactionVisual:
+      additionalProperties: false
+      properties:
+        kind:
+          enum:
+            - icon
+            - emoji
+          type: string
+        token:
+          maxLength: 32
+          minLength: 1
+          type: string
+      required:
+        - kind
+        - token
+      type: object
+    ReaderAuthorizationState:
+      description: Opaque anti-forgery value chosen by the blog page; echoed in the redirect fragment.
+      maxLength: 128
+      minLength: 16
+      pattern: ^[A-Za-z0-9_-]+$
+      type: string
+    ReaderReportReason:
+      enum:
+        - SPAM
+        - HARASSMENT
+        - HATE
+        - SEXUAL_CONTENT
+        - VIOLENCE
+        - PRIVACY
+        - SELF_HARM
+        - OTHER
+      type: string
+    ReaderView:
+      additionalProperties: false
+      properties:
+        displayName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        initials:
+          maxLength: 4
+          minLength: 1
+          type: string
+      required:
+        - displayName
+        - initials
       type: object
     ReceiptExchangeCapabilityIssuedResponse:
       additionalProperties: false
@@ -12811,6 +13894,10 @@ components:
       type: apiKey
     internalHealth:
       type: mutualTLS
+    readerBearer:
+      bearerFormat: Opaque publication-scoped reader token
+      scheme: bearer
+      type: http
 info:
   description: Executable Galascribe MVP HTTP contract.
   title: Galascribe API
@@ -24452,6 +25539,1153 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/interaction-aggregates:
+    get:
+      description: Exact numbers for the author only; the public reads show lower-bound buckets.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregates
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - comments: 2
+                        contentId: 018f0000-0000-7000-8000-000000000001
+                        reactions:
+                          like: 3
+                    nextCursor: null
+                    totals:
+                      comments: 2
+                      reactions:
+                        like: 3
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregatesResponse"
+          description: read exact reaction and comment totals per article succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read exact reaction and comment totals per article
+      tags:
+        - moderation
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read exact reaction and comment totals per article
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/interaction-settings:
+    get:
+      description: Reads `gala/modules/interactions.json` at the linked repository's current main branch head. `settings` is null when the file is absent, which means reader interactions are off. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches the file, or is null.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    openChange: null
+                    setUp: true
+                    settings: null
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsResponse"
+          description: read this publication's reader interaction settings at the main branch head succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read this publication's reader interaction settings at the main branch head
+      tags:
+        - interaction-settings
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read this publication's reader interaction settings at the main branch head
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    put:
+      description: The server writes `gala/modules/interactions.json` as a repository change, the way a theme selection writes `gala/appearance.json`. Publishing the change uses the normal publish flow. `change` has the shape the theme-selection write returns.
+      operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  settings:
+                    comments:
+                      allowReplies: true
+                      enabled: true
+                      maxDepth: 3
+                    publicCounts:
+                      comments: true
+                      reactions: true
+                    reactions:
+                      definitions: []
+                      enabled: true
+                    schemaId: urn:gala:schema:interactions-config:2.0.0
+                    schemaVersion: 2.0.0
+            schema:
+              $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    change:
+                      changeId: 018f0000-0000-7000-8000-000000000001
+                      diffDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                      expectedHead: sha1:0000000000000000000000000000000000000000
+                      state: REQUESTED
+                      version: 0
+              schema:
+                $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsResponse"
+          description: save this publication's reader interaction settings as a repository change succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - INVALID_SOURCE_STATE
+        "422":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: save this publication's reader interaction settings as a repository change
+      tags:
+        - interaction-settings
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: expected-git-head-and-binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: save this publication's reader interaction settings as a repository change
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_SOURCE_STATE
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - Publication:ACTIVE
+        - RepositoryBinding:ACTIVE
+        - RepositoryChange:REQUESTED -> PLANNED
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/moderation/comments/{commentId}:decide:
+    post:
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  decision: HOLD
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    assessment: null
+                    comment:
+                      author:
+                        displayName: Ada Reader
+                        initials: AR
+                      body: Great article.
+                      contentId: 018f0000-0000-7000-8000-000000000001
+                      createdAt: "2026-10-08T12:00:00.000Z"
+                      editedAt: null
+                      id: 018f0000-0000-7000-8000-000000000001
+                      parentId: null
+                      state: VISIBLE_PENDING_SCAN
+                    decisions: []
+                    reports:
+                      count: 0
+                      reasons: []
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideResponse"
+          description: record a moderation decision on one comment succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_NOT_FOUND:
+                  summary: COMMENT_NOT_FOUND
+                  value:
+                    code: COMMENT_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: COMMENT_NOT_FOUND
+                    type: urn:gala:problem:comment-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENT_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENT_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                INVALID_DECISION:
+                  summary: INVALID_DECISION
+                  value:
+                    code: INVALID_DECISION
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_DECISION
+                    type: urn:gala:problem:invalid-decision
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, INVALID_DECISION
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - INVALID_DECISION
+      security:
+        - browserSession: []
+      summary: record a moderation decision on one comment
+      tags:
+        - moderation
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.moderate
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: record a moderation decision on one comment
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - COMMENT_NOT_FOUND
+        - INVALID_DECISION
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/moderation/queue:
+    get:
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+        - example: NEEDS_REVIEW
+          in: query
+          name: filter
+          required: false
+          schema:
+            default: NEEDS_REVIEW
+            enum:
+              - NEEDS_REVIEW
+              - FLAGGED
+              - REPORTED
+              - REMOVED
+              - ALL
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - assessment: null
+                        comment:
+                          author:
+                            displayName: Ada Reader
+                            initials: AR
+                          body: Great article.
+                          contentId: 018f0000-0000-7000-8000-000000000001
+                          createdAt: "2026-10-08T12:00:00.000Z"
+                          editedAt: null
+                          id: 018f0000-0000-7000-8000-000000000001
+                          parentId: null
+                          state: VISIBLE_PENDING_SCAN
+                        decisions: []
+                        reports:
+                          count: 0
+                          reasons: []
+                    nextCursor: null
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueueResponse"
+          description: list comments awaiting or carrying a moderation outcome succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: list comments awaiting or carrying a moderation outcome
+      tags:
+        - moderation
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.moderate
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list comments awaiting or carrying a moderation outcome
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/publishes:
     post:
       description: |
@@ -29724,6 +31958,2026 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_PATH
+  /v2/public/comments/{commentId}:
+    delete:
+      description: A comment that has replies stays as a tombstone.
+      operationId: deletePublicCommentsByCommentId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "204":
+          description: delete the reader's own comment succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                NOT_COMMENT_AUTHOR:
+                  summary: NOT_COMMENT_AUTHOR
+                  value:
+                    code: NOT_COMMENT_AUTHOR
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: NOT_COMMENT_AUTHOR
+                    type: urn:gala:problem:not-comment-author
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NOT_COMMENT_AUTHOR, READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NOT_COMMENT_AUTHOR
+            - READER_TOKEN_SCOPE
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_NOT_FOUND:
+                  summary: COMMENT_NOT_FOUND
+                  value:
+                    code: COMMENT_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: COMMENT_NOT_FOUND
+                    type: urn:gala:problem:comment-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENT_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENT_NOT_FOUND
+      security:
+        - readerBearer: []
+      summary: delete the reader's own comment
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: delete the reader's own comment
+      x-gala-reachable-problems:
+        - COMMENT_NOT_FOUND
+        - NOT_COMMENT_AUTHOR
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
+  /v2/public/comments/{commentId}/reports:
+    post:
+      description: A repeat by the same reader with the same reason is idempotent.
+      operationId: postPublicCommentsByCommentIdReports
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  reasonCode: SPAM
+            schema:
+              $ref: "#/components/schemas/PostPublicCommentsByCommentIdReportsRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    status: RECEIVED
+              schema:
+                $ref: "#/components/schemas/PostPublicCommentsByCommentIdReportsResponse"
+          description: report a comment as the signed-in reader succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_TOKEN_SCOPE
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_NOT_FOUND:
+                  summary: COMMENT_NOT_FOUND
+                  value:
+                    code: COMMENT_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: COMMENT_NOT_FOUND
+                    type: urn:gala:problem:comment-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENT_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENT_NOT_FOUND
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: report a comment as the signed-in reader
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: report a comment as the signed-in reader
+      x-gala-reachable-problems:
+        - COMMENT_NOT_FOUND
+        - RATE_LIMITED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/public/comments/{commentId}/revisions:
+    post:
+      operationId: postPublicCommentsByCommentIdRevisions
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  body: Great article, edited.
+            schema:
+              $ref: "#/components/schemas/PostPublicCommentsByCommentIdRevisionsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    author:
+                      displayName: Ada Reader
+                      initials: AR
+                    body: Great article.
+                    createdAt: "2026-10-08T12:00:00.000Z"
+                    depth: 0
+                    editedAt: null
+                    id: 018f0000-0000-7000-8000-000000000001
+                    moreReplies: false
+                    parentId: null
+                    replies: []
+                    state: VISIBLE
+                    viewer:
+                      canDelete: false
+                      canEdit: false
+                      canReply: true
+                      isAuthor: false
+              schema:
+                $ref: "#/components/schemas/PostPublicCommentsByCommentIdRevisionsResponse"
+          description: edit the reader's own comment inside the edit window succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_INVALID:
+                  summary: COMMENT_INVALID
+                  value:
+                    code: COMMENT_INVALID
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors:
+                      - code: EMPTY
+                        pointer: /body
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: COMMENT_INVALID
+                    type: urn:gala:problem:comment-invalid
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENT_INVALID, REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENT_INVALID
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                EDIT_WINDOW_CLOSED:
+                  summary: EDIT_WINDOW_CLOSED
+                  value:
+                    code: EDIT_WINDOW_CLOSED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: EDIT_WINDOW_CLOSED
+                    type: urn:gala:problem:edit-window-closed
+                NOT_COMMENT_AUTHOR:
+                  summary: NOT_COMMENT_AUTHOR
+                  value:
+                    code: NOT_COMMENT_AUTHOR
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: NOT_COMMENT_AUTHOR
+                    type: urn:gala:problem:not-comment-author
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: EDIT_WINDOW_CLOSED, NOT_COMMENT_AUTHOR, READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - EDIT_WINDOW_CLOSED
+            - NOT_COMMENT_AUTHOR
+            - READER_TOKEN_SCOPE
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_NOT_FOUND:
+                  summary: COMMENT_NOT_FOUND
+                  value:
+                    code: COMMENT_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: COMMENT_NOT_FOUND
+                    type: urn:gala:problem:comment-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENT_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENT_NOT_FOUND
+      security:
+        - readerBearer: []
+      summary: edit the reader's own comment inside the edit window
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: edit the reader's own comment inside the edit window
+      x-gala-reachable-problems:
+        - COMMENT_INVALID
+        - COMMENT_NOT_FOUND
+        - EDIT_WINDOW_CLOSED
+        - NOT_COMMENT_AUTHOR
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}:
+    get:
+      operationId: getPublicPublicationsByPublicationId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    name: Example Blog
+                    origin: https://blog.example.com
+                    publicBaseUrl: https://blog.example.com/
+                    publicationId: 018f0000-0000-7000-8000-000000000001
+              schema:
+                $ref: "#/components/schemas/GetPublicPublicationsByPublicationIdResponse"
+          description: read the public identity of a live publication succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - PUBLICATION_NOT_LIVE
+      security: []
+      summary: read the public identity of a live publication
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the public identity of a live publication
+      x-gala-reachable-problems:
+        - PUBLICATION_NOT_LIVE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/contents/{contentId}/comments:
+    get:
+      description: "Without `parentId`: 20 roots per page, newest first, each with its descendants inline oldest first (at most 50 per root; `moreReplies` is true beyond that). With `parentId`: the children of that comment, oldest first, 50 per page. Removed and deleted comments appear as tombstones only when they have visible descendants."
+      operationId: getPublicPublicationsByPublicationIdContentsByContentIdComments
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: contentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: query
+          name: parentId
+          required: false
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    count:
+                      display: 50+
+                      label: At least 50 likes
+                      lowerBound: 50
+                    items:
+                      - author:
+                          displayName: Ada Reader
+                          initials: AR
+                        body: Great article.
+                        createdAt: "2026-10-08T12:00:00.000Z"
+                        depth: 0
+                        editedAt: null
+                        id: 018f0000-0000-7000-8000-000000000001
+                        moreReplies: false
+                        parentId: null
+                        replies: []
+                        state: VISIBLE
+                        viewer:
+                          canDelete: false
+                          canEdit: false
+                          canReply: true
+                          isAuthor: false
+                    nextCursor: null
+              schema:
+                $ref: "#/components/schemas/GetPublicPublicationsByPublicationIdContentsByContentIdCommentsResponse"
+          description: list the visible comments of one article succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                INTERACTIONS_DISABLED:
+                  summary: INTERACTIONS_DISABLED
+                  value:
+                    code: INTERACTIONS_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: INTERACTIONS_DISABLED
+                    type: urn:gala:problem:interactions-disabled
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: INTERACTIONS_DISABLED, PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - INTERACTIONS_DISABLED
+            - PUBLICATION_NOT_LIVE
+      security:
+        - {}
+        - readerBearer: []
+      summary: list the visible comments of one article
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the visible comments of one article
+      x-gala-reachable-problems:
+        - INTERACTIONS_DISABLED
+        - PUBLICATION_NOT_LIVE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    post:
+      description: "A bad comment answers `COMMENT_INVALID` with one `errors` entry at `/body` whose `code` is the reason: `EMPTY`, `TOO_LONG`, `TOO_MANY_LINKS` or `BLOCKED_PATTERN`. The new comment is visible at once; asynchronous moderation may later flag or hold it."
+      operationId: postPublicPublicationsByPublicationIdContentsByContentIdComments
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: contentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  body: Great article.
+                  parentId: null
+            schema:
+              $ref: "#/components/schemas/PostPublicPublicationsByPublicationIdContentsByContentIdCommentsRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    author:
+                      displayName: Ada Reader
+                      initials: AR
+                    body: Great article.
+                    createdAt: "2026-10-08T12:00:00.000Z"
+                    depth: 0
+                    editedAt: null
+                    id: 018f0000-0000-7000-8000-000000000001
+                    moreReplies: false
+                    parentId: null
+                    replies: []
+                    state: VISIBLE
+                    viewer:
+                      canDelete: false
+                      canEdit: false
+                      canReply: true
+                      isAuthor: false
+              schema:
+                $ref: "#/components/schemas/PostPublicPublicationsByPublicationIdContentsByContentIdCommentsResponse"
+          description: post a comment or a reply as the signed-in reader succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_INVALID:
+                  summary: COMMENT_INVALID
+                  value:
+                    code: COMMENT_INVALID
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors:
+                      - code: EMPTY
+                        pointer: /body
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: COMMENT_INVALID
+                    type: urn:gala:problem:comment-invalid
+                REPLY_TOO_DEEP:
+                  summary: REPLY_TOO_DEEP
+                  value:
+                    code: REPLY_TOO_DEEP
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REPLY_TOO_DEEP
+                    type: urn:gala:problem:reply-too-deep
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENT_INVALID, REPLY_TOO_DEEP, REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENT_INVALID
+            - REPLY_TOO_DEEP
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                COMMENTS_CLOSED:
+                  summary: COMMENTS_CLOSED
+                  value:
+                    code: COMMENTS_CLOSED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: COMMENTS_CLOSED
+                    type: urn:gala:problem:comments-closed
+                READER_RESTRICTED:
+                  summary: READER_RESTRICTED
+                  value:
+                    code: READER_RESTRICTED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_RESTRICTED
+                    type: urn:gala:problem:reader-restricted
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+                REPLIES_NOT_ALLOWED:
+                  summary: REPLIES_NOT_ALLOWED
+                  value:
+                    code: REPLIES_NOT_ALLOWED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: REPLIES_NOT_ALLOWED
+                    type: urn:gala:problem:replies-not-allowed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMENTS_CLOSED, READER_RESTRICTED, READER_TOKEN_SCOPE, REPLIES_NOT_ALLOWED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMENTS_CLOSED
+            - READER_RESTRICTED
+            - READER_TOKEN_SCOPE
+            - REPLIES_NOT_ALLOWED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                PARENT_NOT_FOUND:
+                  summary: PARENT_NOT_FOUND
+                  value:
+                    code: PARENT_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PARENT_NOT_FOUND
+                    type: urn:gala:problem:parent-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: PARENT_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - PARENT_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                DUPLICATE_COMMENT:
+                  summary: DUPLICATE_COMMENT
+                  value:
+                    code: DUPLICATE_COMMENT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: DUPLICATE_COMMENT
+                    type: urn:gala:problem:duplicate-comment
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, DUPLICATE_COMMENT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - DUPLICATE_COMMENT
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: post a comment or a reply as the signed-in reader
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: post a comment or a reply as the signed-in reader
+      x-gala-reachable-problems:
+        - COMMAND_REPLAY_CONFLICT
+        - COMMENTS_CLOSED
+        - COMMENT_INVALID
+        - DUPLICATE_COMMENT
+        - PARENT_NOT_FOUND
+        - RATE_LIMITED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_RESTRICTED
+        - READER_TOKEN_SCOPE
+        - REPLIES_NOT_ALLOWED
+        - REPLY_TOO_DEEP
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/contents/{contentId}/interactions:
+    get:
+      description: Public read with an optional reader bearer token. With a token, `viewer` and each reaction `viewerActive` describe that reader; without one, `viewer` is null and every `viewerActive` is false. A count is null when the author turned public counts off.
+      operationId: getPublicPublicationsByPublicationIdContentsByContentIdInteractions
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: contentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    asOf: "2026-10-08T12:00:00.000Z"
+                    comments:
+                      allowReplies: true
+                      enabled: true
+                      maxDepth: 3
+                      open: true
+                    reactions:
+                      enabled: true
+                      items:
+                        - count:
+                            display: 50+
+                            label: At least 50 likes
+                            lowerBound: 50
+                          key: like
+                          label: Like
+                          viewerActive: false
+                          visual:
+                            kind: icon
+                            token: like
+                    viewer: null
+              schema:
+                $ref: "#/components/schemas/GetPublicPublicationsByPublicationIdContentsByContentIdInteractionsResponse"
+          description: read the effective reader interactions and counts of one article succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                INTERACTIONS_DISABLED:
+                  summary: INTERACTIONS_DISABLED
+                  value:
+                    code: INTERACTIONS_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: INTERACTIONS_DISABLED
+                    type: urn:gala:problem:interactions-disabled
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: INTERACTIONS_DISABLED, PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - INTERACTIONS_DISABLED
+            - PUBLICATION_NOT_LIVE
+      security:
+        - {}
+        - readerBearer: []
+      summary: read the effective reader interactions and counts of one article
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the effective reader interactions and counts of one article
+      x-gala-reachable-problems:
+        - INTERACTIONS_DISABLED
+        - PUBLICATION_NOT_LIVE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/contents/{contentId}/reactions/{reactionKey}:
+    delete:
+      description: Always allowed, even when the reaction type has since been disabled.
+      operationId: deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: contentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: like
+          in: path
+          name: reactionKey
+          required: true
+          schema:
+            maxLength: 32
+            minLength: 2
+            pattern: ^[a-z][a-z0-9-]{1,31}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    active: false
+                    count:
+                      display: 50+
+                      label: At least 50 likes
+                      lowerBound: 50
+                    key: like
+              schema:
+                $ref: "#/components/schemas/DeletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKeyResponse"
+          description: clear the signed-in reader's reaction on one article succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_TOKEN_SCOPE
+      security:
+        - readerBearer: []
+      summary: clear the signed-in reader's reaction on one article
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: clear the signed-in reader's reaction on one article
+      x-gala-reachable-problems:
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+    put:
+      operationId: putPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: contentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: like
+          in: path
+          name: reactionKey
+          required: true
+          schema:
+            maxLength: 32
+            minLength: 2
+            pattern: ^[a-z][a-z0-9-]{1,31}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    active: true
+                    count:
+                      display: 50+
+                      label: At least 50 likes
+                      lowerBound: 50
+                    key: like
+              schema:
+                $ref: "#/components/schemas/PutPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKeyResponse"
+          description: set the signed-in reader's reaction on one article succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_TOKEN_SCOPE
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                REACTION_NOT_ENABLED:
+                  summary: REACTION_NOT_ENABLED
+                  value:
+                    code: REACTION_NOT_ENABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: REACTION_NOT_ENABLED
+                    type: urn:gala:problem:reaction-not-enabled
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REACTION_NOT_ENABLED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REACTION_NOT_ENABLED
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: set the signed-in reader's reaction on one article
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: set the signed-in reader's reaction on one article
+      x-gala-reachable-problems:
+        - RATE_LIMITED
+        - REACTION_NOT_ENABLED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/reader/authorizations:
+    post:
+      description: The App route `/reader/connect` calls this after the person chooses to continue. `returnUrl` must be https and start with the publication's live public base URL (the local runtime profile also accepts localhost). The `Location` header carries the publication's public read path; the browser navigates to `redirectUrl`, whose fragment carries the one-time code (60 seconds) and the state.
+      operationId: postReaderAuthorizations
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  codeChallenge: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+                  codeChallengeMethod: S256
+                  publicationId: 018f0000-0000-7000-8000-000000000001
+                  returnUrl: https://blog.example.com/post/#comments
+                  state: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+            schema:
+              $ref: "#/components/schemas/PostReaderAuthorizationsRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    publication:
+                      name: Example Blog
+                      origin: https://blog.example.com
+                    redirectUrl: https://blog.example.com/post/#gala-reader-code=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF&gala-reader-state=EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+              schema:
+                $ref: "#/components/schemas/PostReaderAuthorizationsResponse"
+          description: authorize a visiting reader for one publication and return the redirect succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                RETURN_URL_NOT_ALLOWED:
+                  summary: RETURN_URL_NOT_ALLOWED
+                  value:
+                    code: RETURN_URL_NOT_ALLOWED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: RETURN_URL_NOT_ALLOWED
+                    type: urn:gala:problem:return-url-not-allowed
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, RETURN_URL_NOT_ALLOWED, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - RETURN_URL_NOT_ALLOWED
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                INTERACTIONS_DISABLED:
+                  summary: INTERACTIONS_DISABLED
+                  value:
+                    code: INTERACTIONS_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: INTERACTIONS_DISABLED
+                    type: urn:gala:problem:interactions-disabled
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: INTERACTIONS_DISABLED, PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - INTERACTIONS_DISABLED
+            - PUBLICATION_NOT_LIVE
+      security:
+        - browserSession: []
+      summary: authorize a visiting reader for one publication and return the redirect
+      tags:
+        - reader
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: single-use-capability
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: authorize a visiting reader for one publication and return the redirect
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - INTERACTIONS_DISABLED
+        - PUBLICATION_NOT_LIVE
+        - REQUEST_FIELD_UNKNOWN
+        - RETURN_URL_NOT_ALLOWED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: single-use-code
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/reader/tokens:
+    post:
+      description: OAuth 2.0 authorization code with PKCE (RFC 7636). The token is opaque, valid 30 days and scoped to one publication.
+      operationId: postReaderTokens
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  code: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  codeVerifier: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+                  publicationId: 018f0000-0000-7000-8000-000000000001
+            schema:
+              $ref: "#/components/schemas/PostReaderTokensRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    accessToken: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+                    expiresAt: "2026-10-08T12:00:00.000Z"
+                    reader:
+                      displayName: Ada Reader
+                      initials: AR
+                    tokenType: Bearer
+              schema:
+                $ref: "#/components/schemas/PostReaderTokensResponse"
+          description: exchange a one-time authorization code for a publication-scoped reader token succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                INVALID_GRANT:
+                  summary: INVALID_GRANT
+                  value:
+                    code: INVALID_GRANT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: INVALID_GRANT
+                    type: urn:gala:problem:invalid-grant
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: INVALID_GRANT, REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - INVALID_GRANT
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+      security: []
+      summary: exchange a one-time authorization code for a publication-scoped reader token
+      tags:
+        - reader
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: single-use-capability
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: exchange a one-time authorization code for a publication-scoped reader token
+      x-gala-reachable-problems:
+        - INVALID_GRANT
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: single-use-code
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/reader/tokens/current:
+    delete:
+      operationId: deleteReaderTokensCurrent
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+      responses:
+        "204":
+          description: revoke the reader token that made the request succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+      security:
+        - readerBearer: []
+      summary: revoke the reader token that made the request
+      tags:
+        - reader
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: revoke the reader token that made the request
+      x-gala-reachable-problems:
+        - READER_AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
   /v2/self/authenticators:
     get:
       operationId: getSelfAuthenticators
@@ -31274,6 +35528,157 @@ paths:
         - Passkey:ACTIVE
       x-gala-success-category: update
       x-gala-tenant-scope: NONE
+  /v2/self/reader-connections:
+    get:
+      operationId: getSelfReaderConnections
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - connectedAt: "2026-10-08T12:00:00.000Z"
+                        lastUsedAt: null
+                        name: Example Blog
+                        origin: https://blog.example.com
+                        publicationId: 018f0000-0000-7000-8000-000000000001
+              schema:
+                $ref: "#/components/schemas/GetSelfReaderConnectionsResponse"
+          description: list the publications this person is connected to as a reader succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list the publications this person is connected to as a reader
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the publications this person is connected to as a reader
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/reader-connections/{publicationId}:
+    delete:
+      operationId: deleteSelfReaderConnectionsByPublicationId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "204":
+          description: revoke every reader token this person holds for one publication succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: revoke every reader token this person holds for one publication
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: revoke every reader token this person holds for one publication
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
   /v2/self/recovery-code-sets:
     post:
       operationId: postSelfRecoveryCodeSets
@@ -32694,9 +37099,13 @@ tags:
   - name: authentication
   - name: callbacks
   - name: github
+  - name: interaction-settings
   - name: internal
   - name: membership-invitations
+  - name: moderation
   - name: organizations
+  - name: public-interactions
+  - name: reader
   - name: self
   - name: session
   - name: workloads

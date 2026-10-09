@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { Ajv2020 } from 'ajv/dist/2020.js';
@@ -15,17 +15,6 @@ const CONTRACT_ID = 'urn:gala:schema:openapi:2.0.0';
 const SOURCE_DIRECTORY = path.resolve('openapi/source');
 const BUNDLE_PATH = path.resolve('openapi/openapi.yaml');
 const CATALOG_PATH = path.resolve('openapi/http-catalog.json');
-const PATH_FRAGMENT_COUNTS = Object.freeze({
-  authentication: 4,
-  callbacks: 2,
-  github: 4,
-  internal: 1,
-  'membership-invitations': 1,
-  organizations: 60,
-  self: 14,
-  session: 3,
-  workloads: 2,
-});
 const HTTP_METHODS = new Set(['delete', 'get', 'patch', 'post', 'put']);
 // SCHEMA-2.14.0: the sole operation whose success response is asset bytes rather
 // than an `application/json` envelope, so it is exempt from the JSON response
@@ -393,13 +382,15 @@ function validateOperation(record, schemas) {
     ? 'WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION'
     : route === '/v2/membership-invitations/{token}:accept'
       ? 'TOKEN_BOUND_ORGANIZATION'
-      : route.includes('/publications/{publicationId}')
-        ? 'ORGANIZATION_AND_PUBLICATION_PATH'
-        : route.startsWith('/v2/organizations/{organizationId}')
-          ? 'ORGANIZATION_PATH'
-          : route === '/internal/health'
-            ? 'INTERNAL'
-            : 'NONE';
+      : route.startsWith('/v2/public/') || route.startsWith('/v2/reader/')
+        ? 'NONE'
+        : route.includes('/publications/{publicationId}')
+          ? 'ORGANIZATION_AND_PUBLICATION_PATH'
+          : route.startsWith('/v2/organizations/{organizationId}')
+            ? 'ORGANIZATION_PATH'
+            : route === '/internal/health'
+              ? 'INTERNAL'
+              : 'NONE';
   if (operation['x-gala-tenant-scope'] !== expectedTenantScope) {
     throw new Error(`${identity}: tenant scope drift`);
   }
@@ -695,6 +686,7 @@ function validateContractClosure(records, components) {
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContent',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup',
         'postGithubInstallationsByInstallationIdRepositories',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish',
@@ -711,16 +703,52 @@ function validateContractClosure(records, components) {
 }
 
 /**
- * Read every path fragment and enforce exact fragment and operation counts.
+ * Derive the path-fragment names from the root document's tags and prove that
+ * they are exactly the path fragments on disk, so a fragment can be neither
+ * orphaned nor unlisted. No operation count is stated anywhere: the fragments
+ * are the only source of the operation set.
+ *
+ * @param {JsonObject} root parsed root source document
+ * @returns {Promise<string[]>} fragment names in tag order
+ */
+async function readFragmentNames(root) {
+  const names = /** @type {string[]} */ (
+    (Array.isArray(root.tags) ? root.tags : []).map(
+      (/** @type {{name?: unknown}} */ tag) => tag?.name,
+    )
+  );
+  if (
+    names.some((name) => typeof name !== 'string' || name === '') ||
+    new Set(names).size !== names.length
+  ) {
+    throw new Error('root.yaml: tags must be unique non-empty fragment names');
+  }
+  const onDisk = (await readdir(SOURCE_DIRECTORY))
+    .filter(
+      (name) =>
+        name.endsWith('.yaml') &&
+        !['components.yaml', 'root.yaml'].includes(name),
+    )
+    .map((name) => name.slice(0, -'.yaml'.length))
+    .sort();
+  if (JSON.stringify(onDisk) !== JSON.stringify([...names].sort())) {
+    throw new Error(
+      `root.yaml tags and openapi/source fragments differ: tags [${names.join(', ')}], files [${onDisk.join(', ')}]`,
+    );
+  }
+  return names;
+}
+
+/**
+ * Read every path fragment and enforce operation identity uniqueness.
  *
  * @param {Record<string, unknown>} schemas complete component schema registry
+ * @param {string[]} fragmentNames path-fragment names
  * @returns {Promise<OperationRecord[]>} sorted complete operations
  */
-async function readOperationRecords(schemas) {
+async function readOperationRecords(schemas, fragmentNames) {
   const records = /** @type {OperationRecord[]} */ ([]);
-  for (const [sourceFragment, expectedCount] of Object.entries(
-    PATH_FRAGMENT_COUNTS,
-  )) {
+  for (const sourceFragment of fragmentNames) {
     const filename = `${sourceFragment}.yaml`;
     const document = await readSource(filename);
     if (
@@ -754,10 +782,8 @@ async function readOperationRecords(schemas) {
         fragmentRecords.push(record);
       }
     }
-    if (fragmentRecords.length !== expectedCount) {
-      throw new Error(
-        `${filename}: expected ${expectedCount} operations, received ${fragmentRecords.length}`,
-      );
+    if (fragmentRecords.length === 0) {
+      throw new Error(`${filename}: a path fragment must define an operation`);
     }
     records.push(...fragmentRecords);
   }
@@ -770,16 +796,13 @@ async function readOperationRecords(schemas) {
   );
   const operationIds = records.map(({ operation }) => operation.operationId);
   if (
-    records.length !== 91 ||
-    new Set(identities).size !== 91 ||
-    new Set(operationIds).size !== 91 ||
+    new Set(identities).size !== records.length ||
+    new Set(operationIds).size !== records.length ||
     records.filter(({ path: route }) => route === '/internal/health').length !==
-      1 ||
-    records.filter(({ path: route }) => route !== '/internal/health').length !==
-      90
+      1
   ) {
     throw new Error(
-      'Source fragments are not exactly 90 MVP operations plus health',
+      'Source fragments repeat an operation or do not define /internal/health exactly once',
     );
   }
   return records;
@@ -1177,7 +1200,10 @@ export async function createOpenApiArtifacts() {
   }
   const components = /** @type {JsonObject} */ (componentDocument.components);
   const schemas = /** @type {Record<string, unknown>} */ (components.schemas);
-  const records = await readOperationRecords(schemas);
+  const records = await readOperationRecords(
+    schemas,
+    await readFragmentNames(root),
+  );
   validateContractClosure(records, components);
   const unresolvedDocument = {
     ...root,

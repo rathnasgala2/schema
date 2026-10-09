@@ -2954,6 +2954,11 @@ components:
       additionalProperties: false
       properties:
         continuationId:
+          description: >-
+            Optional id of a server-side static continuation route, for example
+            `home`, `organizations`, `account.security` or `reader.connect` (the
+            App's `/reader/connect` route, used by the reader sign-in flow). The
+            server maps an id to a static path with no query.
           maxLength: 80
           minLength: 1
           type: string
@@ -7186,7 +7191,969 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishResponse:
       allOf:
         - $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesResponse'
+    CommentInternalState:
+      enum:
+        - VISIBLE_PENDING_SCAN
+        - VISIBLE
+        - VISIBLE_FLAGGED
+        - HELD_REVIEW
+        - REMOVED
+        - DELETED_BY_AUTHOR
+      type: string
+    CommentPublicState:
+      enum:
+        - VISIBLE
+        - REMOVED
+        - DELETED
+      type: string
+    CommentView:
+      additionalProperties: false
+      description:
+        A comment with its replies. The tree is unrolled to four levels (depth 0
+        to 3) because the contract tooling does not admit recursive references;
+        each level has the same members, and the last level carries no replies.
+        For `REMOVED` and `DELETED` the author and body are null.
+      properties:
+        author:
+          oneOf:
+            - $ref: '#/components/schemas/ReaderView'
+            - type: 'null'
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: 'null'
+        createdAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - format: date-time
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+              type: string
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        replies:
+          items:
+            $ref: '#/components/schemas/CommentViewLevel1'
+          maxItems: 50
+          type: array
+        state:
+          $ref: '#/components/schemas/CommentPublicState'
+        viewer:
+          $ref: '#/components/schemas/CommentViewerState'
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewLevel1:
+      additionalProperties: false
+      description: Reply level 1; same members as CommentView.
+      properties:
+        author:
+          oneOf:
+            - $ref: '#/components/schemas/ReaderView'
+            - type: 'null'
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: 'null'
+        createdAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - format: date-time
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+              type: string
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        replies:
+          items:
+            $ref: '#/components/schemas/CommentViewLevel2'
+          maxItems: 50
+          type: array
+        state:
+          $ref: '#/components/schemas/CommentPublicState'
+        viewer:
+          $ref: '#/components/schemas/CommentViewerState'
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewLevel2:
+      additionalProperties: false
+      description: Reply level 2; same members as CommentView.
+      properties:
+        author:
+          oneOf:
+            - $ref: '#/components/schemas/ReaderView'
+            - type: 'null'
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: 'null'
+        createdAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - format: date-time
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+              type: string
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        replies:
+          items:
+            $ref: '#/components/schemas/CommentViewLevel3'
+          maxItems: 50
+          type: array
+        state:
+          $ref: '#/components/schemas/CommentPublicState'
+        viewer:
+          $ref: '#/components/schemas/CommentViewerState'
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewLevel3:
+      additionalProperties: false
+      description: Reply level 3; same members as CommentView.
+      properties:
+        author:
+          oneOf:
+            - $ref: '#/components/schemas/ReaderView'
+            - type: 'null'
+        body:
+          oneOf:
+            - maxLength: 20000
+              type: string
+            - type: 'null'
+        createdAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        depth:
+          maximum: 3
+          minimum: 0
+          type: integer
+        editedAt:
+          oneOf:
+            - format: date-time
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+              type: string
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        moreReplies:
+          type: boolean
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        replies:
+          maxItems: 0
+          type: array
+        state:
+          $ref: '#/components/schemas/CommentPublicState'
+        viewer:
+          $ref: '#/components/schemas/CommentViewerState'
+      required:
+        - id
+        - parentId
+        - depth
+        - state
+        - author
+        - body
+        - createdAt
+        - editedAt
+        - replies
+        - moreReplies
+        - viewer
+      type: object
+    CommentViewerState:
+      additionalProperties: false
+      properties:
+        canDelete:
+          type: boolean
+        canEdit:
+          type: boolean
+        canReply:
+          type: boolean
+        isAuthor:
+          type: boolean
+      required:
+        - isAuthor
+        - canEdit
+        - canDelete
+        - canReply
+      type: object
+    DeletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKeyResponse:
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+        count:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+        key:
+          maxLength: 32
+          minLength: 2
+          type: string
+      required:
+        - key
+        - active
+        - count
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregatesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: false
+            properties:
+              comments:
+                minimum: 0
+                type: integer
+              contentId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+              reactions:
+                additionalProperties:
+                  minimum: 0
+                  type: integer
+                maxProperties: 16
+                type: object
+            required:
+              - contentId
+              - reactions
+              - comments
+            type: object
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        totals:
+          additionalProperties: false
+          properties:
+            comments:
+              minimum: 0
+              type: integer
+            reactions:
+              additionalProperties:
+                minimum: 0
+                type: integer
+              maxProperties: 16
+              type: object
+          required:
+            - reactions
+            - comments
+          type: object
+      required:
+        - items
+        - totals
+        - nextCursor
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsResponse:
+      additionalProperties: false
+      properties:
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        setUp:
+          type: boolean
+        settings:
+          oneOf:
+            - $ref: ../schemas/interactions-config.schema.json
+            - type: 'null'
+      required:
+        - settings
+        - openChange
+        - setUp
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueueResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ModerationQueueItem'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+      type: object
+    GetPublicPublicationsByPublicationIdContentsByContentIdCommentsResponse:
+      additionalProperties: false
+      properties:
+        count:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+        items:
+          items:
+            $ref: '#/components/schemas/CommentView'
+          maxItems: 50
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+        - count
+      type: object
+    GetPublicPublicationsByPublicationIdContentsByContentIdInteractionsResponse:
+      additionalProperties: false
+      properties:
+        asOf:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        comments:
+          additionalProperties: false
+          properties:
+            allowReplies:
+              type: boolean
+            enabled:
+              type: boolean
+            maxDepth:
+              maximum: 4
+              minimum: 1
+              type: integer
+            open:
+              type: boolean
+          required:
+            - enabled
+            - open
+            - allowReplies
+            - maxDepth
+          type: object
+        reactions:
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+            items:
+              items:
+                $ref: '#/components/schemas/PublicReactionItem'
+              maxItems: 17
+              type: array
+          required:
+            - enabled
+            - items
+          type: object
+        viewer:
+          oneOf:
+            - $ref: '#/components/schemas/ReaderView'
+            - type: 'null'
+      required:
+        - reactions
+        - comments
+        - viewer
+        - asOf
+      type: object
+    GetPublicPublicationsByPublicationIdResponse:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        origin:
+          format: uri
+          maxLength: 255
+          type: string
+        publicBaseUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - publicationId
+        - name
+        - origin
+        - publicBaseUrl
+      type: object
+    GetSelfReaderConnectionsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: false
+            properties:
+              connectedAt:
+                format: date-time
+                pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+                type: string
+              lastUsedAt:
+                oneOf:
+                  - format: date-time
+                    pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+                    type: string
+                  - type: 'null'
+              name:
+                maxLength: 120
+                minLength: 1
+                type: string
+              origin:
+                format: uri
+                maxLength: 255
+                type: string
+              publicationId:
+                format: uuid
+                pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                type: string
+            required:
+              - publicationId
+              - name
+              - origin
+              - connectedAt
+              - lastUsedAt
+            type: object
+          maxItems: 500
+          type: array
+      required:
+        - items
+      type: object
+    ModerationDecision:
+      enum:
+        - HOLD
+        - RESTORE
+        - REMOVE
+        - DISMISS_REPORTS
+      type: string
+    ModerationQueueItem:
+      additionalProperties: false
+      properties:
+        assessment:
+          oneOf:
+            - additionalProperties: false
+              properties:
+                assessedAt:
+                  format: date-time
+                  pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+                  type: string
+                confidence:
+                  maximum: 1
+                  minimum: 0
+                  type: number
+                label:
+                  maxLength: 80
+                  minLength: 1
+                  type: string
+                providerRelease:
+                  maxLength: 120
+                  minLength: 1
+                  type: string
+              required:
+                - label
+                - confidence
+                - providerRelease
+                - assessedAt
+              type: object
+            - type: 'null'
+        comment:
+          additionalProperties: false
+          properties:
+            author:
+              $ref: '#/components/schemas/ReaderView'
+            body:
+              maxLength: 20000
+              type: string
+            contentId:
+              format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            createdAt:
+              format: date-time
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+              type: string
+            editedAt:
+              oneOf:
+                - format: date-time
+                  pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+                  type: string
+                - type: 'null'
+            id:
+              format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            parentId:
+              oneOf:
+                - format: uuid
+                  pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                  type: string
+                - type: 'null'
+            state:
+              $ref: '#/components/schemas/CommentInternalState'
+          required:
+            - id
+            - contentId
+            - parentId
+            - body
+            - state
+            - author
+            - createdAt
+            - editedAt
+          type: object
+        decisions:
+          items:
+            additionalProperties: false
+            properties:
+              decidedAt:
+                format: date-time
+                pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+                type: string
+              decidedBy:
+                additionalProperties: false
+                properties:
+                  displayName:
+                    maxLength: 80
+                    minLength: 1
+                    type: string
+                required:
+                  - displayName
+                type: object
+              decision:
+                $ref: '#/components/schemas/ModerationDecision'
+              note:
+                oneOf:
+                  - maxLength: 1000
+                    type: string
+                  - type: 'null'
+            required:
+              - decision
+              - note
+              - decidedAt
+              - decidedBy
+            type: object
+          maxItems: 100
+          type: array
+        reports:
+          additionalProperties: false
+          properties:
+            count:
+              minimum: 0
+              type: integer
+            reasons:
+              items:
+                $ref: '#/components/schemas/ReaderReportReason'
+              maxItems: 8
+              type: array
+          required:
+            - count
+            - reasons
+          type: object
+      required:
+        - comment
+        - reports
+        - assessment
+        - decisions
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideRequest:
+      additionalProperties: false
+      properties:
+        decision:
+          $ref: '#/components/schemas/ModerationDecision'
+        note:
+          maxLength: 1000
+          type: string
+      required:
+        - decision
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideResponse:
+      $ref: '#/components/schemas/ModerationQueueItem'
+    PostPublicCommentsByCommentIdReportsRequest:
+      additionalProperties: false
+      properties:
+        note:
+          maxLength: 1000
+          type: string
+        reasonCode:
+          $ref: '#/components/schemas/ReaderReportReason'
+      required:
+        - reasonCode
+      type: object
+    PostPublicCommentsByCommentIdReportsResponse:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - RECEIVED
+          type: string
+      required:
+        - status
+      type: object
+    PostPublicCommentsByCommentIdRevisionsRequest:
+      additionalProperties: false
+      properties:
+        body:
+          maxLength: 20000
+          type: string
+      required:
+        - body
+      type: object
+    PostPublicCommentsByCommentIdRevisionsResponse:
+      $ref: '#/components/schemas/CommentView'
+    PostPublicPublicationsByPublicationIdContentsByContentIdCommentsRequest:
+      additionalProperties: false
+      properties:
+        body:
+          maxLength: 20000
+          type: string
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+      required:
+        - body
+        - parentId
+      type: object
+    PostPublicPublicationsByPublicationIdContentsByContentIdCommentsResponse:
+      $ref: '#/components/schemas/CommentView'
+    PostReaderAuthorizationsRequest:
+      additionalProperties: false
+      properties:
+        codeChallenge:
+          maxLength: 43
+          minLength: 43
+          pattern: ^[A-Za-z0-9_-]+$
+          type: string
+        codeChallengeMethod:
+          enum:
+            - S256
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        returnUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        state:
+          $ref: '#/components/schemas/ReaderAuthorizationState'
+      required:
+        - publicationId
+        - returnUrl
+        - state
+        - codeChallenge
+        - codeChallengeMethod
+      type: object
+    PostReaderAuthorizationsResponse:
+      additionalProperties: false
+      properties:
+        publication:
+          additionalProperties: false
+          properties:
+            name:
+              maxLength: 120
+              minLength: 1
+              type: string
+            origin:
+              format: uri
+              maxLength: 255
+              type: string
+          required:
+            - name
+            - origin
+          type: object
+        redirectUrl:
+          format: uri
+          maxLength: 4096
+          type: string
+      required:
+        - redirectUrl
+        - publication
+      type: object
+    PostReaderTokensRequest:
+      additionalProperties: false
+      properties:
+        code:
+          maxLength: 256
+          minLength: 16
+          pattern: ^[A-Za-z0-9_-]+$
+          type: string
+        codeVerifier:
+          maxLength: 128
+          minLength: 43
+          pattern: ^[A-Za-z0-9_-]+$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - code
+        - codeVerifier
+        - publicationId
+      type: object
+    PostReaderTokensResponse:
+      additionalProperties: false
+      properties:
+        accessToken:
+          maxLength: 256
+          minLength: 1
+          type: string
+        expiresAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        reader:
+          $ref: '#/components/schemas/ReaderView'
+        tokenType:
+          enum:
+            - Bearer
+          type: string
+      required:
+        - accessToken
+        - tokenType
+        - expiresAt
+        - reader
+      type: object
+    PublicCount:
+      additionalProperties: false
+      description:
+        Downward lower-bound bucket (exact for 0-9, then 10+, 20+, 50+ ...
+        100K+). `label` is the accessible phrase, for example "At least 50
+        likes"; counts never say "people".
+      properties:
+        display:
+          maxLength: 8
+          minLength: 1
+          type: string
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+        lowerBound:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - lowerBound
+        - display
+        - label
+      type: object
+    PublicReactionItem:
+      additionalProperties: false
+      properties:
+        count:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+        key:
+          maxLength: 32
+          minLength: 2
+          pattern: ^[a-z][a-z0-9-]{1,31}$
+          type: string
+        label:
+          maxLength: 32
+          minLength: 1
+          type: string
+        viewerActive:
+          type: boolean
+        visual:
+          $ref: '#/components/schemas/ReactionVisual'
+      required:
+        - key
+        - label
+        - visual
+        - count
+        - viewerActive
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsRequest:
+      additionalProperties: false
+      properties:
+        settings:
+          $ref: ../schemas/interactions-config.schema.json
+      required:
+        - settings
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
+    PutPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKeyResponse:
+      additionalProperties: false
+      properties:
+        active:
+          type: boolean
+        count:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+        key:
+          maxLength: 32
+          minLength: 2
+          type: string
+      required:
+        - key
+        - active
+        - count
+      type: object
+    ReactionVisual:
+      additionalProperties: false
+      properties:
+        kind:
+          enum:
+            - icon
+            - emoji
+          type: string
+        token:
+          maxLength: 32
+          minLength: 1
+          type: string
+      required:
+        - kind
+        - token
+      type: object
+    ReaderAuthorizationState:
+      description:
+        Opaque anti-forgery value chosen by the blog page; echoed in the
+        redirect fragment.
+      maxLength: 128
+      minLength: 16
+      pattern: ^[A-Za-z0-9_-]+$
+      type: string
+    ReaderReportReason:
+      enum:
+        - SPAM
+        - HARASSMENT
+        - HATE
+        - SEXUAL_CONTENT
+        - VIOLENCE
+        - PRIVACY
+        - SELF_HARM
+        - OTHER
+      type: string
+    ReaderView:
+      additionalProperties: false
+      properties:
+        displayName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        initials:
+          maxLength: 4
+          minLength: 1
+          type: string
+      required:
+        - displayName
+        - initials
+      type: object
   securitySchemes:
+    readerBearer:
+      bearerFormat: Opaque publication-scoped reader token
+      scheme: bearer
+      type: http
     browserSession:
       in: cookie
       name: __Host-gala-session

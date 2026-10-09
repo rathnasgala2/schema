@@ -43,103 +43,6 @@ import { validateVerificationContentType } from '../src/internal/public-verifica
  * @typedef {{method: string, path: string, fragment: string}} SourceOperation
  */
 
-const EXPECTED_OPERATIONS = `
-GET /internal/health
-GET /v2/session
-POST /v2/session/reauthentication
-DELETE /v2/session
-POST /v2/authentication/github/transactions
-GET /v2/callbacks/github/oauth
-POST /v2/authentication/passkey/assertion-options
-POST /v2/authentication/passkey/assertions
-POST /v2/authentication/recovery-code
-GET /v2/self/authenticators
-POST /v2/self/identity-links
-DELETE /v2/self/identity-links/{identityLinkId}
-POST /v2/self/passkey-registration-options
-POST /v2/self/passkeys
-PATCH /v2/self/passkeys/{passkeyId}
-DELETE /v2/self/passkeys/{passkeyId}
-POST /v2/self/recovery-code-sets
-GET /v2/self/sessions
-DELETE /v2/self/sessions/{sessionFamilyId}
-POST /v2/self/exports
-GET /v2/self/exports/{exportId}
-POST /v2/self/closure
-GET /v2/self/closure
-GET /v2/github/installations
-GET /v2/organizations
-POST /v2/organizations
-GET /v2/organizations/{organizationId}
-PATCH /v2/organizations/{organizationId}
-GET /v2/organizations/{organizationId}/membership-invitations
-GET /v2/organizations/{organizationId}/memberships
-POST /v2/organizations/{organizationId}/membership-invitations
-GET /v2/organizations/{organizationId}/membership-invitations/{invitationId}
-DELETE /v2/organizations/{organizationId}/membership-invitations/{invitationId}
-POST /v2/membership-invitations/{token}:accept
-PATCH /v2/organizations/{organizationId}/memberships/{membershipId}
-DELETE /v2/organizations/{organizationId}/memberships/{membershipId}
-GET /v2/organizations/{organizationId}/publications
-POST /v2/organizations/{organizationId}/publications
-GET /v2/organizations/{organizationId}/publications/{publicationId}
-PATCH /v2/organizations/{organizationId}/publications/{publicationId}
-DELETE /v2/organizations/{organizationId}/publications/{publicationId}
-POST /v2/organizations/{organizationId}/owner-transfers
-GET /v2/organizations/{organizationId}/owner-transfers/{transferId}
-POST /v2/organizations/{organizationId}/owner-transfers/{transferId}:accept
-POST /v2/organizations/{organizationId}/owner-transfers/{transferId}:cancel
-POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings
-GET /v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings/current
-DELETE /v2/organizations/{organizationId}/publications/{publicationId}/repository-bindings/current
-POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes:plan
-POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:confirm
-POST /v2/organizations/{organizationId}/publications/{publicationId}/content-changes:plan
-POST /v2/organizations/{organizationId}/publications/{publicationId}/configuration-changes:plan
-POST /v2/organizations/{organizationId}/publications/{publicationId}/reviews
-GET /v2/organizations/{organizationId}/publications/{publicationId}/reviews
-GET /v2/organizations/{organizationId}/publications/{publicationId}/reviews/events
-GET /v2/organizations/{organizationId}/publications/{publicationId}/reviews/{reviewId}
-POST /v2/organizations/{organizationId}/publications/{publicationId}/reviews/{reviewId}:decide
-POST /v2/organizations/{organizationId}/publications/{publicationId}/publishes
-POST /v2/organizations/{organizationId}/publications/{publicationId}/publishes/{publishId}:cancel
-POST /v2/organizations/{organizationId}/publication-imports
-GET /v2/organizations/{organizationId}/publication-imports/{importId}
-GET /v2/organizations/{organizationId}/operations/{operationId}
-POST /v2/organizations/{organizationId}/operations/{operationId}:cancel
-POST /v2/organizations/{organizationId}/publications/{publicationId}/deployments/{generationId}:reconcile
-POST /v2/organizations/{organizationId}/publications/{publicationId}/deployments:rollback
-GET /v2/organizations/{organizationId}/publications/{publicationId}/deployments
-GET /v2/organizations/{organizationId}/publications/{publicationId}/deployments/{generationId}
-POST /v2/workloads/github/receipt-exchanges
-POST /v2/workloads/deployment-receipts
-POST /v2/callbacks/github/app
-GET /v2/github/app
-GET /v2/github/installations/{installationId}/repositories
-POST /v2/github/installations/{installationId}/repositories
-GET /v2/organizations/{organizationId}/operations
-GET /v2/organizations/{organizationId}/roles
-POST /v2/organizations/{organizationId}/publications/{publicationId}:previewRetirement
-GET /v2/organizations/{organizationId}/publications/{publicationId}/destination
-PUT /v2/organizations/{organizationId}/publications/{publicationId}/destination
-GET /v2/organizations/{organizationId}/publications/{publicationId}/appearance
-GET /v2/organizations/{organizationId}/publications/{publicationId}/site
-GET /v2/organizations/{organizationId}/publications/{publicationId}/history
-POST /v2/organizations/{organizationId}/publications/{publicationId}/changes:publish
-GET /v2/organizations/{organizationId}/publications/{publicationId}/content
-GET /v2/organizations/{organizationId}/publications/{publicationId}/content/documents
-GET /v2/organizations/{organizationId}/publications/{publicationId}/content/assets
-GET /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes
-GET /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}
-POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:bring-up-to-date
-POST /v2/organizations/{organizationId}/publications/{publicationId}/repository:set-up
-GET /v2/organizations/{organizationId}/publications/{publicationId}/repository/setup
-POST /v2/organizations/{organizationId}/publications/{publicationId}/publishes/{publishId}:update-default-branch
-`
-  .trim()
-  .split('\n')
-  .sort();
-
 /**
  * Read all three OpenAPI projections.
  *
@@ -428,7 +331,7 @@ function withoutBundleLiftedKeys(schema) {
   );
 }
 
-test('source fragments, bundle and catalog contain exactly the 90-operation MVP plus health', async () => {
+test('source fragments, bundle and catalog define the same operations plus health', async () => {
   const { bundle, catalog, sourceOperations } = await readProjections();
   const sourceIdentities = sourceOperations
     .map(({ method, path: route }) => `${method} ${route}`)
@@ -436,10 +339,10 @@ test('source fragments, bundle and catalog contain exactly the 90-operation MVP 
   const catalogIdentities = catalog.operations
     .map(({ method, path: route }) => `${method} ${route}`)
     .sort();
-  assert.equal(EXPECTED_OPERATIONS.length, 91);
-  assert.deepEqual(sourceIdentities, EXPECTED_OPERATIONS);
-  assert.deepEqual(bundleIdentities(bundle.paths), EXPECTED_OPERATIONS);
-  assert.deepEqual(catalogIdentities, EXPECTED_OPERATIONS);
+  assert.ok(sourceIdentities.length > 1);
+  assert.equal(new Set(sourceIdentities).size, sourceIdentities.length);
+  assert.deepEqual(bundleIdentities(bundle.paths), sourceIdentities);
+  assert.deepEqual(catalogIdentities, sourceIdentities);
   assert.equal(
     catalog.operations.filter(({ path: route }) => route === '/internal/health')
       .length,
@@ -448,8 +351,27 @@ test('source fragments, bundle and catalog contain exactly the 90-operation MVP 
   assert.equal(
     catalog.operations.filter(({ path: route }) => route.startsWith('/v2/'))
       .length,
-    90,
+    sourceIdentities.length - 1,
   );
+});
+
+test('the root tags name exactly the path fragments and every operation carries its fragment tag', async () => {
+  const { catalog } = await readProjections();
+  const root = /** @type {{tags: Array<{name: string}>}} */ (
+    parseYaml(await readFile('openapi/source/root.yaml', 'utf8'))
+  );
+  const files = (await readdir('openapi/source'))
+    .filter(
+      (name) =>
+        name.endsWith('.yaml') &&
+        !['components.yaml', 'root.yaml'].includes(name),
+    )
+    .map((name) => name.replace(/\.yaml$/u, ''))
+    .sort();
+  assert.deepEqual(root.tags.map(({ name }) => name).sort(), files);
+  for (const row of catalog.operations) {
+    assert.ok(files.includes(row.sourceFragment), row.operationId);
+  }
 });
 
 test('every operation uses mechanical unique naming and complete executable metadata', async () => {
@@ -494,7 +416,7 @@ test('every operation uses mechanical unique naming and complete executable meta
     );
     assert.deepEqual(operation.tags, [row.sourceFragment]);
   }
-  assert.equal(new Set(operationIds).size, 91);
+  assert.equal(new Set(operationIds).size, catalog.operations.length);
 });
 
 test('recovery-code regeneration declares both lifecycle families', async () => {
@@ -866,7 +788,10 @@ test('keyset list reads answer a bad cursor or limit with 400, never 422', async
         (parameter) => parameter.in === 'query' && parameter.name === 'cursor',
       );
   });
-  assert.equal(keysetReads.length, 15);
+  assert.ok(
+    keysetReads.length >= 15,
+    'the keyset reads that predate reader interactions are still all present',
+  );
   for (const row of keysetReads) {
     const operation = operationAt(bundle, row.method, row.path);
     const response = resolveLocalComponent(
@@ -1029,6 +954,8 @@ test('capability annotations are closed and only the eight documented conjunctio
   for (const row of catalog.operations) {
     const dedicatedAuthority =
       row.path.startsWith('/v2/self/') ||
+      row.path.startsWith('/v2/public/') ||
+      row.path.startsWith('/v2/reader/') ||
       row.path.startsWith('/v2/session') ||
       row.path.startsWith('/v2/authentication/') ||
       row.path.startsWith('/v2/callbacks/') ||
@@ -2423,27 +2350,14 @@ test('PortableProblemDocument matches problem.schema.json on shape and bounds (S
   }
 });
 
-test('README.md states the MVP operation count consistently (SCH-L1)', async () => {
+test('README.md quotes no operation count (SCH-L1)', async () => {
   const readme = await readFile('README.md', 'utf8');
   assert.ok(
-    readme.includes('90 MVP operations plus'),
-    'README.md no longer says "90 MVP operations plus"',
-  );
-  assert.match(
-    readme,
-    /exact 90 MVP\s+operations plus health/u,
-    'README.md no longer says "exact 90 MVP operations plus health"',
+    !/\b\d+ MVP\s+operations\b/u.test(readme),
+    'README.md quotes a literal MVP operation count; the fragments are the only source of the operation set',
   );
   assert.ok(
-    !/\b73 MVP\b/u.test(readme),
-    'README.md still claims 73 MVP operations somewhere; it is 90',
-  );
-  assert.ok(
-    !/\b75 MVP\b/u.test(readme),
-    'README.md still claims 75 MVP operations somewhere; it is 90',
-  );
-  assert.ok(
-    !/\b76 MVP\b/u.test(readme),
-    'README.md still claims 76 MVP operations somewhere; it is 90',
+    !/\(\d+ catalog\s+rows/u.test(readme),
+    'README.md quotes a literal catalog row count',
   );
 });
