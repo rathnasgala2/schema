@@ -448,7 +448,7 @@ test('request and success components follow the frozen mechanical names', async 
     if (BINARY_RESPONSE_OPERATIONS.includes(row.operationId)) {
       assert.deepEqual(
         Object.keys(response.content).sort(),
-        [...BINARY_RESPONSE_CONTENT_TYPES[row.operationId]].sort(),
+        [...(BINARY_RESPONSE_CONTENT_TYPES[row.operationId] ?? [])].sort(),
       );
       for (const entry of Object.values(response.content)) {
         assert.equal(entry.schema.type, 'string');

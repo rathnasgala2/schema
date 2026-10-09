@@ -297,7 +297,7 @@ function validateOperation(record, schemas) {
   if (BINARY_RESPONSE_OPERATIONS.includes(operation.operationId)) {
     const contentTypes = Object.keys(success.content ?? {}).sort();
     const expectedTypes = [
-      ...BINARY_RESPONSE_CONTENT_TYPES[operation.operationId],
+      ...(BINARY_RESPONSE_CONTENT_TYPES[operation.operationId] ?? []),
     ].sort();
     const shapesAreBinary = Object.values(success.content ?? {}).every(
       (entry) =>
