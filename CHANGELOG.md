@@ -39,6 +39,90 @@ appeals, custom domains and the platform operator console.
   `attribution`, written to `gala/appearance.json`; absent preserves the file's
   value. `PublicationAppearanceSelected` (appearance read): optional
   `attribution` as read from the file.
+- Problem codes (`scripts/internal-semantics/http-problem-contract.js`, none
+  retryable): `409` `APPEAL_EXISTS`, `APPEAL_NOT_ALLOWED`,
+  `CANONICAL_BASE_MISMATCH`, `COLLABORATION_REQUIRED`,
+  `CONSEQUENCE_DIGEST_MISMATCH`, `CURRENT_SESSION`, `DOMAIN_EXISTS`,
+  `DOMAIN_NOT_DETACHABLE`, `EXPORT_NOT_READY`, `GENERATION_NOT_READY`,
+  `HOSTNAME_RESERVED`, `IMPORT_BLOCKED`, `IMPORT_NOT_READY`,
+  `LAST_SIGN_IN_METHOD`, `LAYOUT_MISMATCH`, `OWNER_TRANSFER_REQUIRED`,
+  `PAGES_NOT_AVAILABLE`, `REPOSITORY_ALREADY_BOUND`, `ROLE_IN_USE`,
+  `ROLE_NOT_CUSTOM`, `SCHEDULE_EXISTS`, `SOURCE_CHANGED`,
+  `SUCCESSOR_NOT_MEMBER`, `TRANSFER_CHECK_FAILED`, `TRANSFER_EXISTS`,
+  `TRANSFER_NOT_PENDING`, `TRANSFER_PENDING`; `401 INVALID_RECOVERY_CODE`;
+  `403 NOT_THE_SUCCESSOR`; `404 DESTINATION_NOT_FOUND`; `422`
+  `CAPABILITY_NOT_ASSIGNABLE`, `HOSTNAME_INVALID`; `429 QUOTA_EXHAUSTED` (with
+  `Retry-After`). The portable problem's `errors[]` entries are
+  `{ pointer, code }` only, so values the journeys need (an existing schedule's
+  `publishId`, a role's member count, the expected canonical address) are named
+  in the problem `detail` and readable from the corresponding resource; a failed
+  transfer check is an `errors[]` entry with `pointer` `/checks/<code>`.
+- Scheduled publishing: `changes:publish` with `scheduledFor` answers
+  `422 VALIDATION_FAILED` at `/scheduledFor` outside 5 minutes to 366 days,
+  `409 SCHEDULE_EXISTS` while another schedule is pending, and
+  `409 CANONICAL_BASE_MISMATCH`; `POST .../publishes` also maps the last two.
+  The site read gains optional `schedule` (`SiteSchedule`: `publishId`,
+  `scheduledFor`, `changeIds`, `createdBy`); a pending schedule never reads
+  `PUBLISHING`. `SiteAttentionItem.code` adds `SCHEDULED_PUBLISH_FAILED`,
+  `DOMAIN_PUBLISH_REQUIRED` and `DOMAIN_DEGRADED`, and the item gains optional
+  `relatedPublishId` and `reasonCode`. `HistoryEntry` gains optional
+  `scheduledFor`.
+- Owner transfer: `POST .../owner-transfers:preview` (consequence preview),
+  `POST .../owner-transfers/{transferId}:decline` and
+  `GET /v2/self/owner-transfers` (`IncomingOwnerTransfer`); the transfer
+  representation is the shared `OwnerTransfer` with `successorGithubLogin`,
+  `organizationKind` (`OrganizationKind`: `SINGLE` | `COLLABORATIVE`) and
+  `reasonCode`. The organization read gains optional `kind`.
+- Publication transfer, new fragment `publication-transfers`:
+  `POST .../publications/{publicationId}/transfers:preview`,
+  `POST .../transfers`, `GET .../transfers/{transferId}`,
+  `POST .../transfers/{transferId}:cancel`, and under the destination
+  organization `GET .../publication-transfers?direction=INCOMING|OUTGOING`,
+  `POST .../publication-transfers/{transferId}:accept` and `:decline`
+  (`PublicationTransfer`, `PublicationTransferCheck`, `Consequence`). Every
+  existing publication-scoped command (30 operations) now maps
+  `409 TRANSFER_PENDING`.
+- Repository import: `POST .../publication-imports/{importId}:connect`,
+  `:convert`, `:cancel` and the keyset list `GET .../publication-imports`
+  (`PublicationImport`, `PublicationImportFinding`).
+- Custom roles: `POST .../roles`, `GET`/`PATCH` (`If-Match`)/`DELETE`
+  (`If-Match`, `?replacementRoleId=`) `.../roles/{roleId}`,
+  `GET .../roles/{roleId}/members` and `GET .../capabilities`
+  (`AssignableCapability`). `RoleSummary` gains optional `kind`, `revision`,
+  `state`, `memberCount` and `basedOnRoleKey`.
+- Account: `POST /v2/self/sessions:revoke-others`, `GET /v2/self/exports`,
+  `POST /v2/self/exports/{exportId}:download` (one-time link) and the public
+  `GET /v2/self/exports/{exportId}/archive?token=` (`application/zip`,
+  `Content-Disposition: attachment`, non-enumerating `404`),
+  `POST /v2/self/closure:preview` and `POST /v2/self/closure:cancel`.
+  `SessionSummary` gains `createdAt` and `client` (`SessionClient`); the
+  authenticators read gains optional `recoveryCodes` (`RecoveryCodeStatus`);
+  `DELETE /v2/self/sessions/{sessionFamilyId}` maps `409 CURRENT_SESSION` and
+  `404`; `DELETE /v2/self/identity-links/{identityLinkId}` maps
+  `409 LAST_SIGN_IN_METHOD` and `404`. The session read gains optional `closure`
+  (`SessionClosure`) and `workforce` (`SessionWorkforce`).
+- Comment appeals: `POST /v2/public/comments/{commentId}/appeals` (reader
+  bearer); every `CommentView` level gains optional `own` (`CommentOwnState`);
+  the moderation queue `filter` adds `APPEALED`, `ModerationQueueItem` gains
+  optional `appeal`, and `ModerationDecision` adds `DENY_APPEAL`.
+- Custom domains, new fragment `domains`: `GET`/`POST .../domains`,
+  `GET .../domains/{domainId}`, `POST .../domains/{domainId}:check` and
+  `:detach` (`DomainBinding` with its DNS, certificate, routing, canonical base
+  and next-step members).
+- Prism editions, new fragment `prism`: `GET .../generation-policy`,
+  `POST`/`GET .../prism-generations`, `GET .../prism-generations/{generationId}`
+  and its `:cancel`, `:reject` and `:accept` (`PrismGeneration`).
+- Platform operator console, new fragment `platform`:
+  `GET /v2/platform/audit-events`, `GET /v2/platform/configuration` and
+  `GET /v2/platform/adapters`.
+- `scripts/generate-openapi.mjs`: `BINARY_RESPONSE_CONTENT_TYPES` gives each
+  binary-response operation its own closed content-type list (the export archive
+  is `application/zip`); the custom-domain create and check and the Prism accept
+  join the operations that map `503 DEPENDENCY_UNAVAILABLE`.
+- App route catalog: `/v1/sites/{organizationId}/{publicationId}/domain`,
+  `/platform/audit`, `/platform/configuration/{family}` and `/platform/adapters`
+  (33 routes), and the new operations bound to their screens. The reader appeal
+  stays unbound like every other operation a published site's own script calls.
 
 ### Changed (breaking)
 
@@ -48,6 +132,30 @@ appeals, custom domains and the platform operator console.
   `bytesBase64` is bounded at the 5 MiB image ceiling), 20 MiB per change (was
   stated as 100 MiB). No server ever accepted more, so no working client relied
   on the wider contract.
+- Contract-only operations are reshaped to the journeys they now serve. No
+  server ever implemented any of them, so no client depended on the old shapes:
+  `POST`/`GET .../publication-imports` answer `PublicationImport` (was an
+  operation response and an operation-phase record); `POST /v2/self/exports` and
+  `GET /v2/self/exports/{exportId}` answer `AccountExport` (was an operation
+  response and an operation-phase record); `POST /v2/self/closure` takes
+  `{ consequencePreviewId, consequenceDigest, acknowledged }` and answers
+  `{ state, fenceAt }`; `GET /v2/self/closure` answers `state` (now including
+  `NONE`), `fenceAt` and `consequences` in place of `irreversibleAt` and
+  `recoveryActions`, with `closureId` and `version` optional;
+  `POST /v2/self/recovery-code-sets` answers exactly ten lower-case Crockford
+  `xxxx-xxxx-xxxx` codes and `generatedAt` (was `createdAt`);
+  `POST /v2/authentication/recovery-code` takes `{ code }` alone (no
+  authentication transaction) and maps `401 INVALID_RECOVERY_CODE` and
+  `429 RATE_LIMITED` instead of `409 INVALID_SOURCE_STATE`; `SessionSummary`
+  requires the new `createdAt` and `client`.
+- Owner transfer: `POST .../owner-transfers` names the successor exactly once,
+  by `successorPrincipalId` or `successorGithubLogin`, and every transfer
+  response requires `organizationKind` and no longer requires
+  `successorPrincipalId`. Every owner-transfer call failed with
+  `401 REAUTH_REQUIRED` before any check, so no client ever received the old
+  response.
+
+## [3.2.0] - 2026-10-09
 
 Publishing state is observed from GitHub, so the site read exposes the real
 stage and the run link.

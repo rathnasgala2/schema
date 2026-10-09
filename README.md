@@ -672,16 +672,19 @@ remediation, and documentation URL fields without including authored values.
 - `docs/catalogs/app-components.json` — generated digest-bound catalog of the 15
   closed semantic App components and the per-screen title/summary/status/
   recovery content-key inventory for every registered route.
-- `docs/catalogs/app-routes.json` — generated digest-bound catalog of the 22 MVP
-  App route registry entries (S5 brief section 4, plus LOCAL-21's
-  `/invitations/accept` and SCHEMA-2.8.0's Reviews list), each with its derived
-  `routeId`/`screenId`, `componentIds`, `contentKeyIds`, `apiOperationIds`
-  validated against `openapi/openapi.yaml`, and `capabilityKeys` projected from
-  `openapi/http-catalog.json`.
+- `docs/catalogs/app-routes.json` — generated digest-bound catalog of the 33 App
+  route registry entries (S5 brief section 4, plus LOCAL-21's
+  `/invitations/accept`, SCHEMA-2.8.0's Reviews list, the v1 site screens, and
+  SCHEMA-3.3.0's site Domain screen and three `/platform` operator screens),
+  each with its derived `routeId`/`screenId`, `componentIds`, `contentKeyIds`,
+  `apiOperationIds` validated against `openapi/openapi.yaml`, and
+  `capabilityKeys` projected from `openapi/http-catalog.json`.
 - `openapi/source/` — reviewed, complete OpenAPI root, component, and path
-  fragments grouped by the first literal resource token. A build input, not part
-  of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
-  a consumer reads the materialized `openapi/openapi.yaml` instead.
+  fragments, one fragment per tag, grouped by resource or by feature
+  (SCHEMA-3.3.0 adds `publication-transfers`, `domains`, `prism` and
+  `platform`); the root tags name exactly the fragments on disk. A build input,
+  not part of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s
+  `files`) -- a consumer reads the materialized `openapi/openapi.yaml` instead.
 - `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
