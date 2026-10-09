@@ -2015,7 +2015,15 @@ test('the membership-invitation list read is a keyset list defaulting to PENDING
     Object.keys(detail.properties).sort(),
   );
   assert.deepEqual([...summary.required].sort(), [...detail.required].sort());
-  assert.ok(!('recipient' in summary.properties));
+  // SCHEMA-3.4.0: the row shows the inviter's own label so the inviter can
+  // recognise it, but it stays an unverified note (LOCAL-34 G6): optional,
+  // never required, and described as possession-based acceptance.
+  assert.ok('recipient' in summary.properties);
+  assert.ok(!summary.required.includes('recipient'));
+  assert.match(
+    String(summary.properties.recipient.description),
+    /possession-based/u,
+  );
 
   const response =
     bundle.components.schemas

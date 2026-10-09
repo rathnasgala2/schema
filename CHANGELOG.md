@@ -8,6 +8,35 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-10-09
+
+Invitations a People page and an invitation link can show in full.
+
+### Added
+
+- `MembershipInvitationSummary` and the single-invitation read gain `roleKey`,
+  `roleName` and `invitedBy` (`SiteActor`), and optional `publicationId`,
+  `publicationName` (publication-scoped invitations) and `recipient`: the label
+  the inviter typed, at most 320 characters, absent for invitations created
+  before the label was stored.
+- `GET /v2/membership-invitations/{token}` (public, no session; the token is the
+  capability): `organizationName`, `roleName`, `scope` (`ORGANIZATION` |
+  `PUBLICATION`), `publicationName` for a publication-scoped invitation,
+  `invitedBy`, `expiresAt` and `state` `PENDING`. Any unknown, expired, accepted
+  or revoked token is `404 RESOURCE_NOT_FOUND` (non-enumerating).
+- App route catalog: `/t/invitations/{token}` (`TRANSACTIONAL_LINK`,
+  `ACCOUNTLESS_CAPABILITY`) binds the link read (34 routes).
+
+### Changed
+
+- The invitation create request now states the rule the server enforces:
+  `recipient` is an email address of at most 320 characters (a GitHub login is
+  `400 VALIDATION_FAILED`), trimmed and lower-cased.
+- `recipient` is now shown back on the invitation rows, reversing LOCAL-34 G6's
+  "no recipient is projected". It stays an unverified note: acceptance is
+  possession-based and the value is never matched against whoever accepts, and
+  it is optional because invitations created earlier stored only its digest.
+
 ## [3.3.0] - 2026-10-09
 
 The author, reader and operator journeys: footer attribution, Prism editions,
@@ -2511,7 +2540,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.3.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/rathnasgala2/schema/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/rathnasgala2/schema/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/rathnasgala2/schema/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/rathnasgala2/schema/compare/v3.0.0...v3.1.0

@@ -570,6 +570,14 @@ components:
       type: object
     GetOrganizationsByOrganizationIdMembershipInvitationsByInvitationIdResponse:
       additionalProperties: false
+      description:
+        "One pending or settled invitation, in exactly the shape the
+        single-invitation read returns, so a client renders a row and its detail
+        view from the same fields. SCHEMA-3.4.0 adds what a People page needs to
+        show a pending row: `recipient` (the inviter's own unverified label,
+        absent for older invitations), the invited role (`roleKey`, `roleName`),
+        its publication when the invitation is publication-scoped
+        (`publicationId`, `publicationName`), and who sent it (`invitedBy`)."
       properties:
         expiresAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
@@ -583,6 +591,35 @@ components:
           type: string
         state:
           $ref: '#/components/schemas/MembershipInvitationState'
+        invitedBy:
+          $ref: '#/components/schemas/SiteActor'
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        recipient:
+          description:
+            'The label the inviter typed when creating the invitation (an email
+            address), shown so the inviter recognises the row. It is not a
+            verified identity: acceptance is possession-based and this value is
+            never matched against whoever accepts (LOCAL-34 G6). Absent for
+            invitations created before the label was stored.'
+          maxLength: 320
+          minLength: 1
+          type: string
+        roleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
+          type: string
         version:
           format: int64
           minimum: 0
@@ -593,6 +630,9 @@ components:
         - state
         - roleId
         - expiresAt
+        - roleKey
+        - roleName
+        - invitedBy
       type: object
     GetOrganizationsByOrganizationIdMembershipInvitationsResponse:
       additionalProperties: false
@@ -2315,11 +2355,13 @@ components:
     MembershipInvitationSummary:
       additionalProperties: false
       description:
-        One pending or settled invitation, in exactly the shape the
+        "One pending or settled invitation, in exactly the shape the
         single-invitation read returns, so a client renders a row and its detail
-        view from the same fields. `recipient` is deliberately absent, as it is
-        from the single read, because acceptance is possession-based and the
-        label an inviter typed is never a verified identity (LOCAL-34 G6).
+        view from the same fields. SCHEMA-3.4.0 adds what a People page needs to
+        show a pending row: `recipient` (the inviter's own unverified label,
+        absent for older invitations), the invited role (`roleKey`, `roleName`),
+        its publication when the invitation is publication-scoped
+        (`publicationId`, `publicationName`), and who sent it (`invitedBy`)."
       properties:
         expiresAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
@@ -2333,6 +2375,35 @@ components:
           type: string
         state:
           $ref: '#/components/schemas/MembershipInvitationState'
+        invitedBy:
+          $ref: '#/components/schemas/SiteActor'
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        recipient:
+          description:
+            'The label the inviter typed when creating the invitation (an email
+            address), shown so the inviter recognises the row. It is not a
+            verified identity: acceptance is possession-based and this value is
+            never matched against whoever accepts (LOCAL-34 G6). Absent for
+            invitations created before the label was stored.'
+          maxLength: 320
+          minLength: 1
+          type: string
+        roleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
+          type: string
         version:
           format: int64
           minimum: 0
@@ -2343,6 +2414,9 @@ components:
         - state
         - roleId
         - expiresAt
+        - roleKey
+        - roleName
+        - invitedBy
       type: object
     MembershipState:
       enum:
@@ -3311,13 +3385,14 @@ components:
             - 'null'
         recipient:
           description:
-            Label recording who the inviter meant to invite. Acceptance is
-            possession-based, so whoever presents the invitation token joins
-            with the invited role, and this value is never matched against the
-            accepting principal's verified identity. It exists so the inviter
-            can recognize the invitation in a list; treat it as a note, not a
-            binding (LOCAL-34 G6). Recipient binding is revisited when verified
-            email exists.
+            An email address (at most 320 characters; anything else, a GitHub
+            login included, is `400 VALIDATION_FAILED`). The server trims and
+            lower-cases it. It records who the inviter meant to invite and is
+            shown back on the invitation rows; acceptance is possession-based,
+            so whoever presents the invitation token joins with the invited role
+            and this value is never matched against the accepting principal's
+            verified identity -- treat it as a note, not a binding (LOCAL-34
+            G6).
           format: email
           maxLength: 320
           type: string
@@ -10417,6 +10492,56 @@ components:
         - roleId
         - roleKey
         - roleName
+        - state
+      type: object
+    GetMembershipInvitationsByTokenResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              required:
+                - publicationName
+          if:
+            properties:
+              scope:
+                const: PUBLICATION
+            required:
+              - scope
+          then:
+            required:
+              - publicationName
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        invitedBy:
+          $ref: '#/components/schemas/SiteActor'
+        organizationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        scope:
+          enum:
+            - ORGANIZATION
+            - PUBLICATION
+          type: string
+        state:
+          enum:
+            - PENDING
+          type: string
+      required:
+        - organizationName
+        - roleName
+        - scope
+        - invitedBy
+        - expiresAt
         - state
       type: object
   securitySchemes:

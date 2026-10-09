@@ -1587,6 +1587,58 @@ components:
       required:
         - status
       type: object
+    GetMembershipInvitationsByTokenResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              required:
+                - publicationName
+          if:
+            properties:
+              scope:
+                pattern: ^PUBLICATION$
+                type: string
+                x-gala-const: PUBLICATION
+            required:
+              - scope
+          then:
+            required:
+              - publicationName
+      properties:
+        expiresAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        invitedBy:
+          $ref: "#/components/schemas/SiteActor"
+        organizationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        scope:
+          enum:
+            - ORGANIZATION
+            - PUBLICATION
+          type: string
+        state:
+          enum:
+            - PENDING
+          type: string
+      required:
+        - organizationName
+        - roleName
+        - scope
+        - invitedBy
+        - expiresAt
+        - state
+      type: object
     GetOrganizationsByOrganizationIdCapabilitiesResponse:
       additionalProperties: false
       properties:
@@ -1601,6 +1653,7 @@ components:
       type: object
     GetOrganizationsByOrganizationIdMembershipInvitationsByInvitationIdResponse:
       additionalProperties: false
+      description: "One pending or settled invitation, in exactly the shape the single-invitation read returns, so a client renders a row and its detail view from the same fields. SCHEMA-3.4.0 adds what a People page needs to show a pending row: `recipient` (the inviter's own unverified label, absent for older invitations), the invited role (`roleKey`, `roleName`), its publication when the invitation is publication-scoped (`publicationId`, `publicationName`), and who sent it (`invitedBy`)."
       properties:
         expiresAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
@@ -1608,9 +1661,33 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        invitedBy:
+          $ref: "#/components/schemas/SiteActor"
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        recipient:
+          description: "The label the inviter typed when creating the invitation (an email address), shown so the inviter recognises the row. It is not a verified identity: acceptance is possession-based and this value is never matched against whoever accepts (LOCAL-34 G6). Absent for invitations created before the label was stored."
+          maxLength: 320
+          minLength: 1
+          type: string
         roleId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
           type: string
         state:
           $ref: "#/components/schemas/MembershipInvitationState"
@@ -1624,6 +1701,9 @@ components:
         - state
         - roleId
         - expiresAt
+        - roleKey
+        - roleName
+        - invitedBy
       type: object
     GetOrganizationsByOrganizationIdMembershipInvitationsResponse:
       additionalProperties: false
@@ -4668,7 +4748,7 @@ components:
       type: string
     MembershipInvitationSummary:
       additionalProperties: false
-      description: One pending or settled invitation, in exactly the shape the single-invitation read returns, so a client renders a row and its detail view from the same fields. `recipient` is deliberately absent, as it is from the single read, because acceptance is possession-based and the label an inviter typed is never a verified identity (LOCAL-34 G6).
+      description: "One pending or settled invitation, in exactly the shape the single-invitation read returns, so a client renders a row and its detail view from the same fields. SCHEMA-3.4.0 adds what a People page needs to show a pending row: `recipient` (the inviter's own unverified label, absent for older invitations), the invited role (`roleKey`, `roleName`), its publication when the invitation is publication-scoped (`publicationId`, `publicationName`), and who sent it (`invitedBy`)."
       properties:
         expiresAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
@@ -4676,9 +4756,33 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        invitedBy:
+          $ref: "#/components/schemas/SiteActor"
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        recipient:
+          description: "The label the inviter typed when creating the invitation (an email address), shown so the inviter recognises the row. It is not a verified identity: acceptance is possession-based and this value is never matched against whoever accepts (LOCAL-34 G6). Absent for invitations created before the label was stored."
+          maxLength: 320
+          minLength: 1
+          type: string
         roleId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
           type: string
         state:
           $ref: "#/components/schemas/MembershipInvitationState"
@@ -4692,6 +4796,9 @@ components:
         - state
         - roleId
         - expiresAt
+        - roleKey
+        - roleName
+        - invitedBy
       type: object
     MembershipState:
       enum:
@@ -11834,7 +11941,7 @@ components:
             - string
             - "null"
         recipient:
-          description: Label recording who the inviter meant to invite. Acceptance is possession-based, so whoever presents the invitation token joins with the invited role, and this value is never matched against the accepting principal's verified identity. It exists so the inviter can recognize the invitation in a list; treat it as a note, not a binding (LOCAL-34 G6). Recipient binding is revisited when verified email exists.
+          description: An email address (at most 320 characters; anything else, a GitHub login included, is `400 VALIDATION_FAILED`). The server trims and lower-cases it. It records who the inviter meant to invite and is shown back on the invitation rows; acceptance is possession-based, so whoever presents the invitation token joins with the invited role and this value is never matched against the accepting principal's verified identity -- treat it as a note, not a binding (LOCAL-34 G6).
           format: email
           maxLength: 320
           type: string
@@ -17782,6 +17889,126 @@ paths:
         - GithubRepository:name unclaimed on the resolved account
       x-gala-success-category: create
       x-gala-tenant-scope: NONE
+  /v2/membership-invitations/{token}:
+    get:
+      description: |
+        Lets the page an invitation link opens show what it offers before the
+        person signs in to accept it: the organization, the role, the
+        publication for a publication-scoped invitation, who sent it and when it
+        expires. No session is needed; the token is the capability. Any unknown,
+        expired, accepted or revoked token answers `404 RESOURCE_NOT_FOUND`
+        (non-enumerating). Accepting stays `POST
+        /v2/membership-invitations/{token}:accept` after sign-in.
+      operationId: getMembershipInvitationsByToken
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    expiresAt: "2026-10-16T12:00:00.000Z"
+                    invitedBy:
+                      displayName: Dev
+                    organizationName: Northwind Press
+                    publicationName: Maya's blog
+                    roleName: Editor
+                    scope: PUBLICATION
+                    state: PENDING
+              schema:
+                $ref: "#/components/schemas/GetMembershipInvitationsByTokenResponse"
+          description: read what an invitation link offers succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security: []
+      summary: read what an invitation link offers
+      tags:
+        - membership-invitations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read what an invitation link offers
+      x-gala-reachable-problems:
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
   /v2/membership-invitations/{token}:accept:
     post:
       description: |
@@ -19605,7 +19832,14 @@ paths:
                   value:
                     expiresAt: "2026-09-06T00:00:00.000Z"
                     invitationId: 018f0000-0000-7000-8000-000000000001
+                    invitedBy:
+                      displayName: Dev
+                    publicationId: 018f0000-0000-7000-8000-000000000001
+                    publicationName: Maya's blog
+                    recipient: priya@example.com
                     roleId: 018f0000-0000-7000-8000-000000000001
+                    roleKey: editor
+                    roleName: Editor
                     state: PENDING
                     version: 0
               schema:
