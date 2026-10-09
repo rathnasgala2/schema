@@ -34,6 +34,7 @@
       "maxItems": 8
     },
     "tokens": { "$ref": "#/$defs/semanticTokens" },
+    "attribution": { "$ref": "#/$defs/attribution" },
     "extensions": { "$ref": "#/$defs/extensionMap" }
   },
   "additionalProperties": false,
@@ -214,6 +215,13 @@
       "additionalProperties": false,
       "maxProperties": 0,
       "$comment": "Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted."
+    },
+    "attribution": {
+      "type": "object",
+      "required": ["showMadeWith"],
+      "properties": { "showMadeWith": { "type": "boolean" } },
+      "additionalProperties": false,
+      "description": "Footer attribution. `showMadeWith: false` omits the \"Made with Galascribe\" mark; an absent `attribution` means it is shown."
     },
     "extensionMap": {
       "type": "object",

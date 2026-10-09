@@ -5,7 +5,12 @@ import { format, resolveConfig } from 'prettier';
 
 import { runIfMain } from './run-if-main.mjs';
 import { createAdapterSchema } from './s0-t03-adapter-schema.mjs';
-import { createCompositionBuildSchemas } from './s0-t03-composition-build-schemas.mjs';
+import {
+  createAttributionDefinition,
+  createCompositionBuildSchemas,
+  createContentEditionDefinition,
+  editionKindRule,
+} from './s0-t03-composition-build-schemas.mjs';
 import { createDeploymentSchemas } from './s0-t03-deployment-schemas.mjs';
 import { createInteractionsConfigSchema } from './s0-interactions-config-schema.mjs';
 import { createPlatformSchemas } from './s0-t04-platform-schemas.mjs';
@@ -524,6 +529,7 @@ const schemas = {
       typeScale: { enum: ['compact', 'standard', 'spacious'] },
       fontAssetRefs: arrayOf(ref('repoRelativePath'), 0, 8),
       tokens: ref('semanticTokens'),
+      attribution: ref('attribution'),
       extensions: ref('extensionMap'),
     },
     [
@@ -564,6 +570,7 @@ const schemas = {
         $comment:
           'Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted.',
       }),
+      attribution: createAttributionDefinition({ closedObject }),
       extensionMap,
     },
   ),
@@ -585,7 +592,7 @@ const schemas = {
     'content-frontmatter',
     {
       id: ref('stableId'),
-      kind: { enum: ['article', 'page'] },
+      kind: { enum: ['article', 'page', 'edition'] },
       title: graphemeBound(ref('plainText'), 1, 200),
       description: graphemeBound(ref('plainText'), 0, 500),
       language: ref('bcp47'),
@@ -603,6 +610,7 @@ const schemas = {
       socialImageRef: ref('repoRelativePath'),
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
       newsletter: { enum: ['ineligible', 'eligible'] },
+      edition: ref('contentEdition'),
       extensions: ref('extensionMap'),
     },
     [
@@ -618,7 +626,11 @@ const schemas = {
       'redirects',
       'extensions',
     ],
-    { mediaRef, extensionMap },
+    {
+      mediaRef,
+      contentEdition: createContentEditionDefinition({ ref, closedObject }),
+      extensionMap,
+    },
     {
       dependentRequired: { seriesOrder: ['series'] },
       allOf: [
@@ -640,6 +652,7 @@ const schemas = {
             },
           },
         },
+        editionKindRule(),
       ],
       $comment:
         'The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks.',

@@ -11,6 +11,49 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "content-frontmatter-invalid-06fbec508d0d1ba2",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition:required:approvedAt"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition",
+    "keyword": "required",
+    "instance": {
+      "of": "fixture-1",
+      "kind": "QUICK_READ",
+      "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "generation": {
+        "provider": "anthropic",
+        "model": "fixture-1",
+        "generationId": "019c0000-0000-7000-8000-000000000001"
+      }
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-086a61217ec24fe7",
+    "coveredRuleIds": ["content-frontmatter:#/allOf/1/then:required:edition"],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/allOf/1/then",
+    "keyword": "required",
+    "instance": {},
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-1cce74bde869b810",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:required:model"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition/properties/generation",
+    "keyword": "required",
+    "instance": {
+      "provider": "anthropic",
+      "generationId": "019c0000-0000-7000-8000-000000000001"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "content-frontmatter-invalid-24fef83402bfea4d",
     "coveredRuleIds": ["content-frontmatter:#:required:redirects"],
     "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
@@ -86,12 +129,39 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "content-frontmatter-invalid-3621fe7218887bda",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition:required:generation"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition",
+    "keyword": "required",
+    "instance": {
+      "of": "fixture-1",
+      "kind": "QUICK_READ",
+      "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "approvedAt": "2026-09-13T12:00:00.000Z"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "content-frontmatter-invalid-4e2e00a793f19e4a",
     "coveredRuleIds": ["content-frontmatter:#/$defs/mediaRef:required:alt"],
     "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
     "schemaPointer": "#/$defs/mediaRef",
     "keyword": "required",
     "instance": { "path": "content/fixture-1.md", "role": "informative" },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-518711a285edc402",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:required:generationId"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition/properties/generation",
+    "keyword": "required",
+    "instance": { "provider": "anthropic", "model": "fixture-1" },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
@@ -123,6 +193,40 @@
     "schemaPointer": "#/$defs/mediaRef",
     "keyword": "required",
     "instance": { "path": "content/fixture-1.md", "alt": "fixture-1" },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-66209325a4d47300",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition:required:sourceDigest"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition",
+    "keyword": "required",
+    "instance": {
+      "of": "fixture-1",
+      "kind": "QUICK_READ",
+      "generation": {
+        "provider": "anthropic",
+        "model": "fixture-1",
+        "generationId": "019c0000-0000-7000-8000-000000000001"
+      },
+      "approvedAt": "2026-09-13T12:00:00.000Z"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-8ca7558c87ac3b0f",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:required:provider"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition/properties/generation",
+    "keyword": "required",
+    "instance": {
+      "model": "fixture-1",
+      "generationId": "019c0000-0000-7000-8000-000000000001"
+    },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
@@ -352,6 +456,66 @@
       "redirects": ["/fixture-1"],
       "extensions": {}
     },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-e736bf012d175edb",
+    "coveredRuleIds": ["content-frontmatter:#/allOf/1/if:required:kind"],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/allOf/1/if",
+    "keyword": "required",
+    "instance": {},
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-f04fdd1bd745e601",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition:required:kind"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition",
+    "keyword": "required",
+    "instance": {
+      "of": "fixture-1",
+      "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "generation": {
+        "provider": "anthropic",
+        "model": "fixture-1",
+        "generationId": "019c0000-0000-7000-8000-000000000001"
+      },
+      "approvedAt": "2026-09-13T12:00:00.000Z"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-f8a487c2b1ab81cb",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition:required:of"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition",
+    "keyword": "required",
+    "instance": {
+      "kind": "QUICK_READ",
+      "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "generation": {
+        "provider": "anthropic",
+        "model": "fixture-1",
+        "generationId": "019c0000-0000-7000-8000-000000000001"
+      },
+      "approvedAt": "2026-09-13T12:00:00.000Z"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "content-frontmatter-invalid-fe05af606d0d2794",
+    "coveredRuleIds": [
+      "content-frontmatter:#/allOf/1/else/not:required:edition"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/allOf/1/else/not",
+    "keyword": "required",
+    "instance": {},
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   }
 ]

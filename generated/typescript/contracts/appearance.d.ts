@@ -1,6 +1,10 @@
 // Generated from urn:gala:schema:appearance:2.0.0; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 // Do not edit.
 
+export type AppearanceAttribution = Readonly<{
+  readonly showMadeWith: boolean;
+}>;
+
 export type AppearanceBcp47 = string;
 
 export type AppearanceCanonicalRoute = string;
@@ -52,6 +56,7 @@ export type AppearanceUrlHttps = string;
 export type AppearanceUrn = string;
 
 export type AppearanceDocument = Readonly<{
+  readonly attribution?: AppearanceAttribution;
   readonly brandMark?: AppearanceRepoRelativePath;
   readonly colorMode: AppearanceColorMode;
   readonly extensions: AppearanceExtensionMap;

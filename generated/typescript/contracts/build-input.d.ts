@@ -2,6 +2,7 @@
 // Do not edit.
 
 export type BuildInputAppearanceNormalized = Readonly<{
+  readonly attribution?: BuildInputAttribution;
   readonly brandMark?: BuildInputResolvedFile;
   readonly colorMode: BuildInputColorMode;
   readonly fontAssets: ReadonlyArray<BuildInputResolvedFile>;
@@ -12,6 +13,10 @@ export type BuildInputAppearanceNormalized = Readonly<{
   readonly tokens: BuildInputSemanticTokens;
   readonly typeScale: 'compact' | 'standard' | 'spacious';
   readonly wordmark?: BuildInputResolvedFile;
+}>;
+
+export type BuildInputAttribution = Readonly<{
+  readonly showMadeWith: boolean;
 }>;
 
 export type BuildInputAuthorNormalized = Readonly<{
@@ -116,13 +121,26 @@ export type BuildInputContentBuildRecord = Readonly<{
   readonly sourceRevision: BuildInputGitObjectId;
 }>;
 
+export type BuildInputContentEdition = Readonly<{
+  readonly approvedAt: BuildInputRfc3339;
+  readonly generation: Readonly<{
+    readonly generationId: BuildInputStableId;
+    readonly model: BuildInputPlainLabel;
+    readonly provider: 'anthropic';
+  }>;
+  readonly kind: 'QUICK_READ' | 'STANDARD' | 'DEEP_DIVE';
+  readonly of: BuildInputSlug;
+  readonly sourceDigest: BuildInputDigest;
+}>;
+
 export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly createdAt: BuildInputRfc3339;
   readonly description?: BuildInputPlainText;
+  readonly edition?: BuildInputContentEdition;
   readonly hero?: BuildInputResolvedMedia;
   readonly id: BuildInputStableId;
-  readonly kind: 'article' | 'page';
+  readonly kind: 'article' | 'page' | 'edition';
   readonly language: BuildInputBcp47;
   readonly publishedAt: BuildInputRfc3339;
   readonly redirects: ReadonlyArray<BuildInputCanonicalRoute>;
@@ -135,7 +153,8 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly tags: ReadonlyArray<BuildInputPlainLabel>;
   readonly title: BuildInputPlainText;
   readonly updatedAt?: BuildInputRfc3339;
-}>;
+}> &
+  unknown;
 
 export type BuildInputDestinationCapabilityProfile = Readonly<{
   readonly adapter: BuildInputAuthoredAdapterIdentity;

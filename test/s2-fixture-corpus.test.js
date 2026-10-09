@@ -172,8 +172,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // 3.1.0: reader interactions added the interactions-config root and its
     // generated fixtures, moduleBuildSelection admitted `interactions`, and
     // interactionBearing became a boolean, making 865.
+    //
+    // 3.3.0: appearance/build-input attribution and the content-frontmatter/
+    // build-input edition block regenerated those roots' valid, boundary,
+    // invalid and unknown-field fixtures. File count unchanged (865).
     aggregate.digest('hex'),
-    'f849c5013fccdb681ca228ecb018de36f0627809f047584f4c60f6ab5aee02c9',
+    'e90396948e05046176326038f220294f597f8ac738a3dd56f2086d402323c058',
   );
 });
 

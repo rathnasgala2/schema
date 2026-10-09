@@ -36,7 +36,10 @@ const T03_SCHEMA_HASHES = {
   appearance:
     // 2026-09-25 code-discipline review, SCH-C3: colorMode and
     // semanticTokens reconciled to the build-input root's wording/shape.
-    '0bd3b9332b25deec625de3d4fb65bd0717a434502fe90b58a6081f7d43459ea9',
+    //
+    // SCHEMA-3.3.0: optional closed attribution { showMadeWith } (new
+    // $defs/attribution, shared byte-for-byte with build-input). Additive.
+    '574c79362d2eb9c8eaf430c40efae6e12b2b3ecdef07a22eba5de1658b6e4f44',
   'artifact-manifest':
     // SCHEMA-2.10.0: $comment updated to note the standalone build-provenance
     // root alongside the unchanged internal #/$defs/buildProvenance nesting.
@@ -70,9 +73,17 @@ const T03_SCHEMA_HASHES = {
     // byteLength, the same closed media types as artifact-manifest's
     // widened list minus SVG, per-mediaType byteLength bound). Additive
     // (new optional property, new $defs entry).
-    '0a8f2b34b96b70a9d6c3086effb5249c8392c862d018af8a358ce08e94a25f6f',
+    //
+    // SCHEMA-3.3.0: appearanceNormalized gains the optional attribution and
+    // contentFrontmatterNormalized admits kind edition with the closed
+    // edition block (new $defs attribution and contentEdition, shared with
+    // appearance and content-frontmatter). Additive.
+    'e98464effe228ea33a5e739b0543dd776b9863ecf4fca7bf73ebd4f579ed162b',
   'content-frontmatter':
-    'd033644fd188af7d55c596a7c910b2c9ca9a1c8d8d8b092860f04eec8a5273a0',
+    // SCHEMA-3.3.0: kind admits edition, with the closed edition block
+    // required exactly when kind is edition (new $defs/contentEdition).
+    // Additive.
+    'b8fb8172fff5ff361d51b5af5e1444b42953e585beaf7e9e4aa46675b20b7e65',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound

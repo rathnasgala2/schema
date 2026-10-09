@@ -22,7 +22,7 @@
     "schemaId": { "const": "urn:gala:schema:content-frontmatter:2.0.0" },
     "schemaVersion": { "const": "2.0.0" },
     "id": { "$ref": "#/$defs/stableId" },
-    "kind": { "enum": ["article", "page"] },
+    "kind": { "enum": ["article", "page", "edition"] },
     "title": {
       "$ref": "#/$defs/plainText",
       "x-gala-graphemeLength": { "minimum": 1, "maximum": 200 }
@@ -63,6 +63,7 @@
       "uniqueItems": true
     },
     "newsletter": { "enum": ["ineligible", "eligible"] },
+    "edition": { "$ref": "#/$defs/contentEdition" },
     "extensions": { "$ref": "#/$defs/extensionMap" }
   },
   "additionalProperties": false,
@@ -210,6 +211,28 @@
         }
       ]
     },
+    "contentEdition": {
+      "type": "object",
+      "required": ["of", "kind", "sourceDigest", "generation", "approvedAt"],
+      "properties": {
+        "of": { "$ref": "#/$defs/slug" },
+        "kind": { "enum": ["QUICK_READ", "STANDARD", "DEEP_DIVE"] },
+        "sourceDigest": { "$ref": "#/$defs/digest" },
+        "generation": {
+          "type": "object",
+          "required": ["provider", "model", "generationId"],
+          "properties": {
+            "provider": { "enum": ["anthropic"] },
+            "model": { "$ref": "#/$defs/plainLabel" },
+            "generationId": { "$ref": "#/$defs/stableId" }
+          },
+          "additionalProperties": false
+        },
+        "approvedAt": { "$ref": "#/$defs/rfc3339" }
+      },
+      "additionalProperties": false,
+      "description": "Prism edition of the article whose slug is `of`. `sourceDigest` is the digest of that article body the edition was generated from; an edition whose `sourceDigest` differs from the current article body digest is stale and is not rendered."
+    },
     "extensionMap": {
       "type": "object",
       "maxProperties": 32,
@@ -235,6 +258,14 @@
           "required": ["publishedAt"]
         }
       }
+    },
+    {
+      "if": {
+        "properties": { "kind": { "const": "edition" } },
+        "required": ["kind"]
+      },
+      "then": { "required": ["edition"] },
+      "else": { "not": { "required": ["edition"] } }
     }
   ],
   "$comment": "The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks."

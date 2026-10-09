@@ -78,6 +78,11 @@
       "content-frontmatter:#/allOf/0/if/properties/status:enum",
       "content-frontmatter:#/allOf/0/if:required:status",
       "content-frontmatter:#/allOf/0/then:required:publishedAt",
+      "content-frontmatter:#/allOf/1/else/not:required:edition",
+      "content-frontmatter:#/allOf/1/else:not",
+      "content-frontmatter:#/allOf/1/if/properties/kind:const",
+      "content-frontmatter:#/allOf/1/if:required:kind",
+      "content-frontmatter:#/allOf/1/then:required:edition",
       "content-frontmatter:#/properties/authors:maxItems",
       "content-frontmatter:#/properties/authors:minItems",
       "content-frontmatter:#/properties/authors:type",
@@ -138,6 +143,35 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "content-frontmatter-unknown-7d80f5971b255b6b",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition/properties/kind:enum",
+      "content-frontmatter:#/$defs/contentEdition:additionalProperties",
+      "content-frontmatter:#/$defs/contentEdition:required:approvedAt",
+      "content-frontmatter:#/$defs/contentEdition:required:generation",
+      "content-frontmatter:#/$defs/contentEdition:required:kind",
+      "content-frontmatter:#/$defs/contentEdition:required:of",
+      "content-frontmatter:#/$defs/contentEdition:required:sourceDigest",
+      "content-frontmatter:#/$defs/contentEdition:type"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition",
+    "keyword": "additionalProperties",
+    "instance": {
+      "of": "fixture-1",
+      "kind": "QUICK_READ",
+      "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "generation": {
+        "provider": "anthropic",
+        "model": "fixture-1",
+        "generationId": "019c0000-0000-7000-8000-000000000001"
+      },
+      "approvedAt": "2026-09-13T12:00:00.000Z",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "content-frontmatter-unknown-be70835e9e5e5534",
     "coveredRuleIds": [
       "content-frontmatter:#/$defs/mediaRef/allOf/0/else/properties/alt:minLength",
@@ -161,6 +195,27 @@
       "path": "content/fixture-1.md",
       "alt": "fixture-1",
       "role": "informative",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "content-frontmatter-unknown-da9503c538e8a030",
+    "coveredRuleIds": [
+      "content-frontmatter:#/$defs/contentEdition/properties/generation/properties/provider:enum",
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:additionalProperties",
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:required:generationId",
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:required:model",
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:required:provider",
+      "content-frontmatter:#/$defs/contentEdition/properties/generation:type"
+    ],
+    "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
+    "schemaPointer": "#/$defs/contentEdition/properties/generation",
+    "keyword": "additionalProperties",
+    "instance": {
+      "provider": "anthropic",
+      "model": "fixture-1",
+      "generationId": "019c0000-0000-7000-8000-000000000001",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

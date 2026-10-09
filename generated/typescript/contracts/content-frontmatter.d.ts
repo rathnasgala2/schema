@@ -5,6 +5,18 @@ export type ContentFrontmatterBcp47 = string;
 
 export type ContentFrontmatterCanonicalRoute = string;
 
+export type ContentFrontmatterContentEdition = Readonly<{
+  readonly approvedAt: ContentFrontmatterRfc3339;
+  readonly generation: Readonly<{
+    readonly generationId: ContentFrontmatterStableId;
+    readonly model: ContentFrontmatterPlainLabel;
+    readonly provider: 'anthropic';
+  }>;
+  readonly kind: 'QUICK_READ' | 'STANDARD' | 'DEEP_DIVE';
+  readonly of: ContentFrontmatterSlug;
+  readonly sourceDigest: ContentFrontmatterDigest;
+}>;
+
 export type ContentFrontmatterDigest = string;
 
 export type ContentFrontmatterExtensionKey = string;
@@ -54,10 +66,11 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly authors: ReadonlyArray<ContentFrontmatterStableId>;
   readonly createdAt: ContentFrontmatterRfc3339;
   readonly description?: ContentFrontmatterPlainText;
+  readonly edition?: ContentFrontmatterContentEdition;
   readonly extensions: ContentFrontmatterExtensionMap;
   readonly hero?: ContentFrontmatterMediaRef;
   readonly id: ContentFrontmatterStableId;
-  readonly kind: 'article' | 'page';
+  readonly kind: 'article' | 'page' | 'edition';
   readonly language: ContentFrontmatterBcp47;
   readonly newsletter?: 'ineligible' | 'eligible';
   readonly publishedAt?: ContentFrontmatterRfc3339;

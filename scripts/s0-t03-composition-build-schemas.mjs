@@ -102,6 +102,77 @@ const OIDC_CLAIM_CATALOG = [
 ];
 
 /**
+ * SCHEMA-3.3.0: the footer attribution switch, shared byte-for-byte by the
+ * `appearance` author-source root and the normalized `build-input`
+ * appearance (one `$defs/attribution` body, so the shared-definition gate
+ * holds). Absent means the "Made with Galascribe" mark is shown.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed attribution object schema
+ */
+export function createAttributionDefinition({ closedObject }) {
+  return closedObject({ showMadeWith: { type: 'boolean' } }, ['showMadeWith'], {
+    description:
+      'Footer attribution. `showMadeWith: false` omits the "Made with Galascribe" mark; an absent `attribution` means it is shown.',
+  });
+}
+
+/**
+ * SCHEMA-3.3.0: the Prism edition block, shared byte-for-byte by the
+ * `content-frontmatter` author-source root and the normalized `build-input`
+ * front matter. An edition is a separate repository document
+ * (`content/<slug>.edition.<kind>.md`, `kind: edition`) derived from the
+ * article named by `of`; `sourceDigest` is the article body digest the
+ * edition was generated from, so a consumer can refuse a stale edition.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed edition object schema
+ */
+export function createContentEditionDefinition({ ref, closedObject }) {
+  return closedObject(
+    {
+      of: ref('slug'),
+      kind: { enum: ['QUICK_READ', 'STANDARD', 'DEEP_DIVE'] },
+      sourceDigest: ref('digest'),
+      generation: closedObject(
+        {
+          provider: { enum: ['anthropic'] },
+          model: ref('plainLabel'),
+          generationId: ref('stableId'),
+        },
+        ['provider', 'model', 'generationId'],
+      ),
+      approvedAt: ref('rfc3339'),
+    },
+    ['of', 'kind', 'sourceDigest', 'generation', 'approvedAt'],
+    {
+      description:
+        'Prism edition of the article whose slug is `of`. `sourceDigest` is the digest of that article body the edition was generated from; an edition whose `sourceDigest` differs from the current article body digest is stale and is not rendered.',
+    },
+  );
+}
+
+/**
+ * The `kind`/`edition` agreement every front matter shape carries: an
+ * `edition` block is required exactly when `kind` is `edition`.
+ *
+ * @returns {Record<string, unknown>} one `allOf` member
+ */
+export function editionKindRule() {
+  return {
+    if: {
+      properties: { kind: { const: 'edition' } },
+      required: ['kind'],
+    },
+    then: { required: ['edition'] },
+    else: { not: { required: ['edition'] } },
+  };
+}
+
+/**
  * Create the five S0-T03 composition and build schemas.
  *
  * @param {object} language schema construction language
@@ -712,6 +783,7 @@ export function createCompositionBuildSchemas(language) {
       fontAssets: arrayOf(ref('resolvedFile'), 0, 8),
       tokens: ref('semanticTokens'),
       source: ref('normalizedSource'),
+      attribution: ref('attribution'),
     },
     [
       'theme',
@@ -728,7 +800,7 @@ export function createCompositionBuildSchemas(language) {
   const contentFrontmatterNormalized = closedObject(
     {
       id: ref('stableId'),
-      kind: { enum: ['article', 'page'] },
+      kind: { enum: ['article', 'page', 'edition'] },
       title: graphemeBound(ref('plainText'), 1, 200),
       description: graphemeBound(ref('plainText'), 0, 500),
       language: ref('bcp47'),
@@ -745,6 +817,7 @@ export function createCompositionBuildSchemas(language) {
       hero: ref('resolvedMedia'),
       socialImage: ref('resolvedFile'),
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
+      edition: ref('contentEdition'),
     },
     [
       'id',
@@ -761,6 +834,7 @@ export function createCompositionBuildSchemas(language) {
     ],
     {
       dependentRequired: { seriesOrder: ['series'] },
+      allOf: [editionKindRule()],
       $comment:
         'Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically.',
     },
@@ -1760,7 +1834,9 @@ export function createCompositionBuildSchemas(language) {
         colorMode,
         semanticTokens,
         appearanceNormalized,
+        attribution: createAttributionDefinition(language),
         contentFrontmatterNormalized,
+        contentEdition: createContentEditionDefinition(language),
         contentBuildMediaFile,
         contentBuildRecord,
         moduleBuildSelection: closedObject(

@@ -3644,8 +3644,14 @@ components:
       additionalProperties: false
       description: |
         The theme selection inside a batch `content-changes:plan` request.
-        Both members are required.
+        `themeId` and `colorModeDefault` are required; send the current
+        values to change only `attribution`. `attribution` (SCHEMA-3.3.0) is
+        optional: when present the server writes it as
+        `gala/appearance.json`'s `attribution`; when absent the file's
+        `attribution` is preserved unchanged.
       properties:
+        attribution:
+          $ref: ../schemas/appearance.schema.json#/$defs/attribution
         colorModeDefault:
           $ref: '#/components/schemas/AppearanceColorMode'
         themeId:
@@ -3721,8 +3727,12 @@ components:
       description: |
         From `gala/appearance.json`. `themeId` is `null` ("Custom theme") when
         `themePackage` is not in the catalog. `themePackage` is the file's
-        `theme` value, a package with its version range.
+        `theme` value, a package with its version range. `attribution`
+        (SCHEMA-3.3.0, optional) is the file's footer attribution switch;
+        absent means the file has none, which renders as shown.
       properties:
+        attribution:
+          $ref: ../schemas/appearance.schema.json#/$defs/attribution
         colorModeDefault:
           $ref: '#/components/schemas/AppearanceColorMode'
         themeId:
@@ -3759,60 +3769,18 @@ components:
                     - contentType
                 - required:
                     - contentDigest
-        - if:
-            properties:
-              contentType:
-                enum:
-                  - image/png
-                  - image/jpeg
-                  - image/webp
-                  - image/gif
-                  - image/avif
-            required:
-              - contentType
-          then:
-            properties:
-              bytesBase64:
-                maxLength: 6990512
-        - if:
-            properties:
-              contentType:
-                enum:
-                  - audio/mpeg
-                  - audio/mp4
-                  - audio/ogg
-                  - audio/wav
-            required:
-              - contentType
-          then:
-            properties:
-              bytesBase64:
-                maxLength: 27962032
-        - if:
-            properties:
-              contentType:
-                enum:
-                  - video/mp4
-                  - video/webm
-            required:
-              - contentType
-          then:
-            properties:
-              bytesBase64:
-                maxLength: 69905072
       description: |
-        One asset write or delete inside a batch `content-changes:plan`
-        request -- an article's cover image, or an image, sound or video
-        file referenced from its body (pass-through: copied unchanged into
-        the built site, no resizing and no derived formats for in-text
-        media). `bytesBase64` is base64 over the raw asset bytes; the
-        per-category bound (image 5 MiB, sound 20 MiB, video 50 MiB) is
-        measured on the decoded byte length, not this field's text length,
-        and `bytesBase64`'s own `maxLength` is the base64 ceiling for that
-        same decoded bound. `contentType` is the closed vocabulary the asset
-        read declares; `image/svg+xml` is deliberately absent everywhere in
-        this contract (an SVG can carry script). `DELETE` names only the
-        path it removes and carries none of the write-only members.
+        One image write or delete inside a batch `content-changes:plan`
+        request -- an article's cover image, or an image referenced from
+        its body. `bytesBase64` is base64 over the raw image bytes; the
+        5 MiB bound is measured on the decoded byte length, not this
+        field's text length, and `bytesBase64`'s own `maxLength` is the
+        base64 ceiling for that same decoded bound. `contentType` is closed
+        to PNG, JPEG, WebP, GIF and AVIF (SCHEMA-3.3.0 drops the sound and
+        video types the server never accepted); `image/svg+xml` is
+        deliberately absent everywhere in this contract (an SVG can carry
+        script). `DELETE` names only the path it removes and carries none
+        of the write-only members.
       properties:
         action:
           enum:
@@ -3820,7 +3788,7 @@ components:
             - DELETE
           type: string
         bytesBase64:
-          maxLength: 69905072
+          maxLength: 6990512
           pattern: ^[A-Za-z0-9+/]+={0,2}$
           type: string
         contentDigest:
@@ -3833,12 +3801,6 @@ components:
             - image/webp
             - image/gif
             - image/avif
-            - audio/mpeg
-            - audio/mp4
-            - audio/ogg
-            - audio/wav
-            - video/mp4
-            - video/webm
           type: string
         path:
           maxLength: 512
@@ -4438,32 +4400,34 @@ components:
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
         (`baseRevision` and at least one of `documents`/`assets`/`appearance`)
-        plans up to 20 documents and 40 assets -- each `PUT` with its own
+        plans up to 20 documents and 20 assets -- each `PUT` with its own
         text or bytes and digest, each `DELETE` naming only its path -- and
         optionally one theme selection in one change, against the exact
         expected main-branch head asserted as `baseRevision`. A request
         mixing the two shapes, or a batch request naming none of
         `documents`, `assets` and `appearance`, is `422 VALIDATION_FAILED`.
-        `appearance` names a catalog theme and a default colour mode; the
-        server writes `gala/appearance.json` (only `theme` and
-        `colorMode.default` change, every other member is preserved) and the
-        `gala.lock.json` `theme` block from its closed theme catalog, both
-        in the same change. An `appearance` equal to the current selection
+        `appearance` names a catalog theme and a default colour mode, and
+        optionally the footer `attribution` (SCHEMA-3.3.0); the server
+        writes `gala/appearance.json` (only `theme`, `colorMode.default` and,
+        when sent, `attribution` change, every other member is preserved)
+        and the `gala.lock.json` `theme` block from its closed theme catalog,
+        both in the same change. An `appearance` equal to the current
+        selection (theme, default colour mode and, when sent, attribution)
         is `422 VALIDATION_FAILED` pointed at `/appearance`. Document paths
         under `gala/` and `gala.lock.json` remain forbidden.
-        The change's total serialized size must not exceed 100 MiB;
-        `assets[].bytesBase64` is base64 over raw bytes, so what counts
-        against the per-asset and 100 MiB per-change bounds is the decoded
-        byte length, not this field's text length. Per-asset, by media
-        category: image 5 MiB, sound 20 MiB, video 50 MiB (documents are
-        unchanged since 2.14.0: 20 documents, 1 MiB text each).
+        Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
+        at most 20 per change, each at most 5 MiB and together at most
+        20 MiB, measured on the decoded bytes -- `assets[].bytesBase64` is
+        base64 over raw bytes, so what counts is the decoded byte length,
+        not this field's text length (documents are unchanged since 2.14.0:
+        20 documents, 1 MiB text each).
       properties:
         appearance:
           $ref: '#/components/schemas/ContentChangeAppearanceEntry'
         assets:
           items:
             $ref: '#/components/schemas/ContentChangeAssetEntry'
-          maxItems: 40
+          maxItems: 20
           type: array
         baseRevision:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$

@@ -8,7 +8,46 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [3.2.0] - 2026-10-09
+## [3.3.0] - 2026-10-09
+
+The author, reader and operator journeys: footer attribution, Prism editions,
+images in posts, scheduled publishing, owner and publication transfers,
+repository import, custom roles, account security, export and closure, comment
+appeals, custom domains and the platform operator console.
+
+### Added
+
+- `appearance`: optional closed `attribution: { showMadeWith: boolean }`
+  (`$defs/attribution`). Absent means the "Made with Galascribe" footer mark is
+  shown; `showMadeWith: false` omits it.
+- `build-input`: the normalized `appearance` carries the same optional
+  `attribution`, so the renderer can honour the switch.
+- `content-frontmatter`: `kind` admits `edition`, and a new closed
+  `edition: { of, kind, sourceDigest, generation: { provider, model, generationId }, approvedAt }`
+  (`$defs/contentEdition`): `of` is the article slug, `kind` is `QUICK_READ`,
+  `STANDARD` or `DEEP_DIVE`, `sourceDigest` is the `sha256:` digest of the
+  article body the edition was generated from, `provider` is `anthropic`.
+  `edition` is required when `kind` is `edition` and rejected otherwise; every
+  existing rule is unchanged.
+- `build-input`: the normalized front matter admits `kind: edition` with the
+  same `edition` block and the same agreement rule. Body images and the hero
+  already travel as references only (`content[].media[]` is
+  `{ path, sourceDigest, mediaType, byteLength }`, `frontmatter.hero.file` is
+  `{ path, sourceDigest }`); the bytes stay in the mounted source tree, so no
+  new member is needed for in-body images.
+- `ContentChangeAppearanceEntry` (`content-changes:plan`): optional
+  `attribution`, written to `gala/appearance.json`; absent preserves the file's
+  value. `PublicationAppearanceSelected` (appearance read): optional
+  `attribution` as read from the file.
+
+### Changed (breaking)
+
+- `content-changes:plan` assets are aligned with what the server has always
+  enforced: at most 20 assets (was 40), images only (`ContentChangeAssetEntry`
+  drops the sound and video content types and their per-type bounds;
+  `bytesBase64` is bounded at the 5 MiB image ceiling), 20 MiB per change (was
+  stated as 100 MiB). No server ever accepted more, so no working client relied
+  on the wider contract.
 
 Publishing state is observed from GitHub, so the site read exposes the real
 stage and the run link.
@@ -2341,7 +2380,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.3.0...HEAD
+[3.3.0]: https://github.com/rathnasgala2/schema/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/rathnasgala2/schema/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/rathnasgala2/schema/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/rathnasgala2/schema/compare/v2.22.0...v3.0.0

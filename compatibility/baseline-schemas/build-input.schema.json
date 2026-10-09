@@ -761,9 +761,17 @@
           "maxItems": 8
         },
         "tokens": { "$ref": "#/$defs/semanticTokens" },
-        "source": { "$ref": "#/$defs/normalizedSource" }
+        "source": { "$ref": "#/$defs/normalizedSource" },
+        "attribution": { "$ref": "#/$defs/attribution" }
       },
       "additionalProperties": false
+    },
+    "attribution": {
+      "type": "object",
+      "required": ["showMadeWith"],
+      "properties": { "showMadeWith": { "type": "boolean" } },
+      "additionalProperties": false,
+      "description": "Footer attribution. `showMadeWith: false` omits the \"Made with Galascribe\" mark; an absent `attribution` means it is shown."
     },
     "contentFrontmatterNormalized": {
       "type": "object",
@@ -782,7 +790,7 @@
       ],
       "properties": {
         "id": { "$ref": "#/$defs/stableId" },
-        "kind": { "enum": ["article", "page"] },
+        "kind": { "enum": ["article", "page", "edition"] },
         "title": {
           "$ref": "#/$defs/plainText",
           "x-gala-graphemeLength": { "minimum": 1, "maximum": 200 }
@@ -821,11 +829,44 @@
           "minItems": 0,
           "maxItems": 32,
           "uniqueItems": true
-        }
+        },
+        "edition": { "$ref": "#/$defs/contentEdition" }
       },
       "additionalProperties": false,
       "dependentRequired": { "seriesOrder": ["series"] },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "edition" } },
+            "required": ["kind"]
+          },
+          "then": { "required": ["edition"] },
+          "else": { "not": { "required": ["edition"] } }
+        }
+      ],
       "$comment": "Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically."
+    },
+    "contentEdition": {
+      "type": "object",
+      "required": ["of", "kind", "sourceDigest", "generation", "approvedAt"],
+      "properties": {
+        "of": { "$ref": "#/$defs/slug" },
+        "kind": { "enum": ["QUICK_READ", "STANDARD", "DEEP_DIVE"] },
+        "sourceDigest": { "$ref": "#/$defs/digest" },
+        "generation": {
+          "type": "object",
+          "required": ["provider", "model", "generationId"],
+          "properties": {
+            "provider": { "enum": ["anthropic"] },
+            "model": { "$ref": "#/$defs/plainLabel" },
+            "generationId": { "$ref": "#/$defs/stableId" }
+          },
+          "additionalProperties": false
+        },
+        "approvedAt": { "$ref": "#/$defs/rfc3339" }
+      },
+      "additionalProperties": false,
+      "description": "Prism edition of the article whose slug is `of`. `sourceDigest` is the digest of that article body the edition was generated from; an edition whose `sourceDigest` differs from the current article body digest is stale and is not rendered."
     },
     "contentBuildMediaFile": {
       "type": "object",

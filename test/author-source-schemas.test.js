@@ -94,7 +94,7 @@ const ROOT_LEDGERS = {
       'tokens',
       'extensions',
     ],
-    optional: ['brandMark', 'wordmark'],
+    optional: ['brandMark', 'wordmark', 'attribution'],
   },
   navigation: {
     required: [
@@ -132,6 +132,7 @@ const ROOT_LEDGERS = {
       'hero',
       'socialImageRef',
       'newsletter',
+      'edition',
     ],
   },
 };
