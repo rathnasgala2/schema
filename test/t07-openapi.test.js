@@ -9,7 +9,7 @@ import formatsPlugin from 'ajv-formats';
 import { parse as parseYaml } from 'yaml';
 
 import {
-  BINARY_ASSET_CONTENT_TYPES,
+  BINARY_RESPONSE_CONTENT_TYPES,
   BINARY_RESPONSE_OPERATIONS,
   EVENT_STREAM_RESPONSE_OPERATIONS,
   CAPABILITY_KEY_PATTERN,
@@ -448,7 +448,7 @@ test('request and success components follow the frozen mechanical names', async 
     if (BINARY_RESPONSE_OPERATIONS.includes(row.operationId)) {
       assert.deepEqual(
         Object.keys(response.content).sort(),
-        [...BINARY_ASSET_CONTENT_TYPES].sort(),
+        [...BINARY_RESPONSE_CONTENT_TYPES[row.operationId]].sort(),
       );
       for (const entry of Object.values(response.content)) {
         assert.equal(entry.schema.type, 'string');
@@ -723,7 +723,7 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
       schema.properties?.hasMore !== undefined &&
       schema.properties?.nextCursor !== undefined,
   );
-  assert.equal(collections.length, 15);
+  assert.equal(collections.length, 20);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),

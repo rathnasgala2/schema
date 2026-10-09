@@ -20,13 +20,12 @@ const SOURCE_DIRECTORY = path.resolve('openapi/source');
 const BUNDLE_PATH = path.resolve('openapi/openapi.yaml');
 const CATALOG_PATH = path.resolve('openapi/http-catalog.json');
 const HTTP_METHODS = new Set(['delete', 'get', 'patch', 'post', 'put']);
-// SCHEMA-2.14.0: the sole operation whose success response is asset bytes rather
-// than an `application/json` envelope, so it is exempt from the JSON response
-// component naming rule below and separately validated to be exactly the closed
-// asset content-type list, each `type: string, format: binary`.
-export const BINARY_RESPONSE_OPERATIONS = Object.freeze([
-  'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
-]);
+// SCHEMA-2.14.0: the operations whose success response is bytes rather than an
+// `application/json` envelope, so they are exempt from the JSON response
+// component naming rule below and separately validated to be exactly their
+// closed content-type list, each `type: string, format: binary`: the content
+// asset read (SCHEMA-2.14.0) and the account export archive download
+// (SCHEMA-3.3.0).
 export const BINARY_ASSET_CONTENT_TYPES = Object.freeze([
   'image/png',
   'image/jpeg',
@@ -41,6 +40,17 @@ export const BINARY_ASSET_CONTENT_TYPES = Object.freeze([
   'video/mp4',
   'video/webm',
 ]);
+export const BINARY_RESPONSE_CONTENT_TYPES =
+  /** @type {Readonly<Record<string, readonly string[]>>} */ (
+    Object.freeze({
+      getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets:
+        BINARY_ASSET_CONTENT_TYPES,
+      getSelfExportsByExportIdArchive: Object.freeze(['application/zip']),
+    })
+  );
+export const BINARY_RESPONSE_OPERATIONS = Object.freeze(
+  Object.keys(BINARY_RESPONSE_CONTENT_TYPES),
+);
 export const EVENT_STREAM_RESPONSE_OPERATIONS = Object.freeze([
   'getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents',
 ]);
@@ -286,7 +296,9 @@ function validateOperation(record, schemas) {
   }
   if (BINARY_RESPONSE_OPERATIONS.includes(operation.operationId)) {
     const contentTypes = Object.keys(success.content ?? {}).sort();
-    const expectedTypes = [...BINARY_ASSET_CONTENT_TYPES].sort();
+    const expectedTypes = [
+      ...BINARY_RESPONSE_CONTENT_TYPES[operation.operationId],
+    ].sort();
     const shapesAreBinary = Object.values(success.content ?? {}).every(
       (entry) =>
         entry.schema?.type === 'string' && entry.schema?.format === 'binary',
@@ -698,6 +710,12 @@ function validateContractClosure(records, components) {
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp',
         'postWorkloadsGithubReceiptExchanges',
+        // SCHEMA-3.3.0: GitHub is called synchronously to look up the Pages
+        // site, to check a custom domain now, and to read the article an
+        // accepted Prism candidate was generated from.
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
     ) {

@@ -47,7 +47,12 @@
       "screenId": "account.closure.screen",
       "authenticationClass": "SESSION_REQUIRED",
       "capabilityKeys": [],
-      "apiOperationIds": ["getSelfClosure", "postSelfClosure"],
+      "apiOperationIds": [
+        "getSelfClosure",
+        "postSelfClosure",
+        "postSelfClosureCancel",
+        "postSelfClosurePreview"
+      ],
       "componentIds": [
         "AppShell",
         "Breadcrumbs",
@@ -195,7 +200,13 @@
       "screenId": "account.export.screen",
       "authenticationClass": "SESSION_REQUIRED",
       "capabilityKeys": [],
-      "apiOperationIds": ["getSelfExportsByExportId", "postSelfExports"],
+      "apiOperationIds": [
+        "getSelfExports",
+        "getSelfExportsByExportId",
+        "getSelfExportsByExportIdArchive",
+        "postSelfExports",
+        "postSelfExportsByExportIdDownload"
+      ],
       "componentIds": [
         "AppShell",
         "Breadcrumbs",
@@ -337,6 +348,7 @@
         "postSelfPasskeyRegistrationOptions",
         "postSelfPasskeys",
         "postSelfRecoveryCodeSets",
+        "postSelfSessionsRevokeOthers",
         "postSessionReauthentication"
       ],
       "componentIds": [
@@ -477,8 +489,22 @@
       "pathTemplate": "/organizations",
       "screenId": "organizations.screen",
       "authenticationClass": "SESSION_REQUIRED",
-      "capabilityKeys": ["organization.settings.manage", "organization.view"],
-      "apiOperationIds": ["getOrganizations", "postOrganizations"],
+      "capabilityKeys": [
+        "organization.publications.admin",
+        "organization.settings.manage",
+        "organization.transfer",
+        "organization.view"
+      ],
+      "apiOperationIds": [
+        "getOrganizations",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
+        "getSelfOwnerTransfers",
+        "postOrganizations",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
+        "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdDecline"
+      ],
       "componentIds": [
         "AppShell",
         "Breadcrumbs",
@@ -487,6 +513,7 @@
         "FormField",
         "ValidationSummary",
         "AsyncCommand",
+        "ConsequentialConfirmation",
         "DataTable"
       ],
       "contentKeyIds": [
@@ -606,11 +633,14 @@
         "getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
         "getOrganizationsByOrganizationIdMemberships",
         "getOrganizationsByOrganizationIdOwnerTransfersByTransferId",
+        "getOrganizationsByOrganizationIdRoles",
         "patchOrganizationsByOrganizationIdMembershipsByMembershipId",
         "postOrganizationsByOrganizationIdMembershipInvitations",
         "postOrganizationsByOrganizationIdOwnerTransfers",
         "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
-        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel"
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
+        "postOrganizationsByOrganizationIdOwnerTransfersPreview"
       ],
       "componentIds": [
         "AppShell",
@@ -820,9 +850,15 @@
         "organization.view"
       ],
       "apiOperationIds": [
+        "getGithubInstallations",
+        "getGithubInstallationsByInstallationIdRepositories",
+        "getOrganizationsByOrganizationIdPublicationImports",
         "getOrganizationsByOrganizationIdPublicationImportsByImportId",
         "getOrganizationsByOrganizationIdPublications",
         "postOrganizationsByOrganizationIdPublicationImports",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdCancel",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConnect",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConvert",
         "postOrganizationsByOrganizationIdPublications"
       ],
       "componentIds": [
@@ -833,6 +869,7 @@
         "FormField",
         "ValidationSummary",
         "AsyncCommand",
+        "ConsequentialConfirmation",
         "DataTable"
       ],
       "contentKeyIds": [
@@ -986,11 +1023,18 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
@@ -1004,6 +1048,7 @@
         "FormField",
         "ValidationSummary",
         "AsyncCommand",
+        "ConsequentialConfirmation",
         "DataTable",
         "SemanticDiffReview"
       ],
@@ -1255,17 +1300,24 @@
       "authenticationClass": "SESSION_REQUIRED",
       "capabilityKeys": [
         "organization.publications.admin",
+        "organization.view",
         "publication.retire",
         "publication.settings.manage",
         "publication.view"
       ],
       "apiOperationIds": [
         "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizations",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
       ],
       "componentIds": [
@@ -1429,8 +1481,21 @@
       "pathTemplate": "/organizations/{organizationId}/roles",
       "screenId": "organizations.by-organization-id.roles.screen",
       "authenticationClass": "SESSION_REQUIRED",
-      "capabilityKeys": ["organization.members.view"],
-      "apiOperationIds": ["getOrganizationsByOrganizationIdRoles"],
+      "capabilityKeys": [
+        "organization.members.view",
+        "organization.roles.manage",
+        "organization.view"
+      ],
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdRolesByRoleId",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdCapabilities",
+        "getOrganizationsByOrganizationIdRoles",
+        "getOrganizationsByOrganizationIdRolesByRoleId",
+        "getOrganizationsByOrganizationIdRolesByRoleIdMembers",
+        "patchOrganizationsByOrganizationIdRolesByRoleId",
+        "postOrganizationsByOrganizationIdRoles"
+      ],
       "componentIds": [
         "AppShell",
         "Breadcrumbs",
@@ -1439,6 +1504,7 @@
         "FormField",
         "ValidationSummary",
         "AsyncCommand",
+        "ConsequentialConfirmation",
         "DataTable"
       ],
       "contentKeyIds": [
@@ -1503,10 +1569,20 @@
       "pathTemplate": "/organizations/{organizationId}/settings",
       "screenId": "organizations.by-organization-id.settings.screen",
       "authenticationClass": "SESSION_REQUIRED",
-      "capabilityKeys": ["organization.settings.manage", "organization.view"],
+      "capabilityKeys": [
+        "organization.members.view",
+        "organization.settings.manage",
+        "organization.transfer",
+        "organization.view"
+      ],
       "apiOperationIds": [
         "getOrganizationsByOrganizationId",
-        "patchOrganizationsByOrganizationId"
+        "getOrganizationsByOrganizationIdMemberships",
+        "getOrganizationsByOrganizationIdOwnerTransfersByTransferId",
+        "patchOrganizationsByOrganizationId",
+        "postOrganizationsByOrganizationIdOwnerTransfers",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdOwnerTransfersPreview"
       ],
       "componentIds": [
         "AppShell",
@@ -1515,7 +1591,8 @@
         "StatePanel",
         "FormField",
         "ValidationSummary",
-        "AsyncCommand"
+        "AsyncCommand",
+        "ConsequentialConfirmation"
       ],
       "contentKeyIds": [
         "organizations.by-organization-id.settings.screen.capability_unavailable.recovery",
@@ -1562,6 +1639,148 @@
         "CONFLICTED",
         "RATE_LIMITED",
         "SUCCESS"
+      ]
+    },
+    {
+      "routeId": "platform.adapters",
+      "originClass": "APP",
+      "pathTemplate": "/platform/adapters",
+      "screenId": "platform.adapters.screen",
+      "authenticationClass": "SESSION_REQUIRED",
+      "capabilityKeys": ["platform.adapters.manage"],
+      "apiOperationIds": ["getPlatformAdapters"],
+      "componentIds": [
+        "AppShell",
+        "Breadcrumbs",
+        "ContextHeader",
+        "StatePanel"
+      ],
+      "contentKeyIds": [
+        "platform.adapters.screen.capability_unavailable.recovery",
+        "platform.adapters.screen.capability_unavailable.status",
+        "platform.adapters.screen.forbidden.recovery",
+        "platform.adapters.screen.forbidden.status",
+        "platform.adapters.screen.loading.recovery",
+        "platform.adapters.screen.loading.status",
+        "platform.adapters.screen.not_found.recovery",
+        "platform.adapters.screen.not_found.status",
+        "platform.adapters.screen.ready.recovery",
+        "platform.adapters.screen.ready.status",
+        "platform.adapters.screen.ready.summary",
+        "platform.adapters.screen.ready.title",
+        "platform.adapters.screen.reconciling.recovery",
+        "platform.adapters.screen.reconciling.status",
+        "platform.adapters.screen.terminal_failure.recovery",
+        "platform.adapters.screen.terminal_failure.status"
+      ],
+      "tokenBearing": false,
+      "requiredStates": [
+        "LOADING",
+        "READY",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "RECONCILING",
+        "TERMINAL_FAILURE"
+      ]
+    },
+    {
+      "routeId": "platform.audit",
+      "originClass": "APP",
+      "pathTemplate": "/platform/audit",
+      "screenId": "platform.audit.screen",
+      "authenticationClass": "SESSION_REQUIRED",
+      "capabilityKeys": ["platform.audit.view"],
+      "apiOperationIds": ["getPlatformAuditEvents"],
+      "componentIds": [
+        "AppShell",
+        "Breadcrumbs",
+        "ContextHeader",
+        "StatePanel",
+        "DataTable"
+      ],
+      "contentKeyIds": [
+        "platform.audit.screen.capability_unavailable.recovery",
+        "platform.audit.screen.capability_unavailable.status",
+        "platform.audit.screen.empty.recovery",
+        "platform.audit.screen.empty.status",
+        "platform.audit.screen.forbidden.recovery",
+        "platform.audit.screen.forbidden.status",
+        "platform.audit.screen.loading.recovery",
+        "platform.audit.screen.loading.status",
+        "platform.audit.screen.not_found.recovery",
+        "platform.audit.screen.not_found.status",
+        "platform.audit.screen.offline.recovery",
+        "platform.audit.screen.offline.status",
+        "platform.audit.screen.ready.recovery",
+        "platform.audit.screen.ready.status",
+        "platform.audit.screen.ready.summary",
+        "platform.audit.screen.ready.title",
+        "platform.audit.screen.reconciling.recovery",
+        "platform.audit.screen.reconciling.status",
+        "platform.audit.screen.refreshing.recovery",
+        "platform.audit.screen.refreshing.status",
+        "platform.audit.screen.success.recovery",
+        "platform.audit.screen.success.status",
+        "platform.audit.screen.terminal_failure.recovery",
+        "platform.audit.screen.terminal_failure.status"
+      ],
+      "tokenBearing": false,
+      "requiredStates": [
+        "LOADING",
+        "READY",
+        "EMPTY",
+        "REFRESHING",
+        "OFFLINE",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "RECONCILING",
+        "TERMINAL_FAILURE",
+        "SUCCESS"
+      ]
+    },
+    {
+      "routeId": "platform.configuration.by-family-id",
+      "originClass": "APP",
+      "pathTemplate": "/platform/configuration/{family}",
+      "screenId": "platform.configuration.by-family-id.screen",
+      "authenticationClass": "SESSION_REQUIRED",
+      "capabilityKeys": ["platform.configuration.view"],
+      "apiOperationIds": ["getPlatformConfiguration"],
+      "componentIds": [
+        "AppShell",
+        "Breadcrumbs",
+        "ContextHeader",
+        "StatePanel"
+      ],
+      "contentKeyIds": [
+        "platform.configuration.by-family-id.screen.capability_unavailable.recovery",
+        "platform.configuration.by-family-id.screen.capability_unavailable.status",
+        "platform.configuration.by-family-id.screen.forbidden.recovery",
+        "platform.configuration.by-family-id.screen.forbidden.status",
+        "platform.configuration.by-family-id.screen.loading.recovery",
+        "platform.configuration.by-family-id.screen.loading.status",
+        "platform.configuration.by-family-id.screen.not_found.recovery",
+        "platform.configuration.by-family-id.screen.not_found.status",
+        "platform.configuration.by-family-id.screen.ready.recovery",
+        "platform.configuration.by-family-id.screen.ready.status",
+        "platform.configuration.by-family-id.screen.ready.summary",
+        "platform.configuration.by-family-id.screen.ready.title",
+        "platform.configuration.by-family-id.screen.reconciling.recovery",
+        "platform.configuration.by-family-id.screen.reconciling.status",
+        "platform.configuration.by-family-id.screen.terminal_failure.recovery",
+        "platform.configuration.by-family-id.screen.terminal_failure.status"
+      ],
+      "tokenBearing": false,
+      "requiredStates": [
+        "LOADING",
+        "READY",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "RECONCILING",
+        "TERMINAL_FAILURE"
       ]
     },
     {
@@ -1877,6 +2096,86 @@
       ]
     },
     {
+      "routeId": "v1.sites.by-organization-id.by-publication-id.domain",
+      "originClass": "APP",
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/domain",
+      "screenId": "v1.sites.by-organization-id.by-publication-id.domain.screen",
+      "authenticationClass": "SESSION_REQUIRED",
+      "capabilityKeys": [
+        "organization.view",
+        "publication.publish",
+        "publication.settings.manage",
+        "publication.view"
+      ],
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetach"
+      ],
+      "componentIds": [
+        "AppShell",
+        "Breadcrumbs",
+        "ContextHeader",
+        "StatePanel",
+        "FormField",
+        "ValidationSummary",
+        "AsyncCommand",
+        "ConsequentialConfirmation"
+      ],
+      "contentKeyIds": [
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.capability_unavailable.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.capability_unavailable.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.conflicted.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.conflicted.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.dirty.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.dirty.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.forbidden.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.forbidden.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.loading.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.loading.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.not_found.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.not_found.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.rate_limited.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.rate_limited.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.ready.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.ready.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.ready.summary",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.ready.title",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.reconciling.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.reconciling.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.submitting.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.submitting.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.success.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.success.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.terminal_failure.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.terminal_failure.status",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.validating.recovery",
+        "v1.sites.by-organization-id.by-publication-id.domain.screen.validating.status"
+      ],
+      "tokenBearing": false,
+      "requiredStates": [
+        "LOADING",
+        "READY",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "RECONCILING",
+        "TERMINAL_FAILURE",
+        "DIRTY",
+        "VALIDATING",
+        "SUBMITTING",
+        "CONFLICTED",
+        "RATE_LIMITED",
+        "SUCCESS"
+      ]
+    },
+    {
       "routeId": "v1.sites.by-organization-id.by-publication-id.history",
       "originClass": "APP",
       "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/history",
@@ -2059,12 +2358,19 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
@@ -2078,6 +2384,7 @@
         "FormField",
         "ValidationSummary",
         "AsyncCommand",
+        "ConsequentialConfirmation",
         "DataTable"
       ],
       "contentKeyIds": [
@@ -2153,17 +2460,23 @@
       ],
       "apiOperationIds": [
         "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizations",
         "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings"
       ],
@@ -2225,5 +2538,5 @@
       ]
     }
   ],
-  "digest": "sha256:70d2ba0fb15c27dbb45303965e9fcb1a3d9b76c2d2f081ae43653bdff1f72545"
+  "digest": "sha256:c6e0fd029301e50cd313d8b5559b268320c89a4cb5389aba43cd27e34a400618"
 }

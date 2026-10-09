@@ -160,6 +160,12 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/moderation/comments/{commentId}:decide:
     post:
+      description: |
+        SCHEMA-3.3.0 appeals: on a comment with a pending appeal, `RESTORE`
+        restores it and settles the appeal `RESTORED`; `DENY_APPEAL` keeps it
+        removed and settles the appeal `DENIED` (`note` optional, at most 1000
+        characters). `DENY_APPEAL` without a pending appeal is `409
+        INVALID_DECISION`. Only a person decides an appeal.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -398,9 +404,23 @@ paths:
                     status: 409
                     title: INVALID_DECISION
                     type: urn:gala:problem:invalid-decision
+                TRANSFER_PENDING:
+                  summary: TRANSFER_PENDING
+                  value:
+                    code: TRANSFER_PENDING
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_PENDING
+                    type: urn:gala:problem:transfer-pending
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: COMMAND_REPLAY_CONFLICT, INVALID_DECISION
+          description:
+            COMMAND_REPLAY_CONFLICT, INVALID_DECISION, TRANSFER_PENDING
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -409,6 +429,7 @@ paths:
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_DECISION
+            - TRANSFER_PENDING
       security:
         - browserSession: []
       summary: record a moderation decision on one comment
@@ -431,6 +452,7 @@ paths:
         - INVALID_DECISION
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
+        - TRANSFER_PENDING
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
@@ -439,6 +461,10 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/moderation/queue:
     get:
+      description: |
+        SCHEMA-3.3.0: `filter=APPEALED` lists comments with a pending appeal;
+        each such item carries `appeal` (the author's note, when it was made,
+        its state).
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -471,6 +497,7 @@ paths:
               - REPORTED
               - REMOVED
               - ALL
+              - APPEALED
             type: string
       responses:
         '200':

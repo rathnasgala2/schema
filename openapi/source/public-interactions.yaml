@@ -143,6 +143,274 @@ paths:
         - NONE
       x-gala-success-category: delete
       x-gala-tenant-scope: NONE
+  /v2/public/comments/{commentId}/appeals:
+    post:
+      description: |
+        The comment's author asks the moderators to look again at a removal or
+        hold. One appeal per removal: `409 APPEAL_EXISTS` when one was already
+        made against the current removal; `409 APPEAL_NOT_ALLOWED` when the
+        comment is not removed or held, or the reader is not its author. At most
+        5 appeals a day per reader (`429 RATE_LIMITED`). A human decides; the
+        answer shows under the comment.
+      operationId: postPublicCommentsByCommentIdAppeals
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  note: The link was to my own project page, not spam.
+            schema:
+              $ref: '#/components/schemas/PostPublicCommentsByCommentIdAppealsRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    status: RECEIVED
+              schema:
+                $ref: '#/components/schemas/PostPublicCommentsByCommentIdAppealsResponse'
+          description: appeal the removal of my comment succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - READER_TOKEN_SCOPE
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                COMMENT_NOT_FOUND:
+                  summary: COMMENT_NOT_FOUND
+                  value:
+                    code: COMMENT_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: COMMENT_NOT_FOUND
+                    type: urn:gala:problem:comment-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMENT_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMENT_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                APPEAL_EXISTS:
+                  summary: APPEAL_EXISTS
+                  value:
+                    code: APPEAL_EXISTS
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: APPEAL_EXISTS
+                    type: urn:gala:problem:appeal-exists
+                APPEAL_NOT_ALLOWED:
+                  summary: APPEAL_NOT_ALLOWED
+                  value:
+                    code: APPEAL_NOT_ALLOWED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: APPEAL_NOT_ALLOWED
+                    type: urn:gala:problem:appeal-not-allowed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: APPEAL_EXISTS, APPEAL_NOT_ALLOWED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - APPEAL_EXISTS
+            - APPEAL_NOT_ALLOWED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: appeal the removal of my comment
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: appeal the removal of my comment
+      x-gala-reachable-problems:
+        - APPEAL_EXISTS
+        - APPEAL_NOT_ALLOWED
+        - COMMENT_NOT_FOUND
+        - RATE_LIMITED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: one-appeal-per-removal
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
   /v2/public/comments/{commentId}/reports:
     post:
       description:

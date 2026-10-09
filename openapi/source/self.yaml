@@ -80,6 +80,10 @@ paths:
       x-gala-tenant-scope: NONE
   /v2/self/closure:
     get:
+      description: |
+        `NONE` when no closure is pending. While `CLOSING`, `fenceAt` is when
+        the account closes and `consequences` are the ones the request
+        acknowledged (SCHEMA-3.3.0 shape).
       operationId: getSelfClosure
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -92,12 +96,23 @@ paths:
                   summary: Nominal successful response
                   value:
                     closureId: 018f0000-0000-7000-8000-000000000001
+                    consequences:
+                      - code: personal-organization-retired
+                        detail:
+                          Maya and its sites are retired in Galascribe; the
+                          repositories and published sites stay on GitHub.
+                        organizationId: 018f0000-0000-7000-8000-000000000001
+                        reversible: false
+                      - code: comments-anonymized
+                        detail:
+                          Your comments stay, attributed to "Former reader".
+                        reversible: false
+                    fenceAt: 2026-10-16T12:00:00.000Z
                     state: CLOSING
                     version: 0
               schema:
                 $ref: '#/components/schemas/GetSelfClosureResponse'
-          description:
-            account-closure state, fence and safe recovery actions succeeded
+          description: read my account closure succeeded
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -132,7 +147,7 @@ paths:
             - AUTHENTICATION_REQUIRED
       security:
         - browserSession: []
-      summary: account-closure state, fence and safe recovery actions
+      summary: read my account closure
       tags:
         - self
       x-gala-activation-gate: MVP
@@ -143,7 +158,7 @@ paths:
       x-gala-conditional-capabilities: []
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
       x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: account-closure state, fence and safe recovery actions
+      x-gala-purpose: read my account closure
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
       x-gala-replay-identity: safe-query
@@ -152,6 +167,13 @@ paths:
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
     post:
+      description: |
+        Step-up required. Starts the 7-day fence: the account is `CLOSING` and
+        closes at `fenceAt` unless `POST /v2/self/closure:cancel` keeps it;
+        sign-in and every other command keep working until then. `409
+        OWNER_TRANSFER_REQUIRED` while a blocker remains; `409
+        CONSEQUENCE_DIGEST_MISMATCH` when the preview changed or expired. `202`
+        (SCHEMA-3.3.0 shape).
       operationId: postSelfClosure
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -164,7 +186,9 @@ paths:
               nominal:
                 summary: Nominal valid request
                 value:
+                  acknowledged: true
                   consequenceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  consequencePreviewId: 018f0000-0000-7000-8000-000000000001
             schema:
               $ref: '#/components/schemas/PostSelfClosureRequest'
         required: true
@@ -176,14 +200,11 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
-                    commandId: 018f0000-0000-7000-8000-000000000001
-                    operationId: 018f0000-0000-7000-8000-000000000001
-                    phase: accepted
-                    resourceVersion: 0
-                    statusUrl: /v2/self/closure
+                    fenceAt: 2026-10-16T12:00:00.000Z
+                    state: CLOSING
               schema:
                 $ref: '#/components/schemas/PostSelfClosureResponse'
-          description: request fenced account closure succeeded
+          description: request account closure succeeded
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -206,9 +227,22 @@ paths:
                     status: 400
                     title: REQUEST_FIELD_UNKNOWN
                     type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: REQUEST_FIELD_UNKNOWN
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -216,6 +250,7 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
         '401':
           content:
             application/problem+json:
@@ -257,6 +292,188 @@ paths:
           x-gala-problem-codes:
             - AUTHENTICATION_REQUIRED
             - REAUTH_REQUIRED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                CONSEQUENCE_DIGEST_MISMATCH:
+                  summary: CONSEQUENCE_DIGEST_MISMATCH
+                  value:
+                    code: CONSEQUENCE_DIGEST_MISMATCH
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CONSEQUENCE_DIGEST_MISMATCH
+                    type: urn:gala:problem:consequence-digest-mismatch
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+                OWNER_TRANSFER_REQUIRED:
+                  summary: OWNER_TRANSFER_REQUIRED
+                  value:
+                    code: OWNER_TRANSFER_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: OWNER_TRANSFER_REQUIRED
+                    type: urn:gala:problem:owner-transfer-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description:
+            COMMAND_REPLAY_CONFLICT, CONSEQUENCE_DIGEST_MISMATCH,
+            INVALID_SOURCE_STATE, OWNER_TRANSFER_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - CONSEQUENCE_DIGEST_MISMATCH
+            - INVALID_SOURCE_STATE
+            - OWNER_TRANSFER_REQUIRED
+      security:
+        - browserSession: []
+      summary: request account closure
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: request account closure
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - CONSEQUENCE_DIGEST_MISMATCH
+        - INVALID_SOURCE_STATE
+        - OWNER_TRANSFER_REQUIRED
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - Principal:ACTIVE|SUSPENDED|RESTRICTED -> CLOSING
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/closure:cancel:
+    post:
+      description: |
+        Stops a pending closure before its fence ("Keep my account"). The
+        account is active again and the state reads `NONE`. `409
+        INVALID_SOURCE_STATE` when no closure is pending or the fence has
+        passed.
+      operationId: postSelfClosureCancel
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    state: NONE
+              schema:
+                $ref: '#/components/schemas/PostSelfClosureCancelResponse'
+          description: keep my account succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
         '409':
           content:
             application/problem+json:
@@ -298,7 +515,74 @@ paths:
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_SOURCE_STATE
-        '422':
+      security:
+        - browserSession: []
+      summary: keep my account
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: keep my account
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_SOURCE_STATE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - Principal:CLOSING -> ACTIVE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/self/closure:preview:
+    post:
+      description: |
+        Computes and persists what closing the account does, by organization,
+        and what blocks it. `POST /v2/self/closure` quotes
+        `consequencePreviewId` and `consequenceDigest` back. Closure waits
+        `fenceDays` (7) before it happens and can be cancelled until then.
+      operationId: postSelfClosurePreview
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    blockers: []
+                    consequenceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                    consequencePreviewId: 018f0000-0000-7000-8000-000000000001
+                    consequences:
+                      - code: personal-organization-retired
+                        detail:
+                          Maya and its sites are retired in Galascribe; the
+                          repositories and published sites stay on GitHub.
+                        organizationId: 018f0000-0000-7000-8000-000000000001
+                        reversible: false
+                      - code: comments-anonymized
+                        detail:
+                          Your comments stay, attributed to "Former reader".
+                        reversible: false
+                    expiresAt: 2026-10-16T12:00:00.000Z
+                    fenceDays: 7
+              schema:
+                $ref: '#/components/schemas/PostSelfClosurePreviewResponse'
+          description: preview closing my account succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
           content:
             application/problem+json:
               examples:
@@ -312,7 +596,7 @@ paths:
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0
-                    status: 422
+                    status: 400
                     title: VALIDATION_FAILED
                     type: urn:gala:problem:validation-failed
               schema:
@@ -325,9 +609,36 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
       security:
         - browserSession: []
-      summary: request fenced account closure
+      summary: preview closing my account
       tags:
         - self
       x-gala-activation-gate: MVP
@@ -338,21 +649,100 @@ paths:
       x-gala-conditional-capabilities: []
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
       x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: request fenced account closure
+      x-gala-purpose: preview closing my account
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
-        - COMMAND_REPLAY_CONFLICT
-        - INVALID_SOURCE_STATE
-        - REAUTH_REQUIRED
-        - REQUEST_FIELD_UNKNOWN
         - VALIDATION_FAILED
-      x-gala-replay-identity: idempotency-key
+      x-gala-replay-identity: consequence-preview
       x-gala-state-guards:
-        - Principal:ACTIVE|SUSPENDED|RESTRICTED -> CLOSING
-      x-gala-success-category: async
+        - NONE
+      x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
   /v2/self/exports:
+    get:
+      description: |
+        The caller's most recent exports, newest first, at most 10.
+      operationId: getSelfExports
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - expiresAt: 2026-10-16T12:00:00.000Z
+                        exportId: 018f0000-0000-7000-8000-000000000001
+                        readyAt: 2026-10-09T12:00:00.000Z
+                        requestedAt: 2026-10-09T12:00:00.000Z
+                        sizeBytes: 48213
+                        state: READY
+                        version: 2
+              schema:
+                $ref: '#/components/schemas/GetSelfExportsResponse'
+          description: list my account data exports succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list my account data exports
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list my account data exports
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
     post:
+      description: |
+        Starts building an export of the caller's account data. While an export
+        is `REQUESTED` or `PREPARING`, a new request returns that export instead
+        of starting another. `202` with the export; poll `GET
+        /v2/self/exports/{exportId}`.
       operationId: postSelfExports
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -376,14 +766,13 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
-                    commandId: 018f0000-0000-7000-8000-000000000001
-                    operationId: 018f0000-0000-7000-8000-000000000001
-                    phase: accepted
-                    resourceVersion: 0
-                    statusUrl: /v2/self/exports/018f0000-0000-7000-8000-000000000001
+                    exportId: 018f0000-0000-7000-8000-000000000001
+                    requestedAt: 2026-10-09T12:00:00.000Z
+                    state: REQUESTED
+                    version: 0
               schema:
                 $ref: '#/components/schemas/PostSelfExportsResponse'
-          description: request portable account export succeeded
+          description: request an account data export succeeded
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -406,9 +795,22 @@ paths:
                     status: 400
                     title: REQUEST_FIELD_UNKNOWN
                     type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: REQUEST_FIELD_UNKNOWN
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -416,6 +818,414 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: request an account data export
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: request an account data export
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/exports/{exportId}:
+    get:
+      description: |
+        One of the caller's exports (SCHEMA-3.3.0 shape).
+      operationId: getSelfExportsByExportId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: exportId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    expiresAt: 2026-10-16T12:00:00.000Z
+                    exportId: 018f0000-0000-7000-8000-000000000001
+                    readyAt: 2026-10-09T12:00:00.000Z
+                    requestedAt: 2026-10-09T12:00:00.000Z
+                    sizeBytes: 48213
+                    state: READY
+                    version: 2
+              schema:
+                $ref: '#/components/schemas/GetSelfExportsByExportIdResponse'
+          description: read an account data export succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read an account data export
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read an account data export
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/exports/{exportId}/archive:
+    get:
+      description: |
+        The browser follows the one-time `url` from `:download`; no session is
+        needed because the token is the capability. `200` with the zip. Any
+        unknown, expired or already used token, or a token for another export,
+        answers `404 RESOURCE_NOT_FOUND` (non-enumerating).
+      operationId: getSelfExportsByExportIdArchive
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: exportId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - description: The one-time download token from `:download` (base64url).
+          example: Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-
+          in: query
+          name: token
+          required: true
+          schema:
+            maxLength: 128
+            minLength: 43
+            pattern: ^[A-Za-z0-9_-]{43,128}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/zip:
+              schema:
+                format: binary
+                type: string
+          description: download an account data export archive succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Content-Disposition:
+              $ref: '#/components/headers/ContentDispositionAttachment'
+            X-Content-Type-Options:
+              $ref: '#/components/headers/XContentTypeOptionsNosniff'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security: []
+      summary: download an account data export archive
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: single-use-capability
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: download an account data export archive
+      x-gala-reachable-problems:
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: single-use-download-token
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/exports/{exportId}:download:
+    post:
+      description: |
+        Step-up required. Returns a one-time link to the `READY` archive: `url`
+        is the API path `GET /v2/self/exports/{exportId}/archive?token=...`
+        (resolve it against the API origin, as for every API path), valid until
+        `expiresAt` (15 minutes) and for one download. `409 EXPORT_NOT_READY`
+        unless the export is `READY`.
+      operationId: postSelfExportsByExportIdDownload
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: exportId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    expiresAt: 2026-10-09T12:00:00.000Z
+                    url: /v2/self/exports/018f0000-0000-7000-8000-000000000001/archive?token=Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-
+              schema:
+                $ref: '#/components/schemas/PostSelfExportsByExportIdDownloadResponse'
+          description:
+            get a one-time download link for an account data export succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
         '401':
           content:
             application/problem+json:
@@ -457,6 +1267,33 @@ paths:
           x-gala-problem-codes:
             - AUTHENTICATION_REQUIRED
             - REAUTH_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
         '409':
           content:
             application/problem+json:
@@ -474,9 +1311,22 @@ paths:
                     status: 409
                     title: COMMAND_REPLAY_CONFLICT
                     type: urn:gala:problem:command-replay-conflict
+                EXPORT_NOT_READY:
+                  summary: EXPORT_NOT_READY
+                  value:
+                    code: EXPORT_NOT_READY
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: EXPORT_NOT_READY
+                    type: urn:gala:problem:export-not-ready
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: COMMAND_REPLAY_CONFLICT
+          description: COMMAND_REPLAY_CONFLICT, EXPORT_NOT_READY
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -484,36 +1334,10 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
-        '422':
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 422
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: '#/components/schemas/Problem'
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: '#/components/headers/CacheControlNoStore'
-            X-Correlation-Id:
-              $ref: '#/components/headers/XCorrelationId'
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
+            - EXPORT_NOT_READY
       security:
         - browserSession: []
-      summary: request portable account export
+      summary: get a one-time download link for an account data export
       tags:
         - self
       x-gala-activation-gate: MVP
@@ -524,102 +1348,18 @@ paths:
       x-gala-conditional-capabilities: []
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
       x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: request portable account export
+      x-gala-purpose: get a one-time download link for an account data export
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - COMMAND_REPLAY_CONFLICT
+        - EXPORT_NOT_READY
         - REAUTH_REQUIRED
-        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
         - NONE
-      x-gala-success-category: async
-      x-gala-tenant-scope: NONE
-  /v2/self/exports/{exportId}:
-    get:
-      operationId: getSelfExportsByExportId
-      parameters:
-        - $ref: '#/components/parameters/XCorrelationId'
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: exportId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    downloadReady: false
-                    exportId: 018f0000-0000-7000-8000-000000000001
-                    state: accepted
-                    version: 0
-              schema:
-                $ref: '#/components/schemas/GetSelfExportsByExportIdResponse'
-          description:
-            account-export status and bounded download readiness succeeded
-          headers:
-            Cache-Control:
-              $ref: '#/components/headers/CacheControlNoStore'
-            X-Correlation-Id:
-              $ref: '#/components/headers/XCorrelationId'
-        '400':
-          $ref: '#/components/responses/ValidationFailed'
-        '401':
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: '#/components/schemas/Problem'
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: '#/components/headers/CacheControlNoStore'
-            X-Correlation-Id:
-              $ref: '#/components/headers/XCorrelationId'
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-      security:
-        - browserSession: []
-      summary: account-export status and bounded download readiness
-      tags:
-        - self
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: null
-      x-gala-concurrency: principal-epoch
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: account-export status and bounded download readiness
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - VALIDATION_FAILED
-      x-gala-replay-identity: safe-query
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: query
+      x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
   /v2/self/identity-links:
     post:
@@ -779,6 +1519,10 @@ paths:
       x-gala-tenant-scope: NONE
   /v2/self/identity-links/{identityLinkId}:
     delete:
+      description: |
+        SCHEMA-3.3.0: `409 LAST_SIGN_IN_METHOD` when this link is the last way
+        to sign in (no active passkey and no unused recovery code); `404
+        RESOURCE_NOT_FOUND` for a link that is not the caller's.
       operationId: deleteSelfIdentityLinksByIdentityLinkId
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -843,6 +1587,33 @@ paths:
           x-gala-problem-codes:
             - AUTHENTICATION_REQUIRED
             - REAUTH_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
         '409':
           content:
             application/problem+json:
@@ -860,9 +1631,22 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                LAST_SIGN_IN_METHOD:
+                  summary: LAST_SIGN_IN_METHOD
+                  value:
+                    code: LAST_SIGN_IN_METHOD
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: LAST_SIGN_IN_METHOD
+                    type: urn:gala:problem:last-sign-in-method
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: INVALID_SOURCE_STATE
+          description: INVALID_SOURCE_STATE, LAST_SIGN_IN_METHOD
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -870,6 +1654,7 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - INVALID_SOURCE_STATE
+            - LAST_SIGN_IN_METHOD
       security:
         - browserSession: []
       summary: unlink without removing the final recovery method
@@ -887,12 +1672,103 @@ paths:
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - INVALID_SOURCE_STATE
+        - LAST_SIGN_IN_METHOD
         - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
         - VALIDATION_FAILED
       x-gala-replay-identity: identity-link
       x-gala-state-guards:
         - ExternalIdentity:ACTIVE -> UNLINKED
       x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
+  /v2/self/owner-transfers:
+    get:
+      description: |
+        The pending ownership transfers whose successor is the caller, matched
+        by principal id or by the caller's GitHub login, newest first. Settled
+        and expired transfers are not listed. The Home banner and the
+        Invitations list read this.
+      operationId: getSelfOwnerTransfers
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - consequenceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                        consequences:
+                          - code: successor-becomes-owner
+                            detail: You become the owner of Northwind Press.
+                            reversible: false
+                        expiresAt: 2026-10-16T12:00:00.000Z
+                        initiatedBy:
+                          displayName: Dev
+                        organizationId: 018f0000-0000-7000-8000-000000000001
+                        organizationKind: COLLABORATIVE
+                        organizationName: Northwind Press
+                        organizationSlug: northwind-press
+                        transferId: 018f0000-0000-7000-8000-000000000002
+                        version: 0
+              schema:
+                $ref: '#/components/schemas/GetSelfOwnerTransfersResponse'
+          description: list ownership transfers addressed to me succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list ownership transfers addressed to me
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list ownership transfers addressed to me
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
       x-gala-tenant-scope: NONE
   /v2/self/passkey-registration-options:
     post:
@@ -1741,8 +2617,17 @@ paths:
                   summary: Nominal successful response
                   value:
                     codes:
-                      - examplex
-                    createdAt: 2026-09-06T00:00:00.000Z
+                      - abcd-efgh-jk00
+                      - abcd-efgh-jk11
+                      - abcd-efgh-jk22
+                      - abcd-efgh-jk33
+                      - abcd-efgh-jk44
+                      - abcd-efgh-jk55
+                      - abcd-efgh-jk66
+                      - abcd-efgh-jk77
+                      - abcd-efgh-jk88
+                      - abcd-efgh-jk99
+                    generatedAt: 2026-10-09T12:00:00.000Z
                     recoveryCodeSetId: 018f0000-0000-7000-8000-000000000001
               schema:
                 $ref: '#/components/schemas/PostSelfRecoveryCodeSetsResponse'
@@ -1996,6 +2881,10 @@ paths:
       x-gala-tenant-scope: NONE
   /v2/self/sessions/{sessionFamilyId}:
     delete:
+      description: |
+        SCHEMA-3.3.0: `409 CURRENT_SESSION` for the session making the request
+        (sign out with `DELETE /v2/session` instead); `404 RESOURCE_NOT_FOUND`
+        for a session family that is not the caller's.
       operationId: deleteSelfSessionsBySessionFamilyId
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -2045,10 +2934,50 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
         '409':
           content:
             application/problem+json:
               examples:
+                CURRENT_SESSION:
+                  summary: CURRENT_SESSION
+                  value:
+                    code: CURRENT_SESSION
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CURRENT_SESSION
+                    type: urn:gala:problem:current-session
                 INVALID_SOURCE_STATE:
                   summary: INVALID_SOURCE_STATE
                   value:
@@ -2064,13 +2993,14 @@ paths:
                     type: urn:gala:problem:invalid-source-state
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: INVALID_SOURCE_STATE
+          description: CURRENT_SESSION, INVALID_SOURCE_STATE
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
             X-Correlation-Id:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
+            - CURRENT_SESSION
             - INVALID_SOURCE_STATE
       security:
         - browserSession: []
@@ -2088,10 +3018,135 @@ paths:
       x-gala-purpose: revoke exact session family
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
+        - CURRENT_SESSION
         - INVALID_SOURCE_STATE
+        - RESOURCE_NOT_FOUND
         - VALIDATION_FAILED
       x-gala-replay-identity: session-family
       x-gala-state-guards:
         - SessionFamily:ACTIVE|ROTATED -> REVOKED
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
+  /v2/self/sessions:revoke-others:
+    post:
+      description: |
+        Revokes every session family of the caller except the one making the
+        request ("Sign out everywhere else"). `204`; a replay with the same
+        `Idempotency-Key` answers `204` again.
+      operationId: postSelfSessionsRevokeOthers
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: sign out every other session succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: sign out every other session
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: credential-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: sign out every other session
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
       x-gala-success-category: delete
       x-gala-tenant-scope: NONE

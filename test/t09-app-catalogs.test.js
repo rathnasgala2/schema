@@ -102,7 +102,7 @@ async function loadFixtures() {
 test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
   assert.equal(validateAppComponentSource(componentSourceValue).length, 15);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 29);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 33);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -127,7 +127,7 @@ test('generated catalogs match the committed projection', async () => {
   ]);
   assert.deepEqual(JSON.parse(committedComponentsText), components);
   assert.deepEqual(JSON.parse(committedRoutesText), routes);
-  assert.equal(authoredMessageCount, 405);
+  assert.equal(authoredMessageCount, 443);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
@@ -304,6 +304,7 @@ test('SCHEMA-2.8.1: every App-facing operation is bound to a route, and the sing
     'getPublicPublicationsByPublicationIdContentsByContentIdComments',
     'getPublicPublicationsByPublicationIdContentsByContentIdInteractions',
     'postCallbacksGithubApp',
+    'postPublicCommentsByCommentIdAppeals',
     'postPublicCommentsByCommentIdReports',
     'postPublicCommentsByCommentIdRevisions',
     'postPublicPublicationsByPublicationIdContentsByContentIdComments',

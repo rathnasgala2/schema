@@ -459,9 +459,23 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                TRANSFER_PENDING:
+                  summary: TRANSFER_PENDING
+                  value:
+                    code: TRANSFER_PENDING
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_PENDING
+                    type: urn:gala:problem:transfer-pending
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+          description:
+            COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE, TRANSFER_PENDING
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -470,6 +484,7 @@ paths:
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_SOURCE_STATE
+            - TRANSFER_PENDING
         '422':
           content:
             application/problem+json:
@@ -551,6 +566,7 @@ paths:
         - INVALID_SOURCE_STATE
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
+        - TRANSFER_PENDING
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:

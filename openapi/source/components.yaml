@@ -11,6 +11,12 @@ components:
       required: true
       schema:
         const: no-store
+    ContentDispositionAttachment:
+      description: 'The archive is a download: `attachment` with its file name.'
+      required: true
+      schema:
+        pattern: ^attachment; filename="[A-Za-z0-9._-]{1,120}"$
+        type: string
     ContentDispositionInline:
       required: true
       schema:
@@ -45,15 +51,15 @@ components:
       required: true
       schema:
         const: nosniff
-    XGalaCurrentHead:
-      required: true
-      schema:
-        pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
-        type: string
     XCorrelationId:
       required: true
       schema:
         format: uuid
+        type: string
+    XGalaCurrentHead:
+      required: true
+      schema:
+        pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
         type: string
   parameters:
     ContentLimit:
@@ -719,57 +725,11 @@ components:
         - hasMore
       type: object
     GetOrganizationsByOrganizationIdOwnerTransfersByTransferIdResponse:
-      additionalProperties: false
-      properties:
-        expiresAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        state:
-          $ref: '#/components/schemas/OwnerTransferState'
-        successorPrincipalId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        transferId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - transferId
-        - version
-        - state
-        - successorPrincipalId
-        - expiresAt
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/OwnerTransfer'
     GetOrganizationsByOrganizationIdPublicationImportsByImportIdResponse:
-      additionalProperties: false
-      properties:
-        findingsDigest:
-          pattern: ^sha256:[0-9a-f]{64}$
-          type: string
-        importId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        operationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        state:
-          $ref: '#/components/schemas/OperationPhase'
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - importId
-        - version
-        - state
-        - operationId
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/PublicationImport'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsResponse:
       additionalProperties: false
       allOf:
@@ -1230,6 +1190,8 @@ components:
           maxItems: 200
           type: array
           uniqueItems: true
+        kind:
+          $ref: '#/components/schemas/OrganizationKind'
         name:
           maxLength: 80
           minLength: 1
@@ -1360,6 +1322,12 @@ components:
                 type: string
             required:
               - nextCursor
+      description:
+        "SCHEMA-3.3.0: `recoveryCodes` is the current recovery code set's
+        status, `null` when none was generated. Items include one `GITHUB` row
+        per active GitHub identity link (`authenticatorId` is the identity link
+        id `DELETE /v2/self/identity-links/{identityLinkId}` accepts, `label`
+        the GitHub login, `createdAt` the link time)."
       properties:
         hasMore:
           type: boolean
@@ -1378,6 +1346,10 @@ components:
           type:
             - string
             - 'null'
+        recoveryCodes:
+          oneOf:
+            - $ref: '#/components/schemas/RecoveryCodeStatus'
+            - type: 'null'
       required:
         - items
         - hasMore
@@ -1389,16 +1361,14 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
-        irreversibleAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        recoveryActions:
+        consequences:
           items:
-            maxLength: 80
-            minLength: 1
-            type: string
-          maxItems: 20
+            $ref: '#/components/schemas/Consequence'
+          maxItems: 100
+          minItems: 0
           type: array
-          uniqueItems: true
+        fenceAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         state:
           $ref: '#/components/schemas/PrincipalClosureState'
         version:
@@ -1406,36 +1376,12 @@ components:
           minimum: 0
           type: integer
       required:
-        - closureId
-        - version
         - state
+        - consequences
       type: object
     GetSelfExportsByExportIdResponse:
-      additionalProperties: false
-      properties:
-        downloadDigest:
-          pattern: ^sha256:[0-9a-f]{64}$
-          type: string
-        downloadReady:
-          type: boolean
-        expiresAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        exportId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        state:
-          $ref: '#/components/schemas/OperationPhase'
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - exportId
-        - version
-        - state
-        - downloadReady
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/AccountExport'
     GetSelfSessionsResponse:
       additionalProperties: false
       allOf:
@@ -1498,6 +1444,8 @@ components:
           maxItems: 1000
           type: array
           uniqueItems: true
+        closure:
+          $ref: '#/components/schemas/SessionClosure'
         credentialEpoch:
           format: int64
           minimum: 0
@@ -1533,6 +1481,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        workforce:
+          $ref: '#/components/schemas/SessionWorkforce'
       required:
         - principalId
         - assurance
@@ -3144,15 +3094,11 @@ components:
       additionalProperties: false
       properties:
         code:
-          maxLength: 256
-          minLength: 8
-          type: string
-        transactionId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          maxLength: 14
+          minLength: 12
+          pattern: ^[0-9A-Za-z]{4}-?[0-9A-Za-z]{4}-?[0-9A-Za-z]{4}$
           type: string
       required:
-        - transactionId
         - code
       type: object
     PostAuthenticationRecoveryCodeResponse:
@@ -3428,31 +3374,8 @@ components:
         - consequenceDigest
       type: object
     PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdAcceptResponse:
-      additionalProperties: false
-      properties:
-        expiresAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        state:
-          $ref: '#/components/schemas/OwnerTransferState'
-        successorPrincipalId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        transferId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - transferId
-        - version
-        - state
-        - successorPrincipalId
-        - expiresAt
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/OwnerTransfer'
     PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancelRequest:
       additionalProperties: false
       properties:
@@ -3464,71 +3387,50 @@ components:
         - reasonCode
       type: object
     PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancelResponse:
-      additionalProperties: false
-      properties:
-        expiresAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        state:
-          $ref: '#/components/schemas/OwnerTransferState'
-        successorPrincipalId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        transferId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - transferId
-        - version
-        - state
-        - successorPrincipalId
-        - expiresAt
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/OwnerTransfer'
     PostOrganizationsByOrganizationIdOwnerTransfersRequest:
       additionalProperties: false
+      allOf:
+        - else:
+            required:
+              - successorGithubLogin
+          if:
+            required:
+              - successorPrincipalId
+          then:
+            not:
+              required:
+                - successorGithubLogin
+      description:
+        'Names the successor exactly once (SCHEMA-3.3.0): `successorPrincipalId`
+        for a COLLABORATIVE organization (the successor must be an ACTIVE
+        member, else `409 SUCCESSOR_NOT_MEMBER`) or `successorGithubLogin` for a
+        SINGLE organization (matched case-insensitively against the GitHub login
+        of whoever accepts). `consequenceDigest` is the digest `POST
+        .../owner-transfers:preview` returned for the same successor.'
       properties:
         consequenceDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        successorGithubLogin:
+          description:
+            'GitHub login grammar: letters, digits and single hyphens, not
+            starting or ending with a hyphen.'
+          maxLength: 39
+          minLength: 1
+          pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+          type: string
         successorPrincipalId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
       required:
-        - successorPrincipalId
         - consequenceDigest
       type: object
     PostOrganizationsByOrganizationIdOwnerTransfersResponse:
-      additionalProperties: false
-      properties:
-        expiresAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        state:
-          $ref: '#/components/schemas/OwnerTransferState'
-        successorPrincipalId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        transferId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - transferId
-        - version
-        - state
-        - successorPrincipalId
-        - expiresAt
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/OwnerTransfer'
     PostOrganizationsByOrganizationIdPublicationImportsRequest:
       additionalProperties: false
       properties:
@@ -3548,7 +3450,7 @@ components:
       type: object
     PostOrganizationsByOrganizationIdPublicationImportsResponse:
       allOf:
-        - $ref: '#/components/schemas/OperationResponse'
+        - $ref: '#/components/schemas/PublicationImport'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlanRequest:
       oneOf:
         - additionalProperties: false
@@ -5138,15 +5040,32 @@ components:
     PostSelfClosureRequest:
       additionalProperties: false
       properties:
+        acknowledged:
+          const: true
+          type: boolean
         consequenceDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
       required:
+        - consequencePreviewId
         - consequenceDigest
+        - acknowledged
       type: object
     PostSelfClosureResponse:
-      allOf:
-        - $ref: '#/components/schemas/OperationResponse'
+      additionalProperties: false
+      properties:
+        fenceAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          $ref: '#/components/schemas/PrincipalClosureState'
+      required:
+        - state
+        - fenceAt
+      type: object
     PostSelfExportsRequest:
       additionalProperties: false
       properties: {}
@@ -5154,7 +5073,7 @@ components:
       type: object
     PostSelfExportsResponse:
       allOf:
-        - $ref: '#/components/schemas/OperationResponse'
+        - $ref: '#/components/schemas/AccountExport'
     PostSelfIdentityLinksRequest:
       additionalProperties: false
       properties:
@@ -5292,17 +5211,22 @@ components:
       type: object
     PostSelfRecoveryCodeSetsResponse:
       additionalProperties: false
+      description:
+        'Ten single-use codes, `xxxx-xxxx-xxxx` in lower-case Crockford base32,
+        shown exactly once (SCHEMA-3.3.0 shape). Generating a set replaces the
+        previous one: its unused codes are revoked.'
       properties:
         codes:
           items:
-            maxLength: 256
-            minLength: 8
+            maxLength: 14
+            minLength: 14
+            pattern: ^[0-9a-hjkmnp-tv-z]{4}-[0-9a-hjkmnp-tv-z]{4}-[0-9a-hjkmnp-tv-z]{4}$
             type: string
-          maxItems: 20
-          minItems: 1
+          maxItems: 10
+          minItems: 10
           type: array
           uniqueItems: true
-        createdAt:
+        generatedAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         recoveryCodeSetId:
           format: uuid
@@ -5311,7 +5235,7 @@ components:
       required:
         - recoveryCodeSetId
         - codes
-        - createdAt
+        - generatedAt
       type: object
     PostSessionReauthenticationRequest:
       additionalProperties: false
@@ -5500,7 +5424,12 @@ components:
         - $ref: '#/components/schemas/ReceiptExchangeCapabilityIssuedResponse'
         - $ref: '#/components/schemas/ReceiptExchangeSubmissionRecordedResponse'
     PrincipalClosureState:
+      description:
+        '`NONE`: no closure requested. `CLOSING`: closure requested; the account
+        closes at `fenceAt` unless it is kept. `CLOSED`: closed; it cannot be
+        reopened.'
       enum:
+        - NONE
         - CLOSING
         - CLOSED
       type: string
@@ -6546,7 +6475,19 @@ components:
       type: string
     RoleSummary:
       additionalProperties: false
+      description:
+        "SCHEMA-3.3.0: `kind`, `revision`, `state` and `memberCount` are always
+        present from this release on (optional only so a 3.2 body still
+        validates); `basedOnRoleKey` names the default role a `CUSTOM` role was
+        cloned from. A custom role's `stableKey` is server-assigned (`custom_`
+        and a suffix); its `description` reads `Based on <base role name>` when
+        none was given."
       properties:
+        basedOnRoleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
         capabilityKeys:
           items:
             maxLength: 160
@@ -6559,10 +6500,20 @@ components:
           maxLength: 320
           minLength: 1
           type: string
+        kind:
+          $ref: '#/components/schemas/RoleKind'
+        memberCount:
+          format: int64
+          minimum: 0
+          type: integer
         name:
           maxLength: 80
           minLength: 1
           type: string
+        revision:
+          format: int64
+          minimum: 1
+          type: integer
         roleId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -6574,6 +6525,8 @@ components:
           minLength: 1
           pattern: ^[a-z][a-z0-9_]*$
           type: string
+        state:
+          $ref: '#/components/schemas/RoleState'
       required:
         - roleId
         - stableKey
@@ -6592,8 +6545,16 @@ components:
       type: string
     SessionSummary:
       additionalProperties: false
+      description:
+        One signed-in browser. `current` marks the session making the request.
+        `lastSeenAt` is refreshed at most every 5 minutes. `createdAt` and
+        `client` are new in SCHEMA-3.3.0.
       properties:
         authenticatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        client:
+          $ref: '#/components/schemas/SessionClient'
+        createdAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         current:
           type: boolean
@@ -6616,6 +6577,8 @@ components:
         - authenticatedAt
         - lastSeenAt
         - current
+        - createdAt
+        - client
       type: object
     VerificationPlanEntry:
       additionalProperties: false
@@ -6840,8 +6803,15 @@ components:
     SiteAttentionItem:
       additionalProperties: false
       description:
-        Something that needs a person to act. The list is empty when nothing
-        does.
+        "Something that needs a person to act. The list is empty when nothing
+        does. SCHEMA-3.3.0: `SCHEDULED_PUBLISH_FAILED` means a scheduled publish
+        could not start at its time; `relatedPublishId` names the schedule and
+        `reasonCode` the first precondition that failed (a client maps the
+        values it knows to a sentence and shows a generic one otherwise);
+        nothing was merged. `DOMAIN_PUBLISH_REQUIRED` means a custom domain is
+        live and the next publish moves the site's address to it.
+        `DOMAIN_DEGRADED` means a live custom domain stopped working;
+        `reasonCode` names why and the domain read carries the next step."
       properties:
         code:
           enum:
@@ -6856,8 +6826,20 @@ components:
             - PAGES_NOT_AVAILABLE
             - REPOSITORY_UNAVAILABLE
             - REPOSITORY_MOVED
+            - SCHEDULED_PUBLISH_FAILED
+            - DOMAIN_PUBLISH_REQUIRED
+            - DOMAIN_DEGRADED
+          type: string
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
           type: string
         relatedChangeId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        relatedPublishId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
@@ -6925,7 +6907,10 @@ components:
         Everything a Home screen needs in one read. `url` is the live site
         address, `null` when nothing has been published. `lastPublished` is
         absent when `state` is `NEVER_PUBLISHED`. `publishing` is present
-        exactly while `state` is `PUBLISHING`.
+        exactly while `state` is `PUBLISHING`. `schedule` (SCHEMA-3.3.0,
+        optional) is present while a scheduled publish is pending; a pending
+        schedule never makes `state` `PUBLISHING` -- the site reads as it would
+        without it until the schedule starts.
       properties:
         attention:
           items:
@@ -6941,6 +6926,8 @@ components:
           type: array
         publishing:
           $ref: '#/components/schemas/SitePublishing'
+        schedule:
+          $ref: '#/components/schemas/SiteSchedule'
         state:
           enum:
             - LIVE
@@ -7072,7 +7059,9 @@ components:
       description:
         One version that went live, or the trailing failed attempt. `versionId`
         is the deployment generation id and is accepted by `POST
-        .../deployments:rollback` as `generationId`.
+        .../deployments:rollback` as `generationId`. `scheduledFor`
+        (SCHEMA-3.3.0, optional) is set when this version went live from a
+        scheduled publish.
       properties:
         actor:
           $ref: '#/components/schemas/SiteActor'
@@ -7103,6 +7092,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        scheduledFor:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         versionId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -7193,10 +7184,13 @@ components:
     CommentView:
       additionalProperties: false
       description:
-        A comment with its replies. The tree is unrolled to four levels (depth 0
-        to 3) because the contract tooling does not admit recursive references;
-        each level has the same members, and the last level carries no replies.
-        For `REMOVED` and `DELETED` the author and body are null.
+        "A comment with its replies. The tree is unrolled to four levels (depth
+        0 to 3) because the contract tooling does not admit recursive
+        references; each level has the same members, and the last level carries
+        no replies. For `REMOVED` and `DELETED` the author and body are null.
+        SCHEMA-3.3.0: `own` (optional, every level) is present only for the
+        viewer's own removed or held comment, which is then included for that
+        viewer only."
       properties:
         author:
           oneOf:
@@ -7227,6 +7221,8 @@ components:
           type: string
         moreReplies:
           type: boolean
+        own:
+          $ref: '#/components/schemas/CommentOwnState'
         parentId:
           oneOf:
             - format: uuid
@@ -7288,6 +7284,8 @@ components:
           type: string
         moreReplies:
           type: boolean
+        own:
+          $ref: '#/components/schemas/CommentOwnState'
         parentId:
           oneOf:
             - format: uuid
@@ -7349,6 +7347,8 @@ components:
           type: string
         moreReplies:
           type: boolean
+        own:
+          $ref: '#/components/schemas/CommentOwnState'
         parentId:
           oneOf:
             - format: uuid
@@ -7410,6 +7410,8 @@ components:
           type: string
         moreReplies:
           type: boolean
+        own:
+          $ref: '#/components/schemas/CommentOwnState'
         parentId:
           oneOf:
             - format: uuid
@@ -7709,10 +7711,13 @@ components:
         - RESTORE
         - REMOVE
         - DISMISS_REPORTS
+        - DENY_APPEAL
       type: string
     ModerationQueueItem:
       additionalProperties: false
       properties:
+        appeal:
+          $ref: '#/components/schemas/ModerationAppeal'
         assessment:
           oneOf:
             - additionalProperties: false
@@ -8138,6 +8143,2147 @@ components:
       required:
         - displayName
         - initials
+      type: object
+    Consequence:
+      additionalProperties: false
+      description:
+        One consequence a consequence preview names before a fenced command
+        (owner transfer, publication transfer, account closure) (SCHEMA-3.3.0).
+        The command quotes the preview's `consequenceDigest` back; a client
+        never fabricates it.
+      properties:
+        code:
+          description:
+            Closed, machine-readable consequence identifier the client renders
+            through its own copy deck.
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9]*(?:[-.][a-z0-9]+)*$
+          type: string
+        detail:
+          description: Plain, non-sensitive summary of this consequence.
+          maxLength: 320
+          minLength: 1
+          type: string
+        organizationId:
+          description:
+            The organization this consequence concerns, when it concerns one
+            (account closure lists its consequences by organization).
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reversible:
+          type: boolean
+      required:
+        - code
+        - detail
+        - reversible
+      type: object
+    OrganizationKind:
+      description:
+        '`SINGLE`: a personal (Pro) organization with one owner and no other
+        members. `COLLABORATIVE`: an Enterprise organization with members, roles
+        and custom roles (SCHEMA-3.3.0).'
+      enum:
+        - SINGLE
+        - COLLABORATIVE
+      type: string
+    SiteSchedule:
+      additionalProperties: false
+      description:
+        The publish scheduled for this site, present only while it is pending
+        (SCHEMA-3.3.0). `publishId` is the schedule id `POST
+        .../publishes/{publishId}:cancel` accepts; `changeIds` are the exact
+        changes it merges at `scheduledFor`.
+      properties:
+        changeIds:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 20
+          minItems: 1
+          type: array
+          uniqueItems: true
+        createdBy:
+          $ref: '#/components/schemas/SiteActor'
+        publishId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        scheduledFor:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - publishId
+        - scheduledFor
+        - changeIds
+        - createdBy
+      type: object
+    OwnerTransfer:
+      additionalProperties: false
+      allOf:
+        - if:
+            not:
+              required:
+                - successorPrincipalId
+          then:
+            required:
+              - successorGithubLogin
+      description:
+        One organization ownership transfer (SCHEMA-3.3.0 shape). The successor
+        is named by `successorPrincipalId` (a COLLABORATIVE organization, or
+        once accepted) or by `successorGithubLogin` (a SINGLE organization,
+        addressed before the successor necessarily has an account); at least one
+        is present. `reasonCode` is set on a settled transfer, for example
+        `DECLINED_BY_SUCCESSOR`. `PENDING` transfers expire after 7 days.
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        organizationKind:
+          $ref: '#/components/schemas/OrganizationKind'
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/OwnerTransferState'
+        successorGithubLogin:
+          description:
+            'GitHub login grammar: letters, digits and single hyphens, not
+            starting or ending with a hyphen.'
+          maxLength: 39
+          minLength: 1
+          pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+          type: string
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - state
+        - organizationKind
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersPreviewRequest:
+      additionalProperties: false
+      allOf:
+        - else:
+            required:
+              - successorGithubLogin
+          if:
+            required:
+              - successorPrincipalId
+          then:
+            not:
+              required:
+                - successorGithubLogin
+      properties:
+        successorGithubLogin:
+          description:
+            'GitHub login grammar: letters, digits and single hyphens, not
+            starting or ending with a hyphen.'
+          maxLength: 39
+          minLength: 1
+          pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+          type: string
+        successorPrincipalId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required: []
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersPreviewResponse:
+      additionalProperties: false
+      description:
+        'The persisted consequence preview an ownership transfer must quote
+        back. Consequence codes: `successor-becomes-owner`, `you-become-admin`
+        (COLLABORATIVE) or `your-membership-ends` (SINGLE),
+        `authorization-epoch-advances`.'
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        consequences:
+          items:
+            $ref: '#/components/schemas/Consequence'
+          maxItems: 20
+          minItems: 1
+          type: array
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        organizationKind:
+          $ref: '#/components/schemas/OrganizationKind'
+      required:
+        - consequencePreviewId
+        - consequenceDigest
+        - consequences
+        - organizationKind
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdDeclineRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdOwnerTransfersByTransferIdDeclineResponse:
+      allOf:
+        - $ref: '#/components/schemas/OwnerTransfer'
+    IncomingOwnerTransfer:
+      additionalProperties: false
+      description:
+        A pending ownership transfer addressed to the caller.
+        `consequenceDigest` is what `:accept` quotes back.
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequences:
+          items:
+            $ref: '#/components/schemas/Consequence'
+          maxItems: 20
+          minItems: 1
+          type: array
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        initiatedBy:
+          $ref: '#/components/schemas/SiteActor'
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationKind:
+          $ref: '#/components/schemas/OrganizationKind'
+        organizationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        organizationSlug:
+          maxLength: 80
+          minLength: 1
+          type: string
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - organizationId
+        - organizationName
+        - organizationSlug
+        - organizationKind
+        - initiatedBy
+        - expiresAt
+        - consequences
+        - consequenceDigest
+      type: object
+    GetSelfOwnerTransfersResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/IncomingOwnerTransfer'
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    PublicationTransferState:
+      description:
+        '`PENDING_ACCEPTANCE` -> `ACCEPTED` -> `COMPLETED`; `PENDING_ACCEPTANCE`
+        -> `CANCELLED` (by the source) | `DECLINED` (by the destination) |
+        `EXPIRED` (after 7 days). `FAILED` when the accepted move could not be
+        applied (nothing moved).'
+      enum:
+        - PENDING_ACCEPTANCE
+        - ACCEPTED
+        - COMPLETED
+        - CANCELLED
+        - DECLINED
+        - EXPIRED
+        - FAILED
+      type: string
+    PublicationTransferCheck:
+      additionalProperties: false
+      description:
+        "One precondition Galascribe checked. `installation-visible-to-you` is
+        evaluated for the reading side: the repository must be reachable through
+        a GitHub App installation the destination organization can use. A failed
+        check's `detail` says what to fix."
+      properties:
+        code:
+          enum:
+            - destination-active
+            - destination-capacity
+            - installation-visible-to-you
+            - no-publish-in-flight
+            - no-schedule
+            - no-pending-transfer
+          type: string
+        detail:
+          maxLength: 320
+          minLength: 1
+          type: string
+        ok:
+          type: boolean
+      required:
+        - code
+        - ok
+        - detail
+      type: object
+    PublicationTransferParty:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - organizationId
+        - name
+        - slug
+      type: object
+    PublicationTransferPublication:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - publicationId
+        - name
+        - slug
+      type: object
+    PublicationTransfer:
+      additionalProperties: false
+      description:
+        "A move of one publication (its Galascribe record, history, comments,
+        reactions and settings) from the source organization to the destination
+        organization (SCHEMA-3.3.0). The GitHub repository stays where it is; a
+        custom domain binding is detached and the destination re-adds it. While
+        `PENDING_ACCEPTANCE` or `ACCEPTED` the publication is fenced: every
+        publication-scoped command except the transfer routes answers `409
+        TRANSFER_PENDING`. `checks` are re-evaluated for the reading side on
+        every read of a pending transfer, so re-reading is the re-check.
+        `consequenceDigest` is what the destination's `:accept` quotes back.
+        `completedAt` is set once `COMPLETED`; `reasonCode` on a cancelled or
+        declined transfer."
+      properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/PublicationTransferCheck'
+          maxItems: 6
+          minItems: 0
+          type: array
+        completedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequences:
+          items:
+            $ref: '#/components/schemas/Consequence'
+          maxItems: 20
+          minItems: 1
+          type: array
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        destination:
+          $ref: '#/components/schemas/PublicationTransferParty'
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        initiatedBy:
+          $ref: '#/components/schemas/SiteActor'
+        publication:
+          $ref: '#/components/schemas/PublicationTransferPublication'
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+        source:
+          $ref: '#/components/schemas/PublicationTransferParty'
+        state:
+          $ref: '#/components/schemas/PublicationTransferState'
+        transferId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - transferId
+        - version
+        - state
+        - publication
+        - source
+        - destination
+        - initiatedBy
+        - checks
+        - consequences
+        - consequenceDigest
+        - expiresAt
+        - createdAt
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreviewRequest:
+      additionalProperties: false
+      allOf:
+        - else:
+            required:
+              - destinationOrganizationSlug
+          if:
+            required:
+              - destinationOrganizationId
+          then:
+            not:
+              required:
+                - destinationOrganizationSlug
+      properties:
+        destinationOrganizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        destinationOrganizationSlug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required: []
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreviewResponse:
+      additionalProperties: false
+      properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/PublicationTransferCheck'
+          maxItems: 6
+          minItems: 0
+          type: array
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        consequences:
+          items:
+            $ref: '#/components/schemas/Consequence'
+          maxItems: 20
+          minItems: 1
+          type: array
+        destination:
+          $ref: '#/components/schemas/PublicationTransferParty'
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - consequencePreviewId
+        - consequenceDigest
+        - destination
+        - checks
+        - consequences
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersRequest:
+      additionalProperties: false
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - consequencePreviewId
+        - consequenceDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationTransfer'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationTransfer'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancelRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancelResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationTransfer'
+    GetOrganizationsByOrganizationIdPublicationTransfersResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PublicationTransfer'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PostOrganizationsByOrganizationIdPublicationTransfersByTransferIdAcceptRequest:
+      additionalProperties: false
+      properties:
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+      required:
+        - consequenceDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationTransfersByTransferIdAcceptResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationTransfer'
+    PostOrganizationsByOrganizationIdPublicationTransfersByTransferIdDeclineRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationTransfersByTransferIdDeclineResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationTransfer'
+    PublicationImportState:
+      description:
+        '`INSPECTING` -> `READY` (inspection done, findings listed) ->
+        `CONNECTING` (`:connect`) or `CONVERTING` (`:convert`) -> `CONNECTED`.
+        `FAILED` and `CANCELLED` are terminal and wrote nothing beyond what
+        `failure` names.'
+      enum:
+        - INSPECTING
+        - READY
+        - CONNECTING
+        - CONVERTING
+        - CONNECTED
+        - FAILED
+        - CANCELLED
+      type: string
+    PublicationImportLayout:
+      description:
+        '`GALA_V2`: `gala/repository.json` is a valid v2 declared graph.
+        `GALA_V1`: a v1 site (`site.config.yml` and
+        `content/posts/**/index.<lang>.md`). `UNKNOWN`: neither.'
+      enum:
+        - GALA_V2
+        - GALA_V1
+        - UNKNOWN
+      type: string
+    PublicationImportFinding:
+      additionalProperties: false
+      description:
+        One thing inspection found, listed before anything is written. A
+        `BLOCKER` stops `:connect`/`:convert` (`409 IMPORT_BLOCKED`). Known
+        codes include `REPOSITORY_NEEDS_UPDATE`, `WORKFLOW_MISSING`,
+        `V1_SYNTAX_UNSUPPORTED`, `V1_MEDIA_LARGE`, `V1_SCHEDULED_BECOMES_DRAFT`,
+        `V1_POST_EXPIRED_SKIPPED`, `V1_THEME_REPLACED`, `V1_PRISM_DROPPED`,
+        `STARTER_FILES_ADDED` and `CONVERSION_TOO_LARGE`; a client shows
+        `detail` for codes it does not know.
+      properties:
+        code:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+        path:
+          description:
+            Repository-relative path the finding is about, when it is about one
+            file.
+          maxLength: 512
+          minLength: 1
+          type: string
+        severity:
+          enum:
+            - INFO
+            - WARNING
+            - BLOCKER
+          type: string
+      required:
+        - code
+        - severity
+        - detail
+      type: object
+    PublicationImportRepository:
+      additionalProperties: false
+      properties:
+        defaultBranch:
+          maxLength: 255
+          minLength: 1
+          type: string
+        fullName:
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$
+          type: string
+        private:
+          type: boolean
+      required:
+        - fullName
+        - defaultBranch
+        - private
+      type: object
+    PublicationImportSuggestion:
+      additionalProperties: false
+      description:
+        Name and slug prefilled for `:connect`/`:convert`, taken from the
+        repository.
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - name
+        - slug
+      type: object
+    PublicationImportFailure:
+      additionalProperties: false
+      properties:
+        code:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+      required:
+        - code
+        - detail
+      type: object
+    PublicationImport:
+      additionalProperties: false
+      description:
+        One repository import (SCHEMA-3.3.0 shape). `repository`, `layout` and
+        `suggested` are null while `INSPECTING`; `findings` is empty until
+        inspection finishes.
+      properties:
+        changeId:
+          description:
+            The conversion change a `:convert` proposed; review and merge it
+            like any change.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        failure:
+          $ref: '#/components/schemas/PublicationImportFailure'
+        findings:
+          items:
+            $ref: '#/components/schemas/PublicationImportFinding'
+          maxItems: 500
+          minItems: 0
+          type: array
+        importId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        layout:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationImportLayout'
+            - type: 'null'
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          description: The publication `:connect`/`:convert` created.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        repository:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationImportRepository'
+            - type: 'null'
+        state:
+          $ref: '#/components/schemas/PublicationImportState'
+        suggested:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationImportSuggestion'
+            - type: 'null'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - importId
+        - version
+        - state
+        - operationId
+        - repository
+        - layout
+        - findings
+        - suggested
+      type: object
+    GetOrganizationsByOrganizationIdPublicationImportsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PublicationImport'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdConnectRequest:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - name
+        - slug
+      type: object
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdConnectResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationImport'
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdConvertRequest:
+      additionalProperties: false
+      properties:
+        defaultAuthorDisplayName:
+          maxLength: 120
+          minLength: 1
+          type: string
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        slug:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - name
+        - slug
+        - defaultAuthorDisplayName
+      type: object
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdConvertResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationImport'
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdCancelRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdCancelResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationImport'
+    RoleKind:
+      description:
+        "`DEFAULT`: one of the seeded, read-only roles. `CUSTOM`: an Enterprise
+        organization's own role."
+      enum:
+        - DEFAULT
+        - CUSTOM
+      type: string
+    RoleState:
+      description:
+        '`RETIRING` while a retirement reassigns grants; `RETIRED` roles are
+        kept for history and assign nothing.'
+      enum:
+        - ACTIVE
+        - RETIRING
+        - RETIRED
+      type: string
+    PostOrganizationsByOrganizationIdRolesRequest:
+      additionalProperties: false
+      properties:
+        basedOnRoleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+        capabilityKeys:
+          items:
+            pattern: ^[a-z]+(?:\.[a-z]+){1,3}$
+            type: string
+          maxItems: 64
+          minItems: 1
+          type: array
+          uniqueItems: true
+        description:
+          maxLength: 300
+          minLength: 1
+          type: string
+        name:
+          maxLength: 60
+          minLength: 1
+          type: string
+      required:
+        - name
+        - basedOnRoleKey
+        - capabilityKeys
+      type: object
+    PostOrganizationsByOrganizationIdRolesResponse:
+      allOf:
+        - $ref: '#/components/schemas/RoleSummary'
+    GetOrganizationsByOrganizationIdRolesByRoleIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/RoleSummary'
+    PatchOrganizationsByOrganizationIdRolesByRoleIdRequest:
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        capabilityKeys:
+          items:
+            pattern: ^[a-z]+(?:\.[a-z]+){1,3}$
+            type: string
+          maxItems: 64
+          minItems: 1
+          type: array
+          uniqueItems: true
+        description:
+          maxLength: 300
+          minLength: 1
+          type: string
+        name:
+          maxLength: 60
+          minLength: 1
+          type: string
+      required: []
+      type: object
+    PatchOrganizationsByOrganizationIdRolesByRoleIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/RoleSummary'
+    RoleMember:
+      additionalProperties: false
+      properties:
+        membershipId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        principal:
+          $ref: '#/components/schemas/PrincipalSummary'
+        publicationId:
+          description: Set when the grant is scoped to one publication.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - membershipId
+        - principal
+      type: object
+    GetOrganizationsByOrganizationIdRolesByRoleIdMembersResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/RoleMember'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    AssignableCapability:
+      additionalProperties: false
+      properties:
+        capabilityKey:
+          pattern: ^[a-z]+(?:\.[a-z]+){1,3}$
+          type: string
+        description:
+          maxLength: 300
+          minLength: 1
+          type: string
+        group:
+          description:
+            Plain-language group the role editor uses for its checkbox sections.
+          maxLength: 80
+          minLength: 1
+          type: string
+        label:
+          maxLength: 80
+          minLength: 1
+          type: string
+        scope:
+          enum:
+            - ORGANIZATION
+            - PUBLICATION
+          type: string
+      required:
+        - capabilityKey
+        - scope
+        - label
+        - description
+        - group
+      type: object
+    GetOrganizationsByOrganizationIdCapabilitiesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AssignableCapability'
+          maxItems: 200
+          minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    SessionClient:
+      additionalProperties: false
+      description:
+        Device summary recorded from the User-Agent when the session family was
+        created; `browser` and `os` are null when not recognised.
+      properties:
+        browser:
+          maxLength: 80
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        kind:
+          enum:
+            - BROWSER
+          type: string
+        os:
+          maxLength: 80
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - kind
+        - browser
+        - os
+      type: object
+    RecoveryCodeStatus:
+      additionalProperties: false
+      description:
+        How many codes of the current recovery code set are still unused.
+      properties:
+        generatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        remaining:
+          maximum: 10
+          minimum: 0
+          type: integer
+      required:
+        - remaining
+        - generatedAt
+      type: object
+    AccountExportState:
+      description:
+        '`REQUESTED` -> `PREPARING` -> `READY` (downloadable until `expiresAt`)
+        -> `EXPIRED`; `FAILED` with `failure`.'
+      enum:
+        - REQUESTED
+        - PREPARING
+        - READY
+        - EXPIRED
+        - FAILED
+      type: string
+    AccountExportFailure:
+      additionalProperties: false
+      description:
+        'Why an export failed. Known codes: `EXPORT_TOO_LARGE` (the archive
+        would exceed the size limit) and `EXPORT_FAILED`; a client shows
+        `detail` for codes it does not know. These are data in the export read,
+        not HTTP problems.'
+      properties:
+        code:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+      required:
+        - code
+        - detail
+      type: object
+    AccountExport:
+      additionalProperties: false
+      description:
+        "One account data export (SCHEMA-3.3.0 shape): a zip holding one JSON
+        file of the caller's own data -- profile, identity links, organizations
+        and roles, sites and their repository coordinates, an operation history
+        summary, reader connections, comments and reactions; nothing from other
+        people. `readyAt`, `expiresAt` (24 hours after `readyAt`) and
+        `sizeBytes` are set once `READY`; `failure` once `FAILED`. The archive
+        is deleted 7 days after it is ready."
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        exportId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        failure:
+          $ref: '#/components/schemas/AccountExportFailure'
+        readyAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        requestedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        sizeBytes:
+          format: int64
+          minimum: 1
+          type: integer
+        state:
+          $ref: '#/components/schemas/AccountExportState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - exportId
+        - version
+        - state
+        - requestedAt
+      type: object
+    GetSelfExportsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AccountExport'
+          maxItems: 10
+          minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    PostSelfExportsByExportIdDownloadResponse:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        url:
+          maxLength: 512
+          minLength: 1
+          pattern: ^/v2/self/exports/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/archive\?token=[A-Za-z0-9_-]{43,128}$
+          type: string
+      required:
+        - url
+        - expiresAt
+      type: object
+    ClosureBlocker:
+      additionalProperties: false
+      description:
+        'Something that must be resolved before the account can close:
+        `OWNER_TRANSFER_REQUIRED` when the caller is the only owner of an
+        organization with other members.'
+      properties:
+        code:
+          enum:
+            - OWNER_TRANSFER_REQUIRED
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - code
+        - organizationId
+        - organizationName
+      type: object
+    PostSelfClosurePreviewResponse:
+      additionalProperties: false
+      properties:
+        blockers:
+          items:
+            $ref: '#/components/schemas/ClosureBlocker'
+          maxItems: 100
+          minItems: 0
+          type: array
+        consequenceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        consequencePreviewId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        consequences:
+          items:
+            $ref: '#/components/schemas/Consequence'
+          maxItems: 100
+          minItems: 1
+          type: array
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        fenceDays:
+          const: 7
+          type: integer
+      required:
+        - consequencePreviewId
+        - consequenceDigest
+        - consequences
+        - blockers
+        - fenceDays
+        - expiresAt
+      type: object
+    PostSelfClosureCancelResponse:
+      additionalProperties: false
+      properties:
+        state:
+          $ref: '#/components/schemas/PrincipalClosureState'
+      required:
+        - state
+      type: object
+    SessionClosure:
+      additionalProperties: false
+      description:
+        Present while the account is closing, so every page can offer "Keep my
+        account".
+      properties:
+        fenceAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          enum:
+            - CLOSING
+          type: string
+      required:
+        - state
+        - fenceAt
+      type: object
+    SessionWorkforce:
+      additionalProperties: false
+      description:
+        Present only for a configured platform operator; the `/platform` pages
+        use it.
+      properties:
+        operator:
+          const: true
+          type: boolean
+      required:
+        - operator
+      type: object
+    CommentAppealState:
+      description:
+        '`PENDING` until a moderator decides; `RESTORED` (the comment is visible
+        again) or `DENIED` (it stays removed).'
+      enum:
+        - PENDING
+        - RESTORED
+        - DENIED
+      type: string
+    CommentAppeal:
+      additionalProperties: false
+      properties:
+        decidedAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        state:
+          $ref: '#/components/schemas/CommentAppealState'
+      required:
+        - state
+      type: object
+    CommentOwnState:
+      additionalProperties: false
+      description:
+        Present only on the viewer's own comment that moderators removed
+        (`REMOVED`) or are holding for review (`HELD`) (SCHEMA-3.3.0). Such a
+        comment is included in that viewer's thread reads with public `state`
+        `REMOVED` and `body` null; `own` carries no body. `appeal` is the latest
+        appeal against the current removal, or null.
+      properties:
+        appeal:
+          oneOf:
+            - $ref: '#/components/schemas/CommentAppeal'
+            - type: 'null'
+        canAppeal:
+          description:
+            True while no appeal was made against the current removal or hold.
+          type: boolean
+        state:
+          enum:
+            - REMOVED
+            - HELD
+          type: string
+      required:
+        - state
+        - appeal
+        - canAppeal
+      type: object
+    PostPublicCommentsByCommentIdAppealsRequest:
+      additionalProperties: false
+      properties:
+        note:
+          maxLength: 1000
+          minLength: 1
+          type: string
+      required:
+        - note
+      type: object
+    PostPublicCommentsByCommentIdAppealsResponse:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - RECEIVED
+          type: string
+      required:
+        - status
+      type: object
+    ModerationAppeal:
+      additionalProperties: false
+      properties:
+        createdAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        note:
+          maxLength: 1000
+          minLength: 1
+          type: string
+        state:
+          $ref: '#/components/schemas/CommentAppealState'
+      required:
+        - note
+        - createdAt
+        - state
+      type: object
+    DomainBindingState:
+      description:
+        '`REQUESTED` -> `RESERVED` -> `OWNERSHIP_PENDING` (waiting for DNS) ->
+        `CERTIFICATE_PENDING` (GitHub issues the certificate, up to 24 hours) ->
+        `ROUTING_PENDING` -> `ACTIVE`; `ACTIVE` <-> `DEGRADED`; `DETACHING` ->
+        `DETACHED`; `EXPIRED` (DNS never verified within 7 days); `BLOCKED`
+        (GitHub refused the certificate or it timed out; `nextStep` says what to
+        do).'
+      enum:
+        - REQUESTED
+        - RESERVED
+        - OWNERSHIP_PENDING
+        - CERTIFICATE_PENDING
+        - ROUTING_PENDING
+        - ACTIVE
+        - DEGRADED
+        - DETACHING
+        - DETACHED
+        - EXPIRED
+        - BLOCKED
+      type: string
+    DomainKind:
+      description:
+        '`APEX` when the hostname is its own registrable domain (A and AAAA
+        records); otherwise `SUBDOMAIN` (one CNAME).'
+      enum:
+        - SUBDOMAIN
+        - APEX
+      type: string
+    DomainDnsRecord:
+      additionalProperties: false
+      properties:
+        name:
+          description:
+            The record name to create at the registrar, relative to the zone
+            (`@` for the apex).
+          maxLength: 253
+          minLength: 1
+          type: string
+        type:
+          enum:
+            - CNAME
+            - A
+            - AAAA
+          type: string
+        value:
+          maxLength: 253
+          minLength: 1
+          type: string
+      required:
+        - type
+        - name
+        - value
+      type: object
+    DomainDnsObservation:
+      additionalProperties: false
+      description:
+        What Galascribe saw in public DNS at `checkedAt` (absent before the
+        first check).
+      properties:
+        addresses:
+          items:
+            maxLength: 45
+            minLength: 1
+            type: string
+          maxItems: 16
+          minItems: 0
+          type: array
+        checkedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        cnameTarget:
+          maxLength: 253
+          minLength: 1
+          type: string
+        pointsToGithub:
+          type: boolean
+        resolves:
+          type: boolean
+      required:
+        - resolves
+        - pointsToGithub
+        - addresses
+      type: object
+    DomainCertificate:
+      additionalProperties: false
+      properties:
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          enum:
+            - NONE
+            - PENDING
+            - ISSUED
+            - ERRORED
+          type: string
+      required:
+        - state
+      type: object
+    DomainRouting:
+      additionalProperties: false
+      properties:
+        checkedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        httpsEnforced:
+          type: boolean
+        probeOk:
+          type: boolean
+        servedByPages:
+          type: boolean
+      required:
+        - httpsEnforced
+        - servedByPages
+        - probeOk
+      type: object
+    DomainCanonicalBase:
+      additionalProperties: false
+      properties:
+        changeId:
+          description:
+            The change that moves `gala/publication.json` `canonicalBase` to
+            `target`, once proposed.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        current:
+          maxLength: 2048
+          minLength: 1
+          pattern: ^https://[^\s]+$
+          type: string
+        published:
+          description:
+            True once a live version is served with `target` as its address.
+          type: boolean
+        target:
+          maxLength: 2048
+          minLength: 1
+          pattern: ^https://[^\s]+$
+          type: string
+      required:
+        - current
+        - target
+        - published
+      type: object
+    DomainNextStep:
+      additionalProperties: false
+      description:
+        What is being waited on, or what the author should do next. Known codes
+        include `ADD_DNS_RECORDS`, `WAIT_FOR_DNS`, `WAIT_FOR_CERTIFICATE`,
+        `WAIT_FOR_ROUTING`, `PUBLISH_TO_SWITCH`, `FIX_DNS_RECORD`,
+        `REMOVE_DNS_RECORDS` and `NONE`; a client shows `detail` for codes it
+        does not know.
+      properties:
+        code:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+      required:
+        - code
+        - detail
+      type: object
+    DomainBinding:
+      additionalProperties: false
+      description:
+        A custom domain on GitHub Pages for one publication (SCHEMA-3.3.0).
+        `dns.records` are exactly the records to add at the registrar (a CNAME
+        to `<owner>.github.io` for a subdomain; GitHub's four A and four AAAA
+        records for an apex). Galascribe checks DNS before it sets the Pages
+        custom domain, then waits for GitHub's certificate and routing; `ACTIVE`
+        proposes the change that moves `canonicalBase` to the domain, and the
+        site moves at the next publish. `expiresAt` is set while
+        `OWNERSHIP_PENDING` (7 days).
+      properties:
+        canonicalBase:
+          $ref: '#/components/schemas/DomainCanonicalBase'
+        certificate:
+          $ref: '#/components/schemas/DomainCertificate'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        dns:
+          additionalProperties: false
+          properties:
+            observed:
+              $ref: '#/components/schemas/DomainDnsObservation'
+            records:
+              items:
+                $ref: '#/components/schemas/DomainDnsRecord'
+              maxItems: 8
+              minItems: 0
+              type: array
+          required:
+            - records
+            - observed
+          type: object
+        domainId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        hostname:
+          description: Lower-case ASCII (IDNA) hostname.
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        kind:
+          $ref: '#/components/schemas/DomainKind'
+        nextStep:
+          $ref: '#/components/schemas/DomainNextStep'
+        routing:
+          $ref: '#/components/schemas/DomainRouting'
+        state:
+          $ref: '#/components/schemas/DomainBindingState'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - domainId
+        - version
+        - hostname
+        - kind
+        - state
+        - dns
+        - certificate
+        - routing
+        - canonicalBase
+        - nextStep
+        - createdAt
+        - updatedAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DomainBinding'
+          maxItems: 20
+          minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsRequest:
+      additionalProperties: false
+      properties:
+        hostname:
+          maxLength: 253
+          minLength: 1
+          pattern: ^[^\s/:@?#*]+$
+          type: string
+      required:
+        - hostname
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsResponse:
+      allOf:
+        - $ref: '#/components/schemas/DomainBinding'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/DomainBinding'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheckResponse:
+      allOf:
+        - $ref: '#/components/schemas/DomainBinding'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetachRequest:
+      additionalProperties: false
+      properties:
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - reasonCode
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetachResponse:
+      allOf:
+        - $ref: '#/components/schemas/DomainBinding'
+    PrismEditionKind:
+      description:
+        'The depth of a generated edition: `QUICK_READ`, `STANDARD` or
+        `DEEP_DIVE`.'
+      enum:
+        - QUICK_READ
+        - STANDARD
+        - DEEP_DIVE
+      type: string
+    PrismGenerationState:
+      description:
+        "`REQUESTED` -> `RESERVED` (a unit is reserved) -> `RUNNING` ->
+        `CANDIDATE_READY` (the unit is spent) -> `ACCEPTED` | `REJECTED`;
+        `PROVIDER_UNKNOWN` while the provider's answer is being reconciled;
+        `CANCELLED`, `EXPIRED` (7 days after the candidate) and `FAILED` are
+        terminal."
+      enum:
+        - REQUESTED
+        - RESERVED
+        - RUNNING
+        - PROVIDER_UNKNOWN
+        - CANDIDATE_READY
+        - ACCEPTED
+        - REJECTED
+        - CANCELLED
+        - EXPIRED
+        - FAILED
+      type: string
+    PrismGeneration:
+      additionalProperties: false
+      description:
+        One Prism edition generation for one article (SCHEMA-3.3.0). The article
+        text is sent to the AI provider; the result is a candidate the author
+        accepts into a draft or discards. Nothing is published by a generation.
+        `candidate` is present from `CANDIDATE_READY`; `failure` once `FAILED`.
+      properties:
+        candidate:
+          additionalProperties: false
+          properties:
+            body:
+              description: The generated edition body, Markdown.
+              maxLength: 65536
+              minLength: 1
+              type: string
+            generatedAt:
+              $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            model:
+              maxLength: 120
+              minLength: 1
+              type: string
+          required:
+            - body
+            - generatedAt
+            - model
+          type: object
+        contentPath:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        editionKind:
+          $ref: '#/components/schemas/PrismEditionKind'
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        failure:
+          additionalProperties: false
+          properties:
+            code:
+              maxLength: 80
+              minLength: 1
+              pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+              type: string
+            detail:
+              maxLength: 500
+              minLength: 1
+              type: string
+          required:
+            - code
+            - detail
+          type: object
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        sourceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        state:
+          $ref: '#/components/schemas/PrismGenerationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - generationId
+        - version
+        - state
+        - editionKind
+        - contentPath
+        - sourceDigest
+        - createdAt
+        - expiresAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicyResponse:
+      additionalProperties: false
+      properties:
+        editionKinds:
+          items:
+            $ref: '#/components/schemas/PrismEditionKind'
+          maxItems: 3
+          minItems: 0
+          type: array
+          uniqueItems: true
+        enabled:
+          type: boolean
+        periodEndsAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        unitsPerPeriod:
+          format: int64
+          minimum: 0
+          type: integer
+        unitsRemaining:
+          format: int64
+          minimum: 0
+          type: integer
+        unitsUsed:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - enabled
+        - unitsPerPeriod
+        - unitsUsed
+        - unitsRemaining
+        - periodEndsAt
+        - editionKinds
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsRequest:
+      additionalProperties: false
+      properties:
+        contentPath:
+          maxLength: 512
+          minLength: 1
+          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          type: string
+        editionKind:
+          $ref: '#/components/schemas/PrismEditionKind'
+        language:
+          maxLength: 35
+          minLength: 2
+          pattern: ^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$
+          type: string
+        sourceDigest:
+          pattern: ^sha256:[0-9a-f]{64}$
+          type: string
+        sourceRevision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+      required:
+        - contentPath
+        - editionKind
+        - sourceRevision
+        - sourceDigest
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse:
+      additionalProperties: false
+      properties:
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/PrismGenerationState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - generationId
+        - version
+        - state
+        - operationId
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PrismGeneration'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/PrismGeneration'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancelResponse:
+      allOf:
+        - $ref: '#/components/schemas/PrismGeneration'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdRejectResponse:
+      allOf:
+        - $ref: '#/components/schemas/PrismGeneration'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAcceptResponse:
+      additionalProperties: false
+      properties:
+        edition:
+          additionalProperties: false
+          properties:
+            path:
+              maxLength: 512
+              minLength: 1
+              pattern: ^content/(?:[^/\x00-\x1f]+/)*[a-z0-9]+(?:-[a-z0-9]+)*\.edition\.(?:quick-read|standard|deep-dive)\.md$
+              type: string
+            text:
+              maxLength: 1048576
+              minLength: 1
+              type: string
+          required:
+            - path
+            - text
+          type: object
+        generation:
+          $ref: '#/components/schemas/PrismGeneration'
+      required:
+        - generation
+        - edition
+      type: object
+    PlatformAuditEvent:
+      additionalProperties: false
+      description:
+        'One audit event, redacted: identifiers and codes only, never request
+        bodies or secrets.'
+      properties:
+        action:
+          maxLength: 120
+          minLength: 1
+          type: string
+        actorId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        actorType:
+          maxLength: 40
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        correlationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        decision:
+          maxLength: 40
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        eventId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        occurredAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        operationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        outcomeCode:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reasonCode:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type: string
+        targetId:
+          maxLength: 200
+          minLength: 1
+          type: string
+        targetType:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - eventId
+        - occurredAt
+        - actorType
+        - action
+        - targetType
+        - targetId
+        - outcomeCode
+        - correlationId
+      type: object
+    GetPlatformAuditEventsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformAuditEvent'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PlatformConfigurationKey:
+      additionalProperties: false
+      description:
+        One configuration value as canonical text (`20`, `false`, `PT5M`);
+        `source` says whether it is the compiled catalog default or an
+        environment override.
+      properties:
+        defaultValue:
+          maxLength: 200
+          minLength: 0
+          type:
+            - string
+            - 'null'
+        description:
+          maxLength: 500
+          minLength: 1
+          type: string
+        effectiveValue:
+          maxLength: 200
+          minLength: 0
+          type: string
+        key:
+          maxLength: 120
+          minLength: 1
+          type: string
+        maximum:
+          maxLength: 200
+          minLength: 0
+          type:
+            - string
+            - 'null'
+        minimum:
+          maxLength: 200
+          minLength: 0
+          type:
+            - string
+            - 'null'
+        source:
+          enum:
+            - CATALOG
+            - ENVIRONMENT
+          type: string
+      required:
+        - key
+        - effectiveValue
+        - defaultValue
+        - minimum
+        - maximum
+        - source
+        - description
+      type: object
+    GetPlatformConfigurationResponse:
+      additionalProperties: false
+      properties:
+        families:
+          items:
+            additionalProperties: false
+            properties:
+              family:
+                maxLength: 80
+                minLength: 1
+                type: string
+              keys:
+                items:
+                  $ref: '#/components/schemas/PlatformConfigurationKey'
+                maxItems: 200
+                minItems: 0
+                type: array
+            required:
+              - family
+              - keys
+            type: object
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+        - families
+      type: object
+    PlatformAdapter:
+      additionalProperties: false
+      description:
+        One admitted adapter (publish toolchain release or provider adapter).
+        Today every admitted row reads `ADMITTED`; `SUSPENDED` and `SUPERSEDED`
+        are reserved for the suspend/restore and supersession flows.
+      properties:
+        adapterId:
+          maxLength: 80
+          minLength: 1
+          type: string
+        admittedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          enum:
+            - ADMITTED
+            - SUSPENDED
+            - SUPERSEDED
+          type: string
+        supersededAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        version:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - adapterId
+        - version
+        - state
+        - admittedAt
+      type: object
+    GetPlatformAdaptersResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformAdapter'
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+        - items
       type: object
   securitySchemes:
     readerBearer:

@@ -32,7 +32,16 @@
       "mutation": true,
       "collection": true,
       "screenJob": "Organizations; Organizations you belong to, and where to create a new one.",
-      "apiOperationIds": ["getOrganizations", "postOrganizations"]
+      "apiOperationIds": [
+        "getOrganizations",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
+        "getSelfOwnerTransfers",
+        "postOrganizations",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
+        "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdDecline"
+      ]
     },
     {
       "pathTemplate": "/organizations/{organizationId}",
@@ -51,9 +60,15 @@
       "collection": true,
       "screenJob": "Publications; Your publications, and where to create a new one. Importing or restoring a publication is not available yet.",
       "apiOperationIds": [
+        "getGithubInstallations",
+        "getGithubInstallationsByInstallationIdRepositories",
+        "getOrganizationsByOrganizationIdPublicationImports",
         "getOrganizationsByOrganizationIdPublicationImportsByImportId",
         "getOrganizationsByOrganizationIdPublications",
         "postOrganizationsByOrganizationIdPublicationImports",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdCancel",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConnect",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConvert",
         "postOrganizationsByOrganizationIdPublications"
       ]
     },
@@ -71,11 +86,14 @@
         "getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
         "getOrganizationsByOrganizationIdMemberships",
         "getOrganizationsByOrganizationIdOwnerTransfersByTransferId",
+        "getOrganizationsByOrganizationIdRoles",
         "patchOrganizationsByOrganizationIdMembershipsByMembershipId",
         "postOrganizationsByOrganizationIdMembershipInvitations",
         "postOrganizationsByOrganizationIdOwnerTransfers",
         "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
-        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel"
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
+        "postOrganizationsByOrganizationIdOwnerTransfersPreview"
       ]
     },
     {
@@ -85,7 +103,16 @@
       "mutation": true,
       "collection": true,
       "screenJob": "Roles; The roles available in this organization and what each one can do.",
-      "apiOperationIds": ["getOrganizationsByOrganizationIdRoles"]
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdRolesByRoleId",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdCapabilities",
+        "getOrganizationsByOrganizationIdRoles",
+        "getOrganizationsByOrganizationIdRolesByRoleId",
+        "getOrganizationsByOrganizationIdRolesByRoleIdMembers",
+        "patchOrganizationsByOrganizationIdRolesByRoleId",
+        "postOrganizationsByOrganizationIdRoles"
+      ]
     },
     {
       "pathTemplate": "/organizations/{organizationId}/settings",
@@ -96,7 +123,12 @@
       "screenJob": "Settings; Update this organization's name and details, or close it.",
       "apiOperationIds": [
         "getOrganizationsByOrganizationId",
-        "patchOrganizationsByOrganizationId"
+        "getOrganizationsByOrganizationIdMemberships",
+        "getOrganizationsByOrganizationIdOwnerTransfersByTransferId",
+        "patchOrganizationsByOrganizationId",
+        "postOrganizationsByOrganizationIdOwnerTransfers",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdOwnerTransfersPreview"
       ]
     },
     {
@@ -152,11 +184,18 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
@@ -211,11 +250,17 @@
       "screenJob": "Settings; Update this publication's name and details, choose its deployment destination, or retire it. Change its theme under Appearance. Changing its modules and membership, and transferring it, are not available yet.",
       "apiOperationIds": [
         "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizations",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
       ]
     },
@@ -259,6 +304,7 @@
         "postSelfPasskeyRegistrationOptions",
         "postSelfPasskeys",
         "postSelfRecoveryCodeSets",
+        "postSelfSessionsRevokeOthers",
         "postSessionReauthentication"
       ]
     },
@@ -286,7 +332,13 @@
       "mutation": true,
       "collection": false,
       "screenJob": "Export account data; Exporting a copy of your account data is not available yet.",
-      "apiOperationIds": ["getSelfExportsByExportId", "postSelfExports"]
+      "apiOperationIds": [
+        "getSelfExports",
+        "getSelfExportsByExportId",
+        "getSelfExportsByExportIdArchive",
+        "postSelfExports",
+        "postSelfExportsByExportIdDownload"
+      ]
     },
     {
       "pathTemplate": "/account/closure",
@@ -295,7 +347,12 @@
       "mutation": true,
       "collection": false,
       "screenJob": "Close account; Closing your account is not available yet.",
-      "apiOperationIds": ["getSelfClosure", "postSelfClosure"]
+      "apiOperationIds": [
+        "getSelfClosure",
+        "postSelfClosure",
+        "postSelfClosureCancel",
+        "postSelfClosurePreview"
+      ]
     },
     {
       "pathTemplate": "/account/recover",
@@ -371,12 +428,19 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
@@ -440,20 +504,72 @@
       "screenJob": "Settings; Update this site's name and details, choose whether publishing needs a review and whether Galascribe merges pull requests, choose its deployment destination, repair its repository connection, or retire it.",
       "apiOperationIds": [
         "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizations",
         "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings"
       ]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/domain",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Domain; Put the site on your own domain: add the DNS records shown, then follow DNS, certificate and routing until it is live, or remove the domain.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetach"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/audit",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Platform audit; Operators read redacted audit events across every organization, filtered by organization, publication, actor, action and time.",
+      "apiOperationIds": ["getPlatformAuditEvents"]
+    },
+    {
+      "pathTemplate": "/platform/configuration/{family}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Platform configuration; Operators read one configuration family's effective values and where each comes from.",
+      "apiOperationIds": ["getPlatformConfiguration"]
+    },
+    {
+      "pathTemplate": "/platform/adapters",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Platform adapters; Operators see the admitted adapters and their state.",
+      "apiOperationIds": ["getPlatformAdapters"]
     }
   ]
 }
