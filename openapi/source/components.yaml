@@ -23,9 +23,10 @@ components:
         const: inline
     ContentRange:
       description:
-        RFC 9110 `Content-Range`. `bytes <start>-<end>/<total>` on `206`; `bytes
-        */<total>` on `416`, naming the asset's real total length so the caller
-        can retry with a satisfiable range.
+        RFC 9110 `Content-Range`. `bytes <start>-<end>/<total>` on `206`; on
+        `416` the unsatisfied-range form (`bytes`, an asterisk, then
+        `/<total>`), naming the asset's real total length so the caller can
+        retry with a satisfiable range.
       required: true
       schema:
         pattern: ^bytes (?:[0-9]+-[0-9]+|\*)/[0-9]+$
@@ -1324,10 +1325,10 @@ components:
               - nextCursor
       description:
         "SCHEMA-3.3.0: `recoveryCodes` is the current recovery code set's
-        status, `null` when none was generated. Items include one `GITHUB` row
-        per active GitHub identity link (`authenticatorId` is the identity link
-        id `DELETE /v2/self/identity-links/{identityLinkId}` accepts, `label`
-        the GitHub login, `createdAt` the link time)."
+        status; it is absent when no set was generated. Items include one
+        `GITHUB` row per active GitHub identity link (`authenticatorId` is the
+        identity link id `DELETE /v2/self/identity-links/{identityLinkId}`
+        accepts, `label` the GitHub login, `createdAt` the link time)."
       properties:
         hasMore:
           type: boolean
@@ -1347,9 +1348,7 @@ components:
             - string
             - 'null'
         recoveryCodes:
-          oneOf:
-            - $ref: '#/components/schemas/RecoveryCodeStatus'
-            - type: 'null'
+          $ref: '#/components/schemas/RecoveryCodeStatus'
       required:
         - items
         - hasMore
@@ -8742,8 +8741,8 @@ components:
     PublicationImportLayout:
       description:
         '`GALA_V2`: `gala/repository.json` is a valid v2 declared graph.
-        `GALA_V1`: a v1 site (`site.config.yml` and
-        `content/posts/**/index.<lang>.md`). `UNKNOWN`: neither.'
+        `GALA_V1`: a v1 site (`site.config.yml`, and posts as `index.<lang>.md`
+        files in folders under `content/posts`). `UNKNOWN`: neither.'
       enum:
         - GALA_V2
         - GALA_V1
@@ -8844,8 +8843,8 @@ components:
       additionalProperties: false
       description:
         One repository import (SCHEMA-3.3.0 shape). `repository`, `layout` and
-        `suggested` are null while `INSPECTING`; `findings` is empty until
-        inspection finishes.
+        `suggested` are absent while `INSPECTING` and present from `READY` on;
+        `findings` is empty until inspection finishes.
       properties:
         changeId:
           description:
@@ -8867,9 +8866,7 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         layout:
-          oneOf:
-            - $ref: '#/components/schemas/PublicationImportLayout'
-            - type: 'null'
+          $ref: '#/components/schemas/PublicationImportLayout'
         operationId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -8880,15 +8877,11 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         repository:
-          oneOf:
-            - $ref: '#/components/schemas/PublicationImportRepository'
-            - type: 'null'
+          $ref: '#/components/schemas/PublicationImportRepository'
         state:
           $ref: '#/components/schemas/PublicationImportState'
         suggested:
-          oneOf:
-            - $ref: '#/components/schemas/PublicationImportSuggestion'
-            - type: 'null'
+          $ref: '#/components/schemas/PublicationImportSuggestion'
         version:
           format: int64
           minimum: 0
@@ -8898,10 +8891,7 @@ components:
         - version
         - state
         - operationId
-        - repository
-        - layout
         - findings
-        - suggested
       type: object
     GetOrganizationsByOrganizationIdPublicationImportsResponse:
       additionalProperties: false
