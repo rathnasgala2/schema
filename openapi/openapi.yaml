@@ -986,10 +986,11 @@ components:
         - reason
       type: object
     ContentItemKind:
-      description: Which content root a document lives under -- ARTICLE for `content/articles/`, PAGE for `content/pages/`. Since schema 2.15.0 this comes from the header's own `kind` when the inventory item's `summary` is present; before that, and whenever `unreadable` is present instead, it is derived from the path alone.
+      description: "Which content root a document lives under -- ARTICLE for `content/articles/`, PAGE for `content/pages/` -- or, since SCHEMA-3.3.0, EDITION for a Prism edition document (front matter `kind: edition`, path `content/<slug>.edition.<quick-read|standard|deep-dive>.md`), which lives beside the article it derives from. Since schema 2.15.0 this comes from the header's own `kind` when the inventory item's `summary` is present; before that, and whenever `unreadable` is present instead, it is derived from the path alone."
       enum:
         - ARTICLE
         - PAGE
+        - EDITION
       type: string
     ContentItemStatus:
       description: The header's `status`, upper-cased to this contract's enum style.
@@ -1759,6 +1760,48 @@ components:
     GetOrganizationsByOrganizationIdOwnerTransfersByTransferIdResponse:
       allOf:
         - $ref: "#/components/schemas/OwnerTransfer"
+    GetOrganizationsByOrganizationIdOwnerTransfersResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: "null"
+          if:
+            properties:
+              hasMore:
+                not:
+                  enum:
+                    - false
+                type: boolean
+                x-gala-const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: "#/components/schemas/OwnerTransfer"
+          maxItems: 100
+          type: array
+        nextCursor:
+          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false. The length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+      required:
+        - items
+        - hasMore
+      type: object
     GetOrganizationsByOrganizationIdPublicationImportsByImportIdResponse:
       allOf:
         - $ref: "#/components/schemas/PublicationImport"
@@ -3512,9 +3555,9 @@ components:
           if:
             properties:
               kind:
-                pattern: ^LOOK$
-                type: string
-                x-gala-const: LOOK
+                enum:
+                  - LOOK
+                  - SETTINGS
             required:
               - kind
           then:
@@ -3525,7 +3568,7 @@ components:
                 x-gala-const: CHANGE
       properties:
         action:
-          description: "`CHANGE` is used for `LOOK` and only for `LOOK`; `POST` and `PAGE` use `CREATE`, `EDIT` or `DELETE`."
+          description: "`CHANGE` is used for `LOOK` and `SETTINGS` and only for them; `POST`, `PAGE` and `EDITION` use `CREATE`, `EDIT` or `DELETE`."
           enum:
             - CREATE
             - EDIT
@@ -3537,9 +3580,11 @@ components:
             - POST
             - PAGE
             - LOOK
+            - SETTINGS
+            - EDITION
           type: string
         path:
-          description: Repository path of the post or page; absent for `LOOK`.
+          description: Repository path of the post, page or edition, or (for `SETTINGS`) of the configuration file the change writes; absent for `LOOK`.
           maxLength: 512
           minLength: 1
           type: string
@@ -15672,9 +15717,9 @@ components:
           if:
             properties:
               kind:
-                pattern: ^LOOK$
-                type: string
-                x-gala-const: LOOK
+                enum:
+                  - LOOK
+                  - SETTINGS
             required:
               - kind
           then:
@@ -15683,10 +15728,10 @@ components:
                 pattern: ^CHANGE$
                 type: string
                 x-gala-const: CHANGE
-      description: "One unpublished change in words. Exactly one entry exists per path (and one for the look): when several unpublished changes touch the same path only the newest is listed and older ones are superseded and omitted."
+      description: 'One unpublished change in words. Exactly one entry exists per path (and one for the look): when several unpublished changes touch the same path only the newest is listed and older ones are superseded and omitted. `SETTINGS` (SCHEMA-3.3.0) is a change to a typed site configuration file such as `gala/publication.json` or `gala/modules/interactions.json`; its `action` is `CHANGE`, as for `LOOK`, and its `title` is a short label such as "Site address" or "Readers". `EDITION` (SCHEMA-3.3.0) is a Prism edition document beside its article.'
       properties:
         action:
-          description: "`CHANGE` is used for `LOOK` and only for `LOOK`; `POST` and `PAGE` use `CREATE`, `EDIT` or `DELETE`."
+          description: "`CHANGE` is used for `LOOK` and `SETTINGS` and only for them; `POST`, `PAGE` and `EDITION` use `CREATE`, `EDIT` or `DELETE`."
           enum:
             - CREATE
             - EDIT
@@ -15704,9 +15749,11 @@ components:
             - POST
             - PAGE
             - LOOK
+            - SETTINGS
+            - EDITION
           type: string
         path:
-          description: Repository path of the post or page; absent for `LOOK`.
+          description: Repository path of the post, page or edition, or (for `SETTINGS`) of the configuration file the change writes; absent for `LOOK`.
           maxLength: 512
           minLength: 1
           type: string
@@ -20987,6 +21034,192 @@ paths:
       x-gala-success-category: update
       x-gala-tenant-scope: ORGANIZATION_PATH
   /v2/organizations/{organizationId}/owner-transfers:
+    get:
+      description: |
+        The organization's ownership transfers, newest first. `state=PENDING`
+        (default) lists only the pending transfer, if any, so the Ownership
+        section can show its card with Cancel; `state=ALL` lists every transfer,
+        settled ones included.
+      operationId: getOrganizationsByOrganizationIdOwnerTransfers
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - description: Which transfers to list.
+          example: PENDING
+          in: query
+          name: state
+          required: false
+          schema:
+            default: PENDING
+            enum:
+              - PENDING
+              - ALL
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - expiresAt: "2026-10-16T12:00:00.000Z"
+                        organizationKind: COLLABORATIVE
+                        state: PENDING
+                        successorPrincipalId: 018f0000-0000-7000-8000-000000000001
+                        transferId: 018f0000-0000-7000-8000-000000000001
+                        version: 0
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdOwnerTransfersResponse"
+          description: list the ownership transfers of an organization succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: list the ownership transfers of an organization
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: organization.transfer
+      x-gala-concurrency: authorization-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the ownership transfers of an organization
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_PATH
     post:
       operationId: postOrganizationsByOrganizationIdOwnerTransfers
       parameters:
@@ -40340,6 +40573,15 @@ paths:
                           from: Default
                           to: Journal
                         title: Look
+                        updatedAt: "2026-10-05T09:30:00Z"
+                      - action: CHANGE
+                        author:
+                          displayName: Asha Rao
+                        changeId: 018f0000-0000-7000-8000-000000000004
+                        kind: SETTINGS
+                        path: gala/publication.json
+                        review: NOT_REQUIRED
+                        title: Site address
                         updatedAt: "2026-10-05T09:30:00Z"
                     state: LIVE
                     url: https://example.galascribe.com/

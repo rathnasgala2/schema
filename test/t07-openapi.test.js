@@ -723,7 +723,7 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
       schema.properties?.hasMore !== undefined &&
       schema.properties?.nextCursor !== undefined,
   );
-  assert.equal(collections.length, 20);
+  assert.equal(collections.length, 21);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),

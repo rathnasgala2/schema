@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:9f92567b39363489a2ecca022a683c1ca0c9aa7968085a6f6d1b20820f4e740b",
+  "openApiDigest": "sha256:0e80fcbf1fb661922adf015e48a483c7ecf734ac5fb42eb01f002a3d5ad5e60f",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -323,6 +323,18 @@
       "path": "/v2/organizations/{organizationId}/operations/{operationId}:cancel",
       "purpose": "cancel only before the effect fence",
       "capabilityKey": "organization.publications.admin",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdOwnerTransfers",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/owner-transfers",
+      "purpose": "list the ownership transfers of an organization",
+      "capabilityKey": "organization.transfer",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -1857,5 +1869,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:7720d592f76785ec8cb6ae4e2ce02c454428017dadd1aca7df425a5e45bb63d2"
+  "digest": "sha256:a90196be101ad171b7b62f2ed72e7280e4e44f34b70f43286a1ffdecb54ddefd"
 }

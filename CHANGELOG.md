@@ -67,7 +67,18 @@ appeals, custom domains and the platform operator console.
   `DOMAIN_PUBLISH_REQUIRED` and `DOMAIN_DEGRADED`, and the item gains optional
   `relatedPublishId` and `reasonCode`. `HistoryEntry` gains optional
   `scheduledFor`.
-- Owner transfer: `POST .../owner-transfers:preview` (consequence preview),
+- `SitePendingChange.kind` and `HistoryChange.kind` add `SETTINGS`: a change to
+  a typed site configuration file such as `gala/publication.json` or
+  `gala/modules/interactions.json`. Its `action` is `CHANGE`, as for `LOOK`,
+  `path` is the file it writes, and `title` is a short label such as "Site
+  address" or "Readers". Both also add `EDITION` (a Prism edition document,
+  `CREATE`/`EDIT`/`DELETE` like a post), and `ContentItemKind` (the content
+  inventory's `kind`) adds `EDITION` for documents whose front matter says
+  `kind: edition`. The content document read already returns the
+  `content-frontmatter` root, and plan documents carry no kind, so both accept
+  editions as they are.
+- Owner transfer: `GET .../owner-transfers?state=PENDING|ALL` (keyset list,
+  default `PENDING`), `POST .../owner-transfers:preview` (consequence preview),
   `POST .../owner-transfers/{transferId}:decline` and
   `GET /v2/self/owner-transfers` (`IncomingOwnerTransfer`); the transfer
   representation is the shared `OwnerTransfer` with `successorGithubLogin`,

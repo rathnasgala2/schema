@@ -3836,14 +3836,19 @@ components:
       type: object
     ContentItemKind:
       description:
-        Which content root a document lives under -- ARTICLE for
-        `content/articles/`, PAGE for `content/pages/`. Since schema 2.15.0 this
-        comes from the header's own `kind` when the inventory item's `summary`
-        is present; before that, and whenever `unreadable` is present instead,
-        it is derived from the path alone.
+        "Which content root a document lives under -- ARTICLE for
+        `content/articles/`, PAGE for `content/pages/` -- or, since
+        SCHEMA-3.3.0, EDITION for a Prism edition document (front matter `kind:
+        edition`, path
+        `content/<slug>.edition.<quick-read|standard|deep-dive>.md`), which
+        lives beside the article it derives from. Since schema 2.15.0 this comes
+        from the header's own `kind` when the inventory item's `summary` is
+        present; before that, and whenever `unreadable` is present instead, it
+        is derived from the path alone."
       enum:
         - ARTICLE
         - PAGE
+        - EDITION
       type: string
     ContentItemStatus:
       description:
@@ -6719,7 +6724,9 @@ components:
         - if:
             properties:
               kind:
-                const: LOOK
+                enum:
+                  - LOOK
+                  - SETTINGS
             required:
               - kind
           then:
@@ -6736,7 +6743,12 @@ components:
       description:
         'One unpublished change in words. Exactly one entry exists per path (and
         one for the look): when several unpublished changes touch the same path
-        only the newest is listed and older ones are superseded and omitted.'
+        only the newest is listed and older ones are superseded and omitted.
+        `SETTINGS` (SCHEMA-3.3.0) is a change to a typed site configuration file
+        such as `gala/publication.json` or `gala/modules/interactions.json`; its
+        `action` is `CHANGE`, as for `LOOK`, and its `title` is a short label
+        such as "Site address" or "Readers". `EDITION` (SCHEMA-3.3.0) is a Prism
+        edition document beside its article.'
       properties:
         action:
           enum:
@@ -6745,17 +6757,21 @@ components:
             - DELETE
             - CHANGE
           description:
-            '`CHANGE` is used for `LOOK` and only for `LOOK`; `POST` and `PAGE`
-            use `CREATE`, `EDIT` or `DELETE`.'
+            '`CHANGE` is used for `LOOK` and `SETTINGS` and only for them;
+            `POST`, `PAGE` and `EDITION` use `CREATE`, `EDIT` or `DELETE`.'
           type: string
         kind:
           enum:
             - POST
             - PAGE
             - LOOK
+            - SETTINGS
+            - EDITION
           type: string
         path:
-          description: Repository path of the post or page; absent for `LOOK`.
+          description:
+            Repository path of the post, page or edition, or (for `SETTINGS`) of
+            the configuration file the change writes; absent for `LOOK`.
           maxLength: 512
           minLength: 1
           type: string
@@ -6954,7 +6970,9 @@ components:
         - if:
             properties:
               kind:
-                const: LOOK
+                enum:
+                  - LOOK
+                  - SETTINGS
             required:
               - kind
           then:
@@ -6976,17 +6994,21 @@ components:
             - DELETE
             - CHANGE
           description:
-            '`CHANGE` is used for `LOOK` and only for `LOOK`; `POST` and `PAGE`
-            use `CREATE`, `EDIT` or `DELETE`.'
+            '`CHANGE` is used for `LOOK` and `SETTINGS` and only for them;
+            `POST`, `PAGE` and `EDITION` use `CREATE`, `EDIT` or `DELETE`.'
           type: string
         kind:
           enum:
             - POST
             - PAGE
             - LOOK
+            - SETTINGS
+            - EDITION
           type: string
         path:
-          description: Repository path of the post or page; absent for `LOOK`.
+          description:
+            Repository path of the post, page or edition, or (for `SETTINGS`) of
+            the configuration file the change writes; absent for `LOOK`.
           maxLength: 512
           minLength: 1
           type: string
@@ -10274,6 +10296,47 @@ components:
           type: array
       required:
         - items
+      type: object
+    GetOrganizationsByOrganizationIdOwnerTransfersResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/OwnerTransfer'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
       type: object
   securitySchemes:
     readerBearer:
