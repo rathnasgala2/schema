@@ -932,9 +932,124 @@
     "moduleBuildSelection": {
       "type": "object",
       "required": [],
-      "properties": {},
+      "properties": {
+        "interactions": {
+          "type": "object",
+          "required": ["config", "apiOrigin", "appOrigin"],
+          "properties": {
+            "config": { "$ref": "#/$defs/interactionsConfig" },
+            "apiOrigin": { "$ref": "#/$defs/interactionsServiceOrigin" },
+            "appOrigin": { "$ref": "#/$defs/interactionsServiceOrigin" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "interactionsConfig": {
+      "type": "object",
+      "required": [
+        "schemaId",
+        "schemaVersion",
+        "reactions",
+        "comments",
+        "publicCounts"
+      ],
+      "properties": {
+        "schemaId": { "const": "urn:gala:schema:interactions-config:2.0.0" },
+        "schemaVersion": { "const": "2.0.0" },
+        "reactions": {
+          "type": "object",
+          "required": ["enabled", "definitions"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "definitions": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/reactionDefinition" },
+              "minItems": 0,
+              "maxItems": 16
+            }
+          },
+          "additionalProperties": false
+        },
+        "comments": {
+          "type": "object",
+          "required": ["enabled", "allowReplies", "maxDepth"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "allowReplies": { "type": "boolean" },
+            "maxDepth": { "type": "integer", "minimum": 1, "maximum": 4 }
+          },
+          "additionalProperties": false
+        },
+        "publicCounts": {
+          "type": "object",
+          "required": ["reactions", "comments"],
+          "properties": {
+            "reactions": { "type": "boolean" },
+            "comments": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        }
+      },
       "additionalProperties": false,
-      "maxProperties": 0
+      "$comment": "JSON Schema cannot express two rules; consumers enforce them: reaction keys are unique within definitions, and reaction orders are unique within definitions."
+    },
+    "reactionKey": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,31}$",
+      "not": { "const": "like" },
+      "description": "Stable reaction key. \"like\" is reserved: Like is implicit whenever reactions are enabled."
+    },
+    "reactionVisual": {
+      "type": "object",
+      "required": ["kind", "token"],
+      "properties": {
+        "kind": { "const": "emoji" },
+        "token": {
+          "enum": [
+            "👍",
+            "❤️",
+            "💡",
+            "🎉",
+            "😂",
+            "🤯",
+            "🙏",
+            "🔥",
+            "👏",
+            "😮",
+            "😢",
+            "🤔",
+            "✨",
+            "🚀",
+            "💯",
+            "👀"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "reactionDefinition": {
+      "type": "object",
+      "required": ["key", "label", "visual", "order", "enabled"],
+      "properties": {
+        "key": { "$ref": "#/$defs/reactionKey" },
+        "label": {
+          "allOf": [{ "$ref": "#/$defs/plainLabel" }],
+          "type": "string",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 32 }
+        },
+        "visual": { "$ref": "#/$defs/reactionVisual" },
+        "order": { "type": "integer", "minimum": 1, "maximum": 16 },
+        "enabled": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "interactionsServiceOrigin": {
+      "type": "string",
+      "maxLength": 255,
+      "pattern": "^(?:https://[^/?#@\\s]+|http://(?:localhost|127\\.0\\.0\\.1)(?::[0-9]{1,5})?)$",
+      "description": "Credential-free service origin with no path, query or fragment: HTTPS, or http on localhost or 127.0.0.1 for the local runtime profile."
     },
     "authoredAdapterIdentity": {
       "type": "object",

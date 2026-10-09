@@ -271,9 +271,11 @@
       "screenJob": "Connections; The GitHub App installations linked to your profile. Linking other accounts is not available yet.",
       "apiOperationIds": [
         "deleteSelfIdentityLinksByIdentityLinkId",
+        "deleteSelfReaderConnectionsByPublicationId",
         "getGithubApp",
         "getGithubInstallations",
         "getSelfAuthenticators",
+        "getSelfReaderConnections",
         "postSelfIdentityLinks"
       ]
     },
@@ -318,6 +320,18 @@
       "collection": false,
       "screenJob": "Accept invitation; Accept an invitation to join an organization.",
       "apiOperationIds": ["postMembershipInvitationsByTokenAccept"]
+    },
+    {
+      "pathTemplate": "/reader/connect",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Connect as a reader; Let a blog you are visiting show your name on your likes and comments.",
+      "apiOperationIds": [
+        "getPublicPublicationsByPublicationId",
+        "postReaderAuthorizations"
+      ]
     },
     {
       "pathTemplate": "/v1/sites/{organizationId}/{publicationId}",
@@ -404,6 +418,19 @@
       ]
     },
     {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/comments",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Comments; Review, hold, restore and remove the comments readers leave on this site, and see how many reactions each post has.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregates",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide"
+      ]
+    },
+    {
       "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/settings",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
@@ -416,13 +443,15 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
-        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings"
       ]
     }
   ]

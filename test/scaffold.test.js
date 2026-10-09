@@ -98,6 +98,8 @@ test('package metadata pins the accepted runtime and package manager', async () 
       './schemas/deployment-receipt.schema.json',
     './schemas/event-envelope.schema.json':
       './schemas/event-envelope.schema.json',
+    './schemas/interactions-config.schema.json':
+      './schemas/interactions-config.schema.json',
     './schemas/lock.schema.json': './schemas/lock.schema.json',
     './schemas/navigation.schema.json': './schemas/navigation.schema.json',
     './schemas/problem.schema.json': './schemas/problem.schema.json',

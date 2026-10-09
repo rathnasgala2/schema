@@ -17,21 +17,21 @@ const NUMBER_WORDS = {
  * derived and every mention checked, not that one previous typo be fixed).
  */
 const DOC_ASSERTIONS = [
-  { file: 'README.md', mustContain: ['all 20 S0-T04 JSON Schema roots'] },
+  { file: 'README.md', mustContain: ['all 21 S0-T04 JSON Schema roots'] },
   {
     file: 'CLAUDE.md',
-    mustContain: ['20 roots and the hash-bound DEC-091 design manifest'],
+    mustContain: ['21 roots and the hash-bound DEC-091 design manifest'],
   },
 ];
 
-test('the repository has exactly twenty schema roots (derived, SCH-M1)', async () => {
+test('the repository has exactly twenty-one schema roots (derived, SCH-M1)', async () => {
   const files = (await readdir('schemas')).filter((file) =>
     file.endsWith('.schema.json'),
   );
   const count = files.length;
   assert.equal(
     count,
-    20,
+    21,
     'the root count changed; update every doc mention this test checks, ' +
       'and the ones it does not (grep for "nineteen"/"twenty" roots)',
   );

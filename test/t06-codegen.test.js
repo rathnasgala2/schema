@@ -23,6 +23,7 @@ const CONTRACTS = [
   'deployment-observation',
   'deployment-receipt',
   'event-envelope',
+  'interactions-config',
   'lock',
   'navigation',
   'problem',
@@ -34,17 +35,17 @@ const CONTRACTS = [
   'theme-contract',
 ];
 
-test('generated TypeScript root set equals the twenty schemas', async () => {
+test('generated TypeScript root set equals the twenty-one schemas', async () => {
   // GALA_SCHEMA_IDS is sorted by the identity string itself, so
   // build-provenance's urn:gala:metadata:... namespace (SCHEMA-2.10.0) sorts
   // before every urn:gala:schema:... identity; GENERATED_SCHEMA_IDS instead
-  // preserves CONTRACTS' kebab-case insertion order. Same twenty-member set,
+  // preserves CONTRACTS' kebab-case insertion order. Same twenty-one-member set,
   // deliberately different order -- compare as sets.
   assert.deepEqual(
     [...GENERATED_SCHEMA_IDS].sort(),
     [...GALA_SCHEMA_IDS].sort(),
   );
-  assert.equal(GENERATED_SCHEMA_IDS.length, 20);
+  assert.equal(GENERATED_SCHEMA_IDS.length, 21);
 
   const typescriptFiles = await readdir('generated/typescript/contracts');
   assert.deepEqual(
@@ -90,7 +91,7 @@ test('generated API covers every canonical root and mirrors structuralValid to v
   }
 });
 
-test('schema inventory is exactly twenty roots plus OpenAPI', async () => {
+test('schema inventory is exactly twenty-one roots plus OpenAPI', async () => {
   const [inventory, designManifest] = /** @type {[
     {sourceDesignRevision: string, contracts: Array<Record<string, unknown>>},
     {digest: string}
@@ -101,7 +102,7 @@ test('schema inventory is exactly twenty roots plus OpenAPI', async () => {
     ])
   );
   assert.equal(inventory.sourceDesignRevision, designManifest.digest);
-  assert.equal(inventory.contracts.length, 21);
+  assert.equal(inventory.contracts.length, 22);
   assert.deepEqual(
     inventory.contracts
       .filter(({ artifactKind }) => artifactKind === 'JSON_SCHEMA')

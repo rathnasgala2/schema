@@ -8,6 +8,54 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-08
+
+Reader interactions: likes, reactions and comments on published articles, with
+moderation. Only test sites exist, so there is no migration path.
+
+### Added
+
+- `interactions-config`: a new root,
+  `urn:gala:schema:interactions-config:2.0.0`, for
+  `gala/modules/interactions.json`. Closed objects throughout; up to 16 reaction
+  definitions with a key (`^[a-z][a-z0-9-]{1,31}$`, `like` forbidden because
+  Like is implicit), a label of 1 to 32 characters, an emoji from the approved
+  list of sixteen, an order of 1 to 16 and an enabled flag; comments `enabled`,
+  `allowReplies` and `maxDepth` (1 to 4); `publicCounts`. JSON Schema cannot say
+  that keys are unique within `definitions` or that orders are unique; consumers
+  enforce both (stated in the schema's `$comment`).
+- `build-input`: `moduleBuildSelection` admits an optional `interactions` member
+  `{ config, apiOrigin, appOrigin }`. `config` is an embedded copy of the
+  interactions-config shape (built from the same source as the root, because the
+  corpus, diagnostic and parity tooling resolve local references only); both
+  origins are `https` origins or `http` on `localhost` or `127.0.0.1`.
+  `placements` stays required-empty and any other module key stays rejected.
+- OpenAPI: nineteen operations in the new fragments `public-interactions`,
+  `reader`, `moderation` and `interaction-settings`, and two in `self`: public
+  reads and reader writes (`/v2/public/**`), reader tokens and authorizations
+  (`/v2/reader/**`), connected sites (`/v2/self/reader-connections`), moderation
+  queue, decision and aggregates, and the interaction-settings read and write. A
+  new `readerBearer` HTTP bearer security scheme; public reads accept it
+  optionally. New problem codes: `PUBLICATION_NOT_LIVE`,
+  `INTERACTIONS_DISABLED`, `READER_AUTHENTICATION_REQUIRED`,
+  `READER_TOKEN_SCOPE`, `REACTION_NOT_ENABLED`, `COMMENT_INVALID`,
+  `COMMENTS_CLOSED`, `REPLIES_NOT_ALLOWED`, `REPLY_TOO_DEEP`,
+  `PARENT_NOT_FOUND`, `DUPLICATE_COMMENT`, `READER_RESTRICTED`,
+  `EDIT_WINDOW_CLOSED`, `NOT_COMMENT_AUTHOR`, `COMMENT_NOT_FOUND`,
+  `INVALID_GRANT`, `RETURN_URL_NOT_ALLOWED` and `INVALID_DECISION`.
+- The GitHub sign-in transaction's `continuationId` documents `reader.connect`.
+- App route catalog: `/reader/connect`.
+
+### Changed
+
+- `artifact-manifest` and `build-provenance`: a route's `interactionBearing` is
+  a plain boolean (was the constant `false`).
+- The operation set is no longer counted anywhere.
+  `scripts/generate-openapi.mjs` derives the fragment list from the root tags
+  and checks it against the files on disk, and `test/t07-openapi.test.js`
+  compares the source fragments, the bundle and the catalog with each other. The
+  README quotes no number.
+
 ## [3.0.0] - 2026-10-06
 
 This is a deliberate breaking release of the theme contract. Only test users
@@ -2267,7 +2315,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v2.22.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/rathnasgala2/schema/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/rathnasgala2/schema/compare/v2.22.0...v3.0.0
 [2.22.0]: https://github.com/rathnasgala2/schema/compare/v2.21.0...v2.22.0
 [2.21.0]: https://github.com/rathnasgala2/schema/compare/v2.20.3...v2.21.0

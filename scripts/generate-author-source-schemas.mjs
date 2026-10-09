@@ -7,6 +7,7 @@ import { runIfMain } from './run-if-main.mjs';
 import { createAdapterSchema } from './s0-t03-adapter-schema.mjs';
 import { createCompositionBuildSchemas } from './s0-t03-composition-build-schemas.mjs';
 import { createDeploymentSchemas } from './s0-t03-deployment-schemas.mjs';
+import { createInteractionsConfigSchema } from './s0-interactions-config-schema.mjs';
 import { createPlatformSchemas } from './s0-t04-platform-schemas.mjs';
 
 const DRAFT_2020_12 = 'https://json-schema.org/draft/2020-12/schema';
@@ -659,6 +660,13 @@ const schemas = {
     graphemeBound,
   }),
   'adapter-capability.schema.json': createAdapterSchema({
+    rootSchema,
+    ref,
+    arrayOf,
+    closedObject,
+    graphemeBound,
+  }),
+  'interactions-config.schema.json': createInteractionsConfigSchema({
     rootSchema,
     ref,
     arrayOf,

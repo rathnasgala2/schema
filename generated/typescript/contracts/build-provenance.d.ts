@@ -250,7 +250,7 @@ export type BuildProvenanceManifestReproducibleBuildRecord = Readonly<{
 
 export type BuildProvenanceManifestRoute = Readonly<{
   readonly byteLength: BuildProvenanceNonNegativeInt64;
-  readonly interactionBearing: false;
+  readonly interactionBearing: boolean;
   readonly mediaType:
     | 'text/html; charset=utf-8'
     | 'text/css; charset=utf-8'

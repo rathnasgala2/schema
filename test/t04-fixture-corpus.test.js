@@ -54,7 +54,7 @@ const T03_SCHEMA_HASHES = {
     // audio/ogg, audio/wav, video/mp4, video/webm for pass-through media
     // referenced from article bodies. Additive (enum widened); the
     // byte-identical build-provenance.schema.json copy moves with it.
-    'ee2107c4ae162bc975ceac5e3c543a77ca57aa50892a037fc55a9878a57785cf',
+    '2d99b1af6e435acb50aac4b5f2c3f3e620eaa504097ea908ec6b1951829119f4',
   author: '86774ba476ba5a11b298bdca0d949d2584bd698d375e4b5dbeac6203d5133730',
   'build-input':
     // 2026-09-25 code-discipline review, SCH-C3: adapterIdentity renamed to
@@ -70,7 +70,7 @@ const T03_SCHEMA_HASHES = {
     // byteLength, the same closed media types as artifact-manifest's
     // widened list minus SVG, per-mediaType byteLength bound). Additive
     // (new optional property, new $defs entry).
-    '6ff16c42597f2a42211ecc2cff40c364e9e4c589d7443d1d3f048b267ef9cdaa',
+    '0a8f2b34b96b70a9d6c3086effb5249c8392c862d018af8a358ce08e94a25f6f',
   'content-frontmatter':
     'd033644fd188af7d55c596a7c910b2c9ca9a1c8d8d8b092860f04eec8a5273a0',
   'deployment-intent':
@@ -304,12 +304,12 @@ async function findFixture(filePath, caseId) {
   return fixtureCasesById.get(filePath).get(caseId);
 }
 
-test('fixture manifest covers exactly twenty roots and every rule class', async () => {
+test('fixture manifest covers exactly twenty-one roots and every rule class', async () => {
   const manifest = await readJson('fixtures/manifest.json');
   assert.equal(manifest.schemaVersion, '1.0.0');
   assert.equal(manifest.contractVersion, '2.0.0');
   assert.equal(manifest.fixtureRecipeVersion, '1.0.0');
-  assert.equal(manifest.schemas.length, 20);
+  assert.equal(manifest.schemas.length, 21);
   assert.deepEqual(
     manifest.schemas.map((/** @type {any} */ entry) => entry.contract),
     [

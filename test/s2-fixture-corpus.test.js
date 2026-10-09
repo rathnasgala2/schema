@@ -19,6 +19,7 @@ const S2_FAMILIES = [
     caseIds: [
       'build-input-valid-empty-modules-placements',
       'build-input-rejects-nonempty-modules',
+      'build-input-valid-interactions-module',
       'build-input-rejects-nonempty-placements',
     ],
   },
@@ -146,7 +147,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 827);
+  assert.equal(files.length, 865);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -167,8 +168,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // 3.0.0: theme contract 3 regenerated the theme-contract fixtures and
     // publication gained `newsletter`; one file was added
     // (examples/valid/theme-contract/default-3.0.json), making 827.
+    //
+    // 3.1.0: reader interactions added the interactions-config root and its
+    // generated fixtures, moduleBuildSelection admitted `interactions`, and
+    // interactionBearing became a boolean, making 865.
     aggregate.digest('hex'),
-    'c258e15db3b9468a7d325bc5a262bc3910c2f2db8cac07655ca34025432d6eb1',
+    'f849c5013fccdb681ca228ecb018de36f0627809f047584f4c60f6ab5aee02c9',
   );
 });
 
@@ -289,6 +294,10 @@ test('the nine S2 families preserve their consumer-facing invariants', async () 
   assert.notDeepEqual(
     value('build-input-rejects-nonempty-modules').modules,
     {},
+  );
+  assert.deepEqual(
+    Object.keys(value('build-input-valid-interactions-module').modules),
+    ['interactions'],
   );
   assert.notDeepEqual(
     value('build-input-rejects-nonempty-placements').placements,

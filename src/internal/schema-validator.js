@@ -10,6 +10,7 @@ import deploymentIntentSchema from '../../schemas/deployment-intent.schema.json'
 import deploymentObservationSchema from '../../schemas/deployment-observation.schema.json' with { type: 'json' };
 import deploymentReceiptSchema from '../../schemas/deployment-receipt.schema.json' with { type: 'json' };
 import eventEnvelopeSchema from '../../schemas/event-envelope.schema.json' with { type: 'json' };
+import interactionsConfigSchema from '../../schemas/interactions-config.schema.json' with { type: 'json' };
 import lockSchema from '../../schemas/lock.schema.json' with { type: 'json' };
 import navigationSchema from '../../schemas/navigation.schema.json' with { type: 'json' };
 import problemSchema from '../../schemas/problem.schema.json' with { type: 'json' };
@@ -35,6 +36,7 @@ const SCHEMAS_BY_CONTRACT = Object.freeze({
   'deployment-observation': deploymentObservationSchema,
   'deployment-receipt': deploymentReceiptSchema,
   'event-envelope': eventEnvelopeSchema,
+  'interactions-config': interactionsConfigSchema,
   lock: lockSchema,
   navigation: navigationSchema,
   problem: problemSchema,
@@ -58,6 +60,7 @@ const CONTRACTS = Object.freeze([
   'deployment-observation',
   'deployment-receipt',
   'event-envelope',
+  'interactions-config',
   'lock',
   'navigation',
   'problem',

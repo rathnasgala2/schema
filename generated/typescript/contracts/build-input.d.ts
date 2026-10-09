@@ -153,6 +153,26 @@ export type BuildInputGithubPositiveDecimal = string;
 
 export type BuildInputGlob = string;
 
+export type BuildInputInteractionsConfig = Readonly<{
+  readonly comments: Readonly<{
+    readonly allowReplies: boolean;
+    readonly enabled: boolean;
+    readonly maxDepth: number;
+  }>;
+  readonly publicCounts: Readonly<{
+    readonly comments: boolean;
+    readonly reactions: boolean;
+  }>;
+  readonly reactions: Readonly<{
+    readonly definitions: ReadonlyArray<BuildInputReactionDefinition>;
+    readonly enabled: boolean;
+  }>;
+  readonly schemaId: 'urn:gala:schema:interactions-config:2.0.0';
+  readonly schemaVersion: '2.0.0';
+}>;
+
+export type BuildInputInteractionsServiceOrigin = string;
+
 export type BuildInputIsoCountry = string;
 
 export type BuildInputLocalizedAuthor = Readonly<{
@@ -167,7 +187,13 @@ export type BuildInputManifestRenderPolicyIdentity = Readonly<{
   readonly version: BuildInputSemver;
 }>;
 
-export type BuildInputModuleBuildSelection = Readonly<Record<string, never>>;
+export type BuildInputModuleBuildSelection = Readonly<{
+  readonly interactions?: Readonly<{
+    readonly apiOrigin: BuildInputInteractionsServiceOrigin;
+    readonly appOrigin: BuildInputInteractionsServiceOrigin;
+    readonly config: BuildInputInteractionsConfig;
+  }>;
+}>;
 
 export type BuildInputNavigationItem = Readonly<{
   readonly children: ReadonlyArray<BuildInputNavigationLeaf>;
@@ -255,6 +281,37 @@ export type BuildInputPublicationNormalized = Readonly<{
   readonly sourceDigest: BuildInputDigest;
   readonly sourcePath: BuildInputRepoRelativePath;
   readonly title: BuildInputPlainText;
+}>;
+
+export type BuildInputReactionDefinition = Readonly<{
+  readonly enabled: boolean;
+  readonly key: BuildInputReactionKey;
+  readonly label: BuildInputPlainLabel & string;
+  readonly order: number;
+  readonly visual: BuildInputReactionVisual;
+}>;
+
+export type BuildInputReactionKey = string;
+
+export type BuildInputReactionVisual = Readonly<{
+  readonly kind: 'emoji';
+  readonly token:
+    | '👍'
+    | '❤️'
+    | '💡'
+    | '🎉'
+    | '😂'
+    | '🤯'
+    | '🙏'
+    | '🔥'
+    | '👏'
+    | '😮'
+    | '😢'
+    | '🤔'
+    | '✨'
+    | '🚀'
+    | '💯'
+    | '👀';
 }>;
 
 export type BuildInputRenderableBody = Readonly<{

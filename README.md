@@ -5,7 +5,7 @@ the OpenAPI contract, generated validators, and generated consumer types. It
 does not contain API business behavior, UI code, publication rendering, or
 infrastructure configuration.
 
-This repository contains all 20 S0-T04 JSON Schema roots: the six author-source
+This repository contains all 21 S0-T04 JSON Schema roots: the six author-source
 contracts, the eleven composition/build/deployment contracts (SCHEMA-2.10.0 adds
 `build-provenance`, `urn:gala:metadata:build-provenance:2.0.0`, a pure addition
 nested identically at `artifact-manifest`'s internal `#/$defs/buildProvenance`
@@ -53,45 +53,42 @@ committed exact-result snapshot rejects mutually shared extra diagnostics. The
 same gate also executes 1,995 shared DEC-099 scalar vectors, including all 766
 pinned Unicode 17 grapheme-conformance rows, and raw RFC 8785 number and string
 spellings that have not first been normalized by Node. S0-T06 generates strict
-TypeScript root types and validators for the exact 20 roots (the codegen path
+TypeScript root types and validators for the exact 21 roots (the codegen path
 also generated a Java 21 records/Networknt registry tree until SCH-C4/SCH-H5
 removed it as unconsumed -- see "Package layout"). The schema inventory adds the
-separately owned OpenAPI contract as the twenty-first identity and carries
+separately owned OpenAPI contract as the twenty-second identity and carries
 DEC-091's domain-separated `sourceDesignRevision`. S0-T07 materializes the
 reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
-HTTP catalog for exactly 90 MVP operations plus `/internal/health` (91 catalog
-rows; 71 at S0-T07, plus the two SCHEMA-2.8.0 reads, the two SCHEMA-2.10.0
-publication-destination reads/writes, the SCHEMA-2.13.0 repository create, and
-the nine SCHEMA-2.14.0 write/preview/publish operations, and the SCHEMA-2.20.3
-review event stream, the SCHEMA-2.21.0 appearance read, and the SCHEMA-2.22.0
-site, history and batch-publish contracts). The bundle includes the accepted
-DEC-097 receipt-exchange and deployment-receipt amendments and serializes the
-fixed OpenAPI Generator 7.25.0 option sets. Every operation also declares its
-tenant scope, lifecycle and activation guards, maps every reachable problem, and
-carries schema-validated nominal and problem examples. S0-T08 projects the exact
-19 admitted transition families into 77 independently identified event actions
-(SCHEMA-2.11.0 adds the `github_installation` family so the worker-only
-compare-and-set writer can retire into the sole aggregate gateway). Each action
-binds its aggregate and organization or publication scope, exact
-predecessor/target states, the closed DEC-101 payload, the transactional outbox
-producer, and a non-empty registered consumer set. S5-T00 materializes document
-07's closed 15-component App semantic catalog and document 14's 20-entry MVP App
-route registry (S5 brief section 4) as `docs/catalogs/app-components.json` and
-`docs/catalogs/app-routes.json`, with every `apiOperationIds` entry validated
-against `openapi/openapi.yaml`, every `componentIds`/`contentKeyIds` entry
-validated against the component catalog, and `capabilityKeys` projected from
-`openapi/http-catalog.json`. S4-T01 adds the separately generated `fixtures/s4/`
-deployment/certification consumer-fixture family (deployment-intent,
-deployment-observation, deployment-receipt, public-generation-marker, and
-adapter-capability rows for `local-directory`, `github-pages`, and `do-spaces`)
-alongside the existing `fixtures/s2/` family, each with its own manifest.
-LOCAL-21 admits a 21st App route, `/invitations/accept` (`routeId`
-`invitations.accept`), an ordinary `SESSION_REQUIRED` `APP` route (not
-`TRANSACTIONAL_LINK`: it is served by the App origin after sign-in, unlike the
-deferred `/t/**` template family) that calls
-`postMembershipInvitationsByTokenAccept`; its non-enumerating failure states
-collapse onto that operation's single declared `INVALID_SOURCE_STATE` problem,
-which covers an expired, already-used or unknown token alike.
+HTTP catalog for the MVP operations plus `/internal/health`. The operation set
+is defined only by the source fragments; no document or test quotes a count of
+it (the earlier per-release tallies were removed because they drifted). The
+bundle includes the accepted DEC-097 receipt-exchange and deployment-receipt
+amendments and serializes the fixed OpenAPI Generator 7.25.0 option sets. Every
+operation also declares its tenant scope, lifecycle and activation guards, maps
+every reachable problem, and carries schema-validated nominal and problem
+examples. S0-T08 projects the exact 19 admitted transition families into 77
+independently identified event actions (SCHEMA-2.11.0 adds the
+`github_installation` family so the worker-only compare-and-set writer can
+retire into the sole aggregate gateway). Each action binds its aggregate and
+organization or publication scope, exact predecessor/target states, the closed
+DEC-101 payload, the transactional outbox producer, and a non-empty registered
+consumer set. S5-T00 materializes document 07's closed 15-component App semantic
+catalog and document 14's 20-entry MVP App route registry (S5 brief section 4)
+as `docs/catalogs/app-components.json` and `docs/catalogs/app-routes.json`, with
+every `apiOperationIds` entry validated against `openapi/openapi.yaml`, every
+`componentIds`/`contentKeyIds` entry validated against the component catalog,
+and `capabilityKeys` projected from `openapi/http-catalog.json`. S4-T01 adds the
+separately generated `fixtures/s4/` deployment/certification consumer-fixture
+family (deployment-intent, deployment-observation, deployment-receipt,
+public-generation-marker, and adapter-capability rows for `local-directory`,
+`github-pages`, and `do-spaces`) alongside the existing `fixtures/s2/` family,
+each with its own manifest. LOCAL-21 admits a 21st App route,
+`/invitations/accept` (`routeId` `invitations.accept`), an ordinary
+`SESSION_REQUIRED` `APP` route (not `TRANSACTIONAL_LINK`: it is served by the
+App origin after sign-in, unlike the deferred `/t/**` template family) that
+calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
+states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
+problem, which covers an expired, already-used or unknown token alike.
 
 SCHEMA-2.17.0 (design `scrap/20260928_write-preview-publish.md` section 9) is
 media in articles: a cover image, and images, sound and video referenced from an
@@ -377,8 +374,8 @@ server-derived members. `destinationIdentity` gains an optional closed
 it has always answered, `repository-changes:plan` names the two digests its
 confirm is fenced on, and no `format: date-time` member in the bundle carries a
 `pattern` any longer -- a generated `OffsetDateTime` cannot carry one, and the
-requirement moves into each member's description while all twenty JSON Schema
-roots keep enforcing it. Two reads join the contract --
+requirement moves into each member's description while all twenty-one JSON
+Schema roots keep enforcing it. Two reads join the contract --
 `GET .../publications/{publicationId}/reviews` (keyset, optional `state` filter,
 rows of the new `ReviewSummary`, which the single review read is now defined as)
 and `GET .../deployments/{generationId}` -- taking the MVP operation count from
@@ -615,7 +612,7 @@ remediation, and documentation URL fields without including authored values.
 ## Package layout
 
 - `src/` — JavaScript ESM runtime package surface, checked from JSDoc;
-  `index.js` is the twenty-contract `.` export (through
+  `index.js` is the twenty-one-contract `.` export (through
   `internal/browser-schema-validator.js`) and `runtime-origins.js` the narrow
   single-contract browser export, both bound to precompiled standalone
   validators (SCH-C2) through `internal/validator-core.js`'s
@@ -626,7 +623,7 @@ remediation, and documentation URL fields without including authored values.
   `frozen-envelope.js` is the Node-only `./frozen-envelope` re-export of
   `internal/frozen-envelope.js`.
 - `types/` — declaration output emitted from `src/`.
-- `schemas/` — 20 committed Draft 2020-12 contracts.
+- `schemas/` — 21 committed Draft 2020-12 contracts.
 - `compatibility/baseline-schemas/` — the last-released `schemas/*.schema.json`,
   refreshed only at release time (`npm run compatibility:baseline:update`);
   `npm run compatibility:check` diffs the current committed schemas against it
@@ -661,7 +658,7 @@ remediation, and documentation URL fields without including authored values.
   standalone structural core in parallel (SCH-M5) -- that used a second 2.73 MB
   Ajv standalone CommonJS core whose result could never disagree with the exact
   one, so it added no assertion and doubled the work.
-- `docs/catalogs/schema-inventory.json` — exact 20 JSON Schema roots plus the
+- `docs/catalogs/schema-inventory.json` — exact 21 JSON Schema roots plus the
   materialized OpenAPI identity.
 - `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`
   enforces mechanically.
@@ -685,7 +682,7 @@ remediation, and documentation URL fields without including authored values.
   fragments grouped by the first literal resource token. A build input, not part
   of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s `files`) --
   a consumer reads the materialized `openapi/openapi.yaml` instead.
-- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the exact 90 MVP
+- `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
   capability inventory, including `conditionalCapabilityKeys` (SCHEMA-2.7.1) and

@@ -15,6 +15,7 @@ const SCHEMA_IDS = [
   'urn:gala:schema:deployment-observation:2.0.0',
   'urn:gala:schema:deployment-receipt:2.0.0',
   'urn:gala:schema:event-envelope:2.0.0',
+  'urn:gala:schema:interactions-config:2.0.0',
   'urn:gala:schema:lock:2.0.0',
   'urn:gala:schema:navigation:2.0.0',
   'urn:gala:schema:problem:2.0.0',
@@ -185,6 +186,19 @@ export function isDeploymentReceiptDocument(value) {
 export function isEventEnvelopeDocument(value) {
   return validateGeneratedDocument(
     'urn:gala:schema:event-envelope:2.0.0',
+    value,
+  ).valid;
+}
+
+/**
+ * Test whether a value is a valid InteractionsConfigDocument.
+ *
+ * @param {unknown} value candidate document
+ * @returns {boolean} validation result
+ */
+export function isInteractionsConfigDocument(value) {
+  return validateGeneratedDocument(
+    'urn:gala:schema:interactions-config:2.0.0',
     value,
   ).valid;
 }

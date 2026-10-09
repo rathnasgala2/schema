@@ -58,6 +58,10 @@ export type { EventEnvelopeDocument } from './contracts/event-envelope.js';
 export declare function isEventEnvelopeDocument(
   value: unknown,
 ): value is import('./contracts/event-envelope.js').EventEnvelopeDocument;
+export type { InteractionsConfigDocument } from './contracts/interactions-config.js';
+export declare function isInteractionsConfigDocument(
+  value: unknown,
+): value is import('./contracts/interactions-config.js').InteractionsConfigDocument;
 export type { LockDocument } from './contracts/lock.js';
 export declare function isLockDocument(
   value: unknown,

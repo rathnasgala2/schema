@@ -33,7 +33,7 @@ async function readJson(file) {
   return JSON.parse(await readFile(file, 'utf8'));
 }
 
-test('the public registry exposes exactly the twenty accepted roots', async () => {
+test('the public registry exposes exactly the twenty-one accepted roots', async () => {
   const manifest = await readJson('fixtures/manifest.json');
   assert.deepEqual(
     GALA_SCHEMA_IDS,
@@ -41,7 +41,7 @@ test('the public registry exposes exactly the twenty accepted roots', async () =
       .map((/** @type {{schemaId: string}} */ { schemaId }) => schemaId)
       .sort(),
   );
-  assert.equal(new Set(GALA_SCHEMA_IDS).size, 20);
+  assert.equal(new Set(GALA_SCHEMA_IDS).size, 21);
 });
 
 test('the public validator accepts a canonical document', async () => {

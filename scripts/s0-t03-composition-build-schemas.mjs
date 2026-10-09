@@ -1,4 +1,8 @@
 import {
+  INTERACTIONS_CONFIG_ID,
+  interactionsConfigParts,
+} from './s0-interactions-config-schema.mjs';
+import {
   KEYWORD_ENUMS,
   MODE_VARIANT_TYPES,
   THEME_TOKEN_CATALOG,
@@ -110,6 +114,7 @@ const OIDC_CLAIM_CATALOG = [
  */
 export function createCompositionBuildSchemas(language) {
   const { rootSchema, ref, arrayOf, closedObject, graphemeBound } = language;
+  const interactionsParts = interactionsConfigParts(language);
 
   const npmPackageName = {
     type: 'string',
@@ -1063,7 +1068,7 @@ export function createCompositionBuildSchemas(language) {
       routeClass: { enum: ['html', 'feed', 'sitemap', 'asset', 'error'] },
       stableContentId: ref('stableId'),
       sourceRevision: ref('gitObjectId'),
-      interactionBearing: { const: false },
+      interactionBearing: { type: 'boolean' },
     },
     [
       'path',
@@ -1758,7 +1763,37 @@ export function createCompositionBuildSchemas(language) {
         contentFrontmatterNormalized,
         contentBuildMediaFile,
         contentBuildRecord,
-        moduleBuildSelection: closedObject({}, [], { maxProperties: 0 }),
+        moduleBuildSelection: closedObject(
+          {
+            interactions: closedObject(
+              {
+                config: ref('interactionsConfig'),
+                apiOrigin: ref('interactionsServiceOrigin'),
+                appOrigin: ref('interactionsServiceOrigin'),
+              },
+              ['config', 'apiOrigin', 'appOrigin'],
+            ),
+          },
+          [],
+        ),
+        interactionsConfig: closedObject(
+          {
+            schemaId: { const: INTERACTIONS_CONFIG_ID },
+            schemaVersion: { const: '2.0.0' },
+            ...interactionsParts.properties,
+          },
+          ['schemaId', 'schemaVersion', ...interactionsParts.required],
+          interactionsParts.keywords,
+        ),
+        ...interactionsParts.definitions,
+        interactionsServiceOrigin: {
+          type: 'string',
+          maxLength: 255,
+          pattern:
+            '^(?:https://[^/?#@\\s]+|http://(?:localhost|127\\.0\\.0\\.1)(?::[0-9]{1,5})?)$',
+          description:
+            'Credential-free service origin with no path, query or fragment: HTTPS, or http on localhost or 127.0.0.1 for the local runtime profile.',
+        },
         authoredAdapterIdentity,
         destinationCapabilityProfile,
       },

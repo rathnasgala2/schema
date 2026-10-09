@@ -114,9 +114,11 @@
       "capabilityKeys": [],
       "apiOperationIds": [
         "deleteSelfIdentityLinksByIdentityLinkId",
+        "deleteSelfReaderConnectionsByPublicationId",
         "getGithubApp",
         "getGithubInstallations",
         "getSelfAuthenticators",
+        "getSelfReaderConnections",
         "postSelfIdentityLinks"
       ],
       "componentIds": [
@@ -1563,6 +1565,73 @@
       ]
     },
     {
+      "routeId": "reader.connect",
+      "originClass": "APP",
+      "pathTemplate": "/reader/connect",
+      "screenId": "reader.connect.screen",
+      "authenticationClass": "SESSION_REQUIRED",
+      "capabilityKeys": [],
+      "apiOperationIds": [
+        "getPublicPublicationsByPublicationId",
+        "postReaderAuthorizations"
+      ],
+      "componentIds": [
+        "AppShell",
+        "Breadcrumbs",
+        "ContextHeader",
+        "StatePanel",
+        "FormField",
+        "ValidationSummary",
+        "AsyncCommand"
+      ],
+      "contentKeyIds": [
+        "reader.connect.screen.capability_unavailable.recovery",
+        "reader.connect.screen.capability_unavailable.status",
+        "reader.connect.screen.conflicted.recovery",
+        "reader.connect.screen.conflicted.status",
+        "reader.connect.screen.dirty.recovery",
+        "reader.connect.screen.dirty.status",
+        "reader.connect.screen.forbidden.recovery",
+        "reader.connect.screen.forbidden.status",
+        "reader.connect.screen.loading.recovery",
+        "reader.connect.screen.loading.status",
+        "reader.connect.screen.not_found.recovery",
+        "reader.connect.screen.not_found.status",
+        "reader.connect.screen.rate_limited.recovery",
+        "reader.connect.screen.rate_limited.status",
+        "reader.connect.screen.ready.recovery",
+        "reader.connect.screen.ready.status",
+        "reader.connect.screen.ready.summary",
+        "reader.connect.screen.ready.title",
+        "reader.connect.screen.reconciling.recovery",
+        "reader.connect.screen.reconciling.status",
+        "reader.connect.screen.submitting.recovery",
+        "reader.connect.screen.submitting.status",
+        "reader.connect.screen.success.recovery",
+        "reader.connect.screen.success.status",
+        "reader.connect.screen.terminal_failure.recovery",
+        "reader.connect.screen.terminal_failure.status",
+        "reader.connect.screen.validating.recovery",
+        "reader.connect.screen.validating.status"
+      ],
+      "tokenBearing": false,
+      "requiredStates": [
+        "LOADING",
+        "READY",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "RECONCILING",
+        "TERMINAL_FAILURE",
+        "DIRTY",
+        "VALIDATING",
+        "SUBMITTING",
+        "CONFLICTED",
+        "RATE_LIMITED",
+        "SUCCESS"
+      ]
+    },
+    {
       "routeId": "sign-in",
       "originClass": "APP",
       "pathTemplate": "/sign-in",
@@ -1707,6 +1776,84 @@
         "v1.sites.by-organization-id.by-publication-id.screen.terminal_failure.status",
         "v1.sites.by-organization-id.by-publication-id.screen.validating.recovery",
         "v1.sites.by-organization-id.by-publication-id.screen.validating.status"
+      ],
+      "tokenBearing": false,
+      "requiredStates": [
+        "LOADING",
+        "READY",
+        "EMPTY",
+        "REFRESHING",
+        "OFFLINE",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "RECONCILING",
+        "TERMINAL_FAILURE",
+        "DIRTY",
+        "VALIDATING",
+        "SUBMITTING",
+        "CONFLICTED",
+        "RATE_LIMITED",
+        "SUCCESS"
+      ]
+    },
+    {
+      "routeId": "v1.sites.by-organization-id.by-publication-id.comments",
+      "originClass": "APP",
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/comments",
+      "screenId": "v1.sites.by-organization-id.by-publication-id.comments.screen",
+      "authenticationClass": "SESSION_REQUIRED",
+      "capabilityKeys": ["publication.moderate", "publication.view"],
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregates",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide"
+      ],
+      "componentIds": [
+        "AppShell",
+        "Breadcrumbs",
+        "ContextHeader",
+        "StatePanel",
+        "FormField",
+        "ValidationSummary",
+        "AsyncCommand",
+        "DataTable"
+      ],
+      "contentKeyIds": [
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.capability_unavailable.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.capability_unavailable.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.conflicted.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.conflicted.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.dirty.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.dirty.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.empty.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.empty.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.forbidden.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.forbidden.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.loading.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.loading.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.not_found.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.not_found.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.offline.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.offline.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.rate_limited.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.rate_limited.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.ready.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.ready.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.ready.summary",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.ready.title",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.reconciling.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.reconciling.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.refreshing.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.refreshing.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.submitting.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.submitting.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.success.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.success.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.terminal_failure.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.terminal_failure.status",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.validating.recovery",
+        "v1.sites.by-organization-id.by-publication-id.comments.screen.validating.status"
       ],
       "tokenBearing": false,
       "requiredStates": [
@@ -2000,6 +2147,7 @@
         "publication.integrations.manage",
         "publication.retire",
         "publication.settings.manage",
+        "publication.source.write",
         "publication.view"
       ],
       "apiOperationIds": [
@@ -2008,13 +2156,15 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
-        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings"
       ],
       "componentIds": [
         "AppShell",
@@ -2074,5 +2224,5 @@
       ]
     }
   ],
-  "digest": "sha256:76337d44583616dfe86e42246d2574dcbebd7c267180e125eb736c3238cd8930"
+  "digest": "sha256:99aacbb7e1ae27ec3598e573be6d15a3c92d0f43b9ca288e830da6df5cb4ee5b"
 }

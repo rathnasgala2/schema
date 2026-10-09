@@ -99,6 +99,7 @@ const CONTRACTS = [
   'deployment-observation',
   'deployment-receipt',
   'event-envelope',
+  'interactions-config',
   'lock',
   'navigation',
   'problem',

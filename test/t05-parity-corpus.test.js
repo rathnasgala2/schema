@@ -29,7 +29,7 @@ import { validateGalaFormat } from '../src/internal/format-validators.js';
 
 test('the parity corpus includes every structural fixture without sampling', async () => {
   const corpus = await createStructuralParityCases();
-  assert.equal(corpus.contracts.length, 20);
+  assert.equal(corpus.contracts.length, 21);
   assert.equal(corpus.omittedCaseCount, 0);
   assert.ok(corpus.cases.length >= 12_295);
   assert.equal(

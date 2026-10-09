@@ -88,6 +88,7 @@ const SCALAR_CODES = Object.freeze({
   semver: 'SEMVER_INVALID',
   semverRange: 'SEMVER_RANGE_INVALID',
   serviceOrigin: 'HTTPS_URL_INVALID',
+  interactionsServiceOrigin: 'HTTPS_URL_INVALID',
   slug: 'SLUG_INVALID',
   stableId: 'STABLE_ID_INVALID',
   transactionalLinkBase: 'HTTPS_URL_INVALID',
@@ -358,6 +359,7 @@ function stringValue(schema, pointer, variant = 0) {
     semver: '2.0.0',
     semverRange: '^2.0.0',
     serviceOrigin: 'https://example.com',
+    interactionsServiceOrigin: 'https://example.com',
     slug: 'fixture',
     stableId: '019c0000-0000-7000-8000-000000000001',
     transactionalLinkBase: 'https://links.example.com/t',
@@ -382,6 +384,7 @@ function stringValue(schema, pointer, variant = 0) {
     probeRegion: `region-${variant + 1}`,
     repoRelativePath: `content/fixture-${variant + 1}.md`,
     serviceOrigin: `https://fixture-${variant + 1}.example.com`,
+    interactionsServiceOrigin: `https://fixture-${variant + 1}.example.com`,
     slug: `fixture-${variant + 1}`,
     stableId: `019c0000-0000-7000-8000-${(variant + 1)
       .toString(16)
@@ -2538,18 +2541,43 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
 
   const emptyBuildInput = canonical('build-input');
   const nonemptyModules = canonical('build-input');
-  nonemptyModules.modules = { unexpected: {} };
+  nonemptyModules.modules = { newsletter: {} };
+  const interactionsModules = canonical('build-input');
+  interactionsModules.modules = {
+    interactions: {
+      config: {
+        schemaId: 'urn:gala:schema:interactions-config:2.0.0',
+        schemaVersion: '2.0.0',
+        reactions: {
+          enabled: true,
+          definitions: [
+            {
+              key: 'insightful',
+              label: 'Insightful',
+              visual: { kind: 'emoji', token: '\u{1F4A1}' },
+              order: 1,
+              enabled: true,
+            },
+          ],
+        },
+        comments: { enabled: true, allowReplies: true, maxDepth: 3 },
+        publicCounts: { reactions: true, comments: true },
+      },
+      apiOrigin: 'https://api.galascribe.com',
+      appOrigin: 'http://localhost:5173',
+    },
+  };
   const nonemptyPlacements = canonical('build-input');
   nonemptyPlacements.placements = [{}];
   families.set('empty-modules-placements', [
     s2Case('build-input-valid-empty-modules-placements', emptyBuildInput),
     s2Case('build-input-rejects-nonempty-modules', nonemptyModules, [
-      { code: 'SCHEMA_OBJECT_TOO_LARGE', instancePointer: '/modules' },
       {
         code: 'REQUEST_FIELD_UNKNOWN',
-        instancePointer: '/modules/unexpected',
+        instancePointer: '/modules/newsletter',
       },
     ]),
+    s2Case('build-input-valid-interactions-module', interactionsModules),
     s2Case('build-input-rejects-nonempty-placements', nonemptyPlacements, [
       { code: 'SCHEMA_CONSTANT_INVALID', instancePointer: '/placements' },
     ]),
@@ -3479,7 +3507,7 @@ async function generateFixtureCorpus(check) {
       createHash('sha256').update(bytes).digest('hex'),
     );
   }
-  if (schemas.size !== 20)
+  if (schemas.size !== 21)
     throw new TypeError('FIXTURE_SCHEMA_INVENTORY_INVALID');
   const outputs = createCorpus(schemas, schemaHashes);
   const expectedFiles = [...outputs.keys()].sort();

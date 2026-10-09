@@ -211,6 +211,31 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-0ac82bcd811aa1d8",
+    "coveredRuleIds": [
+      "build-input:#/$defs/interactionsConfig/properties/comments/properties/allowReplies:type",
+      "build-input:#/$defs/interactionsConfig/properties/comments/properties/enabled:type",
+      "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:maximum",
+      "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:minimum",
+      "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:type",
+      "build-input:#/$defs/interactionsConfig/properties/comments:additionalProperties",
+      "build-input:#/$defs/interactionsConfig/properties/comments:required:allowReplies",
+      "build-input:#/$defs/interactionsConfig/properties/comments:required:enabled",
+      "build-input:#/$defs/interactionsConfig/properties/comments:required:maxDepth",
+      "build-input:#/$defs/interactionsConfig/properties/comments:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/interactionsConfig/properties/comments",
+    "keyword": "additionalProperties",
+    "instance": {
+      "enabled": false,
+      "allowReplies": false,
+      "maxDepth": 1,
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-18d12a682083a474",
     "coveredRuleIds": [
       "build-input:#/$defs/localizedAuthor/properties/biography:x-gala-graphemeLength",
@@ -354,6 +379,36 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-32690b22292983d6",
+    "coveredRuleIds": [
+      "build-input:#/$defs/reactionDefinition/properties/enabled:type",
+      "build-input:#/$defs/reactionDefinition/properties/label:type",
+      "build-input:#/$defs/reactionDefinition/properties/label:x-gala-graphemeLength",
+      "build-input:#/$defs/reactionDefinition/properties/order:maximum",
+      "build-input:#/$defs/reactionDefinition/properties/order:minimum",
+      "build-input:#/$defs/reactionDefinition/properties/order:type",
+      "build-input:#/$defs/reactionDefinition:additionalProperties",
+      "build-input:#/$defs/reactionDefinition:required:enabled",
+      "build-input:#/$defs/reactionDefinition:required:key",
+      "build-input:#/$defs/reactionDefinition:required:label",
+      "build-input:#/$defs/reactionDefinition:required:order",
+      "build-input:#/$defs/reactionDefinition:required:visual",
+      "build-input:#/$defs/reactionDefinition:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/reactionDefinition",
+    "keyword": "additionalProperties",
+    "instance": {
+      "key": "fixture-1",
+      "label": "fixture-1",
+      "visual": { "kind": "emoji", "token": "👍" },
+      "order": 1,
+      "enabled": false,
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-334359b90efed75d",
     "coveredRuleIds": [
       "build-input:#/$defs/bcp47:format",
@@ -383,6 +438,9 @@
       "build-input:#/$defs/glob:minLength",
       "build-input:#/$defs/glob:type",
       "build-input:#/$defs/glob:x-gala-utf8ByteLength",
+      "build-input:#/$defs/interactionsServiceOrigin:maxLength",
+      "build-input:#/$defs/interactionsServiceOrigin:pattern",
+      "build-input:#/$defs/interactionsServiceOrigin:type",
       "build-input:#/$defs/isoCountry:format",
       "build-input:#/$defs/isoCountry:pattern",
       "build-input:#/$defs/isoCountry:type",
@@ -406,6 +464,10 @@
       "build-input:#/$defs/plainLabel:x-gala-graphemeLength",
       "build-input:#/$defs/plainText:format",
       "build-input:#/$defs/plainText:type",
+      "build-input:#/$defs/reactionKey/not:const",
+      "build-input:#/$defs/reactionKey:not",
+      "build-input:#/$defs/reactionKey:pattern",
+      "build-input:#/$defs/reactionKey:type",
       "build-input:#/$defs/repoRelativePath:format",
       "build-input:#/$defs/repoRelativePath:maxLength",
       "build-input:#/$defs/repoRelativePath:minLength",
@@ -706,6 +768,80 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-39a0234ee4a035d0",
+    "coveredRuleIds": [
+      "build-input:#/$defs/moduleBuildSelection/properties/interactions:additionalProperties",
+      "build-input:#/$defs/moduleBuildSelection/properties/interactions:required:apiOrigin",
+      "build-input:#/$defs/moduleBuildSelection/properties/interactions:required:appOrigin",
+      "build-input:#/$defs/moduleBuildSelection/properties/interactions:required:config",
+      "build-input:#/$defs/moduleBuildSelection/properties/interactions:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/moduleBuildSelection/properties/interactions",
+    "keyword": "additionalProperties",
+    "instance": {
+      "config": {
+        "schemaId": "urn:gala:schema:interactions-config:2.0.0",
+        "schemaVersion": "2.0.0",
+        "reactions": {
+          "enabled": false,
+          "definitions": [
+            {
+              "key": "fixture-1",
+              "label": "fixture-1",
+              "visual": { "kind": "emoji", "token": "👍" },
+              "order": 1,
+              "enabled": false
+            }
+          ]
+        },
+        "comments": { "enabled": false, "allowReplies": false, "maxDepth": 1 },
+        "publicCounts": { "reactions": false, "comments": false }
+      },
+      "apiOrigin": "https://fixture-1.example.com",
+      "appOrigin": "https://fixture-1.example.com",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-3e63676d6a733634",
+    "coveredRuleIds": [
+      "build-input:#/$defs/interactionsConfig/properties/schemaId:const",
+      "build-input:#/$defs/interactionsConfig/properties/schemaVersion:const",
+      "build-input:#/$defs/interactionsConfig:additionalProperties",
+      "build-input:#/$defs/interactionsConfig:required:comments",
+      "build-input:#/$defs/interactionsConfig:required:publicCounts",
+      "build-input:#/$defs/interactionsConfig:required:reactions",
+      "build-input:#/$defs/interactionsConfig:required:schemaId",
+      "build-input:#/$defs/interactionsConfig:required:schemaVersion",
+      "build-input:#/$defs/interactionsConfig:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/interactionsConfig",
+    "keyword": "additionalProperties",
+    "instance": {
+      "schemaId": "urn:gala:schema:interactions-config:2.0.0",
+      "schemaVersion": "2.0.0",
+      "reactions": {
+        "enabled": false,
+        "definitions": [
+          {
+            "key": "fixture-1",
+            "label": "fixture-1",
+            "visual": { "kind": "emoji", "token": "👍" },
+            "order": 1,
+            "enabled": false
+          }
+        ]
+      },
+      "comments": { "enabled": false, "allowReplies": false, "maxDepth": 1 },
+      "publicCounts": { "reactions": false, "comments": false },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-463216841286e49b",
     "coveredRuleIds": [
       "build-input:#/$defs/publicationNormalized/properties/authorIds:maxItems",
@@ -957,10 +1093,25 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-aa780f7f611f7ee7",
+    "coveredRuleIds": [
+      "build-input:#/$defs/interactionsConfig/properties/publicCounts/properties/comments:type",
+      "build-input:#/$defs/interactionsConfig/properties/publicCounts/properties/reactions:type",
+      "build-input:#/$defs/interactionsConfig/properties/publicCounts:additionalProperties",
+      "build-input:#/$defs/interactionsConfig/properties/publicCounts:required:comments",
+      "build-input:#/$defs/interactionsConfig/properties/publicCounts:required:reactions",
+      "build-input:#/$defs/interactionsConfig/properties/publicCounts:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts",
+    "keyword": "additionalProperties",
+    "instance": { "reactions": false, "comments": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-ad3a9e70024dcd1c",
     "coveredRuleIds": [
       "build-input:#/$defs/moduleBuildSelection:additionalProperties",
-      "build-input:#/$defs/moduleBuildSelection:maxProperties",
       "build-input:#/$defs/moduleBuildSelection:type"
     ],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
@@ -1022,6 +1173,52 @@
     "schemaPointer": "#/$defs/semanticTokens",
     "keyword": "additionalProperties",
     "instance": { "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-e33d59edd841db65",
+    "coveredRuleIds": [
+      "build-input:#/$defs/reactionVisual/properties/kind:const",
+      "build-input:#/$defs/reactionVisual/properties/token:enum",
+      "build-input:#/$defs/reactionVisual:additionalProperties",
+      "build-input:#/$defs/reactionVisual:required:kind",
+      "build-input:#/$defs/reactionVisual:required:token",
+      "build-input:#/$defs/reactionVisual:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/reactionVisual",
+    "keyword": "additionalProperties",
+    "instance": { "kind": "emoji", "token": "👍", "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-f10e4d8207bd7581",
+    "coveredRuleIds": [
+      "build-input:#/$defs/interactionsConfig/properties/reactions/properties/definitions:maxItems",
+      "build-input:#/$defs/interactionsConfig/properties/reactions/properties/definitions:minItems",
+      "build-input:#/$defs/interactionsConfig/properties/reactions/properties/definitions:type",
+      "build-input:#/$defs/interactionsConfig/properties/reactions/properties/enabled:type",
+      "build-input:#/$defs/interactionsConfig/properties/reactions:additionalProperties",
+      "build-input:#/$defs/interactionsConfig/properties/reactions:required:definitions",
+      "build-input:#/$defs/interactionsConfig/properties/reactions:required:enabled",
+      "build-input:#/$defs/interactionsConfig/properties/reactions:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/interactionsConfig/properties/reactions",
+    "keyword": "additionalProperties",
+    "instance": {
+      "enabled": false,
+      "definitions": [
+        {
+          "key": "fixture-1",
+          "label": "fixture-1",
+          "visual": { "kind": "emoji", "token": "👍" },
+          "order": 1,
+          "enabled": false
+        }
+      ],
+      "unexpected": true
+    },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {

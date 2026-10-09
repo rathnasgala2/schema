@@ -250,7 +250,7 @@ export type ArtifactManifestManifestReproducibleBuildRecord = Readonly<{
 
 export type ArtifactManifestManifestRoute = Readonly<{
   readonly byteLength: ArtifactManifestNonNegativeInt64;
-  readonly interactionBearing: false;
+  readonly interactionBearing: boolean;
   readonly mediaType:
     | 'text/html; charset=utf-8'
     | 'text/css; charset=utf-8'

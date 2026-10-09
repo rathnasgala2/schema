@@ -102,7 +102,7 @@ async function loadFixtures() {
 test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
   assert.equal(validateAppComponentSource(componentSourceValue).length, 15);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 27);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 29);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -127,7 +127,7 @@ test('generated catalogs match the committed projection', async () => {
   ]);
   assert.deepEqual(JSON.parse(committedComponentsText), components);
   assert.deepEqual(JSON.parse(committedRoutesText), routes);
-  assert.equal(authoredMessageCount, 376);
+  assert.equal(authoredMessageCount, 405);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
@@ -293,11 +293,23 @@ test('SCHEMA-2.8.1: every App-facing operation is bound to a route, and the sing
     .filter((operationId) => !bound.has(operationId))
     .sort();
   // Only operations no App screen can call stay unbound: the health probe, the
-  // GitHub App webhook, and the two workload (GitHub Actions) endpoints.
+  // GitHub App webhook, the two workload (GitHub Actions) endpoints, and the
+  // reader operations a published blog's own script calls (`/v2/public/**` and
+  // the reader token exchange and sign-out).
   assert.deepEqual(unbound, [
+    'deletePublicCommentsByCommentId',
+    'deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
+    'deleteReaderTokensCurrent',
     'getInternalHealth',
+    'getPublicPublicationsByPublicationIdContentsByContentIdComments',
+    'getPublicPublicationsByPublicationIdContentsByContentIdInteractions',
     'postCallbacksGithubApp',
+    'postPublicCommentsByCommentIdReports',
+    'postPublicCommentsByCommentIdRevisions',
+    'postPublicPublicationsByPublicationIdContentsByContentIdComments',
+    'postReaderTokens',
     'postWorkloadsDeploymentReceipts',
     'postWorkloadsGithubReceiptExchanges',
+    'putPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
   ]);
 });

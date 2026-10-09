@@ -25,7 +25,7 @@
     {
       "contract": "artifact-manifest",
       "schemaId": "urn:gala:schema:artifact-manifest:2.0.0",
-      "schemaSha256": "ee2107c4ae162bc975ceac5e3c543a77ca57aa50892a037fc55a9878a57785cf",
+      "schemaSha256": "2d99b1af6e435acb50aac4b5f2c3f3e620eaa504097ea908ec6b1951829119f4",
       "ruleCount": 476,
       "validExample": "examples/valid/artifact-manifest/canonical.json",
       "boundaryFixture": "fixtures/boundary/artifact-manifest/root.json",
@@ -43,8 +43,8 @@
     {
       "contract": "build-input",
       "schemaId": "urn:gala:schema:build-input:2.0.0",
-      "schemaSha256": "6ff16c42597f2a42211ecc2cff40c364e9e4c589d7443d1d3f048b267ef9cdaa",
-      "ruleCount": 444,
+      "schemaSha256": "0a8f2b34b96b70a9d6c3086effb5249c8392c862d018af8a358ce08e94a25f6f",
+      "ruleCount": 507,
       "validExample": "examples/valid/build-input/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-input/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/build-input/root.json"
@@ -52,7 +52,7 @@
     {
       "contract": "build-provenance",
       "schemaId": "urn:gala:metadata:build-provenance:2.0.0",
-      "schemaSha256": "d97d133c083770f75f91356bcc084a0f1df33c0d8ff3e60bc2799204d2ae9958",
+      "schemaSha256": "6af2c4f1b9092e08e32e17a1a57ebbfd6a519fb023d0cb5196c41feb20e31a67",
       "ruleCount": 408,
       "validExample": "examples/valid/build-provenance/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-provenance/root.json",
@@ -102,6 +102,15 @@
       "validExample": "examples/valid/event-envelope/canonical.json",
       "boundaryFixture": "fixtures/boundary/event-envelope/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/event-envelope/root.json"
+    },
+    {
+      "contract": "interactions-config",
+      "schemaId": "urn:gala:schema:interactions-config:2.0.0",
+      "schemaSha256": "3e4becec944a33fa3119803ca0729f56a609736adc71f3037d2ba933af5037a2",
+      "ruleCount": 123,
+      "validExample": "examples/valid/interactions-config/canonical.json",
+      "boundaryFixture": "fixtures/boundary/interactions-config/root.json",
+      "unknownFieldFixture": "fixtures/unknown-field/interactions-config/root.json"
     },
     {
       "contract": "lock",
@@ -37785,9 +37794,9 @@
     },
     {
       "contract": "artifact-manifest",
-      "ruleId": "artifact-manifest:#/$defs/manifestRoute/properties/interactionBearing:const",
+      "ruleId": "artifact-manifest:#/$defs/manifestRoute/properties/interactionBearing:type",
       "schemaPointer": "#/$defs/manifestRoute/properties/interactionBearing",
-      "keyword": "const",
+      "keyword": "type",
       "valid": {
         "file": "examples/valid/artifact-manifest/rules.json",
         "caseId": "artifact-manifest-valid-738056632652b2e7"
@@ -37797,9 +37806,9 @@
         "caseId": "artifact-manifest-boundary-194c4784be2b3e9a"
       },
       "invalid": {
-        "file": "fixtures/invalid/artifact-manifest/SCHEMA_CONSTANT_INVALID/cases.json",
-        "caseId": "artifact-manifest-invalid-b024c0db761db968",
-        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+        "file": "fixtures/invalid/artifact-manifest/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "artifact-manifest-invalid-787dc2189ad26a82",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/artifact-manifest/rules.json",
@@ -48720,6 +48729,830 @@
     },
     {
       "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:additionalProperties",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-965ba077aca43160",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:required:comments",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-194853de9442c5a6",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:required:publicCounts",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-46402142c4fa8736",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:required:reactions",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-c0ad6d145217a678",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:required:schemaId",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-f80d4872e19a5fcc",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:required:schemaVersion",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-741e2ceacbd347da",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig:type",
+      "schemaPointer": "#/$defs/interactionsConfig",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-3e63676d6a733634"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-1d720da6d263c6d0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-f6f80099dcacfb29",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments:additionalProperties",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0ac82bcd811aa1d8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7b29598aa882b952"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-a71e75816d3ab0da",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments:required:allowReplies",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0ac82bcd811aa1d8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7b29598aa882b952"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-0eb911ac3e176115",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments:required:enabled",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0ac82bcd811aa1d8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7b29598aa882b952"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-7ef10b57f3901e1f",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments:required:maxDepth",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0ac82bcd811aa1d8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7b29598aa882b952"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-96235a88df9e02d2",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0ac82bcd811aa1d8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7b29598aa882b952"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-983e979a13ba4790",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments/properties/allowReplies:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/allowReplies",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-21b82ef8b0f22a28"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-dadbcb3741fe2efd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-c2e83b72002a9459",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments/properties/enabled:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/enabled",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-542cb60dc0cd0988"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6fac51fa0278b51f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-efd6541a84a1ff8b",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:maximum",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/maxDepth",
+      "keyword": "maximum",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f32995a8c5e4e569"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-f072a8d84ef69342"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_NUMBER_TOO_LARGE/cases.json",
+        "caseId": "build-input-invalid-846eb6449989d3c3",
+        "expectedCode": "SCHEMA_NUMBER_TOO_LARGE"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:minimum",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/maxDepth",
+      "keyword": "minimum",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f32995a8c5e4e569"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-48bbf7546e5add7b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_NUMBER_TOO_SMALL/cases.json",
+        "caseId": "build-input-invalid-5a4fe0dd501518da",
+        "expectedCode": "SCHEMA_NUMBER_TOO_SMALL"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/maxDepth",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f32995a8c5e4e569"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-48bbf7546e5add7b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-4ca2d5c2a4c6e2da",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-0ac82bcd811aa1d8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/publicCounts:additionalProperties",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-aa780f7f611f7ee7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2f7dd89aee58af21"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-ae3b99e46fbddcf9",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-aa780f7f611f7ee7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/publicCounts:required:comments",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-aa780f7f611f7ee7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2f7dd89aee58af21"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-79bda698cbb72581",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-aa780f7f611f7ee7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/publicCounts:required:reactions",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-aa780f7f611f7ee7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2f7dd89aee58af21"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-b8b3263ebe48b07d",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-aa780f7f611f7ee7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/publicCounts:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-aa780f7f611f7ee7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2f7dd89aee58af21"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-6341764cbd701f8c",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-aa780f7f611f7ee7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/publicCounts/properties/comments:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts/properties/comments",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-90ce5901046095a1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8e7aae34a7583be8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-b4ce967811c0bb52",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-aa780f7f611f7ee7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/publicCounts/properties/reactions:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts/properties/reactions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-1acb1fc4b169c1ea"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-69a3585f8981a7e1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-d243e10e71679ce6",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-aa780f7f611f7ee7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions:additionalProperties",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f10e4d8207bd7581"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2de6fc1a672ead33"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-cff55357f8adf2b6",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions:required:definitions",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f10e4d8207bd7581"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2de6fc1a672ead33"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-02c922d39ce5bd6c",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions:required:enabled",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f10e4d8207bd7581"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2de6fc1a672ead33"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-c5ac9268326dfe0d",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f10e4d8207bd7581"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2de6fc1a672ead33"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-963e40925ed92d14",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions/properties/definitions:maxItems",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions/properties/definitions",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7fda9e8808193e3d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-82929252730fbfcd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "build-input-invalid-a15c50cf2d61e7a8",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions/properties/definitions:minItems",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions/properties/definitions",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7fda9e8808193e3d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7f2dfe4d7c77bdb9"
+      },
+      "invalid": { "notApplicable": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions/properties/definitions:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions/properties/definitions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7fda9e8808193e3d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-9b154acb21edaf3b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-e424c6698f3a6d96",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/reactions/properties/enabled:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/reactions/properties/enabled",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f165210270277ed4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-bbb6f27faff215af"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-a8994536e3df0082",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-f10e4d8207bd7581"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/schemaId:const",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/schemaId",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-aa92c8059981419b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-ed7fea4f3f632b54"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_VERSION_UNSUPPORTED/cases.json",
+        "caseId": "build-input-invalid-34fe05a3817a6a30",
+        "expectedCode": "SCHEMA_VERSION_UNSUPPORTED"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/schemaVersion:const",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/schemaVersion",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2de642706d96dcf4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-79838d5d25af0272"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_VERSION_UNSUPPORTED/cases.json",
+        "caseId": "build-input-invalid-3375a1a06e1e62f2",
+        "expectedCode": "SCHEMA_VERSION_UNSUPPORTED"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-3e63676d6a733634"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsServiceOrigin:maxLength",
+      "schemaPointer": "#/$defs/interactionsServiceOrigin",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0e1d0f2c24de809f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-5879b288772bd361"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/HTTPS_URL_INVALID/cases.json",
+        "caseId": "build-input-invalid-5a7760620de1abc4",
+        "expectedCode": "HTTPS_URL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsServiceOrigin:pattern",
+      "schemaPointer": "#/$defs/interactionsServiceOrigin",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0e1d0f2c24de809f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-a1d9a2c7540e849c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/HTTPS_URL_INVALID/cases.json",
+        "caseId": "build-input-invalid-2bed5583fa23011a",
+        "expectedCode": "HTTPS_URL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsServiceOrigin:type",
+      "schemaPointer": "#/$defs/interactionsServiceOrigin",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0e1d0f2c24de809f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-a1d9a2c7540e849c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/HTTPS_URL_INVALID/cases.json",
+        "caseId": "build-input-invalid-10318dedc18e52cd",
+        "expectedCode": "HTTPS_URL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
       "ruleId": "build-input:#/$defs/isoCountry:format",
       "schemaPointer": "#/$defs/isoCountry",
       "keyword": "format",
@@ -49107,29 +49940,6 @@
     },
     {
       "contract": "build-input",
-      "ruleId": "build-input:#/$defs/moduleBuildSelection:maxProperties",
-      "schemaPointer": "#/$defs/moduleBuildSelection",
-      "keyword": "maxProperties",
-      "valid": {
-        "file": "examples/valid/build-input/rules.json",
-        "caseId": "build-input-valid-ad3a9e70024dcd1c"
-      },
-      "boundary": {
-        "file": "fixtures/boundary/build-input/rules.json",
-        "caseId": "build-input-boundary-8e8dab628c2af0b5"
-      },
-      "invalid": {
-        "file": "fixtures/invalid/build-input/SCHEMA_OBJECT_TOO_LARGE/cases.json",
-        "caseId": "build-input-invalid-8c4cf2d139b126ce",
-        "expectedCode": "SCHEMA_OBJECT_TOO_LARGE"
-      },
-      "unknownField": {
-        "file": "fixtures/unknown-field/build-input/rules.json",
-        "caseId": "build-input-unknown-ad3a9e70024dcd1c"
-      }
-    },
-    {
-      "contract": "build-input",
       "ruleId": "build-input:#/$defs/moduleBuildSelection:type",
       "schemaPointer": "#/$defs/moduleBuildSelection",
       "keyword": "type",
@@ -49149,6 +49959,121 @@
       "unknownField": {
         "file": "fixtures/unknown-field/build-input/rules.json",
         "caseId": "build-input-unknown-ad3a9e70024dcd1c"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/moduleBuildSelection/properties/interactions:additionalProperties",
+      "schemaPointer": "#/$defs/moduleBuildSelection/properties/interactions",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-39a0234ee4a035d0"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-fd92423b0a10fbff"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-342f95db8b266b3a",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-39a0234ee4a035d0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/moduleBuildSelection/properties/interactions:required:apiOrigin",
+      "schemaPointer": "#/$defs/moduleBuildSelection/properties/interactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-39a0234ee4a035d0"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-fd92423b0a10fbff"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-f3c6d59dab042229",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-39a0234ee4a035d0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/moduleBuildSelection/properties/interactions:required:appOrigin",
+      "schemaPointer": "#/$defs/moduleBuildSelection/properties/interactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-39a0234ee4a035d0"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-fd92423b0a10fbff"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-544f182e68e06e77",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-39a0234ee4a035d0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/moduleBuildSelection/properties/interactions:required:config",
+      "schemaPointer": "#/$defs/moduleBuildSelection/properties/interactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-39a0234ee4a035d0"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-fd92423b0a10fbff"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-880420ad27806f01",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-39a0234ee4a035d0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/moduleBuildSelection/properties/interactions:type",
+      "schemaPointer": "#/$defs/moduleBuildSelection/properties/interactions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-39a0234ee4a035d0"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-fd92423b0a10fbff"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-d7746ac015049482",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-39a0234ee4a035d0"
       }
     },
     {
@@ -52023,6 +52948,535 @@
       "unknownField": {
         "file": "fixtures/unknown-field/build-input/rules.json",
         "caseId": "build-input-unknown-463216841286e49b"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:additionalProperties",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-b4985b4b9a8e00fc",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:required:enabled",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-1fcce2bac00c67ed",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:required:key",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-9ed06e2c56835937",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:required:label",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-12154ab45191bd98",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:required:order",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-9727dff1bdd80245",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:required:visual",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-755adc9093311741",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition:type",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-eb8aa2ae1dbc31c4",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition/properties/enabled:type",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/enabled",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-227809fbe76d181d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2c0d28c211de74c5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-739473a242bc22a3",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition/properties/label:type",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/label",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f47050489e881708"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-089b5be4adfb4363"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-d71b74f31aaa1f53",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition/properties/label:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/label",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f47050489e881708"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-457bb37da57f3fa6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-6b10c08f816996e4",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition/properties/order:maximum",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/order",
+      "keyword": "maximum",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-57a4e9646af8b6f1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-e21a9c992c84cf81"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_NUMBER_TOO_LARGE/cases.json",
+        "caseId": "build-input-invalid-a1defba25913e967",
+        "expectedCode": "SCHEMA_NUMBER_TOO_LARGE"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition/properties/order:minimum",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/order",
+      "keyword": "minimum",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-57a4e9646af8b6f1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7e1f0587001630ab"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_NUMBER_TOO_SMALL/cases.json",
+        "caseId": "build-input-invalid-80ccfe4c1060b9f3",
+        "expectedCode": "SCHEMA_NUMBER_TOO_SMALL"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionDefinition/properties/order:type",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/order",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-57a4e9646af8b6f1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7e1f0587001630ab"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-1314952acc0c5f62",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionKey:not",
+      "schemaPointer": "#/$defs/reactionKey",
+      "keyword": "not",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-6a75ae389f594781"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-45fa7ec39ab0ba71"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_NEGATED_RULE_MATCHED/cases.json",
+        "caseId": "build-input-invalid-cb6ab167e9a387cb",
+        "expectedCode": "SCHEMA_NEGATED_RULE_MATCHED"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionKey:pattern",
+      "schemaPointer": "#/$defs/reactionKey",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-6a75ae389f594781"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-45fa7ec39ab0ba71"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-e1b12cc5c7e30288",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionKey:type",
+      "schemaPointer": "#/$defs/reactionKey",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-6a75ae389f594781"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-45fa7ec39ab0ba71"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-9cddaa1dfa692152",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionKey/not:const",
+      "schemaPointer": "#/$defs/reactionKey/not",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7314e2e8181b7a0a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-2bb7f0d3a7e36e4e"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-abde74c464514ff8",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionVisual:additionalProperties",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-b636e04b4067cf77",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionVisual:required:kind",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-c4c6580cb2e52b4d",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionVisual:required:token",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-7309a52fe711d3af",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionVisual:type",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-f403b6728a0bb1b1",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionVisual/properties/kind:const",
+      "schemaPointer": "#/$defs/reactionVisual/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-cf7f7f1d7cb4c32d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-d86f88097392b8c0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-a42bdc180c5491f2",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/reactionVisual/properties/token:enum",
+      "schemaPointer": "#/$defs/reactionVisual/properties/token",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-32d286f6b3477b79"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-b554e3797e8e5321"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "build-input-invalid-41a61938fc9dc098",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e33d59edd841db65"
       }
     },
     {
@@ -59982,9 +61436,9 @@
     },
     {
       "contract": "build-provenance",
-      "ruleId": "build-provenance:#/$defs/manifestRoute/properties/interactionBearing:const",
+      "ruleId": "build-provenance:#/$defs/manifestRoute/properties/interactionBearing:type",
       "schemaPointer": "#/$defs/manifestRoute/properties/interactionBearing",
-      "keyword": "const",
+      "keyword": "type",
       "valid": {
         "file": "examples/valid/build-provenance/rules.json",
         "caseId": "build-provenance-valid-738056632652b2e7"
@@ -59994,9 +61448,9 @@
         "caseId": "build-provenance-boundary-194c4784be2b3e9a"
       },
       "invalid": {
-        "file": "fixtures/invalid/build-provenance/SCHEMA_CONSTANT_INVALID/cases.json",
-        "caseId": "build-provenance-invalid-db0e5ecb22e90863",
-        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+        "file": "fixtures/invalid/build-provenance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-provenance-invalid-f6575d14efc78299",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/build-provenance/rules.json",
@@ -171703,6 +173157,2813 @@
       "unknownField": {
         "file": "fixtures/unknown-field/event-envelope/rules.json",
         "caseId": "event-envelope-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:additionalProperties",
+      "schemaPointer": "#",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "interactions-config-invalid-90033408628d438d",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:required:comments",
+      "schemaPointer": "#",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-ac5817e5da316a57",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:required:publicCounts",
+      "schemaPointer": "#",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-40ff7f0e5a1b1768",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:required:reactions",
+      "schemaPointer": "#",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-8d23401f9de34c98",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:required:schemaId",
+      "schemaPointer": "#",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-7a5fe88ddfe3706c",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:required:schemaVersion",
+      "schemaPointer": "#",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-20f4949e7533cfac",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#:type",
+      "schemaPointer": "#",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-334359b90efed75d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a250b1bae89bc23f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-9987ae107fb176f1",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/bcp47:format",
+      "schemaPointer": "#/$defs/bcp47",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-fca709108f384882"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b16096e9a6998b94"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/BCP47_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-b6515fb8c8586f9c",
+        "expectedCode": "BCP47_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/bcp47:maxLength",
+      "schemaPointer": "#/$defs/bcp47",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-fca709108f384882"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f0f505c92729ddac"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/BCP47_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-72a50c9cb2102b74",
+        "expectedCode": "BCP47_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/bcp47:minLength",
+      "schemaPointer": "#/$defs/bcp47",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-fca709108f384882"
+      },
+      "boundary": {
+        "notApplicable": "STRING_DOMAIN_EXCLUDES_DECLARED_BOUNDARY"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/BCP47_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-385653ddde975717",
+        "expectedCode": "BCP47_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/bcp47:pattern",
+      "schemaPointer": "#/$defs/bcp47",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-fca709108f384882"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b16096e9a6998b94"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/BCP47_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-20d9da77c303614b",
+        "expectedCode": "BCP47_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/bcp47:type",
+      "schemaPointer": "#/$defs/bcp47",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-fca709108f384882"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b16096e9a6998b94"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/BCP47_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-e2eb92bd473f8b32",
+        "expectedCode": "BCP47_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/bcp47:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/bcp47",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-fca709108f384882"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f0f505c92729ddac"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/BCP47_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-11f8a1f22d54f2e3",
+        "expectedCode": "BCP47_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/canonicalRoute:format",
+      "schemaPointer": "#/$defs/canonicalRoute",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-95d49e2494515cd8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5ea099a3e7665c6c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/CANONICAL_ROUTE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4ecdd16c1aef9e57",
+        "expectedCode": "CANONICAL_ROUTE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/canonicalRoute:minLength",
+      "schemaPointer": "#/$defs/canonicalRoute",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-95d49e2494515cd8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-c7e8ab73f01ce02c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/CANONICAL_ROUTE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4874ff89d679b414",
+        "expectedCode": "CANONICAL_ROUTE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/canonicalRoute:pattern",
+      "schemaPointer": "#/$defs/canonicalRoute",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-95d49e2494515cd8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5ea099a3e7665c6c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/CANONICAL_ROUTE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-8f58f0278585cfaf",
+        "expectedCode": "CANONICAL_ROUTE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/canonicalRoute:type",
+      "schemaPointer": "#/$defs/canonicalRoute",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-95d49e2494515cd8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5ea099a3e7665c6c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/CANONICAL_ROUTE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-38ceeaf3c5ff71d2",
+        "expectedCode": "CANONICAL_ROUTE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/digest:pattern",
+      "schemaPointer": "#/$defs/digest",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-5838043483525c02"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b394183662e569ad"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/DIGEST_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-1a28082fe0c12d37",
+        "expectedCode": "DIGEST_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/digest:type",
+      "schemaPointer": "#/$defs/digest",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-5838043483525c02"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b394183662e569ad"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/DIGEST_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-39738c4ed37d9834",
+        "expectedCode": "DIGEST_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/extensionKey:format",
+      "schemaPointer": "#/$defs/extensionKey",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2e8a613ca0a902cd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-dc1935da08adc8e9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/EXTENSION_KEY_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-a68cccbada3a63e7",
+        "expectedCode": "EXTENSION_KEY_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/extensionKey:type",
+      "schemaPointer": "#/$defs/extensionKey",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2e8a613ca0a902cd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-dc1935da08adc8e9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/EXTENSION_KEY_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-7c0c27f9848364f5",
+        "expectedCode": "EXTENSION_KEY_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/gitObjectId:pattern",
+      "schemaPointer": "#/$defs/gitObjectId",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-b24bbede1ab69bed"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-9513b91bbfc3d7b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/GIT_OBJECT_ID_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4d2f408c83836476",
+        "expectedCode": "GIT_OBJECT_ID_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/gitObjectId:type",
+      "schemaPointer": "#/$defs/gitObjectId",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-b24bbede1ab69bed"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-9513b91bbfc3d7b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/GIT_OBJECT_ID_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-572fcf9d318e230e",
+        "expectedCode": "GIT_OBJECT_ID_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/glob:format",
+      "schemaPointer": "#/$defs/glob",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-9cf336b170e93720"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-1994b0284b84ae9c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_GLOB_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-c3750aa9e4c4b96f",
+        "expectedCode": "REPOSITORY_GLOB_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/glob:maxLength",
+      "schemaPointer": "#/$defs/glob",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-9cf336b170e93720"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-21d490e9f18e9020"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_GLOB_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-55842a2fc16d1db5",
+        "expectedCode": "REPOSITORY_GLOB_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/glob:minLength",
+      "schemaPointer": "#/$defs/glob",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-9cf336b170e93720"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5f0075a8a9ab620b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_GLOB_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-ab8bf7984c99b0fd",
+        "expectedCode": "REPOSITORY_GLOB_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/glob:type",
+      "schemaPointer": "#/$defs/glob",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-9cf336b170e93720"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-1994b0284b84ae9c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_GLOB_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4e27e3fbf8050f26",
+        "expectedCode": "REPOSITORY_GLOB_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/glob:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/glob",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-9cf336b170e93720"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-21d490e9f18e9020"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_GLOB_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-2835a977ffa9c0a7",
+        "expectedCode": "REPOSITORY_GLOB_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/isoCountry:format",
+      "schemaPointer": "#/$defs/isoCountry",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-3096f75655ac2a57"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-bd984d4491127cb9"
+      },
+      "invalid": { "notApplicable": "FORMAT_REDUNDANT_WITH_SIBLING_RULES" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/isoCountry:pattern",
+      "schemaPointer": "#/$defs/isoCountry",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-3096f75655ac2a57"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-bd984d4491127cb9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/ISO_COUNTRY_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-90c61a9a50f542d7",
+        "expectedCode": "ISO_COUNTRY_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/isoCountry:type",
+      "schemaPointer": "#/$defs/isoCountry",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-3096f75655ac2a57"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-bd984d4491127cb9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/ISO_COUNTRY_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-8e631082b763831e",
+        "expectedCode": "ISO_COUNTRY_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageExact:format",
+      "schemaPointer": "#/$defs/packageExact",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e70d81bda3bf3484"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b40be083c5e04e5c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_EXACT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-b382f11ec83a4809",
+        "expectedCode": "PACKAGE_EXACT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageExact:minLength",
+      "schemaPointer": "#/$defs/packageExact",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e70d81bda3bf3484"
+      },
+      "boundary": {
+        "notApplicable": "STRING_DOMAIN_EXCLUDES_DECLARED_BOUNDARY"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_EXACT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-d3ef4af9d7526733",
+        "expectedCode": "PACKAGE_EXACT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageExact:pattern",
+      "schemaPointer": "#/$defs/packageExact",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e70d81bda3bf3484"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b40be083c5e04e5c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_EXACT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-a25ca958747012a8",
+        "expectedCode": "PACKAGE_EXACT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageExact:type",
+      "schemaPointer": "#/$defs/packageExact",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e70d81bda3bf3484"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b40be083c5e04e5c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_EXACT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4b3cadc391c8cb2c",
+        "expectedCode": "PACKAGE_EXACT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageRange:format",
+      "schemaPointer": "#/$defs/packageRange",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d8c8652dc1a8a4dc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-23f69dce4e1ad678"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-00198daa853841b6",
+        "expectedCode": "PACKAGE_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageRange:minLength",
+      "schemaPointer": "#/$defs/packageRange",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d8c8652dc1a8a4dc"
+      },
+      "boundary": {
+        "notApplicable": "STRING_DOMAIN_EXCLUDES_DECLARED_BOUNDARY"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-7cf6ea866392f4bf",
+        "expectedCode": "PACKAGE_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageRange:pattern",
+      "schemaPointer": "#/$defs/packageRange",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d8c8652dc1a8a4dc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-23f69dce4e1ad678"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-9a0af93ec4e245cc",
+        "expectedCode": "PACKAGE_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/packageRange:type",
+      "schemaPointer": "#/$defs/packageRange",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d8c8652dc1a8a4dc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-23f69dce4e1ad678"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PACKAGE_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-728f613711da7f85",
+        "expectedCode": "PACKAGE_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/passiveVisualToken:false",
+      "schemaPointer": "#/$defs/passiveVisualToken",
+      "keyword": "false",
+      "valid": { "notApplicable": "FALSE_SCHEMA_ACCEPTS_NO_INSTANCE" },
+      "boundary": { "notApplicable": "FALSE_SCHEMA_ACCEPTS_NO_INSTANCE" },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PASSIVE_VISUAL_TOKEN_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-1aafd1b8603f0ba2",
+        "expectedCode": "PASSIVE_VISUAL_TOKEN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/plainLabel:format",
+      "schemaPointer": "#/$defs/plainLabel",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-bb7f065e3079bbd1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-1251e32ceed19984"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PLAIN_LABEL_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-bc5e415bab701f96",
+        "expectedCode": "PLAIN_LABEL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/plainLabel:type",
+      "schemaPointer": "#/$defs/plainLabel",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-bb7f065e3079bbd1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-1251e32ceed19984"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PLAIN_LABEL_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-f489c7c2d8584ccd",
+        "expectedCode": "PLAIN_LABEL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/plainLabel:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/plainLabel",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-bb7f065e3079bbd1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-ba5073d37e61c16f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PLAIN_LABEL_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-bafedb69cb841ad5",
+        "expectedCode": "PLAIN_LABEL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/plainText:format",
+      "schemaPointer": "#/$defs/plainText",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-c5b3e214132702c8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-7274eea62a7303c4"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PLAIN_TEXT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-cc18468780578e93",
+        "expectedCode": "PLAIN_TEXT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/plainText:type",
+      "schemaPointer": "#/$defs/plainText",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-c5b3e214132702c8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-7274eea62a7303c4"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/PLAIN_TEXT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-a83493b34341bd53",
+        "expectedCode": "PLAIN_TEXT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:additionalProperties",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "interactions-config-invalid-48abb9fbfebf923f",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:required:enabled",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-c916a0a96f88f7fa",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:required:key",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-e9c85547c5e0bdb7",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:required:label",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-65a5282ab38efeb9",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:required:order",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-750af026a44be52c",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:required:visual",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-fae89f12aed92379",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition:type",
+      "schemaPointer": "#/$defs/reactionDefinition",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32690b22292983d6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3a2e821669f796be"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-75066c635d19bb91",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition/properties/enabled:type",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/enabled",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-227809fbe76d181d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-2c0d28c211de74c5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4bfcb67d8ca1b719",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition/properties/label:type",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/label",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-f47050489e881708"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-089b5be4adfb4363"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4401126e11a7da2c",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition/properties/label:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/label",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-f47050489e881708"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-457bb37da57f3fa6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-284199d1924ae3a7",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition/properties/order:maximum",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/order",
+      "keyword": "maximum",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-57a4e9646af8b6f1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-e21a9c992c84cf81"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_NUMBER_TOO_LARGE/cases.json",
+        "caseId": "interactions-config-invalid-35205c615e837a68",
+        "expectedCode": "SCHEMA_NUMBER_TOO_LARGE"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition/properties/order:minimum",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/order",
+      "keyword": "minimum",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-57a4e9646af8b6f1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-7e1f0587001630ab"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_NUMBER_TOO_SMALL/cases.json",
+        "caseId": "interactions-config-invalid-e616b9856e2383b6",
+        "expectedCode": "SCHEMA_NUMBER_TOO_SMALL"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionDefinition/properties/order:type",
+      "schemaPointer": "#/$defs/reactionDefinition/properties/order",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-57a4e9646af8b6f1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-7e1f0587001630ab"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-68894cef327875c6",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-32690b22292983d6"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionKey:not",
+      "schemaPointer": "#/$defs/reactionKey",
+      "keyword": "not",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-6a75ae389f594781"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-45fa7ec39ab0ba71"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_NEGATED_RULE_MATCHED/cases.json",
+        "caseId": "interactions-config-invalid-11b441f81bdfec0a",
+        "expectedCode": "SCHEMA_NEGATED_RULE_MATCHED"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionKey:pattern",
+      "schemaPointer": "#/$defs/reactionKey",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-6a75ae389f594781"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-45fa7ec39ab0ba71"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-5f5cb41967447a78",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionKey:type",
+      "schemaPointer": "#/$defs/reactionKey",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-6a75ae389f594781"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-45fa7ec39ab0ba71"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-4b6cef8abd29e1c8",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionKey/not:const",
+      "schemaPointer": "#/$defs/reactionKey/not",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-7314e2e8181b7a0a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-2bb7f0d3a7e36e4e"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-f6f2af24c2abfd4e",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionVisual:additionalProperties",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "interactions-config-invalid-b557f4bdbb79a959",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionVisual:required:kind",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-a0eb436fa9625933",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionVisual:required:token",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-bd2b578b75472eda",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionVisual:type",
+      "schemaPointer": "#/$defs/reactionVisual",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e33d59edd841db65"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-640a4c54c680b1b8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-6df23bb4f30a85ac",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionVisual/properties/kind:const",
+      "schemaPointer": "#/$defs/reactionVisual/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-cf7f7f1d7cb4c32d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-d86f88097392b8c0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-b9f369ecffb3734f",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/reactionVisual/properties/token:enum",
+      "schemaPointer": "#/$defs/reactionVisual/properties/token",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-32d286f6b3477b79"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b554e3797e8e5321"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-cfe61680c641686e",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-e33d59edd841db65"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/repoRelativePath:format",
+      "schemaPointer": "#/$defs/repoRelativePath",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2c969bd109b9c2cb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a9defb191b0db7c2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_PATH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-d3de49fb373dde2f",
+        "expectedCode": "REPOSITORY_PATH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/repoRelativePath:maxLength",
+      "schemaPointer": "#/$defs/repoRelativePath",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2c969bd109b9c2cb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-2998608e713d981b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_PATH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-de219ea2508f9ec7",
+        "expectedCode": "REPOSITORY_PATH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/repoRelativePath:minLength",
+      "schemaPointer": "#/$defs/repoRelativePath",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2c969bd109b9c2cb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5ed2c3704f5a6bb1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_PATH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-0743df0ea06c821c",
+        "expectedCode": "REPOSITORY_PATH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/repoRelativePath:pattern",
+      "schemaPointer": "#/$defs/repoRelativePath",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2c969bd109b9c2cb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a9defb191b0db7c2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_PATH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-7fc9241de8427009",
+        "expectedCode": "REPOSITORY_PATH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/repoRelativePath:type",
+      "schemaPointer": "#/$defs/repoRelativePath",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2c969bd109b9c2cb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-a9defb191b0db7c2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_PATH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-b178116b1629e6e1",
+        "expectedCode": "REPOSITORY_PATH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/repoRelativePath:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/repoRelativePath",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2c969bd109b9c2cb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-2998608e713d981b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REPOSITORY_PATH_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-6e6515197250094c",
+        "expectedCode": "REPOSITORY_PATH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/rfc3339:format",
+      "schemaPointer": "#/$defs/rfc3339",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-176d4596f966eed4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5b5e96f439400c47"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/RFC3339_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-ec8fa91802a3a3f2",
+        "expectedCode": "RFC3339_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/rfc3339:pattern",
+      "schemaPointer": "#/$defs/rfc3339",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-176d4596f966eed4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5b5e96f439400c47"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/RFC3339_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-2ae0640c4c22702e",
+        "expectedCode": "RFC3339_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/rfc3339:type",
+      "schemaPointer": "#/$defs/rfc3339",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-176d4596f966eed4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-5b5e96f439400c47"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/RFC3339_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-e096d35aa951ab73",
+        "expectedCode": "RFC3339_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/semver:pattern",
+      "schemaPointer": "#/$defs/semver",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-18e62fca60a4f9c6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-426314f493aebbf8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SEMVER_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-a075e3e96960bfa8",
+        "expectedCode": "SEMVER_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/semver:type",
+      "schemaPointer": "#/$defs/semver",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-18e62fca60a4f9c6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-426314f493aebbf8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SEMVER_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-0d83259ceceae692",
+        "expectedCode": "SEMVER_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/semverRange:format",
+      "schemaPointer": "#/$defs/semverRange",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-81e47acb3276faad"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-30d5a4d5c7e3d90c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SEMVER_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-a76b1e15db78e2a8",
+        "expectedCode": "SEMVER_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/semverRange:minLength",
+      "schemaPointer": "#/$defs/semverRange",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-81e47acb3276faad"
+      },
+      "boundary": {
+        "notApplicable": "STRING_DOMAIN_EXCLUDES_DECLARED_BOUNDARY"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SEMVER_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-19e2abdee09a253e",
+        "expectedCode": "SEMVER_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/semverRange:pattern",
+      "schemaPointer": "#/$defs/semverRange",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-81e47acb3276faad"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-30d5a4d5c7e3d90c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SEMVER_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-96b06ce2cc44741b",
+        "expectedCode": "SEMVER_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/semverRange:type",
+      "schemaPointer": "#/$defs/semverRange",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-81e47acb3276faad"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-30d5a4d5c7e3d90c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SEMVER_RANGE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-115576431097799e",
+        "expectedCode": "SEMVER_RANGE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/slug:maxLength",
+      "schemaPointer": "#/$defs/slug",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2b3f0ba08f805101"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-bfc81853694e2776"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SLUG_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-c2b1b50d8fc5917d",
+        "expectedCode": "SLUG_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/slug:minLength",
+      "schemaPointer": "#/$defs/slug",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2b3f0ba08f805101"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-8a60be945d42cc59"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SLUG_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-0fc69cbdda306060",
+        "expectedCode": "SLUG_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/slug:pattern",
+      "schemaPointer": "#/$defs/slug",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2b3f0ba08f805101"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-d74f0c9e553e593e"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SLUG_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-61afe9f4d77753a8",
+        "expectedCode": "SLUG_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/slug:type",
+      "schemaPointer": "#/$defs/slug",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-2b3f0ba08f805101"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-d74f0c9e553e593e"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SLUG_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-f44b5c5b45b547db",
+        "expectedCode": "SLUG_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/stableId:pattern",
+      "schemaPointer": "#/$defs/stableId",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-f06fd8bdc6febb47"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-83ef50b3c971e4ce"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/STABLE_ID_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-10bf41a2706d57a9",
+        "expectedCode": "STABLE_ID_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/stableId:type",
+      "schemaPointer": "#/$defs/stableId",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-f06fd8bdc6febb47"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-83ef50b3c971e4ce"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/STABLE_ID_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-8eb3237772123f10",
+        "expectedCode": "STABLE_ID_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urlHttps:format",
+      "schemaPointer": "#/$defs/urlHttps",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-61f7310cdea83c5b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-63726a4f5d6169fe"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/HTTPS_URL_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-e053478ad5af1f38",
+        "expectedCode": "HTTPS_URL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urlHttps:pattern",
+      "schemaPointer": "#/$defs/urlHttps",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-61f7310cdea83c5b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-63726a4f5d6169fe"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/HTTPS_URL_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-37aa5d2febb99287",
+        "expectedCode": "HTTPS_URL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urlHttps:type",
+      "schemaPointer": "#/$defs/urlHttps",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-61f7310cdea83c5b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-63726a4f5d6169fe"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/HTTPS_URL_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-fce04c3eb2594301",
+        "expectedCode": "HTTPS_URL_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urn:format",
+      "schemaPointer": "#/$defs/urn",
+      "keyword": "format",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4ff50995104c6288"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3084d1d86c619ace"
+      },
+      "invalid": { "notApplicable": "FORMAT_REDUNDANT_WITH_SIBLING_RULES" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urn:maxLength",
+      "schemaPointer": "#/$defs/urn",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4ff50995104c6288"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-c490f6fec525db4f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/URN_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-67ae8d04e4980623",
+        "expectedCode": "URN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urn:minLength",
+      "schemaPointer": "#/$defs/urn",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4ff50995104c6288"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-6d8e769d019903ac"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/URN_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-b6f9b56df5dda920",
+        "expectedCode": "URN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urn:pattern",
+      "schemaPointer": "#/$defs/urn",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4ff50995104c6288"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3084d1d86c619ace"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/URN_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-c9334830d4b46deb",
+        "expectedCode": "URN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/$defs/urn:type",
+      "schemaPointer": "#/$defs/urn",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4ff50995104c6288"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-3084d1d86c619ace"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/URN_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-c56114657eee560e",
+        "expectedCode": "URN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments:additionalProperties",
+      "schemaPointer": "#/properties/comments",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4c5e3a7c692b3f82"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b4b70f46e415e8bc"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "interactions-config-invalid-506653f7d0d7cf37",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments:required:allowReplies",
+      "schemaPointer": "#/properties/comments",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4c5e3a7c692b3f82"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b4b70f46e415e8bc"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-cd495ddd49ad0626",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments:required:enabled",
+      "schemaPointer": "#/properties/comments",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4c5e3a7c692b3f82"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b4b70f46e415e8bc"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-6eda003eb2ed1b13",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments:required:maxDepth",
+      "schemaPointer": "#/properties/comments",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4c5e3a7c692b3f82"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b4b70f46e415e8bc"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-5d0c95f0d534fd22",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments:type",
+      "schemaPointer": "#/properties/comments",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4c5e3a7c692b3f82"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-b4b70f46e415e8bc"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-6ebf0add3e047c02",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments/properties/allowReplies:type",
+      "schemaPointer": "#/properties/comments/properties/allowReplies",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-40fb872b1238f8e7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-fdeab278bc17dbdd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-05482730a33d9679",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments/properties/enabled:type",
+      "schemaPointer": "#/properties/comments/properties/enabled",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-7851b76a6333d44e"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-d7e9516f5979c6a1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-d573fd9f1c3f5577",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments/properties/maxDepth:maximum",
+      "schemaPointer": "#/properties/comments/properties/maxDepth",
+      "keyword": "maximum",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-8aabccc9b84aae9f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-36b0ea8d43ddf243"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_NUMBER_TOO_LARGE/cases.json",
+        "caseId": "interactions-config-invalid-2d2945ed0ddbb6b4",
+        "expectedCode": "SCHEMA_NUMBER_TOO_LARGE"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments/properties/maxDepth:minimum",
+      "schemaPointer": "#/properties/comments/properties/maxDepth",
+      "keyword": "minimum",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-8aabccc9b84aae9f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-ab4faf80ddb7434f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_NUMBER_TOO_SMALL/cases.json",
+        "caseId": "interactions-config-invalid-3297a526591d9ebe",
+        "expectedCode": "SCHEMA_NUMBER_TOO_SMALL"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/comments/properties/maxDepth:type",
+      "schemaPointer": "#/properties/comments/properties/maxDepth",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-8aabccc9b84aae9f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-ab4faf80ddb7434f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-0c2691f7fda863df",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4c5e3a7c692b3f82"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/publicCounts:additionalProperties",
+      "schemaPointer": "#/properties/publicCounts",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4300914392f6e0e9"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f753dc528d54c493"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "interactions-config-invalid-dc57867e125f113d",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4300914392f6e0e9"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/publicCounts:required:comments",
+      "schemaPointer": "#/properties/publicCounts",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4300914392f6e0e9"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f753dc528d54c493"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-56807698bc518933",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4300914392f6e0e9"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/publicCounts:required:reactions",
+      "schemaPointer": "#/properties/publicCounts",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4300914392f6e0e9"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f753dc528d54c493"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-16b0819e3c5f555c",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4300914392f6e0e9"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/publicCounts:type",
+      "schemaPointer": "#/properties/publicCounts",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-4300914392f6e0e9"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f753dc528d54c493"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-87c34c8fa3c3d47d",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4300914392f6e0e9"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/publicCounts/properties/comments:type",
+      "schemaPointer": "#/properties/publicCounts/properties/comments",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-bf46138580c35681"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-fa57948e3fc4c14b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-ac1a568db8f33892",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4300914392f6e0e9"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/publicCounts/properties/reactions:type",
+      "schemaPointer": "#/properties/publicCounts/properties/reactions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-5db0a48228342bab"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-ae6f74d487076265"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-2326b7d0aac42cb7",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-4300914392f6e0e9"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions:additionalProperties",
+      "schemaPointer": "#/properties/reactions",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-38eb03f36cd27aef"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f1d82af7521fe08d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "interactions-config-invalid-a16bf07024aaa7be",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions:required:definitions",
+      "schemaPointer": "#/properties/reactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-38eb03f36cd27aef"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f1d82af7521fe08d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-91b7647a2aedd79b",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions:required:enabled",
+      "schemaPointer": "#/properties/reactions",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-38eb03f36cd27aef"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f1d82af7521fe08d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "interactions-config-invalid-d3089ec5517909d6",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions:type",
+      "schemaPointer": "#/properties/reactions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-38eb03f36cd27aef"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-f1d82af7521fe08d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-3bf201c57685d3d9",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions/properties/definitions:maxItems",
+      "schemaPointer": "#/properties/reactions/properties/definitions",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d6e93e5874292f77"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-37bf3572ba155ee1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "interactions-config-invalid-7c6ce2848d582fc6",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions/properties/definitions:minItems",
+      "schemaPointer": "#/properties/reactions/properties/definitions",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d6e93e5874292f77"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-959a1dcaa5dcb36c"
+      },
+      "invalid": { "notApplicable": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions/properties/definitions:type",
+      "schemaPointer": "#/properties/reactions/properties/definitions",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-d6e93e5874292f77"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-6fd6c8c15e269af1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-c7acb4574909de80",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/reactions/properties/enabled:type",
+      "schemaPointer": "#/properties/reactions/properties/enabled",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-ff5ee7147769467f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-82291af87f885920"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-b84e0d58732871d5",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-38eb03f36cd27aef"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/schemaId:const",
+      "schemaPointer": "#/properties/schemaId",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-60afd7fb506f64f8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-920b8ed84b3d6f20"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_VERSION_UNSUPPORTED/cases.json",
+        "caseId": "interactions-config-invalid-194e0f495b06ab20",
+        "expectedCode": "SCHEMA_VERSION_UNSUPPORTED"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/schemaVersion:const",
+      "schemaPointer": "#/properties/schemaVersion",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-3615348319901a40"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-ec0e07fa303716fb"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_VERSION_UNSUPPORTED/cases.json",
+        "caseId": "interactions-config-invalid-4fe8e20f169e2e9e",
+        "expectedCode": "SCHEMA_VERSION_UNSUPPORTED"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-334359b90efed75d"
       }
     },
     {
