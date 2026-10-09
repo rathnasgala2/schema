@@ -6,6 +6,8 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       AUTHENTICATION_REQUIRED: { statuses: [401], retryable: false },
       AUTHORIZATION_DENIED: { statuses: [403], retryable: false },
       CAPABILITY_EXPIRED: { statuses: [410], retryable: false },
+      CHANGE_NOT_DISMISSIBLE: { statuses: [409], retryable: false },
+      CHANGE_NOT_FOUND: { statuses: [404], retryable: false },
       CAPABILITY_UNAVAILABLE: { statuses: [503], retryable: false },
       COMMAND_REPLAY_CONFLICT: { statuses: [409], retryable: false },
       DEPENDENCY_UNAVAILABLE: { statuses: [503], retryable: true },

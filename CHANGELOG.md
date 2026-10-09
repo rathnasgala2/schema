@@ -28,6 +28,11 @@ stage and the run link.
   `RUN_TIMED_OUT`, `WORKFLOW_UNAVAILABLE`, `DEPLOY_FAILED`,
   `PAGES_NOT_AVAILABLE`, `REPORT_FAILED`, `LIVE_CHECK_FAILED`,
   `CHANGE_CLOSED_ON_GITHUB`).
+- `POST .../repository-changes/{changeId}:dismiss`: dismisses a change that is
+  closed on GitHub, so its `CHANGE_CLOSED_ON_GITHUB` attention item and row
+  disappear. Browser session, CSRF, `Idempotency-Key`, capability
+  `publication.source.write`. `204`; `404 CHANGE_NOT_FOUND`;
+  `409 CHANGE_NOT_DISMISSIBLE` when the change is not closed on GitHub.
 
 ## [3.1.0] - 2026-10-08
 
