@@ -21,6 +21,26 @@ export const APPROVED_REACTION_EMOJI = Object.freeze([
 export const INTERACTIONS_CONFIG_ID =
   'urn:gala:schema:interactions-config:2.0.0';
 
+/** Stable identifier for each approved emoji, in the same order (OpenAPI x-enum-varnames). */
+export const APPROVED_REACTION_EMOJI_NAMES = Object.freeze([
+  'THUMBS_UP',
+  'HEART',
+  'LIGHT_BULB',
+  'PARTY_POPPER',
+  'FACE_WITH_TEARS_OF_JOY',
+  'EXPLODING_HEAD',
+  'FOLDED_HANDS',
+  'FIRE',
+  'CLAPPING_HANDS',
+  'FACE_WITH_OPEN_MOUTH',
+  'CRYING_FACE',
+  'THINKING_FACE',
+  'SPARKLES',
+  'ROCKET',
+  'HUNDRED_POINTS',
+  'EYES',
+]);
+
 /**
  * Build the parts of the interactions configuration shared by the root schema
  * and the copy the build-input schema embeds (a copy, because the corpus,

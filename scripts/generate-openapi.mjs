@@ -8,6 +8,10 @@ import { parse, stringify } from 'yaml';
 
 import { canonicalizeJcsBytes } from '../src/internal/canonical-jcs.js';
 import { HTTP_PROBLEM_EXAMPLE_RULES } from './internal-semantics/http-problem-contract.js';
+import {
+  APPROVED_REACTION_EMOJI,
+  APPROVED_REACTION_EMOJI_NAMES,
+} from './s0-interactions-config-schema.mjs';
 import { runIfMain } from './run-if-main.mjs';
 
 const VERSION = '2.0.0';
@@ -866,6 +870,23 @@ function relaxDateTimePattern(schema) {
 }
 
 /**
+ * Give the approved-emoji enum identifier names, so a generated client can
+ * bind members that are not valid identifiers. The enum values are unchanged.
+ *
+ * @param {JsonObject} schema one rewritten schema node
+ * @returns {JsonObject} the node with `x-enum-varnames` when it is that enum
+ */
+function nameEmojiEnum(schema) {
+  if (
+    !Array.isArray(schema.enum) ||
+    JSON.stringify(schema.enum) !== JSON.stringify(APPROVED_REACTION_EMOJI)
+  ) {
+    return schema;
+  }
+  return { ...schema, 'x-enum-varnames': [...APPROVED_REACTION_EMOJI_NAMES] };
+}
+
+/**
  * Resolve one RFC 6901 fragment against a parsed JSON document.
  *
  * @param {JsonObject} document reference document
@@ -1158,9 +1179,11 @@ async function bundleExternalSchemaReferences(openApiDocument) {
           await transform(item, referenceDocument, externalPath),
         ]),
     );
-    return relaxDateTimePattern(
-      normalizeConstant(
-        /** @type {JsonObject} */ (Object.fromEntries(entries)),
+    return nameEmojiEnum(
+      relaxDateTimePattern(
+        normalizeConstant(
+          /** @type {JsonObject} */ (Object.fromEntries(entries)),
+        ),
       ),
     );
   }
