@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:0e80fcbf1fb661922adf015e48a483c7ecf734ac5fb42eb01f002a3d5ad5e60f",
+  "openApiDigest": "sha256:809e90c9de881490b5d3981e3112ee557ce8bcb338f3e554c5c8749dd2c3e0cf",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -286,6 +286,18 @@
       "method": "PATCH",
       "path": "/v2/organizations/{organizationId}/memberships/{membershipId}",
       "purpose": "change membership and grants",
+      "capabilityKey": "organization.members.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "deleteOrganizationsByOrganizationIdMembershipsByMembershipIdGrantsByGrantId",
+      "method": "DELETE",
+      "path": "/v2/organizations/{organizationId}/memberships/{membershipId}/grants/{grantId}",
+      "purpose": "remove one grant from a membership",
       "capabilityKey": "organization.members.manage",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -1869,5 +1881,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:a90196be101ad171b7b62f2ed72e7280e4e44f34b70f43286a1ffdecb54ddefd"
+  "digest": "sha256:26f2ffa785981c34d5383d29bb63a918816d143e9615c7b3d86d86f60a28b3d7"
 }

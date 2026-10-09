@@ -44,10 +44,10 @@ appeals, custom domains and the platform operator console.
   `CANONICAL_BASE_MISMATCH`, `COLLABORATION_REQUIRED`,
   `CONSEQUENCE_DIGEST_MISMATCH`, `CURRENT_SESSION`, `DOMAIN_EXISTS`,
   `DOMAIN_NOT_DETACHABLE`, `EXPORT_NOT_READY`, `GENERATION_NOT_READY`,
-  `HOSTNAME_RESERVED`, `IMPORT_BLOCKED`, `IMPORT_NOT_READY`,
-  `LAST_SIGN_IN_METHOD`, `LAYOUT_MISMATCH`, `OWNER_TRANSFER_REQUIRED`,
-  `PAGES_NOT_AVAILABLE`, `REPOSITORY_ALREADY_BOUND`, `ROLE_IN_USE`,
-  `ROLE_NOT_CUSTOM`, `SCHEDULE_EXISTS`, `SOURCE_CHANGED`,
+  `GRANT_NOT_REMOVABLE`, `HOSTNAME_RESERVED`, `IMPORT_BLOCKED`,
+  `IMPORT_NOT_READY`, `LAST_SIGN_IN_METHOD`, `LAYOUT_MISMATCH`,
+  `OWNER_TRANSFER_REQUIRED`, `PAGES_NOT_AVAILABLE`, `REPOSITORY_ALREADY_BOUND`,
+  `ROLE_IN_USE`, `ROLE_NOT_CUSTOM`, `SCHEDULE_EXISTS`, `SOURCE_CHANGED`,
   `SUCCESSOR_NOT_MEMBER`, `TRANSFER_CHECK_FAILED`, `TRANSFER_EXISTS`,
   `TRANSFER_NOT_PENDING`, `TRANSFER_PENDING`; `401 INVALID_RECOVERY_CODE`;
   `403 NOT_THE_SUCCESSOR`; `404 DESTINATION_NOT_FOUND`; `422`
@@ -96,6 +96,14 @@ appeals, custom domains and the platform operator console.
 - Repository import: `POST .../publication-imports/{importId}:connect`,
   `:convert`, `:cancel` and the keyset list `GET .../publication-imports`
   (`PublicationImport`, `PublicationImportFinding`).
+- Membership grants: `MembershipSummary` (the memberships list) gains optional
+  `grants` (`MembershipGrant`: `grantId`, `scope` `ORGANIZATION` |
+  `PUBLICATION`, `publicationId`, `publicationName`, `roleId`, `roleKey`,
+  `roleName`, `state` `ACTIVE`), every active grant of the member; and
+  `DELETE .../memberships/{membershipId}/grants/{grantId}` (`If-Match` on the
+  membership version, `204`, `409 GRANT_NOT_REMOVABLE` for the
+  organization-scope grant or the continuity owner's grant). `PATCH` is
+  unchanged.
 - Custom roles: `POST .../roles`, `GET`/`PATCH` (`If-Match`)/`DELETE`
   (`If-Match`, `?replacementRoleId=`) `.../roles/{roleId}`,
   `GET .../roles/{roleId}/members` and `GET .../capabilities`
@@ -159,6 +167,10 @@ appeals, custom domains and the platform operator console.
   authentication transaction) and maps `401 INVALID_RECOVERY_CODE` and
   `429 RATE_LIMITED` instead of `409 INVALID_SOURCE_STATE`; `SessionSummary`
   requires the new `createdAt` and `client`.
+- `MembershipSummary.roleId` is the member's organization-scope role and is now
+  nullable: a member invited to one publication holds only publication-scope
+  grants, so there is no organization-scope role to name. `grants` lists every
+  role the member holds.
 - Owner transfer: `POST .../owner-transfers` names the successor exactly once,
   by `successorPrincipalId` or `successorGithubLogin`, and every transfer
   response requires `organizationKind` and no longer requires

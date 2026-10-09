@@ -64,6 +64,7 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       DOMAIN_NOT_DETACHABLE: { statuses: [409], retryable: false },
       EXPORT_NOT_READY: { statuses: [409], retryable: false },
       GENERATION_NOT_READY: { statuses: [409], retryable: false },
+      GRANT_NOT_REMOVABLE: { statuses: [409], retryable: false },
       HOSTNAME_INVALID: { statuses: [422], retryable: false },
       HOSTNAME_RESERVED: { statuses: [409], retryable: false },
       IMPORT_BLOCKED: { statuses: [409], retryable: false },

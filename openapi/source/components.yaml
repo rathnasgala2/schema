@@ -2353,6 +2353,11 @@ components:
       type: string
     MembershipSummary:
       additionalProperties: false
+      description:
+        'One membership of the organization. `grants` (SCHEMA-3.3.0, optional
+        only so a 3.2 body still validates) lists every active grant: the
+        organization-scope one, if any, and each publication-scope one; `roleId`
+        stays the organization-scope role for compatibility.'
       properties:
         membershipId:
           format: uuid
@@ -2365,11 +2370,23 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         roleId:
+          description:
+            The member's organization-scope role; null when every grant of the
+            member is publication-scoped (SCHEMA-3.3.0). `grants` carries the
+            complete picture.
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
+          type:
+            - string
+            - 'null'
         state:
           $ref: '#/components/schemas/MembershipState'
+        grants:
+          items:
+            $ref: '#/components/schemas/MembershipGrant'
+          maxItems: 100
+          minItems: 0
+          type: array
         version:
           format: int64
           minimum: 0
@@ -10337,6 +10354,70 @@ components:
       required:
         - items
         - hasMore
+      type: object
+    MembershipGrant:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              required:
+                - publicationId
+          if:
+            properties:
+              scope:
+                const: PUBLICATION
+            required:
+              - scope
+          then:
+            required:
+              - publicationId
+      description:
+        "One active grant of a membership (SCHEMA-3.3.0): an organization-scope
+        grant, or a publication-scope grant naming `publicationId` (and
+        `publicationName` when the publication still exists). `roleKey` is the
+        role's stable key (`custom_...` for a custom role)."
+      properties:
+        grantId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        roleId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        roleKey:
+          maxLength: 80
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          type: string
+        roleName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        scope:
+          enum:
+            - ORGANIZATION
+            - PUBLICATION
+          type: string
+        state:
+          enum:
+            - ACTIVE
+          type: string
+      required:
+        - grantId
+        - scope
+        - roleId
+        - roleKey
+        - roleName
+        - state
       type: object
   securitySchemes:
     readerBearer:
