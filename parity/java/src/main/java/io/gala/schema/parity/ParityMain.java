@@ -574,7 +574,17 @@ public final class ParityMain {
                 schemas.put(schemaId, source);
             }
         }
-        if (schemas.size() != 20) throw new IllegalStateException("Expected 20 schemas, found " + schemas.size());
+        // The expected count comes from the generated schema inventory (the registry the
+        // JavaScript side uses), never from a literal, so the two sides must agree.
+        JsonNode inventory = MAPPER.readTree(Files.readString(
+                repositoryRoot.resolve("docs/catalogs/schema-inventory.json")));
+        int expected = 0;
+        for (JsonNode contract : inventory.get("contracts")) {
+            if ("JSON_SCHEMA".equals(requiredText(contract, "artifactKind"))) expected++;
+        }
+        if (schemas.size() != expected) {
+            throw new IllegalStateException("Expected " + expected + " schemas from the inventory, found " + schemas.size());
+        }
         return Map.copyOf(schemas);
     }
 

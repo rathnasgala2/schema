@@ -2435,12 +2435,14 @@ components:
           minLength: 1
           type: string
         origin:
-          format: uri
           maxLength: 255
+          minLength: 1
+          pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
           type: string
         publicBaseUrl:
-          format: uri
           maxLength: 2048
+          minLength: 1
+          pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
           type: string
         publicationId:
           format: uuid
@@ -2570,8 +2572,9 @@ components:
                 minLength: 1
                 type: string
               origin:
-                format: uri
                 maxLength: 255
+                minLength: 1
+                pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
                 type: string
               publicationId:
                 format: uuid
@@ -11766,8 +11769,9 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         returnUrl:
-          format: uri
           maxLength: 2048
+          minLength: 1
+          pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
           type: string
         state:
           $ref: "#/components/schemas/ReaderAuthorizationState"
@@ -11789,16 +11793,18 @@ components:
               minLength: 1
               type: string
             origin:
-              format: uri
               maxLength: 255
+              minLength: 1
+              pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
               type: string
           required:
             - name
             - origin
           type: object
         redirectUrl:
-          format: uri
           maxLength: 4096
+          minLength: 1
+          pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
           type: string
       required:
         - redirectUrl
