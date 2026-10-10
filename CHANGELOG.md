@@ -8,6 +8,33 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-10-10
+
+Add a domain's DNS records at Cloudflare with one click.
+
+### Added
+
+- `DomainBinding.dns.providers` (`DnsProviderOffer[]`): the DNS providers this
+  environment can connect to for the binding right now, and the intents (`ADD`,
+  `REMOVE`) each offers. Present only when the provider is configured and the
+  binding's state has records to add or remove. `DnsProvider` is `CLOUDFLARE`; a
+  further provider is an additive value.
+- `POST .../domains/{domainId}/dns-connections` starts a connection and returns
+  the provider's `authorizationUrl` (201);
+  `GET .../dns-connections/{connectionId}` reads it; `POST ...:apply` writes a
+  plan that was waiting for confirmation; `POST ...:discard` leaves the
+  provider's records as they are. All return `DnsConnection` (`phase` `STARTED`,
+  `NEEDS_CONFIRMATION`, `APPLIED`, `CANCELLED`, `FAILED`, `EXPIRED`; `outcome`,
+  `zone`, `plan`, `applied`). `DnsPlanEntry` carries `action` (`CREATE`, `KEEP`,
+  `REPLACE`, `DELETE`), the wanted `record` and the provider's `existing`
+  record.
+- Problem codes `DNS_CONNECTION_NOT_APPLICABLE` (409),
+  `DNS_PROVIDER_NOT_CONFIGURED` (503), `DNS_CONNECTION_NOT_FOUND` (404),
+  `DNS_CONNECTION_NOT_CONFIRMABLE` (409), `DNS_CONNECTION_EXPIRED` (410) and
+  `DNS_PROVIDER_REJECTED` (502).
+- `GET /v2/callbacks/cloudflare/oauth` (`code`, `state`, `error`, `iss`): the
+  provider's return address; every outcome is a `303` to the Domain page.
+
 ## [3.4.0] - 2026-10-09
 
 Invitations a People page and an invitation link can show in full.
@@ -2540,7 +2567,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.5.0...HEAD
+[3.5.0]: https://github.com/rathnasgala2/schema/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/rathnasgala2/schema/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/rathnasgala2/schema/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/rathnasgala2/schema/compare/v3.1.0...v3.2.0

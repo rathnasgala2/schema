@@ -9794,6 +9794,19 @@ components:
           properties:
             observed:
               $ref: '#/components/schemas/DomainDnsObservation'
+            providers:
+              description:
+                The DNS providers Galascribe can connect to for this binding
+                right now (SCHEMA-3.5.0). Present only when the provider is
+                configured in this environment and the binding's state has
+                records to add, or (`REMOVE`) to remove. A client shows a
+                connect button exactly when this names the provider and intent;
+                it never decides from `nextStep`.
+              items:
+                $ref: '#/components/schemas/DnsProviderOffer'
+              maxItems: 4
+              minItems: 0
+              type: array
             records:
               items:
                 $ref: '#/components/schemas/DomainDnsRecord'
@@ -9844,6 +9857,249 @@ components:
         - createdAt
         - updatedAt
       type: object
+    DnsProvider:
+      description:
+        Where a domain's DNS records live. `CLOUDFLARE` today; a further
+        provider is an additive value.
+      enum:
+        - CLOUDFLARE
+      type: string
+    DnsIntent:
+      description:
+        "`ADD` writes the domain's records at the provider; `REMOVE` deletes
+        only the records whose values are Galascribe's targets, never anything
+        else at that name."
+      enum:
+        - ADD
+        - REMOVE
+      type: string
+    DnsProviderOffer:
+      additionalProperties: false
+      description:
+        A provider this environment can connect to for this binding, and what it
+        can do now.
+      properties:
+        intents:
+          items:
+            $ref: '#/components/schemas/DnsIntent'
+          maxItems: 2
+          minItems: 1
+          type: array
+          uniqueItems: true
+        provider:
+          $ref: '#/components/schemas/DnsProvider'
+      required:
+        - provider
+        - intents
+      type: object
+    DnsPlanAction:
+      description:
+        '`CREATE` a record that is not there; `KEEP` one already identical;
+        `REPLACE` one of the same type, or a CNAME where an A/AAAA must go (or
+        the reverse), that differs; `DELETE` a record carrying a Galascribe
+        target value (`REMOVE` only).'
+      enum:
+        - CREATE
+        - KEEP
+        - REPLACE
+        - DELETE
+      type: string
+    DnsPlanEntry:
+      additionalProperties: false
+      description:
+        "One record in a connection's plan. `record` is what Galascribe wants at
+        that name; `existing` is what the provider has there now (absent for
+        `CREATE`). Records are always written DNS-only (`proxied: false`) so
+        GitHub can issue the certificate."
+      properties:
+        action:
+          $ref: '#/components/schemas/DnsPlanAction'
+        existing:
+          additionalProperties: false
+          properties:
+            proxied:
+              type: boolean
+            type:
+              maxLength: 16
+              minLength: 1
+              pattern: ^[A-Z][A-Z0-9]*$
+              type: string
+            value:
+              maxLength: 4096
+              minLength: 1
+              type: string
+          required:
+            - type
+            - value
+            - proxied
+          type: object
+        record:
+          $ref: '#/components/schemas/DomainDnsRecord'
+      required:
+        - action
+        - record
+      type: object
+    DnsConnectionPhase:
+      description:
+        '`STARTED` (waiting for the person at the provider);
+        `NEEDS_CONFIRMATION` (something would be replaced, nothing touched yet);
+        `APPLIED`; `CANCELLED` (the person declined, or discarded the plan);
+        `FAILED`; `EXPIRED` (the person did not finish in time).'
+      enum:
+        - STARTED
+        - NEEDS_CONFIRMATION
+        - APPLIED
+        - CANCELLED
+        - FAILED
+        - EXPIRED
+      type: string
+    DnsConnectionOutcomeCode:
+      description:
+        'Why a connection ended without success: `CANCELLED` (consent denied or
+        plan discarded); `ZONE_NOT_FOUND` (the domain is not in the provider
+        account chosen); `ZONE_AMBIGUOUS` (more than one active zone of that
+        name across the accounts granted); `SCOPE_DECLINED` (the person did not
+        grant what was needed); `PROVIDER_FAILED` (the provider failed or
+        refused); `STATE_INVALID` (the return from the provider could not be
+        matched to this connection); `EXPIRED`.'
+      enum:
+        - CANCELLED
+        - ZONE_NOT_FOUND
+        - ZONE_AMBIGUOUS
+        - SCOPE_DECLINED
+        - PROVIDER_FAILED
+        - STATE_INVALID
+        - EXPIRED
+      type: string
+    DnsConnection:
+      additionalProperties: false
+      description:
+        One attempt to add or remove a domain's DNS records at the person's DNS
+        provider (SCHEMA-3.5.0). `outcome` is present when `phase` is
+        `CANCELLED`, `FAILED` or `EXPIRED`; `plan` when `NEEDS_CONFIRMATION` or
+        `APPLIED`; `applied` when `APPLIED`. The provider's access is used
+        within one request chain (or held encrypted for at most `expiresAt` on
+        `NEEDS_CONFIRMATION`) and revoked afterwards; Galascribe keeps none.
+      properties:
+        applied:
+          additionalProperties: false
+          properties:
+            at:
+              $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            created:
+              minimum: 0
+              type: integer
+            deleted:
+              minimum: 0
+              type: integer
+            replaced:
+              minimum: 0
+              type: integer
+          required:
+            - at
+            - created
+            - replaced
+            - deleted
+          type: object
+        connectionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        intent:
+          $ref: '#/components/schemas/DnsIntent'
+        outcome:
+          additionalProperties: false
+          properties:
+            code:
+              $ref: '#/components/schemas/DnsConnectionOutcomeCode'
+            detail:
+              maxLength: 500
+              minLength: 1
+              type: string
+          required:
+            - code
+            - detail
+          type: object
+        phase:
+          $ref: '#/components/schemas/DnsConnectionPhase'
+        plan:
+          items:
+            $ref: '#/components/schemas/DnsPlanEntry'
+          maxItems: 32
+          minItems: 0
+          type: array
+        provider:
+          $ref: '#/components/schemas/DnsProvider'
+        zone:
+          additionalProperties: false
+          properties:
+            accountName:
+              maxLength: 255
+              minLength: 1
+              type: string
+            name:
+              maxLength: 253
+              minLength: 1
+              type: string
+          required:
+            - name
+            - accountName
+          type: object
+      required:
+        - connectionId
+        - provider
+        - intent
+        - phase
+        - createdAt
+        - expiresAt
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsRequest:
+      additionalProperties: false
+      properties:
+        intent:
+          $ref: '#/components/schemas/DnsIntent'
+        provider:
+          $ref: '#/components/schemas/DnsProvider'
+      required:
+        - provider
+        - intent
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsResponse:
+      additionalProperties: false
+      properties:
+        authorizationUrl:
+          description:
+            The provider's consent address. A client navigates to it only when
+            it is an `https` address on the provider's own host.
+          format: uri
+          maxLength: 4096
+          minLength: 1
+          pattern: ^https://[^\s]+$
+          type: string
+        connectionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - connectionId
+        - authorizationUrl
+        - expiresAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/DnsConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdApplyResponse:
+      allOf:
+        - $ref: '#/components/schemas/DnsConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdDiscardResponse:
+      allOf:
+        - $ref: '#/components/schemas/DnsConnection'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsResponse:
       additionalProperties: false
       properties:

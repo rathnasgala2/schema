@@ -2369,3 +2369,62 @@ test('README.md quotes no operation count (SCH-L1)', async () => {
     'README.md quotes a literal catalog row count',
   );
 });
+
+test('SCHEMA-3.5.0: the DNS connection contract is closed and complete', async () => {
+  const bundle = parseYaml(await readFile('openapi/openapi.yaml', 'utf8'));
+  const schemas = bundle.components.schemas;
+  const base =
+    '/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}';
+  assert.deepEqual(schemas.DnsProvider.enum, ['CLOUDFLARE']);
+  assert.deepEqual(schemas.DnsIntent.enum, ['ADD', 'REMOVE']);
+  assert.deepEqual(schemas.DnsPlanAction.enum, [
+    'CREATE',
+    'KEEP',
+    'REPLACE',
+    'DELETE',
+  ]);
+  assert.deepEqual(schemas.DnsConnectionOutcomeCode.enum, [
+    'CANCELLED',
+    'ZONE_NOT_FOUND',
+    'ZONE_AMBIGUOUS',
+    'SCOPE_DECLINED',
+    'PROVIDER_FAILED',
+    'STATE_INVALID',
+    'EXPIRED',
+  ]);
+  const offer = schemas.DnsProviderOffer;
+  assert.equal(offer.properties.intents.uniqueItems, true);
+  assert.equal(offer.properties.intents.minItems, 1);
+  assert.equal(offer.properties.intents.maxItems, 2);
+  const dns = schemas.DomainBinding.properties.dns;
+  assert.ok(!dns.required.includes('providers'));
+  assert.equal(
+    dns.properties.providers.items.$ref,
+    '#/components/schemas/DnsProviderOffer',
+  );
+  const codes = (/** @type {any} */ operation) =>
+    [...operation['x-gala-reachable-problems']].sort();
+  const start = bundle.paths[`${base}/dns-connections`].post;
+  assert.ok(codes(start).includes('DNS_CONNECTION_NOT_APPLICABLE'));
+  assert.ok(codes(start).includes('DNS_PROVIDER_NOT_CONFIGURED'));
+  assert.ok(codes(start).includes('RATE_LIMITED'));
+  assert.equal(start['x-gala-capability-key'], 'publication.settings.manage');
+  const read = bundle.paths[`${base}/dns-connections/{connectionId}`].get;
+  assert.equal(read['x-gala-capability-key'], 'publication.view');
+  assert.ok(codes(read).includes('DNS_CONNECTION_NOT_FOUND'));
+  const apply =
+    bundle.paths[`${base}/dns-connections/{connectionId}:apply`].post;
+  for (const code of [
+    'DNS_CONNECTION_NOT_CONFIRMABLE',
+    'DNS_CONNECTION_EXPIRED',
+    'DNS_PROVIDER_REJECTED',
+  ]) {
+    assert.ok(codes(apply).includes(code), code);
+  }
+  const discard =
+    bundle.paths[`${base}/dns-connections/{connectionId}:discard`].post;
+  assert.ok(codes(discard).includes('DNS_CONNECTION_NOT_CONFIRMABLE'));
+  const callback = bundle.paths['/v2/callbacks/cloudflare/oauth'].get;
+  assert.deepEqual(Object.keys(callback.responses).sort(), ['303', '400']);
+  assert.deepEqual(callback.security, []);
+});

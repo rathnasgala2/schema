@@ -86,5 +86,12 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       TRANSFER_EXISTS: { statuses: [409], retryable: false },
       TRANSFER_NOT_PENDING: { statuses: [409], retryable: false },
       TRANSFER_PENDING: { statuses: [409], retryable: false },
+      // SCHEMA-3.5.0: connecting a domain's DNS provider.
+      DNS_CONNECTION_EXPIRED: { statuses: [410], retryable: false },
+      DNS_CONNECTION_NOT_APPLICABLE: { statuses: [409], retryable: false },
+      DNS_CONNECTION_NOT_CONFIRMABLE: { statuses: [409], retryable: false },
+      DNS_CONNECTION_NOT_FOUND: { statuses: [404], retryable: false },
+      DNS_PROVIDER_NOT_CONFIGURED: { statuses: [503], retryable: false },
+      DNS_PROVIDER_REJECTED: { statuses: [502], retryable: true },
     })
   );

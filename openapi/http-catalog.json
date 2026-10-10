@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:cecf9cd16c775f8368d5b37db7aae7bd0e72cafedb9c4829836bf66d9564165a",
+  "openApiDigest": "sha256:375a9f11906367e8c609513218ebb2a74650679ce6b5d9671b3b63820ab0b224",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -62,6 +62,18 @@
       "assuranceClass": "SESSION",
       "actionGrant": "none",
       "sourceFragment": "authentication"
+    },
+    {
+      "operationId": "getCallbacksCloudflareOauth",
+      "method": "GET",
+      "path": "/v2/callbacks/cloudflare/oauth",
+      "purpose": "consume the exact Cloudflare OAuth callback transaction",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "callbacks"
     },
     {
       "operationId": "postCallbacksGithubApp",
@@ -831,6 +843,54 @@
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}:detach",
       "purpose": "remove a custom domain",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnections",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}/dns-connections",
+      "purpose": "start adding (or removing) a domain's DNS records at the person's DNS provider",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}/dns-connections/{connectionId}",
+      "purpose": "read a DNS connection",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdApply",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}/dns-connections/{connectionId}:apply",
+      "purpose": "apply the DNS changes a connection is waiting to make",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdDiscard",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}/dns-connections/{connectionId}:discard",
+      "purpose": "leave the provider's DNS records as they are and end a connection",
       "capabilityKey": "publication.settings.manage",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -1893,5 +1953,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:d48e61b03e54e96b485e677a5d31a7a09ecf5eecc784fe5922ead60017f81a18"
+  "digest": "sha256:0c8a17ad2b315a832fb6b57bab267938f7f802a0131bbd199e4fc806ac3ba7a1"
 }
