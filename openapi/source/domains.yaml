@@ -870,6 +870,84 @@ paths:
                     state: CERTIFICATE_PENDING
                     updatedAt: 2026-10-09T12:00:00.000Z
                     version: 3
+                proxied:
+                  summary: Live behind Cloudflare's proxy
+                  value:
+                    canonicalBase:
+                      current: https://blog.maya.dev/
+                      published: true
+                      target: https://blog.maya.dev/
+                    certificate:
+                      state: PROXIED
+                    createdAt: 2026-10-09T12:00:00.000Z
+                    dns:
+                      observed:
+                        addresses:
+                          - 104.21.0.1
+                        checkedAt: 2026-10-10T12:00:00.000Z
+                        pointsToGithub: false
+                        resolves: true
+                        viaProxy: true
+                      records:
+                        - name: blog
+                          type: CNAME
+                          value: rathnastest.github.io
+                    domainId: 018f0000-0000-7000-8000-000000000001
+                    hostname: blog.maya.dev
+                    kind: SUBDOMAIN
+                    nextStep:
+                      code: NONE
+                      detail: Your site is live behind Cloudflare's proxy.
+                    proxy:
+                      provider: CLOUDFLARE
+                      since: 2026-10-10T12:00:00.000Z
+                    routing:
+                      httpsEnforced: false
+                      probeOk: true
+                      servedByPages: true
+                    state: ACTIVE
+                    updatedAt: 2026-10-10T12:00:00.000Z
+                    version: 9
+                stage2Offer:
+                  summary: Certificate issued; the proxy can be turned on
+                  value:
+                    canonicalBase:
+                      current: https://blog.maya.dev/
+                      published: true
+                      target: https://blog.maya.dev/
+                    certificate:
+                      state: ISSUED
+                    createdAt: 2026-10-09T12:00:00.000Z
+                    dns:
+                      observed:
+                        addresses: []
+                        checkedAt: 2026-10-10T12:00:00.000Z
+                        cnameTarget: rathnastest.github.io
+                        pointsToGithub: true
+                        resolves: true
+                      providers:
+                        - intents:
+                            - PROXY
+                          provider: CLOUDFLARE
+                      records:
+                        - name: blog
+                          type: CNAME
+                          value: rathnastest.github.io
+                    domainId: 018f0000-0000-7000-8000-000000000001
+                    hostname: blog.maya.dev
+                    kind: SUBDOMAIN
+                    nextStep:
+                      code: TURN_ON_CLOUDFLARE_PROXY
+                      detail:
+                        Your certificate is issued. You can now let Cloudflare
+                        proxy the site.
+                    routing:
+                      httpsEnforced: true
+                      probeOk: true
+                      servedByPages: true
+                    state: ACTIVE
+                    updatedAt: 2026-10-10T12:00:00.000Z
+                    version: 8
               schema:
                 $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheckResponse'
           description: check a custom domain now succeeded

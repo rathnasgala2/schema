@@ -11200,6 +11200,8 @@ paths:
         Authenticated server-sent notification stream for review state changes.
         Events carry no authority or canonical state; a client re-reads the
         ordinary review and repository-change resources after each signal.
+        SCHEMA-3.6.0: the comment, decision time and actor, request time and
+        actor (`ReviewSummary`) arrive on that re-read, never in the event.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -11390,7 +11392,8 @@ paths:
               nominal:
                 summary: Nominal valid request
                 value:
-                  decision: APPROVE
+                  comment: Please soften the second paragraph.
+                  decision: REJECT
                   reasonCode: example
             schema:
               $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideRequest'
@@ -11403,10 +11406,17 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
+                    comment: Please soften the second paragraph.
+                    decidedAt: 2026-10-10T12:00:00.000Z
+                    decidedBy:
+                      displayName: Maya Rao
+                    requestedAt: 2026-10-10T11:00:00.000Z
+                    requestedBy:
+                      displayName: Sam Lee
                     reviewId: 018f0000-0000-7000-8000-000000000001
                     sourceRevision: sha1:0000000000000000000000000000000000000000
-                    state: REQUESTED
-                    version: 0
+                    state: REJECTED
+                    version: 1
               schema:
                 $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideResponse'
           description: approve or reject exact reviewed revision succeeded
@@ -12833,7 +12843,12 @@ paths:
                         changeId: 018f0000-0000-7000-8000-000000000002
                         kind: POST
                         path: content/articles/hello.md
-                        review: NOT_REQUIRED
+                        pullRequestUrl: https://github.com/rathnastest/g11/pull/7
+                        review: NEEDS_RE_REVIEW
+                        reviewComment: Please soften the second paragraph.
+                        reviewDecidedAt: 2026-10-05T09:00:00Z
+                        reviewDecidedBy:
+                          displayName: Maya Rao
                         title: Hello, world
                         updatedAt: 2026-10-05T09:30:00Z
                       - action: CHANGE

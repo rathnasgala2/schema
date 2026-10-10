@@ -1358,18 +1358,20 @@ components:
         - EXPIRED
       type: string
     DnsIntent:
-      description: "`ADD` writes the domain's records at the provider; `REMOVE` deletes only the records whose values are Galascribe's targets, never anything else at that name."
+      description: "`ADD` writes the domain's records at the provider; `REMOVE` deletes only the records whose values are Galascribe's targets, never anything else at that name; `PROXY` (SCHEMA-3.6.0) turns the provider's proxy on for exactly the records Galascribe wrote, and is offered only once the domain is live with an issued certificate."
       enum:
         - ADD
         - REMOVE
+        - PROXY
       type: string
     DnsPlanAction:
-      description: "`CREATE` a record that is not there; `KEEP` one already identical; `REPLACE` one of the same type, or a CNAME where an A/AAAA must go (or the reverse), that differs; `DELETE` a record carrying a Galascribe target value (`REMOVE` only)."
+      description: "`CREATE` a record that is not there; `KEEP` one already identical; `REPLACE` one of the same type, or a CNAME where an A/AAAA must go (or the reverse), that differs; `DELETE` a record carrying a Galascribe target value (`REMOVE` only); `PROXY_ON` (SCHEMA-3.6.0, `PROXY` only) the record exists DNS-only and will be set to proxied."
       enum:
         - CREATE
         - KEEP
         - REPLACE
         - DELETE
+        - PROXY_ON
       type: string
     DnsPlanEntry:
       additionalProperties: false
@@ -1414,7 +1416,7 @@ components:
         intents:
           items:
             $ref: "#/components/schemas/DnsIntent"
-          maxItems: 2
+          maxItems: 3
           minItems: 1
           type: array
           uniqueItems: true
@@ -1472,6 +1474,18 @@ components:
           $ref: "#/components/schemas/DomainKind"
         nextStep:
           $ref: "#/components/schemas/DomainNextStep"
+        proxy:
+          additionalProperties: false
+          description: Present once Galascribe turned the provider's proxy on for this binding through a connection (SCHEMA-3.6.0). Absent while the records are DNS-only.
+          properties:
+            provider:
+              $ref: "#/components/schemas/DnsProvider"
+            since:
+              $ref: "#/components/schemas/PortableProblemRfc3339"
+          required:
+            - provider
+            - since
+          type: object
         routing:
           $ref: "#/components/schemas/DomainRouting"
         state:
@@ -1547,11 +1561,13 @@ components:
         expiresAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
         state:
+          description: "`PROXIED` (SCHEMA-3.6.0): the provider's edge terminates TLS; GitHub's own certificate is not renewed while proxied."
           enum:
             - NONE
             - PENDING
             - ISSUED
             - ERRORED
+            - PROXIED
           type: string
       required:
         - state
@@ -1575,8 +1591,12 @@ components:
           minLength: 1
           type: string
         pointsToGithub:
+          description: True when the hostname resolves to GitHub Pages. It stays false while the binding is proxied, because the name then resolves to the provider's proxy; `viaProxy` carries that case.
           type: boolean
         resolves:
+          type: boolean
+        viaProxy:
+          description: True when the hostname resolves to the provider's proxy rather than to GitHub and the binding is proxied (`proxy` is present); the routing probe is then the proof of life (SCHEMA-3.6.0). Absent when the binding is not proxied.
           type: boolean
       required:
         - resolves
@@ -1614,7 +1634,7 @@ components:
       type: string
     DomainNextStep:
       additionalProperties: false
-      description: What is being waited on, or what the author should do next. Known codes include `ADD_DNS_RECORDS`, `WAIT_FOR_DNS`, `WAIT_FOR_CERTIFICATE`, `WAIT_FOR_ROUTING`, `PUBLISH_TO_SWITCH`, `FIX_DNS_RECORD`, `REMOVE_DNS_RECORDS` and `NONE`; a client shows `detail` for codes it does not know.
+      description: What is being waited on, or what the author should do next. Known codes include `ADD_DNS_RECORDS`, `WAIT_FOR_DNS`, `WAIT_FOR_CERTIFICATE`, `WAIT_FOR_ROUTING`, `PUBLISH_TO_SWITCH`, `FIX_DNS_RECORD`, `REMOVE_DNS_RECORDS`, `TURN_ON_CLOUDFLARE_PROXY` (SCHEMA-3.6.0, the certificate is issued and the author may let Cloudflare proxy the site) and `NONE`; a client shows `detail` for codes it does not know.
       properties:
         code:
           maxLength: 80
@@ -11747,6 +11767,10 @@ components:
             - REAUTH
             - RECOVERY
           type: string
+        selectAccount:
+          default: false
+          description: Ask GitHub to show its account picker (`prompt=select_account`) instead of reusing the browser's GitHub session (SCHEMA-3.6.0).
+          type: boolean
       required:
         - purpose
       type: object
@@ -13122,6 +13146,11 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideRequest:
       additionalProperties: false
       properties:
+        comment:
+          description: Optional plain-text note from the reviewer, 1 to 4000 characters (SCHEMA-3.6.0). A longer or empty comment is `VALIDATION_FAILED` with pointer `/comment`.
+          maxLength: 4000
+          minLength: 1
+          type: string
         decision:
           enum:
             - APPROVE
@@ -13138,9 +13167,22 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideResponse:
       additionalProperties: false
       properties:
+        comment:
+          description: The newest decision's reviewer comment (SCHEMA-3.6.0). Absent when the decision carried none.
+          maxLength: 4000
+          minLength: 1
+          type: string
+        decidedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        decidedBy:
+          $ref: "#/components/schemas/SiteActor"
         findingsDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        requestedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        requestedBy:
+          $ref: "#/components/schemas/SiteActor"
         reviewId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -15831,9 +15873,22 @@ components:
         review read returns, so a list row and a read of that row never
         disagree.
       properties:
+        comment:
+          description: The newest decision's reviewer comment (SCHEMA-3.6.0). Absent when the decision carried none.
+          maxLength: 4000
+          minLength: 1
+          type: string
+        decidedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        decidedBy:
+          $ref: "#/components/schemas/SiteActor"
         findingsDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        requestedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        requestedBy:
+          $ref: "#/components/schemas/SiteActor"
         reviewId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -16152,14 +16207,29 @@ components:
           maxLength: 512
           minLength: 1
           type: string
+        pullRequestUrl:
+          description: The mirror of this change on GitHub (SCHEMA-3.6.0), the canonical GitHub pull-request URL, as `GithubPullRequestSummary.url`. Absent until a pull request is recorded.
+          format: uri
+          pattern: ^https://github[.]com/[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}/pull/[1-9][0-9]*$
+          type: string
         review:
-          description: "`NOT_REQUIRED` when the publication does not require review; otherwise `WAITING`, `APPROVED` or `CHANGES_REQUESTED`."
+          description: "`NOT_REQUIRED` when the publication does not require review; otherwise `WAITING`, `APPROVED` or `CHANGES_REQUESTED`. `NEEDS_RE_REVIEW` (SCHEMA-3.6.0): the reviewed revision was replaced by a newer one and the author requests review again."
           enum:
             - NOT_REQUIRED
             - WAITING
             - APPROVED
             - CHANGES_REQUESTED
+            - NEEDS_RE_REVIEW
           type: string
+        reviewComment:
+          description: The newest decision's comment (SCHEMA-3.6.0), shown to the author next to the change. Absent when none.
+          maxLength: 4000
+          minLength: 1
+          type: string
+        reviewDecidedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        reviewDecidedBy:
+          $ref: "#/components/schemas/SiteActor"
         reviewId:
           description: The review a reviewer decides through `POST .../reviews/{reviewId}:decide`. Present when a review exists.
           format: uuid
@@ -33642,6 +33712,82 @@ paths:
                     state: CERTIFICATE_PENDING
                     updatedAt: "2026-10-09T12:00:00.000Z"
                     version: 3
+                proxied:
+                  summary: Live behind Cloudflare's proxy
+                  value:
+                    canonicalBase:
+                      current: https://blog.maya.dev/
+                      published: true
+                      target: https://blog.maya.dev/
+                    certificate:
+                      state: PROXIED
+                    createdAt: "2026-10-09T12:00:00.000Z"
+                    dns:
+                      observed:
+                        addresses:
+                          - 104.21.0.1
+                        checkedAt: "2026-10-10T12:00:00.000Z"
+                        pointsToGithub: false
+                        resolves: true
+                        viaProxy: true
+                      records:
+                        - name: blog
+                          type: CNAME
+                          value: rathnastest.github.io
+                    domainId: 018f0000-0000-7000-8000-000000000001
+                    hostname: blog.maya.dev
+                    kind: SUBDOMAIN
+                    nextStep:
+                      code: NONE
+                      detail: Your site is live behind Cloudflare's proxy.
+                    proxy:
+                      provider: CLOUDFLARE
+                      since: "2026-10-10T12:00:00.000Z"
+                    routing:
+                      httpsEnforced: false
+                      probeOk: true
+                      servedByPages: true
+                    state: ACTIVE
+                    updatedAt: "2026-10-10T12:00:00.000Z"
+                    version: 9
+                stage2Offer:
+                  summary: Certificate issued; the proxy can be turned on
+                  value:
+                    canonicalBase:
+                      current: https://blog.maya.dev/
+                      published: true
+                      target: https://blog.maya.dev/
+                    certificate:
+                      state: ISSUED
+                    createdAt: "2026-10-09T12:00:00.000Z"
+                    dns:
+                      observed:
+                        addresses: []
+                        checkedAt: "2026-10-10T12:00:00.000Z"
+                        cnameTarget: rathnastest.github.io
+                        pointsToGithub: true
+                        resolves: true
+                      providers:
+                        - intents:
+                            - PROXY
+                          provider: CLOUDFLARE
+                      records:
+                        - name: blog
+                          type: CNAME
+                          value: rathnastest.github.io
+                    domainId: 018f0000-0000-7000-8000-000000000001
+                    hostname: blog.maya.dev
+                    kind: SUBDOMAIN
+                    nextStep:
+                      code: TURN_ON_CLOUDFLARE_PROXY
+                      detail: Your certificate is issued. You can now let Cloudflare proxy the site.
+                    routing:
+                      httpsEnforced: true
+                      probeOk: true
+                      servedByPages: true
+                    state: ACTIVE
+                    updatedAt: "2026-10-10T12:00:00.000Z"
+                    version: 8
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheckResponse"
           description: check a custom domain now succeeded
@@ -41870,6 +42016,8 @@ paths:
         Authenticated server-sent notification stream for review state changes.
         Events carry no authority or canonical state; a client re-reads the
         ordinary review and repository-change resources after each signal.
+        SCHEMA-3.6.0: the comment, decision time and actor, request time and
+        actor (`ReviewSummary`) arrive on that re-read, never in the event.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -42221,7 +42369,8 @@ paths:
               nominal:
                 summary: Nominal valid request
                 value:
-                  decision: APPROVE
+                  comment: Please soften the second paragraph.
+                  decision: REJECT
                   reasonCode: example
             schema:
               $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideRequest"
@@ -42234,10 +42383,17 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
+                    comment: Please soften the second paragraph.
+                    decidedAt: "2026-10-10T12:00:00.000Z"
+                    decidedBy:
+                      displayName: Maya Rao
+                    requestedAt: "2026-10-10T11:00:00.000Z"
+                    requestedBy:
+                      displayName: Sam Lee
                     reviewId: 018f0000-0000-7000-8000-000000000001
                     sourceRevision: sha1:0000000000000000000000000000000000000000
-                    state: REQUESTED
-                    version: 0
+                    state: REJECTED
+                    version: 1
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideResponse"
           description: approve or reject exact reviewed revision succeeded
@@ -42585,7 +42741,12 @@ paths:
                         changeId: 018f0000-0000-7000-8000-000000000002
                         kind: POST
                         path: content/articles/hello.md
-                        review: NOT_REQUIRED
+                        pullRequestUrl: https://github.com/rathnastest/g11/pull/7
+                        review: NEEDS_RE_REVIEW
+                        reviewComment: Please soften the second paragraph.
+                        reviewDecidedAt: "2026-10-05T09:00:00Z"
+                        reviewDecidedBy:
+                          displayName: Maya Rao
                         title: Hello, world
                         updatedAt: "2026-10-05T09:30:00Z"
                       - action: CHANGE

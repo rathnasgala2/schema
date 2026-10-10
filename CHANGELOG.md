@@ -8,6 +8,32 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.6.0] - 2026-10-10
+
+Turn Cloudflare's proxy on after the certificate, sign in with a different
+GitHub account, and reviewer comments.
+
+### Added
+
+- Cloudflare proxy: `DnsIntent` `PROXY` (offered only once the domain is live
+  with an issued certificate); `DnsPlanAction` `PROXY_ON`; `DomainBinding.proxy`
+  (`{ provider, since }`, present once the proxy was turned on through a
+  connection); `DomainDnsObservation.viaProxy` (true when the name resolves to
+  the provider's proxy; `pointsToGithub` stays false while proxied);
+  `DomainCertificate.state` `PROXIED`; `DomainNextStep.code`
+  `TURN_ON_CLOUDFLARE_PROXY`. `DnsProviderOffer.intents` may now hold three
+  values.
+- `PostAuthenticationGithubTransactionsRequest.selectAccount` (boolean, default
+  false): ask GitHub to show its account picker (`prompt=select_account`).
+- Reviewer comments: the decide request takes an optional `comment` (1 to 4000
+  characters; otherwise `VALIDATION_FAILED` with pointer `/comment`).
+  `ReviewSummary` and the decide response gain optional `comment`, `decidedAt`,
+  `decidedBy`, `requestedAt` and `requestedBy` (`SiteActor`); the review list
+  returns them per item. The review event stream stays signal-only.
+- Site pending changes: `review` gains `NEEDS_RE_REVIEW` (the reviewed revision
+  was replaced and the author requests review again); new optional
+  `reviewComment`, `reviewDecidedAt`, `reviewDecidedBy` and `pullRequestUrl`.
+
 ## [3.5.0] - 2026-10-10
 
 Add a domain's DNS records at Cloudflare with one click.
@@ -2567,7 +2593,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.5.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.6.0...HEAD
+[3.6.0]: https://github.com/rathnasgala2/schema/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/rathnasgala2/schema/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/rathnasgala2/schema/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/rathnasgala2/schema/compare/v3.2.0...v3.3.0

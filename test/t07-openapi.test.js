@@ -2376,12 +2376,13 @@ test('SCHEMA-3.5.0: the DNS connection contract is closed and complete', async (
   const base =
     '/v2/organizations/{organizationId}/publications/{publicationId}/domains/{domainId}';
   assert.deepEqual(schemas.DnsProvider.enum, ['CLOUDFLARE']);
-  assert.deepEqual(schemas.DnsIntent.enum, ['ADD', 'REMOVE']);
+  assert.deepEqual(schemas.DnsIntent.enum, ['ADD', 'REMOVE', 'PROXY']);
   assert.deepEqual(schemas.DnsPlanAction.enum, [
     'CREATE',
     'KEEP',
     'REPLACE',
     'DELETE',
+    'PROXY_ON',
   ]);
   assert.deepEqual(schemas.DnsConnectionOutcomeCode.enum, [
     'CANCELLED',
@@ -2395,7 +2396,7 @@ test('SCHEMA-3.5.0: the DNS connection contract is closed and complete', async (
   const offer = schemas.DnsProviderOffer;
   assert.equal(offer.properties.intents.uniqueItems, true);
   assert.equal(offer.properties.intents.minItems, 1);
-  assert.equal(offer.properties.intents.maxItems, 2);
+  assert.equal(offer.properties.intents.maxItems, 3);
   const dns = schemas.DomainBinding.properties.dns;
   assert.ok(!dns.required.includes('providers'));
   assert.equal(
@@ -2427,4 +2428,71 @@ test('SCHEMA-3.5.0: the DNS connection contract is closed and complete', async (
   const callback = bundle.paths['/v2/callbacks/cloudflare/oauth'].get;
   assert.deepEqual(Object.keys(callback.responses).sort(), ['303', '400']);
   assert.deepEqual(callback.security, []);
+});
+
+test('SCHEMA-3.6.0: proxy stage 2, account picker and reviewer comments', async () => {
+  const bundle = parseYaml(await readFile('openapi/openapi.yaml', 'utf8'));
+  const schemas = bundle.components.schemas;
+  assert.deepEqual(schemas.DnsIntent.enum, ['ADD', 'REMOVE', 'PROXY']);
+  assert.ok(schemas.DnsPlanAction.enum.includes('PROXY_ON'));
+  assert.ok(
+    schemas.DomainCertificate.properties.state.enum.includes('PROXIED'),
+  );
+  const binding = schemas.DomainBinding;
+  assert.deepEqual(binding.properties.proxy.required, ['provider', 'since']);
+  assert.ok(!binding.required.includes('proxy'));
+  assert.equal(
+    schemas.DomainDnsObservation.properties.viaProxy.type,
+    'boolean',
+  );
+  assert.ok(!schemas.DomainDnsObservation.required.includes('viaProxy'));
+  assert.match(schemas.DomainNextStep.description, /TURN_ON_CLOUDFLARE_PROXY/);
+  const github = schemas.PostAuthenticationGithubTransactionsRequest;
+  assert.equal(github.properties.selectAccount.default, false);
+  assert.deepEqual(github.required, ['purpose']);
+  const decide =
+    schemas.PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideRequest;
+  assert.equal(decide.properties.comment.minLength, 1);
+  assert.equal(decide.properties.comment.maxLength, 4000);
+  assert.ok(!decide.required.includes('comment'));
+  for (const name of [
+    'ReviewSummary',
+    'PostOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecideResponse',
+  ]) {
+    const properties = schemas[name].properties;
+    for (const key of [
+      'comment',
+      'decidedAt',
+      'decidedBy',
+      'requestedAt',
+      'requestedBy',
+    ]) {
+      assert.ok(properties[key], `${name}.${key}`);
+      assert.ok(!schemas[name].required.includes(key), `${name}.${key}`);
+    }
+  }
+  const change =
+    schemas.SitePendingChange ??
+    Object.values(schemas).find((schema) =>
+      schema.properties?.review?.enum?.includes('CHANGES_REQUESTED'),
+    );
+  assert.ok(change.properties.review.enum.includes('NEEDS_RE_REVIEW'));
+  for (const key of [
+    'reviewComment',
+    'reviewDecidedAt',
+    'reviewDecidedBy',
+    'pullRequestUrl',
+  ]) {
+    assert.ok(change.properties[key], key);
+    assert.ok(!change.required.includes(key), key);
+  }
+  const decideOperation =
+    bundle.paths[
+      '/v2/organizations/{organizationId}/publications/{publicationId}/reviews/{reviewId}:decide'
+    ].post;
+  assert.ok(
+    decideOperation.responses['400']['x-gala-problem-codes'].includes(
+      'VALIDATION_FAILED',
+    ),
+  );
 });
