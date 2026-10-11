@@ -20,6 +20,13 @@ import {
   THEME_TOKEN_CATALOG,
   isAdmittedTokenValue,
 } from './theme-token-grammar.js';
+import {
+  TEMPLATE_COMPOSITIONS,
+  TEMPLATE_COMPOSITION_FIELDS,
+  TEMPLATE_COMPOSITION_SCHEMA_ID,
+  TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+  THEME_COMPOSITION_PROFILES,
+} from './template-composition-contract.js';
 import unicodeData from '../../src/internal/generated/unicode17.json' with { type: 'json' };
 import {
   assertUnicodeScalarString,
@@ -40,6 +47,10 @@ const PACKAGE_NAME_PATTERN =
   /^(?:[a-z0-9][a-z0-9._-]*|@[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*)$/u;
 
 const TEMPLATE_COMPOSITION_KEYS = ['schemaId', 'schemaVersion'];
+const GENERATION_4_COMPOSITION_KEYS = [
+  ...TEMPLATE_COMPOSITION_KEYS,
+  ...TEMPLATE_COMPOSITION_FIELDS,
+];
 const THEME_KEYS = [
   'schemaId',
   'schemaVersion',
@@ -61,6 +72,7 @@ const THEME_KEYS = [
   'evidenceDigest',
   'stylingContractDigest',
 ];
+const GENERATION_4_THEME_KEYS = [...THEME_KEYS, 'composition'];
 const TOKEN_KEYS = ['key', 'type', 'light', 'dark'];
 const ASSET_KEYS = ['path', 'mediaType', 'byteLength', 'sha256', 'license'];
 const BUDGET_KEYS = ['maximumFileBytes', 'maximumTotalBytes', 'maximumFiles'];
@@ -186,10 +198,9 @@ const RUNNER_EVIDENCE_KEYS = ['runner', 'records'];
 
 const THEME_IDENTITIES = Object.freeze(
   Object.fromEntries(
-    ['default', 'amaze', 'flashy', 'minimal', 'zebra'].map((themeId) => [
-      themeId,
-      `@rathnasgala2/theme-${themeId}`,
-    ]),
+    ['default', 'amaze', 'editorial', 'flashy', 'minimal', 'zebra'].map(
+      (themeId) => [themeId, `@rathnasgala2/theme-${themeId}`],
+    ),
   ),
 );
 const STYLESHEET_VARIANTS = Object.freeze([
@@ -774,22 +785,39 @@ function stringArrayEquals(value, expected) {
 }
 
 /**
- * Validate the intentionally empty MVP template-composition projection.
+ * Validate a legacy empty or one exact generation-4 template composition.
  *
  * @param {unknown} value template-composition instance
  * @returns {void}
  */
 export function validateTemplateComposition(value) {
+  const candidate =
+    value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {UnknownRecord} */ (value)
+      : undefined;
+  const selected =
+    typeof candidate?.profile === 'string'
+      ? /** @type {Readonly<Record<string, UnknownRecord>>} */ (
+          TEMPLATE_COMPOSITIONS
+        )[candidate.profile]
+      : undefined;
   const record = exactRecord(
     value,
-    TEMPLATE_COMPOSITION_KEYS,
+    selected ? GENERATION_4_COMPOSITION_KEYS : TEMPLATE_COMPOSITION_KEYS,
     'TEMPLATE_COMPOSITION_INVALID',
   );
   if (
-    record.schemaId !== 'urn:gala:schema:template-composition:2.0.0' ||
-    record.schemaVersion !== '2.0.0'
+    record.schemaId !== TEMPLATE_COMPOSITION_SCHEMA_ID ||
+    record.schemaVersion !== TEMPLATE_COMPOSITION_SCHEMA_VERSION
   ) {
     invalid('TEMPLATE_COMPOSITION_INVALID');
+  }
+  if (selected) {
+    for (const field of TEMPLATE_COMPOSITION_FIELDS) {
+      if (record[field] !== selected[field]) {
+        invalid('TEMPLATE_COMPOSITION_INVALID');
+      }
+    }
   }
 }
 
@@ -895,7 +923,16 @@ function validateBudgets(value, code = 'THEME_BUDGET_INVALID') {
  */
 export function validateThemeContract(value) {
   const code = 'THEME_CONTRACT_INVALID';
-  const theme = exactRecord(value, THEME_KEYS, code);
+  const candidate =
+    value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? /** @type {UnknownRecord} */ (value)
+      : undefined;
+  const generation4 = candidate?.contractVersion === '4.0.0';
+  const theme = exactRecord(
+    value,
+    generation4 ? GENERATION_4_THEME_KEYS : THEME_KEYS,
+    code,
+  );
   if (
     theme.schemaId !== 'urn:gala:schema:theme-contract:2.0.0' ||
     theme.schemaVersion !== '2.0.0' ||
@@ -909,6 +946,22 @@ export function validateThemeContract(value) {
   if (identity.name !== THEME_IDENTITIES[theme.themeId]) invalid(code);
   requireSemver(theme.contractVersion, code);
   requireSemverRange(theme.templateRange, code);
+  if (theme.themeId === 'editorial' && !generation4) invalid(code);
+  if (generation4) {
+    if (theme.templateRange !== '^4.0.0') {
+      invalid(code);
+    }
+    validateTemplateComposition(theme.composition);
+    const composition = /** @type {UnknownRecord} */ (theme.composition);
+    if (
+      composition.profile !==
+      /** @type {Readonly<Record<string, string>>} */ (
+        THEME_COMPOSITION_PROFILES
+      )[theme.themeId]
+    ) {
+      invalid(code);
+    }
+  }
 
   const variant = STYLESHEET_VARIANTS.find(
     ({ paths, layers }) =>

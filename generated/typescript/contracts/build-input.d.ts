@@ -9,7 +9,7 @@ export type BuildInputAppearanceNormalized = Readonly<{
   readonly footerComposition: 'profile' | 'compact' | 'minimal';
   readonly headerComposition: 'mark-and-name' | 'name-only' | 'mark-only';
   readonly source: BuildInputNormalizedSource;
-  readonly theme: BuildInputPackageExact & unknown;
+  readonly theme: string & BuildInputPackageExact;
   readonly tokens: BuildInputSemanticTokens;
   readonly typeScale: 'compact' | 'standard' | 'spacious';
   readonly wordmark?: BuildInputResolvedFile;
@@ -77,7 +77,8 @@ export type BuildInputBuildPackages = Readonly<{
         | '@rathnasgala2/theme-amaze'
         | '@rathnasgala2/theme-flashy'
         | '@rathnasgala2/theme-minimal'
-        | '@rathnasgala2/theme-zebra';
+        | '@rathnasgala2/theme-zebra'
+        | '@rathnasgala2/theme-editorial';
     }>;
 }>;
 

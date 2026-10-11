@@ -3,7 +3,20 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const ROOT_LEDGERS = {
-  'template-composition': { required: [], optional: [] },
+  'template-composition': {
+    required: [],
+    optional: [
+      'profile',
+      'homeLayout',
+      'articleLayout',
+      'authorLayout',
+      'listingLayout',
+      'headerLayout',
+      'footerLayout',
+      'mediaRatio',
+      'density',
+    ],
+  },
   'theme-contract': {
     required: [
       'themeId',
@@ -24,7 +37,7 @@ const ROOT_LEDGERS = {
       'evidenceDigest',
       'stylingContractDigest',
     ],
-    optional: [],
+    optional: ['composition'],
   },
   lock: {
     required: [

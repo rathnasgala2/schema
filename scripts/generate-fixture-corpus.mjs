@@ -472,6 +472,7 @@ function stringValue(schema, pointer, variant = 0) {
     '@rathnasgala2/template@2.0.0',
     '@rathnasgala2/theme-default@2.0.0',
     '@rathnasgala2/theme-amaze@2.0.0',
+    '@rathnasgala2/theme-editorial@4.0.0',
     '@rathnasgala2/theme-flashy@2.0.0',
     '@rathnasgala2/theme-minimal@2.0.0',
     '@rathnasgala2/theme-zebra@2.0.0',

@@ -12524,11 +12524,13 @@ paths:
         Reads this publication's theme selection at the linked repository's
         current main branch head: `selected` from `gala/appearance.json`
         (`theme`, `colorMode.default`), `built` from the `theme` block of
-        `gala.lock.json`, and the closed five-theme `catalog` the server can
+        `gala.lock.json`, and the closed six-theme `catalog` the server can
         write. `selected.themeId` and `built.themeId` are `null` when that
         file names a package outside the catalog ("Custom theme").
-        `consistent` is true when `selected` and `built` name the same
-        package. `setUp` matches `GET .../repository/setup`'s `state`.
+        `consistent` is true when a catalog theme's selected contract range
+        and locked exact version equal the catalog release; for a custom
+        theme, package equality is sufficient. `setUp` matches
+        `GET .../repository/setup`'s `state`.
         `openChange` names an existing not-yet-published repository change
         of this publication that touches appearance, or is `null`, so a
         client links to it instead of planning a second one. The browser
@@ -12564,20 +12566,57 @@ paths:
                     built:
                       themeId: default
                       themePackage: '@rathnasgala2/theme-default'
-                      version: 2.0.0
+                      version: 4.0.0
                     catalog:
-                      - description: The calm default look.
+                      - description:
+                          A newspaper-style home and issue layout for
+                          publication-led creators.
                         displayName: Default
                         package: '@rathnasgala2/theme-default'
                         themeId: default
-                        version: 2.0.0
+                        version: 4.0.0
+                      - description:
+                          A serif-led magazine composition for editorial
+                          publications.
+                        displayName: Amaze
+                        package: '@rathnasgala2/theme-amaze'
+                        themeId: amaze
+                        version: 4.0.0
+                      - description:
+                          A magazine-style publication with distinct home,
+                          article, and author layouts.
+                        displayName: Editorial
+                        package: '@rathnasgala2/theme-editorial'
+                        themeId: editorial
+                        version: 4.0.0
+                      - description:
+                          An image-led gallery and full-bleed article
+                          composition.
+                        displayName: Flashy
+                        package: '@rathnasgala2/theme-flashy'
+                        themeId: flashy
+                        version: 4.0.0
+                      - description:
+                          A quiet chronological home and prose-first reading
+                          experience.
+                        displayName: Minimal
+                        package: '@rathnasgala2/theme-minimal'
+                        themeId: minimal
+                        version: 4.0.0
+                      - description:
+                          A compact topic index and technical article layout for
+                          developers.
+                        displayName: Zebra
+                        package: '@rathnasgala2/theme-zebra'
+                        themeId: zebra
+                        version: 4.0.0
                     consistent: true
                     head: sha1:0000000000000000000000000000000000000000
                     openChange: null
                     selected:
                       colorModeDefault: system
                       themeId: default
-                      themePackage: '@rathnasgala2/theme-default@^2.0.0'
+                      themePackage: '@rathnasgala2/theme-default@^4.0.0'
                     setUp: true
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdAppearanceResponse'
@@ -13721,7 +13760,7 @@ paths:
                         - displayName: Example Author
                           id: 018f0000-0000-7000-8000-000000000001
                       defaultLanguage: en
-                      theme: '@rathnasgala2/theme-default@^2.0.0'
+                      theme: '@rathnasgala2/theme-default@^4.0.0'
                     setUp: true
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse'

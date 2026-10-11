@@ -165,7 +165,8 @@ export type BuildProvenanceManifestCompositionIdentity = Readonly<{
         | '@rathnasgala2/theme-amaze'
         | '@rathnasgala2/theme-flashy'
         | '@rathnasgala2/theme-minimal'
-        | '@rathnasgala2/theme-zebra';
+        | '@rathnasgala2/theme-zebra'
+        | '@rathnasgala2/theme-editorial';
     }>;
 }>;
 
@@ -243,7 +244,8 @@ export type BuildProvenanceManifestReproducibleBuildRecord = Readonly<{
         | '@rathnasgala2/theme-amaze'
         | '@rathnasgala2/theme-flashy'
         | '@rathnasgala2/theme-minimal'
-        | '@rathnasgala2/theme-zebra';
+        | '@rathnasgala2/theme-zebra'
+        | '@rathnasgala2/theme-editorial';
     }>;
   readonly workflowIdentity: BuildProvenanceDigest;
 }>;

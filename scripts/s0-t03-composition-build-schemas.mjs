@@ -10,6 +10,13 @@ import {
   TOKEN_VALUE_MAX_LENGTH,
   VALUE_PATTERNS,
 } from './internal-semantics/theme-token-grammar.js';
+import {
+  TEMPLATE_COMPOSITIONS,
+  TEMPLATE_COMPOSITION_FIELDS,
+  TEMPLATE_COMPOSITION_SCHEMA_ID,
+  TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+  THEME_COMPOSITION_PROFILES,
+} from './internal-semantics/template-composition-contract.js';
 
 const MANIFEST_MEDIA_TYPES = [
   'text/html; charset=utf-8',
@@ -63,12 +70,16 @@ const CONTENT_MEDIA_TYPES = [
   ...CONTENT_VIDEO_MEDIA_TYPES,
 ];
 
-const THEME_PACKAGES = [
+const LEGACY_THEME_PACKAGES = [
   '@rathnasgala2/theme-default',
   '@rathnasgala2/theme-amaze',
   '@rathnasgala2/theme-flashy',
   '@rathnasgala2/theme-minimal',
   '@rathnasgala2/theme-zebra',
+];
+const THEME_PACKAGES = [
+  ...LEGACY_THEME_PACKAGES,
+  '@rathnasgala2/theme-editorial',
 ];
 
 const ADAPTER_PACKAGES = [
@@ -173,7 +184,8 @@ export function editionKindRule() {
 }
 
 /**
- * Create the five S0-T03 composition and build schemas.
+ * Create the S0-T03 composition and build schemas, including the additive
+ * Editorial composition and theme-contract branches.
  *
  * @param {object} language schema construction language
  * @param {Function} language.rootSchema root-schema constructor
@@ -430,6 +442,53 @@ export function createCompositionBuildSchemas(language) {
       $comment: `Every value is checked against its type's allow-list grammar; keyword tokens carry a per-key enum on their tokens position. Only ${MODE_VARIANT_TYPES.join(', ')} tokens may differ between light and dark; every other type must be byte-equal in both modes (enforced by the semantic validator). Font-family components are each limited to 64 ASCII bytes.`,
     },
   );
+
+  const compositionFields =
+    /** @type {readonly (keyof (typeof TEMPLATE_COMPOSITIONS)['editorial'])[]} */ (
+      TEMPLATE_COMPOSITION_FIELDS
+    );
+  const compositionProperties = Object.fromEntries(
+    compositionFields.map((field) => [
+      field,
+      {
+        enum: [
+          ...new Set(
+            Object.values(TEMPLATE_COMPOSITIONS).map(
+              (composition) => composition[field],
+            ),
+          ),
+        ],
+      },
+    ]),
+  );
+  const compositionBranches = Object.values(TEMPLATE_COMPOSITIONS).map(
+    (composition) => ({
+      properties: Object.fromEntries(
+        compositionFields.map((field) => [
+          field,
+          { const: composition[field] },
+        ]),
+      ),
+      required: [...compositionFields],
+    }),
+  );
+  const templateComposition = {
+    oneOf: Object.values(TEMPLATE_COMPOSITIONS).map((composition) =>
+      closedObject(
+        {
+          schemaId: { const: TEMPLATE_COMPOSITION_SCHEMA_ID },
+          schemaVersion: { const: TEMPLATE_COMPOSITION_SCHEMA_VERSION },
+          ...Object.fromEntries(
+            compositionFields.map((field) => [
+              field,
+              { const: composition[field] },
+            ]),
+          ),
+        },
+        ['schemaId', 'schemaVersion', ...compositionFields],
+      ),
+    ),
+  };
 
   const themeTokens = {
     type: 'array',
@@ -767,8 +826,17 @@ export function createCompositionBuildSchemas(language) {
         allOf: [
           ref('packageExact'),
           {
-            pattern:
-              '^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@',
+            anyOf: [
+              {
+                type: 'string',
+                pattern:
+                  '^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@',
+              },
+              {
+                type: 'string',
+                pattern: '^@rathnasgala2/theme-editorial@',
+              },
+            ],
           },
         ],
       },
@@ -1595,12 +1663,23 @@ export function createCompositionBuildSchemas(language) {
   return {
     'template-composition.schema.json': rootSchema(
       'template-composition',
-      {},
+      compositionProperties,
       [],
       {},
       {
+        oneOf: [
+          {
+            not: {
+              anyOf: TEMPLATE_COMPOSITION_FIELDS.map((name) => ({
+                properties: { [name]: {} },
+                required: [name],
+              })),
+            },
+          },
+          ...compositionBranches,
+        ],
         $comment:
-          'MVP composition is intentionally empty: deferred module properties and every unknown property reject.',
+          'The legacy composition remains empty. Generation 4 adds five closed, all-fields-required branches; fields from different profiles cannot be mixed and theme options remain deferred.',
       },
     ),
     'theme-contract.schema.json': rootSchema(
@@ -1611,13 +1690,23 @@ export function createCompositionBuildSchemas(language) {
           allOf: [
             ref('packageExact'),
             {
-              pattern:
-                '^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@',
+              anyOf: [
+                {
+                  type: 'string',
+                  pattern:
+                    '^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@',
+                },
+                {
+                  type: 'string',
+                  pattern: '^@rathnasgala2/theme-editorial@',
+                },
+              ],
             },
           ],
         },
         contractVersion: ref('semver'),
         templateRange: ref('semverRange'),
+        composition: ref('templateComposition'),
         stylesheets: arrayOf(ref('repoRelativePath'), 1, 16),
         cssLayers: arrayOf(ref('plainLabel'), 1, 16),
         slotHooks: arrayOf(ref('plainLabel'), 1, 256, true),
@@ -1655,6 +1744,7 @@ export function createCompositionBuildSchemas(language) {
         positiveInt64,
         nonNegativeInt64,
         spdxExpression,
+        templateComposition,
         themeToken,
         passiveAsset,
         themeBudgets,
@@ -1662,14 +1752,16 @@ export function createCompositionBuildSchemas(language) {
       {
         allOf: [
           {
-            oneOf: THEME_PACKAGES.map((packageName) => ({
-              properties: {
-                themeId: {
-                  const: packageName.slice('@rathnasgala2/theme-'.length),
+            oneOf: [
+              ...THEME_PACKAGES.map((packageName) => ({
+                properties: {
+                  themeId: {
+                    const: packageName.slice('@rathnasgala2/theme-'.length),
+                  },
+                  package: { pattern: `^${packageName.replace('/', '\\/')}@` },
                 },
-                package: { pattern: `^${packageName.replace('/', '\\/')}@` },
-              },
-            })),
+              })),
+            ],
           },
           {
             oneOf: [
@@ -1704,6 +1796,40 @@ export function createCompositionBuildSchemas(language) {
                 },
               },
             ],
+          },
+          {
+            if: {
+              properties: { contractVersion: { const: '4.0.0' } },
+              required: ['contractVersion'],
+            },
+            then: {
+              properties: { templateRange: { const: '^4.0.0' } },
+              required: ['composition'],
+              allOf: Object.entries(THEME_COMPOSITION_PROFILES).map(
+                ([themeId, profile]) => ({
+                  if: {
+                    properties: { themeId: { const: themeId } },
+                    required: ['themeId'],
+                  },
+                  then: {
+                    properties: {
+                      composition: {
+                        properties: { profile: { const: profile } },
+                        required: ['profile'],
+                      },
+                    },
+                  },
+                }),
+              ),
+            },
+            else: { not: { required: ['composition'] } },
+          },
+          {
+            if: {
+              properties: { themeId: { const: 'editorial' } },
+              required: ['themeId'],
+            },
+            then: { properties: { contractVersion: { const: '4.0.0' } } },
           },
         ],
         $comment:

@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-10-11
+
+### Added
+
+- Additive generation-4 branches in the immutable-ID template-composition and
+  theme-contract roots for Editorial, Newsletter, Visual, Personal, and
+  Developer directions. Each branch is closed and fully embedded; layout fields
+  from different profiles cannot be mixed.
+- Generation-4 composition mapping for every admitted theme package: Default
+  selects Newsletter, Amaze and Editorial select Editorial, Flashy selects
+  Visual, Minimal selects Personal, and Zebra selects Developer. Existing
+  generation-2/3 documents remain composition-free and retain their validation
+  behavior.
+
 ## [3.7.0] - 2026-10-10
 
 Add the operator-only V2 platform dashboard contracts.
@@ -2620,7 +2634,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.7.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.8.0...HEAD
+[3.8.0]: https://github.com/rathnasgala2/schema/compare/v3.7.0...v3.8.0
 [3.7.0]: https://github.com/rathnasgala2/schema/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/rathnasgala2/schema/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/rathnasgala2/schema/compare/v3.4.0...v3.5.0

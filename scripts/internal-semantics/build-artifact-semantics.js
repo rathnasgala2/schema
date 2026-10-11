@@ -57,6 +57,7 @@ const THEME_TO_ID = /** @type {Readonly<Record<string, string>>} */ (
   Object.freeze({
     '@rathnasgala2/theme-default': 'default',
     '@rathnasgala2/theme-amaze': 'amaze',
+    '@rathnasgala2/theme-editorial': 'editorial',
     '@rathnasgala2/theme-flashy': 'flashy',
     '@rathnasgala2/theme-minimal': 'minimal',
     '@rathnasgala2/theme-zebra': 'zebra',

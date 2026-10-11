@@ -14,6 +14,9 @@ import {
 import { validateGalaFormat } from '../src/internal/format-validators.js';
 import { graphemeLength17 } from '../src/internal/unicode17.js';
 
+// SCHEMA-3.8.0: the reviewed hashes below include the additive Editorial
+// package admission across build/deployment artifacts and the immutable
+// composition/theme-contract immutable-ID roots' closed generation-4 branches.
 const T03_SCHEMA_HASHES = {
   'adapter-capability':
     // SCHEMA-2.10.0 LOCAL-62: x-gala-decision-phase annotations on every
@@ -57,7 +60,7 @@ const T03_SCHEMA_HASHES = {
     // audio/ogg, audio/wav, video/mp4, video/webm for pass-through media
     // referenced from article bodies. Additive (enum widened); the
     // byte-identical build-provenance.schema.json copy moves with it.
-    '2d99b1af6e435acb50aac4b5f2c3f3e620eaa504097ea908ec6b1951829119f4',
+    '06c30d0889585fb23a5168df9e71666b377803b0a2a575d927b87ab128afd31d',
   author: '86774ba476ba5a11b298bdca0d949d2584bd698d375e4b5dbeac6203d5133730',
   'build-input':
     // 2026-09-25 code-discipline review, SCH-C3: adapterIdentity renamed to
@@ -78,7 +81,7 @@ const T03_SCHEMA_HASHES = {
     // contentFrontmatterNormalized admits kind edition with the closed
     // edition block (new $defs attribution and contentEdition, shared with
     // appearance and content-frontmatter). Additive.
-    'e98464effe228ea33a5e739b0543dd776b9863ecf4fca7bf73ebd4f579ed162b',
+    '0b0772b3ad13ad267686d05d12cc7741cd529949f364fb5ad0bac696d012c7d8',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -91,7 +94,7 @@ const T03_SCHEMA_HASHES = {
     // reproducibleBuildRecord renamed to recordRenderPolicyIdentity/
     // recordReproducibleBuildRecord to disambiguate from the manifest
     // roots' const-named-policy variants.
-    '6442ef8a26a9ce0d103d4facbcd798bd97b80469427a2304407b8e65e526a3e3',
+    '78ab41dd7b5020be10b681303038e149289b902981e88809d937c19939e5e478',
   'deployment-observation':
     // 2026-09-25 code-discipline review, SCH-C3: see deployment-intent above
     // (int64/nonNegativeInt64/positiveInt64/renderPolicyIdentity).
@@ -100,8 +103,8 @@ const T03_SCHEMA_HASHES = {
     // 2026-09-25 code-discipline review, SCH-C3: see deployment-intent above
     // (int64/nonNegativeInt64/positiveInt64/renderPolicyIdentity/
     // reproducibleBuildRecord).
-    'f11b86ba0b0340eb8de421c16846bcc222cfa4263a3a7447894b71a827825ca1',
-  lock: '52d7026ec8aaf8c600ba98bbd6384cd376fc127bdd517d0639b5df658b84b57e',
+    'ede5860c98c2b701a6a31c51af5d576a0d5857395b0552e812d3fdc4fc9ed076',
+  lock: 'b594649a9449a01dd30fb48562fae0ac7728d5de78547f5e4ca9516a40626fe7',
   navigation:
     // 2026-09-25 code-discipline review, SCH-C3: navigationItem/
     // navigationLeaf reconciled to build-input's leaner if/then/else form
@@ -115,11 +118,11 @@ const T03_SCHEMA_HASHES = {
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':
-    '175eddf8b424fe6dfb8e2f79d23195b23333d5050acd02c6fbc17233214669f5',
+    'd4d0b62ee0a7fb3e333538b5a1501a14875c8a965711f468f800261b9857dfa6',
   'theme-contract':
     // 2026-09-25 code-discipline review, SCH-C3: positiveInt64 gained a real
     // upper bound (see artifact-manifest above).
-    '4d586690db60767ed80b3bb15d3ac8ba6a68bfc9848acb58cbbeab4f7434bf56',
+    'cefa8f03218436fc1ada81457713b485c1bb157aa55b677e9795f990d84161a8',
 };
 
 const ADVERSARIAL_CATEGORIES = [

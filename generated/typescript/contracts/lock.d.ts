@@ -122,6 +122,7 @@ export type LockDocument = Readonly<{
         | '@rathnasgala2/theme-amaze'
         | '@rathnasgala2/theme-flashy'
         | '@rathnasgala2/theme-minimal'
-        | '@rathnasgala2/theme-zebra';
+        | '@rathnasgala2/theme-zebra'
+        | '@rathnasgala2/theme-editorial';
     }>;
 }>;

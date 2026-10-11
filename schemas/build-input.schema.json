@@ -232,7 +232,8 @@
                     "@rathnasgala2/theme-amaze",
                     "@rathnasgala2/theme-flashy",
                     "@rathnasgala2/theme-minimal",
-                    "@rathnasgala2/theme-zebra"
+                    "@rathnasgala2/theme-zebra",
+                    "@rathnasgala2/theme-editorial"
                   ]
                 }
               }
@@ -742,7 +743,16 @@
           "allOf": [
             { "$ref": "#/$defs/packageExact" },
             {
-              "pattern": "^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@"
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^@rathnasgala2/theme-editorial@"
+                }
+              ]
             }
           ]
         },

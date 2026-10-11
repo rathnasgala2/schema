@@ -147,14 +147,12 @@ test('package exports the generated API and machine catalogs explicitly', async 
   );
 });
 
-test('release workflow is one pinned provenance publication run', async () => {
+test('release workflow validates and packages without publication authority', async () => {
   const source = await readFile('.github/workflows/release.yaml', 'utf8');
   const workflow = /** @type {{
     on: {push: {branches: string[], paths: string[]}},
     permissions: Record<string, string>,
-    jobs: {publish: {
-      environment: string,
-      permissions: Record<string, string>,
+    jobs: {package: {
       steps: Array<{name: string, run?: string, uses?: string}>
     }}
   }} */ (parseYaml(source));
@@ -163,30 +161,20 @@ test('release workflow is one pinned provenance publication run', async () => {
   assert.ok(workflow.on.push.paths.includes('LICENSE'));
   assert.ok(workflow.on.push.paths.includes('NOTICE'));
   assert.deepEqual(workflow.permissions, { contents: 'read' });
-  assert.equal(workflow.jobs.publish.environment, 'npm');
-  assert.deepEqual(workflow.jobs.publish.permissions, {
-    contents: 'write',
-    'id-token': 'write',
-  });
-  const steps = workflow.jobs.publish.steps;
+  assert.equal('publish' in workflow.jobs, false);
+  const steps = workflow.jobs.package.steps;
   assert.match(
-    steps.find(({ name }) => name === 'Reject version reuse')?.run ?? '',
-    /npm view/u,
-  );
-  assert.match(
-    steps.find(
-      ({ name }) =>
-        name === 'Check the CHANGELOG has an entry for this version',
-    )?.run ?? '',
-    /CHANGELOG\.md/u,
-  );
-  assert.match(
-    steps.find(({ name }) => name === 'Tag the release')?.run ?? '',
-    /git push/u,
+    steps.find(({ name }) => name === 'Build the package artifact')?.run ?? '',
+    /npm pack --pack-destination dist/u,
   );
   assert.equal(
-    steps.find(({ name }) => name === 'Publish with trusted provenance')?.run,
-    'npm publish --access public --provenance',
+    steps.find(({ name }) => name === 'Upload the package artifact')?.uses,
+    'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
   );
-  assert.equal(/NODE_AUTH_TOKEN|npm_[A-Za-z0-9]/u.test(source), false);
+  assert.equal(
+    /npm publish|npm view|git push|NODE_AUTH_TOKEN|id-token|environment:\s*npm/u.test(
+      source,
+    ),
+    false,
+  );
 });

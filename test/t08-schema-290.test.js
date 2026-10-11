@@ -441,6 +441,19 @@ test('the request rebuild record restates the retained record with four Gala-own
       `${member} drifted from the retained definition`,
     );
   }
+  const document = await bundle();
+  assert.deepEqual(
+    document.components.schemas.ReceiptExchangeIntentRequestRebuildRecord
+      .properties.theme.allOf[1].properties.package.enum,
+    [
+      '@rathnasgala2/theme-default',
+      '@rathnasgala2/theme-amaze',
+      '@rathnasgala2/theme-editorial',
+      '@rathnasgala2/theme-flashy',
+      '@rathnasgala2/theme-minimal',
+      '@rathnasgala2/theme-zebra',
+    ],
+  );
   assert.deepEqual(
     request.required,
     retained.required.filter(
@@ -841,7 +854,7 @@ test('every profile function member is frozen', () => {
 
 test('the record vectors ship with the package', async () => {
   const definition = await readJson('package.json');
-  assert.equal(definition.version, '3.7.0');
+  assert.equal(definition.version, '3.8.0');
   assert.equal(
     definition.exports['./parity/digest-record-vectors.json'],
     './parity/digest-record-vectors.json',

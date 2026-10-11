@@ -10,6 +10,7 @@ export default tseslint.config(
       'coverage/**',
       'generated/**',
       'node_modules/**',
+      'parity/java/build/**',
       'types/**',
     ],
   },

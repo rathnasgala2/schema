@@ -414,6 +414,7 @@ export type DeploymentIntentRecordReproducibleBuildRecord = Readonly<{
       readonly package?:
         | '@rathnasgala2/theme-default'
         | '@rathnasgala2/theme-amaze'
+        | '@rathnasgala2/theme-editorial'
         | '@rathnasgala2/theme-flashy'
         | '@rathnasgala2/theme-minimal'
         | '@rathnasgala2/theme-zebra';

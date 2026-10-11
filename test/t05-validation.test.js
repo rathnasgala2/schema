@@ -52,6 +52,62 @@ test('the public validator accepts a canonical document', async () => {
   });
 });
 
+test('build input admits Editorial and rejects an unknown theme package', async () => {
+  const editorial = await readJson('examples/valid/build-input/canonical.json');
+  editorial.packages.theme.package = '@rathnasgala2/theme-editorial';
+  editorial.packages.theme.version = '4.0.0';
+  editorial.appearance.theme = '@rathnasgala2/theme-editorial@4.0.0';
+  assert.equal(validateGalaDocument(editorial.schemaId, editorial).valid, true);
+
+  const unknown = structuredClone(editorial);
+  unknown.packages.theme.package = '@rathnasgala2/theme-unknown';
+  unknown.appearance.theme = '@rathnasgala2/theme-unknown@4.0.0';
+  assert.equal(validateGalaDocument(unknown.schemaId, unknown).valid, false);
+});
+
+test('the immutable roots admit complete generation-4 Editorial contracts', async () => {
+  const composition = {
+    schemaId: 'urn:gala:schema:template-composition:2.0.0',
+    schemaVersion: '2.0.0',
+    profile: 'editorial',
+    homeLayout: 'magazine',
+    articleLayout: 'editorial',
+    authorLayout: 'portrait',
+    listingLayout: 'rows',
+    headerLayout: 'masthead',
+    footerLayout: 'expanded',
+    mediaRatio: 'landscape',
+    density: 'comfortable',
+  };
+  assert.deepEqual(validateGalaDocument(composition.schemaId, composition), {
+    valid: true,
+    diagnostics: [],
+  });
+
+  const incomplete = /** @type {Record<string, unknown>} */ (
+    structuredClone(composition)
+  );
+  delete incomplete.authorLayout;
+  assert.equal(
+    validateGalaDocument(composition.schemaId, incomplete).valid,
+    false,
+  );
+
+  const theme = await readJson('examples/valid/theme-contract/canonical.json');
+  theme.themeId = 'editorial';
+  theme.package = '@rathnasgala2/theme-editorial@4.0.0';
+  theme.contractVersion = '4.0.0';
+  theme.templateRange = '^4.0.0';
+  theme.composition = composition;
+  assert.deepEqual(validateGalaDocument(theme.schemaId, theme), {
+    valid: true,
+    diagnostics: [],
+  });
+
+  delete theme.composition.authorLayout;
+  assert.equal(validateGalaDocument(theme.schemaId, theme).valid, false);
+});
+
 test('the public validator returns complete stable diagnostics', async () => {
   const value = await readJson('examples/valid/repository/canonical.json');
   value.unexpected = true;

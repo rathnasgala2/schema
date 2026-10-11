@@ -9,6 +9,12 @@ import spdxData from '../src/internal/generated/spdx-3.28.0.json' with { type: '
 import { defaultThemeTokens } from '../scripts/default-theme-tokens.js';
 import { SemanticValidationError } from '../src/internal/semver.js';
 import {
+  TEMPLATE_COMPOSITIONS,
+  TEMPLATE_COMPOSITION_SCHEMA_ID,
+  TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+  THEME_COMPOSITION_PROFILES,
+} from '../scripts/internal-semantics/template-composition-contract.js';
+import {
   computeTemplateStylingContractDigest,
   computeThemeConformanceEvidenceDigest,
   computeThemeConformanceInputDigest,
@@ -604,12 +610,31 @@ function runnerEvidenceRecords(context, member) {
   return array(record(context[member]).records);
 }
 
-test('template-composition admits only its two exact discriminator fields', () => {
+test('template-composition admits the legacy empty contract and five exact generation-4 profiles', () => {
   assert.doesNotThrow(() =>
     validateTemplateComposition({
-      schemaId: 'urn:gala:schema:template-composition:2.0.0',
-      schemaVersion: '2.0.0',
+      schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+      schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
     }),
+  );
+  for (const composition of Object.values(TEMPLATE_COMPOSITIONS)) {
+    assert.doesNotThrow(() =>
+      validateTemplateComposition({
+        schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+        schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+        ...composition,
+      }),
+    );
+  }
+  assertDiagnostic(
+    () =>
+      validateTemplateComposition({
+        schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+        schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+        ...TEMPLATE_COMPOSITIONS.newsletter,
+        homeLayout: TEMPLATE_COMPOSITIONS.visual.homeLayout,
+      }),
+    'TEMPLATE_COMPOSITION_INVALID',
   );
   for (const property of [
     'interactions',
@@ -622,13 +647,61 @@ test('template-composition admits only its two exact discriminator fields', () =
     assertDiagnostic(
       () =>
         validateTemplateComposition({
-          schemaId: 'urn:gala:schema:template-composition:2.0.0',
-          schemaVersion: '2.0.0',
+          schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+          schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
           [property]: {},
         }),
       'TEMPLATE_COMPOSITION_INVALID',
     );
   }
+});
+
+test('generation-4 theme contracts require their exact package composition while legacy contracts stay composition-free', () => {
+  const base = completeFixture();
+  const identities = Object.entries(THEME_COMPOSITION_PROFILES);
+  for (const [themeId, profile] of identities) {
+    const candidate = structuredClone(base.theme);
+    candidate.themeId = themeId;
+    candidate.package = `@rathnasgala2/theme-${themeId}@4.0.0`;
+    candidate.contractVersion = '4.0.0';
+    candidate.templateRange = '^4.0.0';
+    candidate.composition = {
+      schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+      schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+      ...TEMPLATE_COMPOSITIONS[profile],
+    };
+    assert.doesNotThrow(() => validateThemeContract(candidate));
+
+    const mixed = structuredClone(candidate);
+    mixed.composition = {
+      schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+      schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+      ...TEMPLATE_COMPOSITIONS[profile === 'visual' ? 'personal' : 'visual'],
+    };
+    assertDiagnostic(
+      () => validateThemeContract(mixed),
+      'THEME_CONTRACT_INVALID',
+    );
+  }
+
+  const missing = structuredClone(base.theme);
+  missing.contractVersion = '4.0.0';
+  missing.templateRange = '^4.0.0';
+  assertDiagnostic(
+    () => validateThemeContract(missing),
+    'THEME_CONTRACT_INVALID',
+  );
+
+  const legacyWithComposition = structuredClone(base.theme);
+  legacyWithComposition.composition = {
+    schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+    schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+    ...TEMPLATE_COMPOSITIONS.newsletter,
+  };
+  assertDiagnostic(
+    () => validateThemeContract(legacyWithComposition),
+    'THEME_CONTRACT_INVALID',
+  );
 });
 
 test('the five identities and exact contract-3 token order, types, grammars, and palettes are closed', () => {

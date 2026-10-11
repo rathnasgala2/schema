@@ -58,6 +58,73 @@ export type ThemeContractSpdxExpression = string;
 
 export type ThemeContractStableId = string;
 
+export type ThemeContractTemplateComposition =
+  | Readonly<{
+      readonly articleLayout: 'editorial';
+      readonly authorLayout: 'portrait';
+      readonly density: 'comfortable';
+      readonly footerLayout: 'expanded';
+      readonly headerLayout: 'masthead';
+      readonly homeLayout: 'magazine';
+      readonly listingLayout: 'rows';
+      readonly mediaRatio: 'landscape';
+      readonly profile: 'editorial';
+      readonly schemaId: 'urn:gala:schema:template-composition:2.0.0';
+      readonly schemaVersion: '2.0.0';
+    }>
+  | Readonly<{
+      readonly articleLayout: 'full-bleed';
+      readonly authorLayout: 'portfolio';
+      readonly density: 'comfortable';
+      readonly footerLayout: 'compact';
+      readonly headerLayout: 'minimal';
+      readonly homeLayout: 'gallery';
+      readonly listingLayout: 'image-grid';
+      readonly mediaRatio: 'mixed';
+      readonly profile: 'visual';
+      readonly schemaId: 'urn:gala:schema:template-composition:2.0.0';
+      readonly schemaVersion: '2.0.0';
+    }>
+  | Readonly<{
+      readonly articleLayout: 'issue';
+      readonly authorLayout: 'profile';
+      readonly density: 'comfortable';
+      readonly footerLayout: 'expanded';
+      readonly headerLayout: 'publication';
+      readonly homeLayout: 'newspaper';
+      readonly listingLayout: 'issues';
+      readonly mediaRatio: 'landscape';
+      readonly profile: 'newsletter';
+      readonly schemaId: 'urn:gala:schema:template-composition:2.0.0';
+      readonly schemaVersion: '2.0.0';
+    }>
+  | Readonly<{
+      readonly articleLayout: 'prose';
+      readonly authorLayout: 'biography';
+      readonly density: 'spacious';
+      readonly footerLayout: 'compact';
+      readonly headerLayout: 'compact';
+      readonly homeLayout: 'chronological';
+      readonly listingLayout: 'dated-rows';
+      readonly mediaRatio: 'landscape';
+      readonly profile: 'personal';
+      readonly schemaId: 'urn:gala:schema:template-composition:2.0.0';
+      readonly schemaVersion: '2.0.0';
+    }>
+  | Readonly<{
+      readonly articleLayout: 'technical';
+      readonly authorLayout: 'biography';
+      readonly density: 'compact';
+      readonly footerLayout: 'compact';
+      readonly headerLayout: 'utility';
+      readonly homeLayout: 'topic-index';
+      readonly listingLayout: 'rows';
+      readonly mediaRatio: 'landscape';
+      readonly profile: 'developer';
+      readonly schemaId: 'urn:gala:schema:template-composition:2.0.0';
+      readonly schemaVersion: '2.0.0';
+    }>;
+
 export type ThemeContractThemeBudgets = Readonly<{
   readonly maximumFileBytes: ThemeContractPositiveInt64;
   readonly maximumFiles: number;
@@ -235,6 +302,10 @@ export type ThemeContractDocument = (
       }>
     | Readonly<{
         readonly package?: unknown;
+        readonly themeId?: 'editorial';
+      }>
+    | Readonly<{
+        readonly package?: unknown;
         readonly themeId?: 'flashy';
       }>
     | Readonly<{
@@ -250,6 +321,7 @@ export type ThemeContractDocument = (
     readonly assets: ReadonlyArray<ThemeContractPassiveAsset>;
     readonly browserPolicyRef: 'gala-theme-css-v2-20211224';
     readonly budgets: ThemeContractThemeBudgets;
+    readonly composition?: ThemeContractTemplateComposition;
     readonly contractVersion: ThemeContractSemver;
     readonly cssLayers: ReadonlyArray<ThemeContractPlainLabel>;
     readonly evidenceDigest: ThemeContractDigest;
@@ -257,7 +329,7 @@ export type ThemeContractDocument = (
     readonly fixtures: ReadonlyArray<ThemeContractPlainLabel>;
     readonly integrity: ThemeContractDigest;
     readonly modes: ['dark', 'light', 'system'];
-    readonly package: ThemeContractPackageExact & unknown;
+    readonly package: string & ThemeContractPackageExact;
     readonly schemaId: 'urn:gala:schema:theme-contract:2.0.0';
     readonly schemaVersion: '2.0.0';
     readonly slotHooks: ReadonlyArray<ThemeContractPlainLabel>;
@@ -869,4 +941,5 @@ export type ThemeContractDocument = (
       }> &
         ThemeContractThemeToken,
     ];
-  }>;
+  }> &
+  unknown;
