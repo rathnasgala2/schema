@@ -562,7 +562,11 @@ function validateContractClosure(records, components) {
       if (parameter?.example === undefined) {
         throw new Error(`${identity}: parameter example is absent`);
       }
-      const validateParameter = ajv.compile(parameter.schema);
+      // Local component references resolve against the document's components.
+      const validateParameter = ajv.compile({
+        ...parameter.schema,
+        components: { schemas: components.schemas },
+      });
       if (!validateParameter(parameter.example)) {
         throw new Error(
           `${identity}: ${parameter.name} parameter example is invalid: ${JSON.stringify(validateParameter.errors)}`,

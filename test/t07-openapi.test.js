@@ -581,7 +581,10 @@ test('every operation carries exact scope, lifecycle, activation and validated e
       /** @type {import('ajv-formats').default} */ (
         /** @type {unknown} */ (formatsPlugin)
       )(ajv);
-      const validateParameter = ajv.compile(parameter.schema);
+      const validateParameter = ajv.compile({
+        ...parameter.schema,
+        components: { schemas: bundle.components.schemas },
+      });
       assert.equal(
         validateParameter(parameter.example),
         true,
@@ -723,7 +726,9 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
       schema.properties?.hasMore !== undefined &&
       schema.properties?.nextCursor !== undefined,
   );
-  assert.equal(collections.length, 21);
+  // SCHEMA-3.7.0 adds keyset collections for platform users, abuse cases and
+  // webhook events.
+  assert.equal(collections.length, 24);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),
@@ -2494,5 +2499,158 @@ test('SCHEMA-3.6.0: proxy stage 2, account picker and reviewer comments', async 
     decideOperation.responses['400']['x-gala-problem-codes'].includes(
       'VALIDATION_FAILED',
     ),
+  );
+});
+
+test('SCHEMA-3.7.0: platform console exposes only implemented projections', async () => {
+  const bundle = parseYaml(await readFile('openapi/openapi.yaml', 'utf8'));
+  const schemas = bundle.components.schemas;
+  /**
+   * @param {string} method
+   * @param {string} path
+   * @returns {JsonObject}
+   */
+  const operation = (method, path) => bundle.paths[path][method];
+
+  const capabilities = new Map([
+    ['getPlatformOverview', 'platform.users.view'],
+    ['getPlatformUsers', 'platform.users.view'],
+    ['getPlatformOauthClients', 'platform.oauth.clients.manage'],
+    ['postPlatformOauthClients', 'platform.oauth.clients.manage'],
+    [
+      'postPlatformOauthClientsByOauthClientIdRevoke',
+      'platform.oauth.clients.manage',
+    ],
+    ['getPlatformAbuseCases', 'platform.abuse.view'],
+    ['getPlatformAbuseCasesByCommentId', 'platform.abuse.view'],
+    ['postPlatformAbuseCasesByCommentIdDecide', 'platform.abuse.remediate'],
+    ['getPlatformCaches', 'platform.caches.view'],
+    ['postPlatformCachesByCacheIdEvict', 'platform.caches.manage'],
+    ['getPlatformPlans', 'platform.plans.view'],
+    ['putPlatformPlansByPlanKey', 'platform.plans.manage'],
+    ['getPlatformWebhookEvents', 'platform.webhooks.view'],
+    ['getPlatformWebhookEventsByEventId', 'platform.webhooks.view'],
+  ]);
+  for (const [operationId, capability] of capabilities) {
+    const row = Object.values(bundle.paths)
+      .flatMap((pathItem) => Object.values(pathItem))
+      .find((candidate) => candidate?.operationId === operationId);
+    assert.equal(row?.['x-gala-capability-key'], capability, operationId);
+  }
+
+  assert.deepEqual(schemas.PlatformPersonState.enum, [
+    'ACTIVE',
+    'SUSPENDED',
+    'RESTRICTED',
+    'CLOSING',
+    'CLOSED',
+  ]);
+  const user = schemas.PlatformUser.properties;
+  assert.ok(user.personId && user.state && user.planTiers);
+  for (const invented of [
+    'subscriptionStatus',
+    'interactions',
+    'planKey',
+    'traffic',
+  ]) {
+    assert.equal(user[invented], undefined, invented);
+  }
+
+  const abuseSummary = schemas.PlatformAbuseCaseSummary.properties;
+  assert.equal(abuseSummary.body, undefined);
+  assert.equal(abuseSummary.reportReasons, undefined);
+  const abuseDetail = schemas.PlatformAbuseCaseDetail.properties;
+  for (const evidence of ['body', 'contentId', 'parentId', 'reportReasons']) {
+    assert.ok(abuseDetail[evidence], evidence);
+  }
+  assert.deepEqual(
+    /** @type {JsonObject[]} */ (abuseDetail.parentId.oneOf)
+      .map((branch) => branch.type)
+      .sort(),
+    ['null', 'string'],
+  );
+
+  assert.deepEqual(schemas.PlatformOauthClient.properties.state.enum, [
+    'DRAFT',
+    'REVOKED',
+  ]);
+  const createResponse = schemas.PostPlatformOauthClientsResponse;
+  assert.ok(!createResponse.required.includes('clientSecret'));
+  assert.deepEqual([...createResponse.properties.clientSecret.type].sort(), [
+    'null',
+    'string',
+  ]);
+
+  assert.deepEqual(schemas.PlatformOperatorReasonCode, {
+    description:
+      'Non-sensitive operator reason code recorded in the audit event.',
+    maxLength: 80,
+    minLength: 1,
+    pattern: '^[A-Z][A-Z0-9_]{0,79}$',
+    type: 'string',
+  });
+  for (const name of [
+    'PostPlatformOauthClientsRequest',
+    'PostPlatformOauthClientsByOauthClientIdRevokeRequest',
+    'PostPlatformAbuseCasesByCommentIdDecideRequest',
+    'PostPlatformCachesByCacheIdEvictRequest',
+    'PutPlatformPlansByPlanKeyRequest',
+  ]) {
+    assert.deepEqual(schemas[name].properties.reason, {
+      $ref: '#/components/schemas/PlatformOperatorReasonCode',
+    });
+    assert.ok(schemas[name].required.includes('reason'), name);
+  }
+
+  const cacheEvict = operation('post', '/v2/platform/caches/{cacheId}:evict');
+  assert.equal(schemas.PlatformCache.properties.ttlSeconds.minimum, 1);
+  assert.equal(
+    operation('get', '/v2/platform/caches').responses['200'].content[
+      'application/json'
+    ].examples.nominal.value.items[0].ttlSeconds,
+    300,
+  );
+  const planUpdate = operation('put', '/v2/platform/plans/{planKey}');
+  const oauthRevoke = operation(
+    'post',
+    '/v2/platform/oauth-clients/{oauthClientId}:revoke',
+  );
+  for (const mutation of [cacheEvict, planUpdate, oauthRevoke]) {
+    const references = /** @type {JsonObject[]} */ (mutation.parameters).map(
+      (parameter) => parameter.$ref,
+    );
+    assert.ok(references.includes('#/components/parameters/IdempotencyKey'));
+    assert.ok(references.includes('#/components/parameters/IfMatch'));
+    assert.ok(references.includes('#/components/parameters/XCsrfToken'));
+  }
+
+  const webhook = schemas.PlatformWebhookEvent.properties;
+  for (const field of [
+    'eventId',
+    'organizationId',
+    'eventType',
+    'providerRepositoryId',
+    'pullRequestNumber',
+    'workflowRunId',
+    'status',
+    'attemptCount',
+    'attemptLimit',
+    'resultCode',
+    'firstSeenAt',
+    'processedAt',
+    'updatedAt',
+  ]) {
+    assert.ok(webhook[field], field);
+  }
+  assert.equal(webhook.messageId, undefined);
+  assert.equal(webhook.version, undefined);
+
+  assert.match(
+    operation('get', '/v2/platform/audit-events').description,
+    /trailing seven days/,
+  );
+  assert.match(
+    operation('get', '/v2/platform/webhook-events').description,
+    /trailing seven days/,
   );
 });

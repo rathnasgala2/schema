@@ -118,13 +118,1258 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
+  /v2/platform/abuse-cases:
+    get:
+      description: |
+        Operators only, with recent authentication. Keyset-paged moderation
+        cases across every organization. Rows expose only identifiers, state,
+        report counts, and ordering instants; comment bodies and report reasons
+        are available only from the detail operation.
+      operationId: getPlatformAbuseCases
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - commentId: 018f0000-0000-7000-8000-000000000003
+                        commentState: VISIBLE_PENDING_SCAN
+                        firstReportedAt: 2026-10-10T10:30:00.000Z
+                        lastReportedAt: 2026-10-10T11:00:00.000Z
+                        openReportCount: 1
+                        organizationId: 018f0000-0000-7000-8000-000000000001
+                        publicationId: 018f0000-0000-7000-8000-000000000002
+                        totalReportCount: 1
+                        updatedAt: 2026-10-10T11:00:00.000Z
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetPlatformAbuseCasesResponse'
+          description: list platform abuse cases succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list platform abuse cases
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.abuse.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform abuse cases
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/abuse-cases/{commentId}:
+    get:
+      description: |
+        Operators only, with recent authentication. Reads one cross-platform
+        moderation case by stable comment id, including the comment body,
+        content and parent coordinates, and sorted distinct reasons from open
+        reports. Reporter identities and report notes are never exposed.
+      operationId: getPlatformAbuseCasesByCommentId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    body: Great article.
+                    commentId: 018f0000-0000-7000-8000-000000000003
+                    commentState: VISIBLE_PENDING_SCAN
+                    contentId: 018f0000-0000-7000-8000-000000000004
+                    firstReportedAt: 2026-10-10T10:30:00.000Z
+                    lastReportedAt: 2026-10-10T11:00:00.000Z
+                    openReportCount: 1
+                    organizationId: 018f0000-0000-7000-8000-000000000001
+                    parentId: null
+                    publicationId: 018f0000-0000-7000-8000-000000000002
+                    reportReasons:
+                      - OTHER
+                    totalReportCount: 1
+                    updatedAt: 2026-10-10T11:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/GetPlatformAbuseCasesByCommentIdResponse'
+          description: read platform abuse case succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: read platform abuse case
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.abuse.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read platform abuse case
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/abuse-cases/{commentId}:decide:
+    post:
+      description: |
+        Operators only, with recent authentication. Applies one existing
+        `ModerationDecision` after rechecking the comment and appeal state.
+        Inapplicable decisions return `INVALID_DECISION`. `reason` is the
+        non-sensitive operator reason code recorded in the audit event.
+      operationId: postPlatformAbuseCasesByCommentIdDecide
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: commentId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  decision: HOLD
+                  note: Pending a second review.
+                  reason: REPORTED_CONTENT_REVIEW
+            schema:
+              $ref: '#/components/schemas/PostPlatformAbuseCasesByCommentIdDecideRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    body: Great article.
+                    commentId: 018f0000-0000-7000-8000-000000000003
+                    commentState: HELD_REVIEW
+                    contentId: 018f0000-0000-7000-8000-000000000004
+                    firstReportedAt: 2026-10-10T10:30:00.000Z
+                    lastReportedAt: 2026-10-10T11:00:00.000Z
+                    openReportCount: 1
+                    organizationId: 018f0000-0000-7000-8000-000000000001
+                    parentId: null
+                    publicationId: 018f0000-0000-7000-8000-000000000002
+                    reportReasons:
+                      - OTHER
+                    totalReportCount: 1
+                    updatedAt: 2026-10-10T12:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostPlatformAbuseCasesByCommentIdDecideResponse'
+          description: decide platform abuse case succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          $ref: '#/components/responses/InvalidDecisionCommandConflict'
+      security:
+        - browserSession: []
+      summary: decide platform abuse case
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.abuse.remediate
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: decide platform abuse case
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_DECISION
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/platform/caches:
+    get:
+      description: |
+        Operators only, with recent authentication. Lists the bounded cache
+        inventory, each durable all-instance eviction epoch, this serving
+        instance's entry count, and update version. Cache keys and values are
+        never exposed.
+      operationId: getPlatformCaches
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - epoch: 3
+                        localEntryCount: 7
+                        name: GITHUB_INSTALLATION_TOKEN
+                        ttlSeconds: 300
+                        updatedAt: 2026-10-10T12:00:00.000Z
+                        updatedByPersonId: 018f0000-0000-7000-8000-000000000001
+                        version: 3
+              schema:
+                $ref: '#/components/schemas/GetPlatformCachesResponse'
+          description: list platform caches succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list platform caches
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.caches.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform caches
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/caches/{cacheId}:evict:
+    post:
+      description: |
+        Operators only, with recent authentication. Advances the named cache's
+        durable epoch at the exact version in `If-Match`; all serving instances
+        converge on that epoch, while `localEntryCount` reports only the
+        responding instance. `reason` is the non-sensitive reason code recorded
+        in the audit event.
+      operationId: postPlatformCachesByCacheIdEvict
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: GITHUB_INSTALLATION_TOKEN
+          in: path
+          name: cacheId
+          required: true
+          schema:
+            enum:
+              - GITHUB_INSTALLATION_TOKEN
+              - GITHUB_REPOSITORY_METADATA
+              - GITHUB_REPOSITORY_CONTENT
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  reason: CREDENTIAL_ROTATION
+            schema:
+              $ref: '#/components/schemas/PostPlatformCachesByCacheIdEvictRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    epoch: 4
+                    localEntryCount: 0
+                    name: GITHUB_INSTALLATION_TOKEN
+                    ttlSeconds: 300
+                    updatedAt: 2026-10-10T12:00:00.000Z
+                    updatedByPersonId: 018f0000-0000-7000-8000-000000000001
+                    version: 4
+              schema:
+                $ref: '#/components/schemas/PostPlatformCachesByCacheIdEvictResponse'
+          description: evict platform cache succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          $ref: '#/components/responses/CommandReplayConflict'
+        '412':
+          $ref: '#/components/responses/StaleAggregateVersion'
+      security:
+        - browserSession: []
+      summary: evict platform cache
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.caches.manage
+      x-gala-concurrency: if-match-platform-cache-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: evict platform cache
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - STALE_AGGREGATE_VERSION
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: update
+      x-gala-tenant-scope: NONE
+  /v2/platform/overview:
+    get:
+      description: |
+        Operators only, with recent authentication. A bounded platform summary
+        for the dashboard landing page. Counts use exact persisted person,
+        organization, publication, comment, reaction, OAuth client, abuse, and
+        webhook states. The webhook counters cover the trailing seven days;
+        no traffic or subscription fact is inferred.
+      operationId: getPlatformOverview
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    commentDeletedByAuthor: 1
+                    commentHeldReview: 2
+                    commentRemoved: 3
+                    commentVisible: 41
+                    commentVisibleFlagged: 4
+                    commentVisiblePendingScan: 2
+                    oauthClientDraft: 2
+                    oauthClientRevoked: 1
+                    openAbuseCases: 3
+                    organizationActive: 5
+                    organizationBusiness: 1
+                    organizationClosed: 0
+                    organizationClosing: 0
+                    organizationFree: 2
+                    organizationPro: 2
+                    organizationProvisioning: 1
+                    organizationSuspended: 0
+                    personActive: 8
+                    personClosed: 1
+                    personClosing: 0
+                    personRestricted: 1
+                    personSuspended: 1
+                    publicationActive: 12
+                    publicationPaused: 1
+                    publicationProvisioning: 1
+                    publicationRetired: 2
+                    publicationRetiring: 1
+                    reactionActive: 63
+                    reactionInactive: 4
+                    webhookProcessed7d: 25
+                    webhookProcessing7d: 1
+                    webhookQuarantined7d: 1
+                    webhookReceived7d: 2
+              schema:
+                $ref: '#/components/schemas/GetPlatformOverviewResponse'
+          description: read the platform dashboard overview succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: read the platform dashboard overview
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.users.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the platform dashboard overview
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/users:
+    get:
+      description: |
+        Operators only, with recent authentication. Keyset-paged principals
+        across the platform with exact person state, provider display snapshots,
+        creation and last-sign-in instants, accessible publication count, and
+        the distinct organization plan tiers reached through current grants.
+        Subscription and per-user traffic data are not inferred.
+      operationId: getPlatformUsers
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - description: Only people in this exact persisted state.
+          example: ACTIVE
+          in: query
+          name: state
+          required: false
+          schema:
+            $ref: '#/components/schemas/PlatformPersonState'
+        - description:
+            Case-insensitive match against person id, display name, or login.
+          example: ada
+          in: query
+          name: search
+          required: false
+          schema:
+            maxLength: 200
+            minLength: 1
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - createdAt: 2026-09-01T12:00:00.000Z
+                        displayName: Ada Reader
+                        lastSignInAt: 2026-10-10T11:30:00.000Z
+                        login: ada-reader
+                        personId: 018f0000-0000-7000-8000-000000000001
+                        planTiers:
+                          - FREE
+                          - PRO
+                        publicationCount: 2
+                        state: ACTIVE
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetPlatformUsersResponse'
+          description: list platform users succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list platform users
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.users.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform users
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/oauth-clients:
+    get:
+      description: |
+        Operators only, with recent authentication. Lists OAuth client registry
+        metadata. Client secrets are never returned by this or any later read.
+      operationId: getPlatformOauthClients
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - accessTokenTtlSeconds: 3600
+                        clientId: gala_0123456789abcdefghijklmnopqrstuv
+                        clientType: CONFIDENTIAL
+                        createdAt: 2026-10-10T12:00:00.000Z
+                        createdByPersonId: 018f0000-0000-7000-8000-000000000002
+                        description: Connect automation and monitoring tools.
+                        grantTypes:
+                          - AUTHORIZATION_CODE
+                          - REFRESH_TOKEN
+                          - CLIENT_CREDENTIALS
+                        homepageUri: https://example.com/
+                        id: 018f0000-0000-7000-8000-000000000001
+                        logoUri: https://example.com/logo.png
+                        name: Automation client
+                        redirectUris:
+                          - https://example.com/oauth/callback
+                        revokedAt: null
+                        scopes:
+                          - read
+                          - write
+                        state: DRAFT
+                        updatedAt: 2026-10-10T12:00:00.000Z
+                        version: 0
+              schema:
+                $ref: '#/components/schemas/GetPlatformOauthClientsResponse'
+          description: list OAuth clients succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list OAuth clients
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.oauth.clients.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list OAuth clients
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    post:
+      description: |
+        Operators only, with recent authentication. Registers one DRAFT OAuth
+        client. `reason` is a non-sensitive operator reason code recorded in
+        the audit event. `Idempotency-Key` is the registry-row identity. The
+        generated CONFIDENTIAL-client secret is disclosed only by the first
+        successful response and is never stored in plaintext; PUBLIC clients
+        and committed retries return `clientSecret` null or omitted.
+      operationId: postPlatformOauthClients
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  accessTokenTtlSeconds: 3600
+                  clientType: CONFIDENTIAL
+                  description: Connect automation and monitoring tools.
+                  grantTypes:
+                    - AUTHORIZATION_CODE
+                    - REFRESH_TOKEN
+                    - CLIENT_CREDENTIALS
+                  homepageUri: https://example.com/
+                  logoUri: https://example.com/logo.png
+                  name: Automation client
+                  reason: OPERATOR_REQUESTED
+                  redirectUris:
+                    - https://example.com/oauth/callback
+                  scopes:
+                    - read
+                    - write
+            schema:
+              $ref: '#/components/schemas/PostPlatformOauthClientsRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    client:
+                      accessTokenTtlSeconds: 3600
+                      clientId: gala_0123456789abcdefghijklmnopqrstuv
+                      clientType: CONFIDENTIAL
+                      createdAt: 2026-10-10T12:00:00.000Z
+                      createdByPersonId: 018f0000-0000-7000-8000-000000000002
+                      description: Connect automation and monitoring tools.
+                      grantTypes:
+                        - AUTHORIZATION_CODE
+                        - REFRESH_TOKEN
+                        - CLIENT_CREDENTIALS
+                      homepageUri: https://example.com/
+                      id: 018f0000-0000-7000-8000-000000000001
+                      logoUri: https://example.com/logo.png
+                      name: Automation client
+                      redirectUris:
+                        - https://example.com/oauth/callback
+                      revokedAt: null
+                      scopes:
+                        - read
+                        - write
+                      state: DRAFT
+                      updatedAt: 2026-10-10T12:00:00.000Z
+                      version: 0
+                    clientSecret: gala_secret_0123456789abcdefghijklmnopqrstuv
+              schema:
+                $ref: '#/components/schemas/PostPlatformOauthClientsResponse'
+          description: register OAuth client succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '409':
+          $ref: '#/components/responses/CommandReplayConflict'
+      security:
+        - browserSession: []
+      summary: register OAuth client
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.oauth.clients.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: register OAuth client
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/platform/oauth-clients/{oauthClientId}:revoke:
+    post:
+      description: |
+        Operators only, with recent authentication. Revokes exactly the DRAFT
+        registry entry named by `oauthClientId` (the entry's `id`, a UUID) at the
+        version in `If-Match`; the public OAuth `clientId` remains response
+        metadata. A REVOKED client is
+        rejected with `INVALID_SOURCE_STATE`. `reason` is the non-sensitive
+        reason code recorded in the audit event.
+      operationId: postPlatformOauthClientsByOauthClientIdRevoke
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: oauthClientId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  reason: INTEGRATION_RETIRED
+            schema:
+              $ref: '#/components/schemas/PostPlatformOauthClientsByOauthClientIdRevokeRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    accessTokenTtlSeconds: 3600
+                    clientId: gala_0123456789abcdefghijklmnopqrstuv
+                    clientType: CONFIDENTIAL
+                    createdAt: 2026-10-10T12:00:00.000Z
+                    createdByPersonId: 018f0000-0000-7000-8000-000000000002
+                    description: Connect automation and monitoring tools.
+                    grantTypes:
+                      - CLIENT_CREDENTIALS
+                    homepageUri: https://example.com/
+                    id: 018f0000-0000-7000-8000-000000000001
+                    logoUri: https://example.com/logo.png
+                    name: Automation client
+                    redirectUris: []
+                    revokedAt: 2026-10-10T13:00:00.000Z
+                    scopes:
+                      - metrics:read
+                    state: REVOKED
+                    updatedAt: 2026-10-10T13:00:00.000Z
+                    version: 1
+              schema:
+                $ref: '#/components/schemas/PostPlatformOauthClientsByOauthClientIdRevokeResponse'
+          description: revoke OAuth client succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          $ref: '#/components/responses/InvalidSourceStateCommandConflict'
+        '412':
+          $ref: '#/components/responses/StaleAggregateVersion'
+      security:
+        - browserSession: []
+      summary: revoke OAuth client
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.oauth.clients.manage
+      x-gala-concurrency: if-match-oauth-client-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: revoke OAuth client
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_SOURCE_STATE
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - STALE_AGGREGATE_VERSION
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - OAuthClient:DRAFT -> REVOKED
+      x-gala-success-category: update
+      x-gala-tenant-scope: NONE
+  /v2/platform/plans:
+    get:
+      description: |
+        Operators only, with recent authentication. Returns the complete,
+        active publication-capacity release with its single optimistic-lock
+        version and the closed FREE, PRO, and BUSINESS plan catalog.
+      operationId: getPlatformPlans
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    effectiveAt: 2026-10-10T00:00:04.000Z
+                    items:
+                      - planKey: FREE
+                        publicationLimit: 1
+                      - planKey: PRO
+                        publicationLimit: 10
+                      - planKey: BUSINESS
+                        publicationLimit: 50
+                    releaseId: 019d0000-2000-7000-8000-000000000001
+                    releaseVersion: 2
+                    state: ACTIVE
+                    updatedAt: 2026-10-10T00:00:04.000Z
+              schema:
+                $ref: '#/components/schemas/GetPlatformPlansResponse'
+          description: list platform plans succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list platform plans
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.plans.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform plans
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/plans/{planKey}:
+    put:
+      description: |
+        Operators only, with recent authentication. Atomically replaces the
+        complete publication-capacity release, changing the named plan's limit
+        while retaining the other two, at the release version in `If-Match`.
+        The invariant FREE <= PRO <= BUSINESS is enforced. `reason` is a
+        non-sensitive operator reason code recorded in the audit event.
+      operationId: putPlatformPlansByPlanKey
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: PRO
+          in: path
+          name: planKey
+          required: true
+          schema:
+            $ref: '#/components/schemas/PlatformPlanKey'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  publicationLimit: 12
+                  reason: PLAN_LIMIT_UPDATE
+            schema:
+              $ref: '#/components/schemas/PutPlatformPlansByPlanKeyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    effectiveAt: 2026-10-10T12:00:00.000Z
+                    items:
+                      - planKey: FREE
+                        publicationLimit: 1
+                      - planKey: PRO
+                        publicationLimit: 12
+                      - planKey: BUSINESS
+                        publicationLimit: 50
+                    releaseId: 019d0000-2000-7000-8000-000000000002
+                    releaseVersion: 3
+                    state: ACTIVE
+                    updatedAt: 2026-10-10T12:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PutPlatformPlansByPlanKeyResponse'
+          description: update platform plan succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          $ref: '#/components/responses/CommandReplayConflict'
+        '412':
+          $ref: '#/components/responses/StaleAggregateVersion'
+      security:
+        - browserSession: []
+      summary: update platform plan
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.plans.manage
+      x-gala-concurrency: if-match-platform-plan-release-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: update platform plan
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - STALE_AGGREGATE_VERSION
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: update
+      x-gala-tenant-scope: NONE
+  /v2/platform/webhook-events:
+    get:
+      description: |
+        Operators only, with recent authentication. Returns redacted GitHub
+        webhook inbox metadata, newest first. Bodies and payload digests are
+        never exposed. `from` is inclusive and `to` is exclusive; the operator
+        App supplies the trailing seven days when the URL has no explicit
+        range.
+      operationId: getPlatformWebhookEvents
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - description: Only events with this GitHub event type.
+          example: PUSH
+          in: query
+          name: eventType
+          required: false
+          schema:
+            $ref: '#/components/schemas/PlatformWebhookEventType'
+        - description: Only events in this processing state.
+          example: PROCESSED
+          in: query
+          name: status
+          required: false
+          schema:
+            $ref: '#/components/schemas/PlatformWebhookProcessingStatus'
+        - description: Only events first seen at or after this instant.
+          example: 2026-10-03T12:00:00.000Z
+          in: query
+          name: from
+          required: false
+          schema:
+            format: date-time
+            pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+            type: string
+        - description: Only events first seen before this instant.
+          example: 2026-10-10T12:00:00.000Z
+          in: query
+          name: to
+          required: false
+          schema:
+            format: date-time
+            pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - attemptCount: 1
+                        attemptLimit: 12
+                        eventId: 018f0000-0000-7000-8000-000000000001
+                        eventType: PUSH
+                        firstSeenAt: 2026-10-10T11:59:58.000Z
+                        organizationId: 018f0000-0000-7000-8000-000000000003
+                        processedAt: 2026-10-10T12:00:00.000Z
+                        providerRepositoryId: 123456789
+                        pullRequestNumber: null
+                        resultCode: APPLIED
+                        status: PROCESSED
+                        updatedAt: 2026-10-10T12:00:00.000Z
+                        workflowRunId: null
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetPlatformWebhookEventsResponse'
+          description: list platform webhook events succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list platform webhook events
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.webhooks.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform webhook events
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/webhook-events/{eventId}:
+    get:
+      description: |
+        Operators only, with recent authentication. Reads one redacted webhook
+        inbox event by stable id. The request body and payload digest are never
+        exposed.
+      operationId: getPlatformWebhookEventsByEventId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: eventId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    attemptCount: 1
+                    attemptLimit: 12
+                    eventId: 018f0000-0000-7000-8000-000000000001
+                    eventType: PUSH
+                    firstSeenAt: 2026-10-10T11:59:58.000Z
+                    organizationId: 018f0000-0000-7000-8000-000000000003
+                    processedAt: 2026-10-10T12:00:00.000Z
+                    providerRepositoryId: 123456789
+                    pullRequestNumber: null
+                    resultCode: APPLIED
+                    status: PROCESSED
+                    updatedAt: 2026-10-10T12:00:00.000Z
+                    workflowRunId: null
+              schema:
+                $ref: '#/components/schemas/GetPlatformWebhookEventsByEventIdResponse'
+          description: read platform webhook event succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: read platform webhook event
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.webhooks.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read platform webhook event
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
   /v2/platform/audit-events:
     get:
       description: |
         Operators only (a configured platform operator with recent
         authentication). Audit events across every organization, newest first,
         filtered by any combination of organization, publication, actor, action
-        and time window (`from` inclusive, `to` exclusive).
+        and time window (`from` inclusive, `to` exclusive). The operator App
+        supplies the trailing seven days when the URL has no explicit range.
       operationId: getPlatformAuditEvents
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

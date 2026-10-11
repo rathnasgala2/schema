@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:fffe16d8c324badb6676a6bf99cc1dacbcc2cb3aebc26497573e30a3c9e63216",
+  "openApiDigest": "sha256:d3cdd4f047fd596fdc736c2ec8784ca83bc65df3cbe42130280ffd81763e10a8",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1425,6 +1425,42 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getPlatformAbuseCases",
+      "method": "GET",
+      "path": "/v2/platform/abuse-cases",
+      "purpose": "list platform abuse cases",
+      "capabilityKey": "platform.abuse.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformAbuseCasesByCommentId",
+      "method": "GET",
+      "path": "/v2/platform/abuse-cases/{commentId}",
+      "purpose": "read platform abuse case",
+      "capabilityKey": "platform.abuse.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformAbuseCasesByCommentIdDecide",
+      "method": "POST",
+      "path": "/v2/platform/abuse-cases/{commentId}:decide",
+      "purpose": "decide platform abuse case",
+      "capabilityKey": "platform.abuse.remediate",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
       "operationId": "getPlatformAdapters",
       "method": "GET",
       "path": "/v2/platform/adapters",
@@ -1449,11 +1485,143 @@
       "sourceFragment": "platform"
     },
     {
+      "operationId": "getPlatformCaches",
+      "method": "GET",
+      "path": "/v2/platform/caches",
+      "purpose": "list platform caches",
+      "capabilityKey": "platform.caches.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformCachesByCacheIdEvict",
+      "method": "POST",
+      "path": "/v2/platform/caches/{cacheId}:evict",
+      "purpose": "evict platform cache",
+      "capabilityKey": "platform.caches.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
       "operationId": "getPlatformConfiguration",
       "method": "GET",
       "path": "/v2/platform/configuration",
       "purpose": "read the effective platform configuration",
       "capabilityKey": "platform.configuration.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformOauthClients",
+      "method": "GET",
+      "path": "/v2/platform/oauth-clients",
+      "purpose": "list OAuth clients",
+      "capabilityKey": "platform.oauth.clients.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformOauthClients",
+      "method": "POST",
+      "path": "/v2/platform/oauth-clients",
+      "purpose": "register OAuth client",
+      "capabilityKey": "platform.oauth.clients.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformOauthClientsByOauthClientIdRevoke",
+      "method": "POST",
+      "path": "/v2/platform/oauth-clients/{oauthClientId}:revoke",
+      "purpose": "revoke OAuth client",
+      "capabilityKey": "platform.oauth.clients.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformOverview",
+      "method": "GET",
+      "path": "/v2/platform/overview",
+      "purpose": "read the platform dashboard overview",
+      "capabilityKey": "platform.users.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformPlans",
+      "method": "GET",
+      "path": "/v2/platform/plans",
+      "purpose": "list platform plans",
+      "capabilityKey": "platform.plans.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "putPlatformPlansByPlanKey",
+      "method": "PUT",
+      "path": "/v2/platform/plans/{planKey}",
+      "purpose": "update platform plan",
+      "capabilityKey": "platform.plans.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformUsers",
+      "method": "GET",
+      "path": "/v2/platform/users",
+      "purpose": "list platform users",
+      "capabilityKey": "platform.users.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformWebhookEvents",
+      "method": "GET",
+      "path": "/v2/platform/webhook-events",
+      "purpose": "list platform webhook events",
+      "capabilityKey": "platform.webhooks.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformWebhookEventsByEventId",
+      "method": "GET",
+      "path": "/v2/platform/webhook-events/{eventId}",
+      "purpose": "read platform webhook event",
+      "capabilityKey": "platform.webhooks.view",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -1953,5 +2121,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:ea3032a61bfd6ee9ed9be485a74b96aea7cfea388c04cd79e9818d58448c5ab2"
+  "digest": "sha256:c3aec0e1cda21761f7982ffdbd8aaa3a30c4ddb920abc3272a7e3d3a87121b2e"
 }

@@ -8,6 +8,33 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-10-10
+
+Add the operator-only V2 platform dashboard contracts.
+
+### Added
+
+- Platform overview with exact persisted person, organization, publication,
+  comment, reaction, OAuth-client, abuse, and seven-day webhook state counts;
+  plus keyset-paged users with person state, identity snapshots, creation and
+  last-sign-in instants, accessible publication counts, and plan tiers.
+- OAuth client registry list, create, and versioned revoke contracts. Registry
+  state is closed to `DRAFT` and `REVOKED`; create returns a confidential
+  client's secret only on the first successful response.
+- Cross-organization abuse queue/detail/decision contracts using the existing
+  moderation decision vocabulary, with review evidence confined to detail;
+  durable cache-epoch inventory and versioned coordinated eviction; active Free,
+  Pro, and Business capacity-release reads and versioned updates; and
+  keyset-paged, redacted webhook event reads.
+- V2 App route-catalog entries for the platform overview, users, integrations,
+  abuse, caches, plans, and webhook views. Existing audit, adapter, and runtime
+  configuration routes remain.
+
+### Changed
+
+- `getPlatformAuditEvents` description: the operator App supplies the trailing
+  seven days when the URL has no explicit range.
+
 ## [3.6.0] - 2026-10-10
 
 Turn Cloudflare's proxy on after the certificate, sign in with a different
@@ -2593,7 +2620,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.6.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.7.0...HEAD
+[3.7.0]: https://github.com/rathnasgala2/schema/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/rathnasgala2/schema/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/rathnasgala2/schema/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/rathnasgala2/schema/compare/v3.3.0...v3.4.0

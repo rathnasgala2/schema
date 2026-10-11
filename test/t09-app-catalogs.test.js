@@ -102,7 +102,27 @@ async function loadFixtures() {
 test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
   assert.equal(validateAppComponentSource(componentSourceValue).length, 15);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 34);
+  // SCHEMA-3.7.0 adds the ten operator-console routes.
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 44);
+  const paths = new Set(
+    /** @type {JsonObject[]} */ (
+      /** @type {JsonObject} */ (routeSourceValue).routes
+    ).map((route) => route.pathTemplate),
+  );
+  for (const path of [
+    '/platform',
+    '/platform/users',
+    '/platform/integrations',
+    '/platform/abuse',
+    '/platform/abuse/{commentId}',
+    '/platform/caches',
+    '/platform/plans',
+    '/platform/plans/{planKey}',
+    '/platform/webhooks',
+    '/platform/webhooks/{eventId}',
+  ]) {
+    assert.ok(paths.has(path), path);
+  }
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -127,7 +147,7 @@ test('generated catalogs match the committed projection', async () => {
   ]);
   assert.deepEqual(JSON.parse(committedComponentsText), components);
   assert.deepEqual(JSON.parse(committedRoutesText), routes);
-  assert.equal(authoredMessageCount, 450);
+  assert.equal(authoredMessageCount, 566);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {

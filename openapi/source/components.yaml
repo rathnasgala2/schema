@@ -223,6 +223,278 @@ components:
           $ref: '#/components/headers/XCorrelationId'
       x-gala-problem-codes:
         - VALIDATION_FAILED
+    PlatformAuthenticationRequired:
+      content:
+        application/problem+json:
+          examples:
+            AUTHENTICATION_REQUIRED:
+              summary: AUTHENTICATION_REQUIRED
+              value:
+                code: AUTHENTICATION_REQUIRED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 401
+                title: AUTHENTICATION_REQUIRED
+                type: urn:gala:problem:authentication-required
+            REAUTH_REQUIRED:
+              summary: REAUTH_REQUIRED
+              value:
+                code: REAUTH_REQUIRED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 401
+                title: REAUTH_REQUIRED
+                type: urn:gala:problem:reauth-required
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - AUTHENTICATION_REQUIRED
+        - REAUTH_REQUIRED
+    AuthorizationDenied:
+      content:
+        application/problem+json:
+          examples:
+            AUTHORIZATION_DENIED:
+              summary: AUTHORIZATION_DENIED
+              value:
+                code: AUTHORIZATION_DENIED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 403
+                title: AUTHORIZATION_DENIED
+                type: urn:gala:problem:authorization-denied
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: AUTHORIZATION_DENIED
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - AUTHORIZATION_DENIED
+    ResourceNotFound:
+      content:
+        application/problem+json:
+          examples:
+            RESOURCE_NOT_FOUND:
+              summary: RESOURCE_NOT_FOUND
+              value:
+                code: RESOURCE_NOT_FOUND
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 404
+                title: RESOURCE_NOT_FOUND
+                type: urn:gala:problem:resource-not-found
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: RESOURCE_NOT_FOUND
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - RESOURCE_NOT_FOUND
+    RequestInvalid:
+      content:
+        application/problem+json:
+          examples:
+            REQUEST_FIELD_UNKNOWN:
+              summary: REQUEST_FIELD_UNKNOWN
+              value:
+                code: REQUEST_FIELD_UNKNOWN
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 400
+                title: REQUEST_FIELD_UNKNOWN
+                type: urn:gala:problem:request-field-unknown
+            VALIDATION_FAILED:
+              summary: VALIDATION_FAILED
+              value:
+                code: VALIDATION_FAILED
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 400
+                title: VALIDATION_FAILED
+                type: urn:gala:problem:validation-failed
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+    CommandReplayConflict:
+      content:
+        application/problem+json:
+          examples:
+            COMMAND_REPLAY_CONFLICT:
+              summary: COMMAND_REPLAY_CONFLICT
+              value:
+                code: COMMAND_REPLAY_CONFLICT
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 409
+                title: COMMAND_REPLAY_CONFLICT
+                type: urn:gala:problem:command-replay-conflict
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: COMMAND_REPLAY_CONFLICT
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - COMMAND_REPLAY_CONFLICT
+    InvalidSourceStateCommandConflict:
+      content:
+        application/problem+json:
+          examples:
+            COMMAND_REPLAY_CONFLICT:
+              summary: COMMAND_REPLAY_CONFLICT
+              value:
+                code: COMMAND_REPLAY_CONFLICT
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 409
+                title: COMMAND_REPLAY_CONFLICT
+                type: urn:gala:problem:command-replay-conflict
+            INVALID_SOURCE_STATE:
+              summary: INVALID_SOURCE_STATE
+              value:
+                code: INVALID_SOURCE_STATE
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 409
+                title: INVALID_SOURCE_STATE
+                type: urn:gala:problem:invalid-source-state
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_SOURCE_STATE
+    InvalidDecisionCommandConflict:
+      content:
+        application/problem+json:
+          examples:
+            COMMAND_REPLAY_CONFLICT:
+              summary: COMMAND_REPLAY_CONFLICT
+              value:
+                code: COMMAND_REPLAY_CONFLICT
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 409
+                title: COMMAND_REPLAY_CONFLICT
+                type: urn:gala:problem:command-replay-conflict
+            INVALID_DECISION:
+              summary: INVALID_DECISION
+              value:
+                code: INVALID_DECISION
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 409
+                title: INVALID_DECISION
+                type: urn:gala:problem:invalid-decision
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: COMMAND_REPLAY_CONFLICT, INVALID_DECISION
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_DECISION
+    StaleAggregateVersion:
+      content:
+        application/problem+json:
+          examples:
+            STALE_AGGREGATE_VERSION:
+              summary: STALE_AGGREGATE_VERSION
+              value:
+                code: STALE_AGGREGATE_VERSION
+                correlationId: 018f0000-0000-7000-8000-000000000001
+                detail: See the operation contract.
+                errors: []
+                retryable: false
+                schemaId: urn:gala:schema:problem:2.0.0
+                schemaVersion: 2.0.0
+                status: 412
+                title: STALE_AGGREGATE_VERSION
+                type: urn:gala:problem:stale-aggregate-version
+          schema:
+            $ref: '#/components/schemas/Problem'
+      description: STALE_AGGREGATE_VERSION
+      headers:
+        Cache-Control:
+          $ref: '#/components/headers/CacheControlNoStore'
+        X-Correlation-Id:
+          $ref: '#/components/headers/XCorrelationId'
+      x-gala-problem-codes:
+        - STALE_AGGREGATE_VERSION
   schemas:
     ActivationDetectionEvidenceResponse:
       additionalProperties: false
@@ -10747,6 +11019,1014 @@ components:
       required:
         - items
       type: object
+    PlatformPlanKey:
+      enum:
+        - FREE
+        - PRO
+        - BUSINESS
+      type: string
+    PlatformOperatorReasonCode:
+      description:
+        Non-sensitive operator reason code recorded in the audit event.
+      maxLength: 80
+      minLength: 1
+      pattern: ^[A-Z][A-Z0-9_]{0,79}$
+      type: string
+    PlatformWebhookEventType:
+      enum:
+        - PULL_REQUEST
+        - PUSH
+        - WORKFLOW_RUN
+        - OTHER
+      type: string
+    PlatformPersonState:
+      enum:
+        - ACTIVE
+        - SUSPENDED
+        - RESTRICTED
+        - CLOSING
+        - CLOSED
+      type: string
+    GetPlatformOverviewResponse:
+      additionalProperties: false
+      properties:
+        commentDeletedByAuthor:
+          format: int64
+          minimum: 0
+          type: integer
+        commentHeldReview:
+          format: int64
+          minimum: 0
+          type: integer
+        commentRemoved:
+          format: int64
+          minimum: 0
+          type: integer
+        commentVisible:
+          format: int64
+          minimum: 0
+          type: integer
+        commentVisibleFlagged:
+          format: int64
+          minimum: 0
+          type: integer
+        commentVisiblePendingScan:
+          format: int64
+          minimum: 0
+          type: integer
+        oauthClientDraft:
+          format: int64
+          minimum: 0
+          type: integer
+        oauthClientRevoked:
+          format: int64
+          minimum: 0
+          type: integer
+        openAbuseCases:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationActive:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationBusiness:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationClosed:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationClosing:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationFree:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationPro:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationProvisioning:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationSuspended:
+          format: int64
+          minimum: 0
+          type: integer
+        personActive:
+          format: int64
+          minimum: 0
+          type: integer
+        personClosed:
+          format: int64
+          minimum: 0
+          type: integer
+        personClosing:
+          format: int64
+          minimum: 0
+          type: integer
+        personRestricted:
+          format: int64
+          minimum: 0
+          type: integer
+        personSuspended:
+          format: int64
+          minimum: 0
+          type: integer
+        publicationActive:
+          format: int64
+          minimum: 0
+          type: integer
+        publicationPaused:
+          format: int64
+          minimum: 0
+          type: integer
+        publicationProvisioning:
+          format: int64
+          minimum: 0
+          type: integer
+        publicationRetired:
+          format: int64
+          minimum: 0
+          type: integer
+        publicationRetiring:
+          format: int64
+          minimum: 0
+          type: integer
+        reactionActive:
+          format: int64
+          minimum: 0
+          type: integer
+        reactionInactive:
+          format: int64
+          minimum: 0
+          type: integer
+        webhookProcessed7d:
+          format: int64
+          minimum: 0
+          type: integer
+        webhookProcessing7d:
+          format: int64
+          minimum: 0
+          type: integer
+        webhookQuarantined7d:
+          format: int64
+          minimum: 0
+          type: integer
+        webhookReceived7d:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - personActive
+        - personSuspended
+        - personRestricted
+        - personClosing
+        - personClosed
+        - organizationProvisioning
+        - organizationActive
+        - organizationSuspended
+        - organizationClosing
+        - organizationClosed
+        - organizationFree
+        - organizationPro
+        - organizationBusiness
+        - publicationProvisioning
+        - publicationActive
+        - publicationPaused
+        - publicationRetiring
+        - publicationRetired
+        - commentVisiblePendingScan
+        - commentVisible
+        - commentVisibleFlagged
+        - commentHeldReview
+        - commentRemoved
+        - commentDeletedByAuthor
+        - reactionActive
+        - reactionInactive
+        - oauthClientDraft
+        - oauthClientRevoked
+        - openAbuseCases
+        - webhookReceived7d
+        - webhookProcessing7d
+        - webhookProcessed7d
+        - webhookQuarantined7d
+      type: object
+    PlatformUser:
+      additionalProperties: false
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        displayName:
+          maxLength: 255
+          type:
+            - string
+            - 'null'
+        lastSignInAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        login:
+          maxLength: 80
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        personId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        planTiers:
+          items:
+            $ref: '#/components/schemas/PlatformPlanKey'
+          maxItems: 3
+          type: array
+          uniqueItems: true
+        publicationCount:
+          format: int64
+          minimum: 0
+          type: integer
+        state:
+          $ref: '#/components/schemas/PlatformPersonState'
+      required:
+        - personId
+        - state
+        - displayName
+        - login
+        - createdAt
+        - lastSignInAt
+        - publicationCount
+        - planTiers
+      type: object
+    GetPlatformUsersResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformUser'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PlatformOauthGrantType:
+      enum:
+        - AUTHORIZATION_CODE
+        - REFRESH_TOKEN
+        - CLIENT_CREDENTIALS
+      type: string
+    PlatformOauthClientType:
+      enum:
+        - PUBLIC
+        - CONFIDENTIAL
+      type: string
+    PlatformOauthScope:
+      enum:
+        - read
+        - write
+        - metrics:read
+      type: string
+    PlatformOauthClientDescriptionText:
+      maxLength: 1000
+      minLength: 1
+      type: string
+    PlatformOauthClientHttpsUri:
+      format: uri
+      maxLength: 2048
+      minLength: 8
+      pattern: ^https://[^\s#]+$
+      type: string
+    PlatformOauthClient:
+      additionalProperties: false
+      properties:
+        accessTokenTtlSeconds:
+          maximum: 86400
+          minimum: 300
+          type: integer
+        clientId:
+          maxLength: 160
+          minLength: 24
+          pattern: ^[A-Za-z0-9._~-]+$
+          type: string
+        clientType:
+          $ref: '#/components/schemas/PlatformOauthClientType'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        createdByPersonId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        description:
+          oneOf:
+            - $ref: '#/components/schemas/PlatformOauthClientDescriptionText'
+            - type: 'null'
+        grantTypes:
+          items:
+            $ref: '#/components/schemas/PlatformOauthGrantType'
+          maxItems: 3
+          minItems: 1
+          type: array
+          uniqueItems: true
+        homepageUri:
+          oneOf:
+            - $ref: '#/components/schemas/PlatformOauthClientHttpsUri'
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        logoUri:
+          oneOf:
+            - $ref: '#/components/schemas/PlatformOauthClientHttpsUri'
+            - type: 'null'
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        redirectUris:
+          items:
+            format: uri
+            maxLength: 2048
+            minLength: 8
+            pattern: ^(?:https://[^/\s#]+/|http://(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?/)[^\s#]*$
+            type: string
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        revokedAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        scopes:
+          items:
+            $ref: '#/components/schemas/PlatformOauthScope'
+          maxItems: 3
+          minItems: 1
+          type: array
+          uniqueItems: true
+        state:
+          enum:
+            - DRAFT
+            - REVOKED
+          type: string
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - id
+        - clientId
+        - name
+        - description
+        - clientType
+        - grantTypes
+        - redirectUris
+        - scopes
+        - accessTokenTtlSeconds
+        - logoUri
+        - homepageUri
+        - state
+        - createdByPersonId
+        - createdAt
+        - updatedAt
+        - revokedAt
+        - version
+      type: object
+    GetPlatformOauthClientsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformOauthClient'
+          maxItems: 500
+          type: array
+      required:
+        - items
+      type: object
+    PostPlatformOauthClientsRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              grantTypes:
+                contains:
+                  const: AUTHORIZATION_CODE
+            required:
+              - grantTypes
+          then:
+            properties:
+              redirectUris:
+                minItems: 1
+          else:
+            properties:
+              redirectUris:
+                maxItems: 0
+        - if:
+            properties:
+              grantTypes:
+                contains:
+                  const: REFRESH_TOKEN
+            required:
+              - grantTypes
+          then:
+            properties:
+              grantTypes:
+                contains:
+                  const: AUTHORIZATION_CODE
+        - if:
+            properties:
+              clientType:
+                const: PUBLIC
+            required:
+              - clientType
+          then:
+            properties:
+              grantTypes:
+                not:
+                  contains:
+                    const: CLIENT_CREDENTIALS
+      properties:
+        accessTokenTtlSeconds:
+          maximum: 86400
+          minimum: 300
+          type: integer
+        clientType:
+          $ref: '#/components/schemas/PlatformOauthClientType'
+        description:
+          maxLength: 1000
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        grantTypes:
+          items:
+            $ref: '#/components/schemas/PlatformOauthGrantType'
+          maxItems: 3
+          minItems: 1
+          type: array
+          uniqueItems: true
+        homepageUri:
+          format: uri
+          maxLength: 2048
+          minLength: 8
+          pattern: ^https://[^\s#]+$
+          type:
+            - string
+            - 'null'
+        logoUri:
+          format: uri
+          maxLength: 2048
+          minLength: 8
+          pattern: ^https://[^\s#]+$
+          type:
+            - string
+            - 'null'
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        redirectUris:
+          items:
+            format: uri
+            maxLength: 2048
+            minLength: 8
+            pattern: ^(?:https://[^/\s#]+/|http://(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?/)[^\s#]*$
+            type: string
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+        scopes:
+          items:
+            $ref: '#/components/schemas/PlatformOauthScope'
+          maxItems: 3
+          minItems: 1
+          type: array
+          uniqueItems: true
+      required:
+        - name
+        - clientType
+        - grantTypes
+        - redirectUris
+        - scopes
+        - accessTokenTtlSeconds
+        - reason
+      type: object
+    PostPlatformOauthClientsResponse:
+      additionalProperties: false
+      description:
+        A CONFIDENTIAL client's secret is disclosed only by the first successful
+        create response. PUBLIC clients and committed idempotent retries return
+        `clientSecret` null or omitted because plaintext secrets are not stored.
+        It is never returned by a later read.
+      properties:
+        client:
+          $ref: '#/components/schemas/PlatformOauthClient'
+        clientSecret:
+          maxLength: 512
+          minLength: 32
+          type:
+            - string
+            - 'null'
+      required:
+        - client
+      type: object
+    PostPlatformOauthClientsByOauthClientIdRevokeRequest:
+      additionalProperties: false
+      properties:
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+      required:
+        - reason
+      type: object
+    PostPlatformOauthClientsByOauthClientIdRevokeResponse:
+      $ref: '#/components/schemas/PlatformOauthClient'
+    PlatformAbuseCaseSummary:
+      additionalProperties: false
+      properties:
+        commentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        commentState:
+          $ref: '#/components/schemas/CommentInternalState'
+        firstReportedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        lastReportedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        openReportCount:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        totalReportCount:
+          format: int64
+          minimum: 0
+          type: integer
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - commentId
+        - organizationId
+        - publicationId
+        - commentState
+        - openReportCount
+        - totalReportCount
+        - firstReportedAt
+        - lastReportedAt
+        - updatedAt
+      type: object
+    PlatformAbuseCaseDetail:
+      additionalProperties: false
+      description:
+        Review evidence for one abuse case. Report reasons include only open
+        reports and are sorted and distinct; reporter identities and notes are
+        never exposed.
+      properties:
+        body:
+          maxLength: 20000
+          type: string
+        commentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        commentState:
+          $ref: '#/components/schemas/CommentInternalState'
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        firstReportedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        lastReportedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        openReportCount:
+          format: int64
+          minimum: 0
+          type: integer
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        parentId:
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reportReasons:
+          items:
+            $ref: '#/components/schemas/ReaderReportReason'
+          maxItems: 8
+          type: array
+          uniqueItems: true
+        totalReportCount:
+          format: int64
+          minimum: 0
+          type: integer
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - commentId
+        - organizationId
+        - publicationId
+        - commentState
+        - openReportCount
+        - totalReportCount
+        - firstReportedAt
+        - lastReportedAt
+        - updatedAt
+        - body
+        - contentId
+        - parentId
+        - reportReasons
+      type: object
+    GetPlatformAbuseCasesResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformAbuseCaseSummary'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetPlatformAbuseCasesByCommentIdResponse:
+      $ref: '#/components/schemas/PlatformAbuseCaseDetail'
+    PostPlatformAbuseCasesByCommentIdDecideRequest:
+      additionalProperties: false
+      properties:
+        decision:
+          $ref: '#/components/schemas/ModerationDecision'
+        note:
+          maxLength: 1000
+          type:
+            - string
+            - 'null'
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+      required:
+        - decision
+        - note
+        - reason
+      type: object
+    PostPlatformAbuseCasesByCommentIdDecideResponse:
+      $ref: '#/components/schemas/PlatformAbuseCaseDetail'
+    PlatformCache:
+      additionalProperties: false
+      properties:
+        epoch:
+          format: int64
+          minimum: 0
+          type: integer
+        localEntryCount:
+          format: int64
+          minimum: 0
+          type: integer
+        name:
+          enum:
+            - GITHUB_INSTALLATION_TOKEN
+            - GITHUB_REPOSITORY_METADATA
+            - GITHUB_REPOSITORY_CONTENT
+          type: string
+        ttlSeconds:
+          format: int64
+          minimum: 1
+          type: integer
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        updatedByPersonId:
+          description:
+            The last evicting operator, or null before the cache's first
+            eviction.
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - name
+        - epoch
+        - localEntryCount
+        - ttlSeconds
+        - updatedByPersonId
+        - updatedAt
+        - version
+      type: object
+    GetPlatformCachesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformCache'
+          maxItems: 100
+          type: array
+      required:
+        - items
+      type: object
+    PostPlatformCachesByCacheIdEvictRequest:
+      additionalProperties: false
+      properties:
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+      required:
+        - reason
+      type: object
+    PostPlatformCachesByCacheIdEvictResponse:
+      $ref: '#/components/schemas/PlatformCache'
+    PlatformPlan:
+      additionalProperties: false
+      properties:
+        planKey:
+          $ref: '#/components/schemas/PlatformPlanKey'
+        publicationLimit:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - planKey
+        - publicationLimit
+      type: object
+    PlatformPlanCapacityRelease:
+      additionalProperties: false
+      properties:
+        effectiveAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        items:
+          allOf:
+            - contains:
+                properties:
+                  planKey:
+                    const: FREE
+                required:
+                  - planKey
+                type: object
+              maxContains: 1
+              minContains: 1
+            - contains:
+                properties:
+                  planKey:
+                    const: PRO
+                required:
+                  - planKey
+                type: object
+              maxContains: 1
+              minContains: 1
+            - contains:
+                properties:
+                  planKey:
+                    const: BUSINESS
+                required:
+                  - planKey
+                type: object
+              maxContains: 1
+              minContains: 1
+          items:
+            $ref: '#/components/schemas/PlatformPlan'
+          maxItems: 3
+          minItems: 3
+          type: array
+        releaseId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        releaseVersion:
+          format: int64
+          minimum: 1
+          type: integer
+        state:
+          const: ACTIVE
+          type: string
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - releaseId
+        - releaseVersion
+        - state
+        - effectiveAt
+        - updatedAt
+        - items
+      type: object
+    GetPlatformPlansResponse:
+      $ref: '#/components/schemas/PlatformPlanCapacityRelease'
+    PutPlatformPlansByPlanKeyRequest:
+      additionalProperties: false
+      properties:
+        publicationLimit:
+          format: int64
+          minimum: 1
+          type: integer
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+      required:
+        - publicationLimit
+        - reason
+      type: object
+    PutPlatformPlansByPlanKeyResponse:
+      $ref: '#/components/schemas/PlatformPlanCapacityRelease'
+    PlatformWebhookProcessingStatus:
+      enum:
+        - RECEIVED
+        - PROCESSING
+        - PROCESSED
+        - QUARANTINED
+      type: string
+    PlatformWebhookEvent:
+      additionalProperties: false
+      description:
+        Redacted webhook inbox metadata and immutable routing coordinates. The
+        request body and payload digest are deliberately never exposed.
+      properties:
+        attemptCount:
+          minimum: 0
+          type: integer
+        attemptLimit:
+          minimum: 1
+          type: integer
+        eventId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        eventType:
+          $ref: '#/components/schemas/PlatformWebhookEventType'
+        firstSeenAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        processedAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        providerRepositoryId:
+          format: int64
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        pullRequestNumber:
+          format: int64
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        resultCode:
+          maxLength: 120
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
+          type:
+            - string
+            - 'null'
+        status:
+          $ref: '#/components/schemas/PlatformWebhookProcessingStatus'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        workflowRunId:
+          format: int64
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+      required:
+        - eventId
+        - organizationId
+        - eventType
+        - status
+        - providerRepositoryId
+        - pullRequestNumber
+        - workflowRunId
+        - attemptCount
+        - attemptLimit
+        - resultCode
+        - firstSeenAt
+        - processedAt
+        - updatedAt
+      type: object
+    GetPlatformWebhookEventsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformWebhookEvent'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetPlatformWebhookEventsByEventIdResponse:
+      $ref: '#/components/schemas/PlatformWebhookEvent'
     GetOrganizationsByOrganizationIdOwnerTransfersResponse:
       additionalProperties: false
       allOf:

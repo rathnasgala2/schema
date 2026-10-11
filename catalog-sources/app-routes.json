@@ -553,12 +553,112 @@
       ]
     },
     {
+      "pathTemplate": "/platform",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Platform overview; Operators see exact persisted person, organization, publication, comment, reaction, OAuth client, abuse and seven-day webhook state counts.",
+      "apiOperationIds": ["getPlatformOverview"]
+    },
+    {
+      "pathTemplate": "/platform/users",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Platform users; Operators inspect paged person state, provider display snapshots, account creation, last sign-in, accessible publication count and organization plan tiers without inferred subscription or traffic data.",
+      "apiOperationIds": ["getPlatformUsers"]
+    },
+    {
+      "pathTemplate": "/platform/integrations",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Platform integrations; Operators list, register and revoke OAuth clients, with a confidential client's generated secret shown only once.",
+      "apiOperationIds": [
+        "getPlatformOauthClients",
+        "postPlatformOauthClients",
+        "postPlatformOauthClientsByOauthClientIdRevoke"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/abuse",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Platform abuse; Operators inspect the cross-organization moderation queue and open a case for review.",
+      "apiOperationIds": ["getPlatformAbuseCases"]
+    },
+    {
+      "pathTemplate": "/platform/abuse/{commentId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Platform abuse case; Operators review one reported comment and apply an existing moderation decision.",
+      "apiOperationIds": [
+        "getPlatformAbuseCasesByCommentId",
+        "postPlatformAbuseCasesByCommentIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/caches",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Platform caches; Operators inspect safe cache metadata and coordinate eviction across all serving instances.",
+      "apiOperationIds": [
+        "getPlatformCaches",
+        "postPlatformCachesByCacheIdEvict"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/plans",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Platform plans; Operators compare the effective free, pro and business publication limits.",
+      "apiOperationIds": ["getPlatformPlans"]
+    },
+    {
+      "pathTemplate": "/platform/plans/{planKey}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Platform plan; Operators inspect and version-safely update one plan's publication limit.",
+      "apiOperationIds": ["getPlatformPlans", "putPlatformPlansByPlanKey"]
+    },
+    {
+      "pathTemplate": "/platform/webhooks",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Platform webhooks; Operators inspect redacted webhook events from the trailing seven days by default.",
+      "apiOperationIds": ["getPlatformWebhookEvents"]
+    },
+    {
+      "pathTemplate": "/platform/webhooks/{eventId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Platform webhook event; Operators inspect one redacted webhook processing record without payload content or digests.",
+      "apiOperationIds": ["getPlatformWebhookEventsByEventId"]
+    },
+    {
       "pathTemplate": "/platform/audit",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": false,
       "collection": true,
-      "screenJob": "Platform audit; Operators read redacted audit events across every organization, filtered by organization, publication, actor, action and time.",
+      "screenJob": "Platform audit; Operators read redacted audit events across every organization, using the trailing seven days by default and optionally filtering by organization, publication, actor, action and time.",
       "apiOperationIds": ["getPlatformAuditEvents"]
     },
     {
