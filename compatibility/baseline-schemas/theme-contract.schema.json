@@ -1370,6 +1370,21 @@
       "minItems": 116,
       "maxItems": 116
     },
+    "palette": {
+      "type": "object",
+      "required": ["profile", "follow"],
+      "properties": {
+        "profile": { "const": "gala-palette-follow-v1" },
+        "follow": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/paletteFollow" },
+          "minItems": 0,
+          "maxItems": 40
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.10.0, optional: which palette seed each colour of each palette-drivable token follows. Optional here so contract-3 archive validation is unchanged; the template requires it."
+    },
     "modes": { "const": ["dark", "light", "system"] },
     "assets": {
       "type": "array",
@@ -2011,6 +2026,175 @@
       ],
       "$comment": "Every value is checked against its type's allow-list grammar; keyword tokens carry a per-key enum on their tokens position. Only color, paint, border, shadow tokens may differ between light and dark; every other type must be byte-equal in both modes (enforced by the semantic validator). Font-family components are each limited to 64 ASCII bytes."
     },
+    "paletteFollow": {
+      "type": "object",
+      "required": ["key", "light", "dark"],
+      "properties": {
+        "key": {
+          "enum": [
+            "border-button",
+            "border-card",
+            "border-chip",
+            "border-media-divider",
+            "border-quote",
+            "border-row-divider",
+            "border-section-rule",
+            "color-accent",
+            "color-accent-2",
+            "color-border",
+            "color-btn-panel",
+            "color-btn-panel-text",
+            "color-btn-text",
+            "color-canvas",
+            "color-chip-text",
+            "color-focus",
+            "color-footer",
+            "color-header",
+            "color-icon-accent",
+            "color-link",
+            "color-link-underline",
+            "color-link-underline-hover",
+            "color-link-visited",
+            "color-on-accent",
+            "color-panel-muted",
+            "color-panel-text",
+            "color-selection",
+            "color-surface",
+            "color-surface-raised",
+            "color-text",
+            "color-text-faint",
+            "color-text-muted",
+            "color-toc-active",
+            "color-toc-active-text",
+            "paint-button",
+            "paint-chip",
+            "paint-page-decor",
+            "paint-panel",
+            "shadow-avatar-ring",
+            "shadow-button"
+          ]
+        },
+        "light": {
+          "type": "array",
+          "items": { "enum": ["accent", "canvas", "text", null] },
+          "minItems": 0,
+          "maxItems": 15
+        },
+        "dark": {
+          "type": "array",
+          "items": { "enum": ["accent", "canvas", "text", null] },
+          "minItems": 0,
+          "maxItems": 15
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "enum": [
+                  "color-accent",
+                  "color-accent-2",
+                  "color-border",
+                  "color-btn-panel",
+                  "color-btn-panel-text",
+                  "color-btn-text",
+                  "color-canvas",
+                  "color-chip-text",
+                  "color-focus",
+                  "color-footer",
+                  "color-header",
+                  "color-icon-accent",
+                  "color-link",
+                  "color-link-underline",
+                  "color-link-underline-hover",
+                  "color-link-visited",
+                  "color-on-accent",
+                  "color-panel-muted",
+                  "color-panel-text",
+                  "color-selection",
+                  "color-surface",
+                  "color-surface-raised",
+                  "color-text",
+                  "color-text-faint",
+                  "color-text-muted",
+                  "color-toc-active",
+                  "color-toc-active-text"
+                ]
+              }
+            },
+            "required": ["key"]
+          },
+          "then": {
+            "properties": {
+              "light": { "maxItems": 1 },
+              "dark": { "maxItems": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "enum": [
+                  "border-button",
+                  "border-card",
+                  "border-chip",
+                  "border-media-divider",
+                  "border-quote",
+                  "border-row-divider",
+                  "border-section-rule"
+                ]
+              }
+            },
+            "required": ["key"]
+          },
+          "then": {
+            "properties": {
+              "light": { "maxItems": 1 },
+              "dark": { "maxItems": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": { "enum": ["shadow-avatar-ring", "shadow-button"] }
+            },
+            "required": ["key"]
+          },
+          "then": {
+            "properties": {
+              "light": { "maxItems": 3 },
+              "dark": { "maxItems": 3 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "enum": [
+                  "paint-button",
+                  "paint-chip",
+                  "paint-page-decor",
+                  "paint-panel"
+                ]
+              }
+            },
+            "required": ["key"]
+          },
+          "then": {
+            "properties": {
+              "light": { "maxItems": 15 },
+              "dark": { "maxItems": 15 }
+            }
+          }
+        }
+      ],
+      "$comment": "The semantic validator requires each list length to equal the number of colours in the matching mode value of the named token, and each key to appear at most once."
+    },
     "passiveAsset": {
       "type": "object",
       "required": ["path", "mediaType", "byteLength", "sha256", "license"],
@@ -2125,7 +2309,7 @@
         "required": ["contractVersion"]
       },
       "then": {
-        "properties": { "templateRange": { "const": "^4.0.0" } },
+        "properties": { "templateRange": { "enum": ["^4.0.0", "^4.1.0"] } },
         "required": ["composition"],
         "allOf": [
           {

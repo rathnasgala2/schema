@@ -16,8 +16,8 @@
     {
       "contract": "appearance",
       "schemaId": "urn:gala:schema:appearance:2.0.0",
-      "schemaSha256": "574c79362d2eb9c8eaf430c40efae6e12b2b3ecdef07a22eba5de1658b6e4f44",
-      "ruleCount": 123,
+      "schemaSha256": "671a6d833f28eef653ce031c8440cf14aee1275ec3a54ea3b42285770c93c30d",
+      "ruleCount": 146,
       "validExample": "examples/valid/appearance/canonical.json",
       "boundaryFixture": "fixtures/boundary/appearance/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/appearance/root.json"
@@ -43,8 +43,8 @@
     {
       "contract": "build-input",
       "schemaId": "urn:gala:schema:build-input:2.0.0",
-      "schemaSha256": "0b0772b3ad13ad267686d05d12cc7741cd529949f364fb5ad0bac696d012c7d8",
-      "ruleCount": 534,
+      "schemaSha256": "da72d045d928eb35c05389974aaa38b6981d17d229c4a221da20ce5efd29a36a",
+      "ruleCount": 557,
       "validExample": "examples/valid/build-input/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-input/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/build-input/root.json"
@@ -187,8 +187,8 @@
     {
       "contract": "theme-contract",
       "schemaId": "urn:gala:schema:theme-contract:2.0.0",
-      "schemaSha256": "1f20d4595a105aa5777ffd07b5f8db3ef4b2d6ba40c15dcb6129f89bf1bc4cb8",
-      "ruleCount": 630,
+      "schemaSha256": "127562a9c0df349fa1fff2bef4576b6b99863ae35e0b0e83d37bb8538c37d2e7",
+      "ruleCount": 668,
       "validExample": "examples/valid/theme-contract/canonical.json",
       "boundaryFixture": "fixtures/boundary/theme-contract/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/theme-contract/root.json"
@@ -29904,29 +29904,6 @@
     },
     {
       "contract": "appearance",
-      "ruleId": "appearance:#/$defs/semanticTokens:maxProperties",
-      "schemaPointer": "#/$defs/semanticTokens",
-      "keyword": "maxProperties",
-      "valid": {
-        "file": "examples/valid/appearance/rules.json",
-        "caseId": "appearance-valid-e01b29a6b0d28dc0"
-      },
-      "boundary": {
-        "file": "fixtures/boundary/appearance/rules.json",
-        "caseId": "appearance-boundary-f2509ab8b361c58c"
-      },
-      "invalid": {
-        "file": "fixtures/invalid/appearance/SCHEMA_OBJECT_TOO_LARGE/cases.json",
-        "caseId": "appearance-invalid-2e436a50b7903a6e",
-        "expectedCode": "SCHEMA_OBJECT_TOO_LARGE"
-      },
-      "unknownField": {
-        "file": "fixtures/unknown-field/appearance/rules.json",
-        "caseId": "appearance-unknown-e01b29a6b0d28dc0"
-      }
-    },
-    {
-      "contract": "appearance",
       "ruleId": "appearance:#/$defs/semanticTokens:type",
       "schemaPointer": "#/$defs/semanticTokens",
       "keyword": "type",
@@ -29946,6 +29923,558 @@
       "unknownField": {
         "file": "fixtures/unknown-field/appearance/rules.json",
         "caseId": "appearance-unknown-e01b29a6b0d28dc0"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent:additionalProperties",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "appearance-invalid-33a902b2724db7a8",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent:required:dark",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "appearance-invalid-bac8d03b9e17c3e4",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent:required:light",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "appearance-invalid-e11055251af7c755",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-a221b667ac69b64e",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent/properties/dark:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/dark",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-73a8bcee76b754e6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-edec991d984dee75"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "appearance-invalid-0cd06cf5e3ae2ef2",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent/properties/dark:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-73a8bcee76b754e6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-edec991d984dee75"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-6b642a52a97c1d75",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent/properties/light:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/light",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-a5d34bfee1280079"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-4b9a9c6f625ab688"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "appearance-invalid-136d818380685de0",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/accent/properties/light:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-a5d34bfee1280079"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-4b9a9c6f625ab688"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-385ac2fadaab1416",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas:additionalProperties",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "appearance-invalid-6caa8d49a03d46d7",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas:required:dark",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "appearance-invalid-6e932c3f5a56ba1e",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas:required:light",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "appearance-invalid-a537883be6637fe9",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-18f06cda3dda458f",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas/properties/dark:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/dark",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-d063d490a6ea44d7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-24bf65041aad21aa"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "appearance-invalid-fda6e36a37559803",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas/properties/dark:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-d063d490a6ea44d7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-24bf65041aad21aa"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-7c9b35d05e4f1220",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas/properties/light:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/light",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-fd97a2055a6f436d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-a5f5543c93fa0ef0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "appearance-invalid-dd96192c53db9d5b",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/canvas/properties/light:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-fd97a2055a6f436d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-a5f5543c93fa0ef0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-2326720ee7844c3e",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text:additionalProperties",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "appearance-invalid-5f0d8b2bc5418373",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text:required:dark",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "appearance-invalid-f25d7bd31099c5d8",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text:required:light",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "appearance-invalid-6306053b8bcaaba0",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-516e6dffb9ebd42e",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text/properties/dark:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/dark",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-6fd5337605d139e4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-58f758ff72ff31a5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "appearance-invalid-cadb3bbf1daa31cf",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text/properties/dark:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-6fd5337605d139e4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-58f758ff72ff31a5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-40ce942eee7909bc",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text/properties/light:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/light",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-7fd32edc12383e67"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-ac832a2fd4123956"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "appearance-invalid-c993899e74ed16e1",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "appearance",
+      "ruleId": "appearance:#/$defs/semanticTokens/properties/text/properties/light:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/appearance/rules.json",
+        "caseId": "appearance-valid-7fd32edc12383e67"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/appearance/rules.json",
+        "caseId": "appearance-boundary-ac832a2fd4123956"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/appearance/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "appearance-invalid-94c777371af5dc79",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/appearance/rules.json",
+        "caseId": "appearance-unknown-ace067b399cf0427"
       }
     },
     {
@@ -55202,29 +55731,6 @@
     },
     {
       "contract": "build-input",
-      "ruleId": "build-input:#/$defs/semanticTokens:maxProperties",
-      "schemaPointer": "#/$defs/semanticTokens",
-      "keyword": "maxProperties",
-      "valid": {
-        "file": "examples/valid/build-input/rules.json",
-        "caseId": "build-input-valid-e01b29a6b0d28dc0"
-      },
-      "boundary": {
-        "file": "fixtures/boundary/build-input/rules.json",
-        "caseId": "build-input-boundary-f2509ab8b361c58c"
-      },
-      "invalid": {
-        "file": "fixtures/invalid/build-input/SCHEMA_OBJECT_TOO_LARGE/cases.json",
-        "caseId": "build-input-invalid-939226632d6b9645",
-        "expectedCode": "SCHEMA_OBJECT_TOO_LARGE"
-      },
-      "unknownField": {
-        "file": "fixtures/unknown-field/build-input/rules.json",
-        "caseId": "build-input-unknown-e01b29a6b0d28dc0"
-      }
-    },
-    {
-      "contract": "build-input",
       "ruleId": "build-input:#/$defs/semanticTokens:type",
       "schemaPointer": "#/$defs/semanticTokens",
       "keyword": "type",
@@ -55244,6 +55750,558 @@
       "unknownField": {
         "file": "fixtures/unknown-field/build-input/rules.json",
         "caseId": "build-input-unknown-e01b29a6b0d28dc0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent:additionalProperties",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-6fcfa324d16a77e0",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent:required:dark",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-50e9fcfccb5a9195",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent:required:light",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-49b7605bb97b4ae7",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-de3b662db45eefe2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-cc9042a64444580d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-6eca4c3852d76221",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent/properties/dark:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/dark",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-73a8bcee76b754e6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-edec991d984dee75"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-7348267ddbe613e0",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent/properties/dark:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-73a8bcee76b754e6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-edec991d984dee75"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-20c8de03b688041d",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent/properties/light:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/light",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-a5d34bfee1280079"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-4b9a9c6f625ab688"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-198c6686b408c14b",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/accent/properties/light:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/accent/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-a5d34bfee1280079"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-4b9a9c6f625ab688"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-086acca15863d2cb",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-de3b662db45eefe2"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas:additionalProperties",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-16371eed2463865d",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas:required:dark",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-6bbd6603852ea1f1",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas:required:light",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-e80d8eac2905b7fe",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-78e7a761eab25ca7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-b4a9e7b761e8db88"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-49a52923b82abc2b",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas/properties/dark:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/dark",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-d063d490a6ea44d7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-24bf65041aad21aa"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-e70478a10fc12a9b",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas/properties/dark:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-d063d490a6ea44d7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-24bf65041aad21aa"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-b14c4ade0c8bb14c",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas/properties/light:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/light",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-fd97a2055a6f436d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-a5f5543c93fa0ef0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-ee426016bdcc14e4",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/canvas/properties/light:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/canvas/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-fd97a2055a6f436d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-a5f5543c93fa0ef0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-28e3e2cae8215826",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-78e7a761eab25ca7"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text:additionalProperties",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-cb97b11a55797a13",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text:required:dark",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-6a9dd53ac614124c",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text:required:light",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-5d0dc1097c842d37",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-ace067b399cf0427"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-5bc0e7f32d9bd543"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-c2f2adf1ee866c9f",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text/properties/dark:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/dark",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-6fd5337605d139e4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-58f758ff72ff31a5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-478a3239a654da1f",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text/properties/dark:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-6fd5337605d139e4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-58f758ff72ff31a5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-d8498c3c9b8c1cc5",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text/properties/light:pattern",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/light",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7fd32edc12383e67"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-ac832a2fd4123956"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-cc1fc58d7a331cdf",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/semanticTokens/properties/text/properties/light:type",
+      "schemaPointer": "#/$defs/semanticTokens/properties/text/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7fd32edc12383e67"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-ac832a2fd4123956"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-59cc24f3f151d58c",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-ace067b399cf0427"
       }
     },
     {
@@ -200559,6 +201617,688 @@
     },
     {
       "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow:additionalProperties",
+      "schemaPointer": "#/$defs/paletteFollow",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-e4f0412c78d67aae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-acf3680cfd2f679b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "theme-contract-invalid-da27e57a38a39a7d",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow:required:dark",
+      "schemaPointer": "#/$defs/paletteFollow",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-e4f0412c78d67aae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-acf3680cfd2f679b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-093f8596df580f45",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow:required:key",
+      "schemaPointer": "#/$defs/paletteFollow",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-e4f0412c78d67aae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-acf3680cfd2f679b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-e627054ac66851b5",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow:required:light",
+      "schemaPointer": "#/$defs/paletteFollow",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-e4f0412c78d67aae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-acf3680cfd2f679b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-70ff5f9aaf883b1a",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow:type",
+      "schemaPointer": "#/$defs/paletteFollow",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-e4f0412c78d67aae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-acf3680cfd2f679b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-57fa350cf4acf51a",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/0/if:required:key",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/0/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-71c580f1f32e6cd6"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-d7946608fa4290b3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-cd7297f19d7fc48d",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/0/if/properties/key:enum",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/0/if/properties/key",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-5acbc30e5258fbff"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-aaed945eaaf8bae8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-3055f347b49113e2",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/0/then/properties/dark:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/0/then/properties/dark",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-4d5afd8c9ec391d2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-234735a45b33c096"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-2f45a10497a461f4",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/0/then/properties/light:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/0/then/properties/light",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-cd45e4a28539d8cc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-0c0ab6ddaf677599"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-6906f21a5891bd9f",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/1/if:required:key",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/1/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-499853514efa8b0c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-55cf91c7f1047fef"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-14488108acd572c2",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/1/if/properties/key:enum",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/1/if/properties/key",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-ac11be5ba303e635"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-ec1dcb9588b2a707"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-83c32de08a76f6ef",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/1/then/properties/dark:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/1/then/properties/dark",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-53645386aa141afc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-f93829016f479c09"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-b8a7768b3028f083",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/1/then/properties/light:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/1/then/properties/light",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-fcc86f00dc3b9d1c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-55aa8a18aa952e44"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-a1c3911912a91644",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/2/if:required:key",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/2/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-6d64d4ef44525e2b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-1a56eee57258371f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-292d2395422dda87",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/2/if/properties/key:enum",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/2/if/properties/key",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-84dda5cd83b06764"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-3c73f9efdc8a4d36"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-9e5218c66284e942",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/2/then/properties/dark:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/2/then/properties/dark",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-43171afd4b02baca"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-7bf98e313b74d05c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-21ce1422a9e478b2",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/2/then/properties/light:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/2/then/properties/light",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-61ab37a2b223bd97"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-09942b13988f58df"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-f6156724c2d96388",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/3/if:required:key",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/3/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-27c36b319c08aa6d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-0a1a86ab968f5fe7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-4550a05771c8eb85",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/3/if/properties/key:enum",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/3/if/properties/key",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-5b9fa599bad25f2c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-0e444b021a0037e2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-51c91c378d218254",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/3/then/properties/dark:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/3/then/properties/dark",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-9e31bb6a4a81e174"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-3d9055d22644383f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-809759536a3d4eb0",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/allOf/3/then/properties/light:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/allOf/3/then/properties/light",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-7916d39fcedfbbd3"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-11cc62a65bde7263"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-762aa5c96ee3b59e",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/dark:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/properties/dark",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-d16142121f258b60"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-266e59e51b3beac1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-b2d6db8c174136fd",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/dark:minItems",
+      "schemaPointer": "#/$defs/paletteFollow/properties/dark",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-d16142121f258b60"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-a9fc4fdd044bc2f3"
+      },
+      "invalid": { "notApplicable": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/dark:type",
+      "schemaPointer": "#/$defs/paletteFollow/properties/dark",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-d16142121f258b60"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-2e06758c343b2377"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-77a322f27b594cae",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/dark/items:enum",
+      "schemaPointer": "#/$defs/paletteFollow/properties/dark/items",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-8c11234405947129"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-d0f96c0e15ef2708"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-df6746644ca5c359",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/key:enum",
+      "schemaPointer": "#/$defs/paletteFollow/properties/key",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-17439c542abec25c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-04fe4d0b1a4a037f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-b76e311dfaa01987",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/light:maxItems",
+      "schemaPointer": "#/$defs/paletteFollow/properties/light",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-7048bc3ac6495d9d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-7d724a2063813bcf"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-26f6acf56e04f985",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/light:minItems",
+      "schemaPointer": "#/$defs/paletteFollow/properties/light",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-7048bc3ac6495d9d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-72a745b35fe69235"
+      },
+      "invalid": { "notApplicable": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/light:type",
+      "schemaPointer": "#/$defs/paletteFollow/properties/light",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-7048bc3ac6495d9d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-64d11e3eae857a6d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-c297c8c460249dbf",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/$defs/paletteFollow/properties/light/items:enum",
+      "schemaPointer": "#/$defs/paletteFollow/properties/light/items",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-274913165cef3c5c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-b8e60f6721a2f502"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-3cf4d9a86757c471",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-e4f0412c78d67aae"
+      }
+    },
+    {
+      "contract": "theme-contract",
       "ruleId": "theme-contract:#/$defs/passiveAsset:additionalProperties",
       "schemaPointer": "#/$defs/passiveAsset",
       "keyword": "additionalProperties",
@@ -207144,9 +208884,9 @@
     },
     {
       "contract": "theme-contract",
-      "ruleId": "theme-contract:#/allOf/2/then/properties/templateRange:const",
+      "ruleId": "theme-contract:#/allOf/2/then/properties/templateRange:enum",
       "schemaPointer": "#/allOf/2/then/properties/templateRange",
-      "keyword": "const",
+      "keyword": "enum",
       "valid": {
         "file": "examples/valid/theme-contract/rules.json",
         "caseId": "theme-contract-valid-6c6b543bac68d9f1"
@@ -207156,9 +208896,9 @@
         "caseId": "theme-contract-boundary-307734e1eb62edcb"
       },
       "invalid": {
-        "file": "fixtures/invalid/theme-contract/SCHEMA_CONSTANT_INVALID/cases.json",
-        "caseId": "theme-contract-invalid-65db61a4b7c75db3",
-        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-b23bb4c186ff045c",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/theme-contract/rules.json",
@@ -207619,6 +209359,186 @@
       "unknownField": {
         "file": "fixtures/unknown-field/theme-contract/rules.json",
         "caseId": "theme-contract-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette:additionalProperties",
+      "schemaPointer": "#/properties/palette",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-fd3ae1f1085eb0ae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-22ae1be64875b951"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "theme-contract-invalid-65634c2f95e6d2fe",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette:required:follow",
+      "schemaPointer": "#/properties/palette",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-fd3ae1f1085eb0ae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-22ae1be64875b951"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-bce0c7176ef0c06c",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette:required:profile",
+      "schemaPointer": "#/properties/palette",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-fd3ae1f1085eb0ae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-22ae1be64875b951"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "theme-contract-invalid-ef71eae510255ff2",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette:type",
+      "schemaPointer": "#/properties/palette",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-fd3ae1f1085eb0ae"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-22ae1be64875b951"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-4316343df3397b3b",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette/properties/follow:maxItems",
+      "schemaPointer": "#/properties/palette/properties/follow",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-f77e57279f9e36af"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-5362546533d3af3b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "theme-contract-invalid-7ae155f2e075a011",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette/properties/follow:minItems",
+      "schemaPointer": "#/properties/palette/properties/follow",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-f77e57279f9e36af"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-e9dbad9a268dc5de"
+      },
+      "invalid": { "notApplicable": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette/properties/follow:type",
+      "schemaPointer": "#/properties/palette/properties/follow",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-f77e57279f9e36af"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-8fb65b152ea37929"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-d959989f088afcf3",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
+      }
+    },
+    {
+      "contract": "theme-contract",
+      "ruleId": "theme-contract:#/properties/palette/properties/profile:const",
+      "schemaPointer": "#/properties/palette/properties/profile",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/theme-contract/rules.json",
+        "caseId": "theme-contract-valid-21890d6b9747bbcf"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/theme-contract/rules.json",
+        "caseId": "theme-contract-boundary-fc0284245c3064b6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/theme-contract/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "theme-contract-invalid-df3bcc169d79a91c",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/theme-contract/rules.json",
+        "caseId": "theme-contract-unknown-fd3ae1f1085eb0ae"
       }
     },
     {

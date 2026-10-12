@@ -721,10 +721,37 @@
     "semanticTokens": {
       "type": "object",
       "required": [],
-      "properties": {},
+      "properties": {
+        "accent": {
+          "type": "object",
+          "required": ["light", "dark"],
+          "properties": {
+            "light": { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+            "dark": { "type": "string", "pattern": "^#[0-9a-f]{6}$" }
+          },
+          "additionalProperties": false
+        },
+        "canvas": {
+          "type": "object",
+          "required": ["light", "dark"],
+          "properties": {
+            "light": { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+            "dark": { "type": "string", "pattern": "^#[0-9a-f]{6}$" }
+          },
+          "additionalProperties": false
+        },
+        "text": {
+          "type": "object",
+          "required": ["light", "dark"],
+          "properties": {
+            "light": { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+            "dark": { "type": "string", "pattern": "^#[0-9a-f]{6}$" }
+          },
+          "additionalProperties": false
+        }
+      },
       "additionalProperties": false,
-      "maxProperties": 0,
-      "$comment": "Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted."
+      "description": "SCHEMA-3.10.0: the author's publication palette. Each role (accent, canvas, text) is optional; when present it carries both light and dark as opaque lowercase #rrggbb. An absent role uses the theme's default; `{}` selects the theme's default palette entirely."
     },
     "appearanceNormalized": {
       "type": "object",
