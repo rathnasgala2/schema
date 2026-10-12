@@ -1,6 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { format, resolveConfig } from 'prettier';
+
 import {
   PALETTE_PROFILE,
   checkPalette,
@@ -175,14 +177,38 @@ export async function buildPaletteVectors() {
   };
 }
 
+/**
+ * Serialize one data file in the shape the repository formatter keeps, so a
+ * regeneration never fails `prettier --check`.
+ *
+ * @param {string} file absolute output path
+ * @param {unknown} value JSON value
+ * @returns {Promise<void>} write completion
+ */
+async function writeFormatted(file, value) {
+  const config = (await resolveConfig(file)) ?? {};
+  await writeFile(
+    file,
+    await format(JSON.stringify(value), { ...config, filepath: file }),
+  );
+}
+
 await runIfMain(import.meta.url, async () => {
   const { vectors, corpus } = await buildPaletteVectors();
-  await writeFile(
-    path.join(PALETTE_DIRECTORY, 'golden-vectors.json'),
-    `${JSON.stringify(vectors, null, 2)}\n`,
+  const fixtureFile = path.join(
+    PALETTE_DIRECTORY,
+    'theme-default.fixture.json',
   );
-  await writeFile(
+  await writeFormatted(
+    fixtureFile,
+    JSON.parse(await readFile(fixtureFile, 'utf8')),
+  );
+  await writeFormatted(
+    path.join(PALETTE_DIRECTORY, 'golden-vectors.json'),
+    vectors,
+  );
+  await writeFormatted(
     path.join(PALETTE_DIRECTORY, 'stress-corpus.json'),
-    `${JSON.stringify(corpus, null, 2)}\n`,
+    corpus,
   );
 });
