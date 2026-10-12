@@ -1056,7 +1056,10 @@ components:
         values to change only `attribution`. `attribution` (SCHEMA-3.3.0) is
         optional: when present the server writes it as
         `gala/appearance.json`'s `attribution`; when absent the file's
-        `attribution` is preserved unchanged.
+        `attribution` is preserved unchanged. `tokens` (SCHEMA-3.10.0) is
+        optional: the author's publication palette, written as
+        `gala/appearance.json`'s `tokens`; when absent the file's `tokens`
+        are preserved unchanged, and `{}` resets to the theme's own colours.
       properties:
         attribution:
           $ref: "#/components/schemas/PortableAppearanceAttribution"
@@ -1064,6 +1067,8 @@ components:
           $ref: "#/components/schemas/AppearanceColorMode"
         themeId:
           $ref: "#/components/schemas/AppearanceThemeId"
+        tokens:
+          $ref: "#/components/schemas/PortableAppearanceSemanticTokens"
       required:
         - themeId
         - colorModeDefault
@@ -7038,6 +7043,51 @@ components:
       minLength: 3
       pattern: ^(?:@[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?|[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)@(?:\S+|\S+ \S+)$
       type: string
+    PortableAppearanceSemanticTokens:
+      additionalProperties: false
+      description: "SCHEMA-3.10.0: the author's publication palette. Each role (accent, canvas, text) is optional; when present it carries both light and dark as opaque lowercase #rrggbb. An absent role uses the theme's default; `{}` selects the theme's default palette entirely."
+      properties:
+        accent:
+          additionalProperties: false
+          properties:
+            dark:
+              pattern: ^#[0-9a-f]{6}$
+              type: string
+            light:
+              pattern: ^#[0-9a-f]{6}$
+              type: string
+          required:
+            - light
+            - dark
+          type: object
+        canvas:
+          additionalProperties: false
+          properties:
+            dark:
+              pattern: ^#[0-9a-f]{6}$
+              type: string
+            light:
+              pattern: ^#[0-9a-f]{6}$
+              type: string
+          required:
+            - light
+            - dark
+          type: object
+        text:
+          additionalProperties: false
+          properties:
+            dark:
+              pattern: ^#[0-9a-f]{6}$
+              type: string
+            light:
+              pattern: ^#[0-9a-f]{6}$
+              type: string
+          required:
+            - light
+            - dark
+          type: object
+      required: []
+      type: object
     PortableAuthorPlainText:
       description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
       format: gala-plain-text
@@ -15677,7 +15727,9 @@ components:
         `themePackage` is not in the catalog. `themePackage` is the file's
         `theme` value, a package with its version range. `attribution`
         (SCHEMA-3.3.0, optional) is the file's footer attribution switch;
-        absent means the file has none, which renders as shown.
+        absent means the file has none, which renders as shown. `tokens`
+        (SCHEMA-3.10.0, optional) is the file's publication palette as read;
+        absent or `{}` means the theme's own colours.
       properties:
         attribution:
           $ref: "#/components/schemas/PortableAppearanceAttribution"
@@ -15689,6 +15741,8 @@ components:
             - type: "null"
         themePackage:
           $ref: "#/components/schemas/PortableAppearancePackageRange"
+        tokens:
+          $ref: "#/components/schemas/PortableAppearanceSemanticTokens"
       required:
         - themeId
         - themePackage

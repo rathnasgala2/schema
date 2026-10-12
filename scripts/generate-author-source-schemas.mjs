@@ -9,6 +9,7 @@ import {
   createAttributionDefinition,
   createCompositionBuildSchemas,
   createContentEditionDefinition,
+  createSemanticTokensDefinition,
   editionKindRule,
 } from './s0-t03-composition-build-schemas.mjs';
 import { createDeploymentSchemas } from './s0-t03-deployment-schemas.mjs';
@@ -565,11 +566,7 @@ const schemas = {
             'The semantic validator requires default to be a member of allowed, and enforces canonical set ordering for allowed.',
         },
       ),
-      semanticTokens: closedObject({}, [], {
-        maxProperties: 0,
-        $comment:
-          'Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted.',
-      }),
+      semanticTokens: createSemanticTokensDefinition({ closedObject }),
       attribution: createAttributionDefinition({ closedObject }),
       extensionMap,
     },

@@ -17,6 +17,13 @@ import {
   TEMPLATE_COMPOSITION_SCHEMA_VERSION,
   THEME_COMPOSITION_PROFILES,
 } from './internal-semantics/template-composition-contract.js';
+import {
+  PALETTE_DRIVABLE_KEYS,
+  PALETTE_KEY_TYPES,
+  PALETTE_MAX_COLOURS_BY_TYPE,
+  PALETTE_PROFILE,
+  PALETTE_ROLES,
+} from '../src/palette.js';
 
 const MANIFEST_MEDIA_TYPES = [
   'text/html; charset=utf-8',
@@ -127,6 +134,90 @@ export function createAttributionDefinition({ closedObject }) {
     description:
       'Footer attribution. `showMadeWith: false` omits the "Made with Galascribe" mark; an absent `attribution` means it is shown.',
   });
+}
+
+/**
+ * SCHEMA-3.10.0: the publication palette the author picks, shared
+ * byte-for-byte by the `appearance` author-source root and the normalized
+ * `build-input` appearance (one `$defs/semanticTokens` body, so the
+ * shared-definition gate holds). Each of the three roles is optional and, when
+ * present, carries an explicit light and dark pair of opaque lowercase hex.
+ * `{}` means the theme's own default palette.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed palette object schema
+ */
+export function createSemanticTokensDefinition({ closedObject }) {
+  const pick = () =>
+    closedObject(
+      {
+        light: { type: 'string', pattern: '^#[0-9a-f]{6}$' },
+        dark: { type: 'string', pattern: '^#[0-9a-f]{6}$' },
+      },
+      ['light', 'dark'],
+    );
+  return closedObject(
+    Object.fromEntries(PALETTE_ROLES.map((role) => [role, pick()])),
+    [],
+    {
+      description:
+        "SCHEMA-3.10.0: the author's publication palette. Each role (accent, canvas, text) is optional; when present it carries both light and dark as opaque lowercase #rrggbb. An absent role uses the theme's default; `{}` selects the theme's default palette entirely.",
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.10.0: one `palette.follow` entry of a theme contract. `key` is one
+ * of the palette-drivable token keys exported by `src/palette.js` (the single
+ * list); each mode lists, per colour literal in that mode's value, the seed
+ * role it follows or `null` to stay fixed. The per-type colour counts bound
+ * the list lengths; the exact length for the value is enforced by the
+ * semantic validator.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed follow-entry schema
+ */
+export function createPaletteFollowDefinition({ closedObject }) {
+  const list = () => ({
+    type: 'array',
+    items: { enum: [...PALETTE_ROLES, null] },
+    minItems: 0,
+    maxItems: Math.max(...Object.values(PALETTE_MAX_COLOURS_BY_TYPE)),
+  });
+  return closedObject(
+    {
+      key: { enum: [...PALETTE_DRIVABLE_KEYS] },
+      light: list(),
+      dark: list(),
+    },
+    ['key', 'light', 'dark'],
+    {
+      allOf: Object.entries(PALETTE_MAX_COLOURS_BY_TYPE).map(
+        ([type, maximum]) => ({
+          if: {
+            properties: {
+              key: {
+                enum: PALETTE_DRIVABLE_KEYS.filter(
+                  (key) => PALETTE_KEY_TYPES[key] === type,
+                ),
+              },
+            },
+            required: ['key'],
+          },
+          then: {
+            properties: {
+              light: { maxItems: maximum },
+              dark: { maxItems: maximum },
+            },
+          },
+        }),
+      ),
+      $comment:
+        'The semantic validator requires each list length to equal the number of colours in the matching mode value of the named token, and each key to appear at most once.',
+    },
+  );
 }
 
 /**
@@ -710,11 +801,7 @@ export function createCompositionBuildSchemas(language) {
     },
   );
 
-  const semanticTokens = closedObject({}, [], {
-    maxProperties: 0,
-    $comment:
-      'Fail closed: only the documented empty object is accepted until the semantic-token catalog is accepted.',
-  });
+  const semanticTokens = createSemanticTokensDefinition(language);
 
   const normalizedSource = {
     oneOf: [
@@ -1711,6 +1798,21 @@ export function createCompositionBuildSchemas(language) {
         cssLayers: arrayOf(ref('plainLabel'), 1, 16),
         slotHooks: arrayOf(ref('plainLabel'), 1, 256, true),
         tokens: themeTokens,
+        palette: closedObject(
+          {
+            profile: { const: PALETTE_PROFILE },
+            follow: arrayOf(
+              ref('paletteFollow'),
+              0,
+              PALETTE_DRIVABLE_KEYS.length,
+            ),
+          },
+          ['profile', 'follow'],
+          {
+            description:
+              'SCHEMA-3.10.0, optional: which palette seed each colour of each palette-drivable token follows. Optional here so contract-3 archive validation is unchanged; the template requires it.',
+          },
+        ),
         modes: { const: ['dark', 'light', 'system'] },
         assets: arrayOf(ref('passiveAsset'), 0, 256),
         fixtures: arrayOf(ref('plainLabel'), 1, 64, true),
@@ -1746,6 +1848,7 @@ export function createCompositionBuildSchemas(language) {
         spdxExpression,
         templateComposition,
         themeToken,
+        paletteFollow: createPaletteFollowDefinition(language),
         passiveAsset,
         themeBudgets,
       },
@@ -1803,7 +1906,7 @@ export function createCompositionBuildSchemas(language) {
               required: ['contractVersion'],
             },
             then: {
-              properties: { templateRange: { const: '^4.0.0' } },
+              properties: { templateRange: { enum: ['^4.0.0', '^4.1.0'] } },
               required: ['composition'],
               allOf: Object.entries(THEME_COMPOSITION_PROFILES).map(
                 ([themeId, profile]) => ({

@@ -3921,7 +3921,10 @@ components:
         values to change only `attribution`. `attribution` (SCHEMA-3.3.0) is
         optional: when present the server writes it as
         `gala/appearance.json`'s `attribution`; when absent the file's
-        `attribution` is preserved unchanged.
+        `attribution` is preserved unchanged. `tokens` (SCHEMA-3.10.0) is
+        optional: the author's publication palette, written as
+        `gala/appearance.json`'s `tokens`; when absent the file's `tokens`
+        are preserved unchanged, and `{}` resets to the theme's own colours.
       properties:
         attribution:
           $ref: ../schemas/appearance.schema.json#/$defs/attribution
@@ -3929,6 +3932,8 @@ components:
           $ref: '#/components/schemas/AppearanceColorMode'
         themeId:
           $ref: '#/components/schemas/AppearanceThemeId'
+        tokens:
+          $ref: ../schemas/appearance.schema.json#/$defs/semanticTokens
       required:
         - themeId
         - colorModeDefault
@@ -4002,7 +4007,9 @@ components:
         `themePackage` is not in the catalog. `themePackage` is the file's
         `theme` value, a package with its version range. `attribution`
         (SCHEMA-3.3.0, optional) is the file's footer attribution switch;
-        absent means the file has none, which renders as shown.
+        absent means the file has none, which renders as shown. `tokens`
+        (SCHEMA-3.10.0, optional) is the file's publication palette as read;
+        absent or `{}` means the theme's own colours.
       properties:
         attribution:
           $ref: ../schemas/appearance.schema.json#/$defs/attribution
@@ -4014,6 +4021,8 @@ components:
             - type: 'null'
         themePackage:
           $ref: ../schemas/appearance.schema.json#/$defs/packageRange
+        tokens:
+          $ref: ../schemas/appearance.schema.json#/$defs/semanticTokens
       required:
         - themeId
         - themePackage

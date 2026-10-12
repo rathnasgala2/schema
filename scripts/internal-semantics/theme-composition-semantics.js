@@ -15,6 +15,7 @@ import {
   validateSpdxCatalogEvidence,
   validateSpdxExpression,
 } from '../../src/internal/spdx.js';
+import { validateThemePalette } from '../../src/palette.js';
 import {
   MODE_VARIANT_TYPES,
   THEME_TOKEN_CATALOG,
@@ -928,9 +929,12 @@ export function validateThemeContract(value) {
       ? /** @type {UnknownRecord} */ (value)
       : undefined;
   const generation4 = candidate?.contractVersion === '4.0.0';
+  const hasPalette =
+    candidate !== undefined && Object.hasOwn(candidate, 'palette');
+  const baseKeys = generation4 ? GENERATION_4_THEME_KEYS : THEME_KEYS;
   const theme = exactRecord(
     value,
-    generation4 ? GENERATION_4_THEME_KEYS : THEME_KEYS,
+    hasPalette ? [...baseKeys, 'palette'] : baseKeys,
     code,
   );
   if (
@@ -948,7 +952,7 @@ export function validateThemeContract(value) {
   requireSemverRange(theme.templateRange, code);
   if (theme.themeId === 'editorial' && !generation4) invalid(code);
   if (generation4) {
-    if (theme.templateRange !== '^4.0.0') {
+    if (theme.templateRange !== '^4.0.0' && theme.templateRange !== '^4.1.0') {
       invalid(code);
     }
     validateTemplateComposition(theme.composition);
@@ -979,6 +983,17 @@ export function validateThemeContract(value) {
     compareJcsStrings,
   );
   validateThemeTokens(theme.tokens);
+  if (hasPalette) {
+    try {
+      validateThemePalette(
+        /** @type {import('../../src/palette.js').PaletteTheme} */ (
+          /** @type {unknown} */ (theme)
+        ),
+      );
+    } catch {
+      invalid(code);
+    }
+  }
   requireExactArray(theme.modes, MODES, code);
 
   if (!Array.isArray(theme.assets) || theme.assets.length > 256) invalid(code);
