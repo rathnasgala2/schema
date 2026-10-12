@@ -147,7 +147,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 865);
+  assert.equal(files.length, 870);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -176,8 +176,14 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // 3.3.0: appearance/build-input attribution and the content-frontmatter/
     // build-input edition block regenerated those roots' valid, boundary,
     // invalid and unknown-field fixtures. File count unchanged (865).
+    //
+    // 3.8.0 (reviewed 2026-10-12): the closed generation-4 branches of the
+    // template-composition and theme-contract roots and the Editorial package
+    // admission regenerated those roots' fixtures and added five adversarial
+    // case files (SCHEMA_CONSTANT_INVALID, SCHEMA_ENUM_INVALID,
+    // SCHEMA_NEGATED_RULE_MATCHED twice, SCHEMA_UNION_INVALID), making 870.
     aggregate.digest('hex'),
-    'e90396948e05046176326038f220294f597f8ac738a3dd56f2086d402323c058',
+    '2a66230a1adb6a7da206a5cc766c186a3f84d9d49c224e9cca57318980dcc0a5',
   );
 });
 

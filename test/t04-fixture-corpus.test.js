@@ -118,11 +118,11 @@ const T03_SCHEMA_HASHES = {
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':
-    'd4d0b62ee0a7fb3e333538b5a1501a14875c8a965711f468f800261b9857dfa6',
+    'fe515d86f884415d842c8e0a9fd25d384506cf422196a4047282782d05229d1e',
   'theme-contract':
     // 2026-09-25 code-discipline review, SCH-C3: positiveInt64 gained a real
     // upper bound (see artifact-manifest above).
-    'cefa8f03218436fc1ada81457713b485c1bb157aa55b677e9795f990d84161a8',
+    '1f20d4595a105aa5777ffd07b5f8db3ef4b2d6ba40c15dcb6129f89bf1bc4cb8',
 };
 
 const ADVERSARIAL_CATEGORIES = [

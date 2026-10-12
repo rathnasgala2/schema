@@ -451,7 +451,13 @@ test('SCHEMA-2.10.0 LOCAL-63: the receipt-exchange request family is byte-unchan
     // PortableDeploymentIntentRecordRenderPolicyIdentity); every referenced
     // schema body, including the still-forbidden Spaces providerBinding
     // per LOCAL-63d, is byte-identical.
-    '3a1536d0847fd848d43e644cc786b722fbc34a1b78f25b2d0fb50ccba7da047c',
+    // SCHEMA-3.8.0 (reviewed 2026-10-12): the only movement since the
+    // 2.10.0 digest is the additive `theme-editorial` value in the rebuild
+    // record's theme.package enum (ReceiptExchangeIntentRequestRebuildRecord),
+    // mirroring deployment-intent's admission of the Editorial package. No
+    // member was removed or retyped; the Spaces providerBinding stays
+    // forbidden on the request, as the assertion message below says.
+    '45c3237a6a4567a3a0614cc823a8ad8efcc0419c8d3b42b85a2df5bf57ed4ac7',
     'the receipt-exchange request family moved since SCHEMA-2.9.0; Spaces providerBinding must stay forbidden on the request until a future packet, per LOCAL-63d',
   );
 });

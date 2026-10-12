@@ -2818,7 +2818,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       {
         file: 'test/t03-theme-composition-semantics.test.js',
         testName:
-          'template-composition admits only its two exact discriminator fields',
+          'template-composition admits the legacy empty contract and five exact generation-4 profiles',
       },
     ],
     'empty-modules-placements': [
