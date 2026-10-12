@@ -8,6 +8,26 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-10-12
+
+### Added
+
+- `SiteAttentionItem` gains optional `reason` (`AUTHOR_EDITED`,
+  `BRANCH_PROTECTION`, `REPOSITORY_ARCHIVED`, `INSTALLATION_SUSPENDED`,
+  `WORKFLOWS_PERMISSION_MISSING`, `AUTHORIZATION_LOST`, `FORBIDDEN`) and `paths`
+  (the managed repository files involved, at most 50), meaningful on
+  `REPOSITORY_NEEDS_UPDATE`. Both are absent from older servers and for other
+  codes; a client shows a generic sentence for a `reason` it does not know.
+- The shared problem `errors[]` entry (`fieldError` in
+  `schemas/problem.schema.json`) gains the same optional `reason` and `paths`,
+  so a refusal that names `REPOSITORY_NEEDS_UPDATE` can say why and which files.
+  Requests and documents without them remain valid.
+- Reviewed byte-lock moved: the S2 legacy-fixture aggregate digest and file
+  count (870 to 871) in `test/s2-fixture-corpus.test.js`, with a dated comment.
+  The problem fixture and example corpus is regenerated (plus one new
+  `SCHEMA_ENUM_INVALID` case file) and the compatibility baselines are updated,
+  which also catches them up with the 3.8.0 roots.
+
 ## [3.8.0] - 2026-10-11
 
 ### Added
@@ -2635,6 +2655,7 @@ with independently verifiable dates.
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
 [Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.8.0...HEAD
+[3.9.0]: https://github.com/rathnasgala2/schema/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/rathnasgala2/schema/compare/v3.7.0...v3.8.0
 [3.7.0]: https://github.com/rathnasgala2/schema/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/rathnasgala2/schema/compare/v3.5.0...v3.6.0

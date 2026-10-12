@@ -133,8 +133,8 @@
     {
       "contract": "problem",
       "schemaId": "urn:gala:schema:problem:2.0.0",
-      "schemaSha256": "d1c16c29b5b60cf37d50d49e53037cc6e2f668f4d2337f5a8a51a135056225a5",
-      "ruleCount": 105,
+      "schemaSha256": "0595396f268a16e67b65a9aede276f00b9ef1f8e2699e1be57128703078b21fb",
+      "ruleCount": 113,
       "validExample": "examples/valid/problem/canonical.json",
       "boundaryFixture": "fixtures/boundary/problem/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/problem/root.json"
@@ -183570,6 +183570,140 @@
     },
     {
       "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/paths:maxItems",
+      "schemaPointer": "#/$defs/fieldError/properties/paths",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-62218472356dcd79"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-538e0d3cb66a8912"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "problem-invalid-4ae795114f250c31",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/paths:minItems",
+      "schemaPointer": "#/$defs/fieldError/properties/paths",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-62218472356dcd79"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-7cf6d46ec133d643"
+      },
+      "invalid": { "notApplicable": "ZERO_LOWER_BOUND_REJECTS_NO_INSTANCE" },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/paths:type",
+      "schemaPointer": "#/$defs/fieldError/properties/paths",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-62218472356dcd79"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-9cf0ce432b88fcca"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "problem-invalid-f7dd9718874abfab",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/paths/items:maxLength",
+      "schemaPointer": "#/$defs/fieldError/properties/paths/items",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-caa2e1e5ee158acc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-92f8b53631f17b61"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "problem-invalid-079794886ab5dd4d",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/paths/items:minLength",
+      "schemaPointer": "#/$defs/fieldError/properties/paths/items",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-caa2e1e5ee158acc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-f8e4f1f246c4faf4"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_STRING_TOO_SHORT/cases.json",
+        "caseId": "problem-invalid-789a2b9a352caea5",
+        "expectedCode": "SCHEMA_STRING_TOO_SHORT"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/paths/items:type",
+      "schemaPointer": "#/$defs/fieldError/properties/paths/items",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-caa2e1e5ee158acc"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-a8d854d1aaeaf3b1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "problem-invalid-6729549958d3f9e2",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
       "ruleId": "problem:#/$defs/fieldError/properties/pointer:maxLength",
       "schemaPointer": "#/$defs/fieldError/properties/pointer",
       "keyword": "maxLength",
@@ -183630,6 +183764,52 @@
       "invalid": {
         "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
         "caseId": "problem-invalid-e284b666a1f5cb9a",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/reason:enum",
+      "schemaPointer": "#/$defs/fieldError/properties/reason",
+      "keyword": "enum",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-69874411e08745d1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-653ff392e0a9a9d2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_ENUM_INVALID/cases.json",
+        "caseId": "problem-invalid-c944caf60eb2babd",
+        "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-d807190cb4d170d1"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/$defs/fieldError/properties/reason:type",
+      "schemaPointer": "#/$defs/fieldError/properties/reason",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-69874411e08745d1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-653ff392e0a9a9d2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "problem-invalid-361b444f240195c2",
         "expectedCode": "SCHEMA_TYPE_INVALID"
       },
       "unknownField": {

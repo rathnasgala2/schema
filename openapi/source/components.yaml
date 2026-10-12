@@ -7259,7 +7259,21 @@ components:
         nothing was merged. `DOMAIN_PUBLISH_REQUIRED` means a custom domain is
         live and the next publish moves the site's address to it.
         `DOMAIN_DEGRADED` means a live custom domain stopped working;
-        `reasonCode` names why and the domain read carries the next step."
+        `reasonCode` names why and the domain read carries the next step.
+        SCHEMA-3.9.0: on `REPOSITORY_NEEDS_UPDATE`, `reason` names the cause and
+        `paths` the managed repository files involved, so a client can say what
+        to do and list the files (both are absent from older servers and for
+        other codes; show a generic sentence for a `reason` you do not know).
+        `AUTHOR_EDITED`: a managed file differs from the version Galascribe
+        manages and only the author may resolve it. `BRANCH_PROTECTION`: GitHub
+        refused Galascribe's own repair commit. `REPOSITORY_ARCHIVED`: the
+        repository is archived. `INSTALLATION_SUSPENDED`: the GitHub App
+        installation is suspended. `WORKFLOWS_PERMISSION_MISSING`: the
+        installation has not accepted the workflows permission.
+        `AUTHORIZATION_LOST`: Galascribe lost its GitHub authorization.
+        `FORBIDDEN`: GitHub refused for another permission reason. The same
+        `reason` and `paths` ride on the `REPOSITORY_NEEDS_UPDATE` entry of a
+        publish refusal's `errors`."
       properties:
         code:
           enum:
@@ -7277,6 +7291,30 @@ components:
             - SCHEDULED_PUBLISH_FAILED
             - DOMAIN_PUBLISH_REQUIRED
             - DOMAIN_DEGRADED
+          type: string
+        paths:
+          description:
+            SCHEMA-3.9.0. The managed repository files a
+            `REPOSITORY_NEEDS_UPDATE` is about; may be empty when the cause is
+            not about a file.
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          minItems: 0
+          type: array
+        reason:
+          description:
+            SCHEMA-3.9.0. Why a `REPOSITORY_NEEDS_UPDATE` needs the author.
+          enum:
+            - AUTHOR_EDITED
+            - BRANCH_PROTECTION
+            - REPOSITORY_ARCHIVED
+            - INSTALLATION_SUSPENDED
+            - WORKFLOWS_PERMISSION_MISSING
+            - AUTHORIZATION_LOST
+            - FORBIDDEN
           type: string
         reasonCode:
           maxLength: 80

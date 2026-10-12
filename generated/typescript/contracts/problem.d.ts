@@ -11,7 +11,16 @@ export type ProblemExtensionKey = string;
 
 export type ProblemFieldError = Readonly<{
   readonly code: ProblemProblemCode;
+  readonly paths?: ReadonlyArray<string>;
   readonly pointer: string;
+  readonly reason?:
+    | 'AUTHOR_EDITED'
+    | 'BRANCH_PROTECTION'
+    | 'REPOSITORY_ARCHIVED'
+    | 'INSTALLATION_SUSPENDED'
+    | 'WORKFLOWS_PERMISSION_MISSING'
+    | 'AUTHORIZATION_LOST'
+    | 'FORBIDDEN';
 }>;
 
 export type ProblemGitObjectId = string;

@@ -6,7 +6,32 @@
   "required": ["schemaId", "schemaVersion"],
   "properties": {
     "schemaId": { "const": "urn:gala:schema:template-composition:2.0.0" },
-    "schemaVersion": { "const": "2.0.0" }
+    "schemaVersion": { "const": "2.0.0" },
+    "profile": {
+      "enum": ["editorial", "newsletter", "visual", "personal", "developer"]
+    },
+    "homeLayout": {
+      "enum": [
+        "magazine",
+        "newspaper",
+        "gallery",
+        "chronological",
+        "topic-index"
+      ]
+    },
+    "articleLayout": {
+      "enum": ["editorial", "issue", "full-bleed", "prose", "technical"]
+    },
+    "authorLayout": {
+      "enum": ["portrait", "profile", "portfolio", "biography"]
+    },
+    "listingLayout": { "enum": ["rows", "issues", "image-grid", "dated-rows"] },
+    "headerLayout": {
+      "enum": ["masthead", "publication", "minimal", "compact", "utility"]
+    },
+    "footerLayout": { "enum": ["expanded", "compact"] },
+    "mediaRatio": { "enum": ["landscape", "mixed"] },
+    "density": { "enum": ["comfortable", "spacious", "compact"] }
   },
   "additionalProperties": false,
   "$defs": {
@@ -129,5 +154,157 @@
       "description": "Reverse-DNS extension namespace that cannot shadow a core key."
     }
   },
-  "$comment": "MVP composition is intentionally empty: deferred module properties and every unknown property reject."
+  "oneOf": [
+    {
+      "not": {
+        "anyOf": [
+          { "properties": { "profile": {} }, "required": ["profile"] },
+          { "properties": { "homeLayout": {} }, "required": ["homeLayout"] },
+          {
+            "properties": { "articleLayout": {} },
+            "required": ["articleLayout"]
+          },
+          {
+            "properties": { "authorLayout": {} },
+            "required": ["authorLayout"]
+          },
+          {
+            "properties": { "listingLayout": {} },
+            "required": ["listingLayout"]
+          },
+          {
+            "properties": { "headerLayout": {} },
+            "required": ["headerLayout"]
+          },
+          {
+            "properties": { "footerLayout": {} },
+            "required": ["footerLayout"]
+          },
+          { "properties": { "mediaRatio": {} }, "required": ["mediaRatio"] },
+          { "properties": { "density": {} }, "required": ["density"] }
+        ]
+      }
+    },
+    {
+      "properties": {
+        "profile": { "const": "editorial" },
+        "homeLayout": { "const": "magazine" },
+        "articleLayout": { "const": "editorial" },
+        "authorLayout": { "const": "portrait" },
+        "listingLayout": { "const": "rows" },
+        "headerLayout": { "const": "masthead" },
+        "footerLayout": { "const": "expanded" },
+        "mediaRatio": { "const": "landscape" },
+        "density": { "const": "comfortable" }
+      },
+      "required": [
+        "profile",
+        "homeLayout",
+        "articleLayout",
+        "authorLayout",
+        "listingLayout",
+        "headerLayout",
+        "footerLayout",
+        "mediaRatio",
+        "density"
+      ]
+    },
+    {
+      "properties": {
+        "profile": { "const": "newsletter" },
+        "homeLayout": { "const": "newspaper" },
+        "articleLayout": { "const": "issue" },
+        "authorLayout": { "const": "profile" },
+        "listingLayout": { "const": "issues" },
+        "headerLayout": { "const": "publication" },
+        "footerLayout": { "const": "expanded" },
+        "mediaRatio": { "const": "landscape" },
+        "density": { "const": "comfortable" }
+      },
+      "required": [
+        "profile",
+        "homeLayout",
+        "articleLayout",
+        "authorLayout",
+        "listingLayout",
+        "headerLayout",
+        "footerLayout",
+        "mediaRatio",
+        "density"
+      ]
+    },
+    {
+      "properties": {
+        "profile": { "const": "visual" },
+        "homeLayout": { "const": "gallery" },
+        "articleLayout": { "const": "full-bleed" },
+        "authorLayout": { "const": "portfolio" },
+        "listingLayout": { "const": "image-grid" },
+        "headerLayout": { "const": "minimal" },
+        "footerLayout": { "const": "compact" },
+        "mediaRatio": { "const": "mixed" },
+        "density": { "const": "comfortable" }
+      },
+      "required": [
+        "profile",
+        "homeLayout",
+        "articleLayout",
+        "authorLayout",
+        "listingLayout",
+        "headerLayout",
+        "footerLayout",
+        "mediaRatio",
+        "density"
+      ]
+    },
+    {
+      "properties": {
+        "profile": { "const": "personal" },
+        "homeLayout": { "const": "chronological" },
+        "articleLayout": { "const": "prose" },
+        "authorLayout": { "const": "biography" },
+        "listingLayout": { "const": "dated-rows" },
+        "headerLayout": { "const": "compact" },
+        "footerLayout": { "const": "compact" },
+        "mediaRatio": { "const": "landscape" },
+        "density": { "const": "spacious" }
+      },
+      "required": [
+        "profile",
+        "homeLayout",
+        "articleLayout",
+        "authorLayout",
+        "listingLayout",
+        "headerLayout",
+        "footerLayout",
+        "mediaRatio",
+        "density"
+      ]
+    },
+    {
+      "properties": {
+        "profile": { "const": "developer" },
+        "homeLayout": { "const": "topic-index" },
+        "articleLayout": { "const": "technical" },
+        "authorLayout": { "const": "biography" },
+        "listingLayout": { "const": "rows" },
+        "headerLayout": { "const": "utility" },
+        "footerLayout": { "const": "compact" },
+        "mediaRatio": { "const": "landscape" },
+        "density": { "const": "compact" }
+      },
+      "required": [
+        "profile",
+        "homeLayout",
+        "articleLayout",
+        "authorLayout",
+        "listingLayout",
+        "headerLayout",
+        "footerLayout",
+        "mediaRatio",
+        "density"
+      ]
+    }
+  ],
+  "$comment": "The legacy composition remains empty. Generation 4 adds five closed, all-fields-required branches; fields from different profiles cannot be mixed and theme options remain deferred."
 }

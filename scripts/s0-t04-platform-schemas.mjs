@@ -69,6 +69,28 @@ export function createPlatformSchemas(language) {
     {
       pointer: { type: 'string', minLength: 1, maxLength: 1024 },
       code: ref('problemCode'),
+      reason: {
+        type: 'string',
+        enum: [
+          'AUTHOR_EDITED',
+          'BRANCH_PROTECTION',
+          'REPOSITORY_ARCHIVED',
+          'INSTALLATION_SUSPENDED',
+          'WORKFLOWS_PERMISSION_MISSING',
+          'AUTHORIZATION_LOST',
+          'FORBIDDEN',
+        ],
+        description:
+          "SCHEMA-3.9.0, optional: why a REPOSITORY_NEEDS_UPDATE error needs the author. AUTHOR_EDITED: a managed file was changed in a way only the author may resolve. BRANCH_PROTECTION: GitHub refused Galascribe's own commit. REPOSITORY_ARCHIVED: the repository is archived. INSTALLATION_SUSPENDED: the GitHub App installation is suspended. WORKFLOWS_PERMISSION_MISSING: the installation has not accepted the workflows permission. AUTHORIZATION_LOST: Galascribe lost its GitHub authorization. FORBIDDEN: GitHub refused for another permission reason. Absent from older servers and for other codes; a client shows a generic sentence for a value it does not know.",
+      },
+      paths: {
+        type: 'array',
+        items: { type: 'string', minLength: 1, maxLength: 512 },
+        minItems: 0,
+        maxItems: 50,
+        description:
+          'SCHEMA-3.9.0, optional: the managed repository file paths the error is about, as the App lists them. Absent from older servers.',
+      },
     },
     ['pointer', 'code'],
   );

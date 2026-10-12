@@ -12796,9 +12796,29 @@ components:
       properties:
         code:
           $ref: "#/components/schemas/PortableProblemProblemCode"
+        paths:
+          description: "SCHEMA-3.9.0, optional: the managed repository file paths the error is about, as the App lists them. Absent from older servers."
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          minItems: 0
+          type: array
         pointer:
           maxLength: 1024
           minLength: 1
+          type: string
+        reason:
+          description: "SCHEMA-3.9.0, optional: why a REPOSITORY_NEEDS_UPDATE error needs the author. AUTHOR_EDITED: a managed file was changed in a way only the author may resolve. BRANCH_PROTECTION: GitHub refused Galascribe's own commit. REPOSITORY_ARCHIVED: the repository is archived. INSTALLATION_SUSPENDED: the GitHub App installation is suspended. WORKFLOWS_PERMISSION_MISSING: the installation has not accepted the workflows permission. AUTHORIZATION_LOST: Galascribe lost its GitHub authorization. FORBIDDEN: GitHub refused for another permission reason. Absent from older servers and for other codes; a client shows a generic sentence for a value it does not know."
+          enum:
+            - AUTHOR_EDITED
+            - BRANCH_PROTECTION
+            - REPOSITORY_ARCHIVED
+            - INSTALLATION_SUSPENDED
+            - WORKFLOWS_PERMISSION_MISSING
+            - AUTHORIZATION_LOST
+            - FORBIDDEN
           type: string
       required:
         - pointer
@@ -17403,7 +17423,7 @@ components:
       type: object
     SiteAttentionItem:
       additionalProperties: false
-      description: "Something that needs a person to act. The list is empty when nothing does. SCHEMA-3.3.0: `SCHEDULED_PUBLISH_FAILED` means a scheduled publish could not start at its time; `relatedPublishId` names the schedule and `reasonCode` the first precondition that failed (a client maps the values it knows to a sentence and shows a generic one otherwise); nothing was merged. `DOMAIN_PUBLISH_REQUIRED` means a custom domain is live and the next publish moves the site's address to it. `DOMAIN_DEGRADED` means a live custom domain stopped working; `reasonCode` names why and the domain read carries the next step."
+      description: "Something that needs a person to act. The list is empty when nothing does. SCHEMA-3.3.0: `SCHEDULED_PUBLISH_FAILED` means a scheduled publish could not start at its time; `relatedPublishId` names the schedule and `reasonCode` the first precondition that failed (a client maps the values it knows to a sentence and shows a generic one otherwise); nothing was merged. `DOMAIN_PUBLISH_REQUIRED` means a custom domain is live and the next publish moves the site's address to it. `DOMAIN_DEGRADED` means a live custom domain stopped working; `reasonCode` names why and the domain read carries the next step. SCHEMA-3.9.0: on `REPOSITORY_NEEDS_UPDATE`, `reason` names the cause and `paths` the managed repository files involved, so a client can say what to do and list the files (both are absent from older servers and for other codes; show a generic sentence for a `reason` you do not know). `AUTHOR_EDITED`: a managed file differs from the version Galascribe manages and only the author may resolve it. `BRANCH_PROTECTION`: GitHub refused Galascribe's own repair commit. `REPOSITORY_ARCHIVED`: the repository is archived. `INSTALLATION_SUSPENDED`: the GitHub App installation is suspended. `WORKFLOWS_PERMISSION_MISSING`: the installation has not accepted the workflows permission. `AUTHORIZATION_LOST`: Galascribe lost its GitHub authorization. `FORBIDDEN`: GitHub refused for another permission reason. The same `reason` and `paths` ride on the `REPOSITORY_NEEDS_UPDATE` entry of a publish refusal's `errors`."
       properties:
         code:
           enum:
@@ -17421,6 +17441,26 @@ components:
             - SCHEDULED_PUBLISH_FAILED
             - DOMAIN_PUBLISH_REQUIRED
             - DOMAIN_DEGRADED
+          type: string
+        paths:
+          description: SCHEMA-3.9.0. The managed repository files a `REPOSITORY_NEEDS_UPDATE` is about; may be empty when the cause is not about a file.
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+          maxItems: 50
+          minItems: 0
+          type: array
+        reason:
+          description: SCHEMA-3.9.0. Why a `REPOSITORY_NEEDS_UPDATE` needs the author.
+          enum:
+            - AUTHOR_EDITED
+            - BRANCH_PROTECTION
+            - REPOSITORY_ARCHIVED
+            - INSTALLATION_SUSPENDED
+            - WORKFLOWS_PERMISSION_MISSING
+            - AUTHORIZATION_LOST
+            - FORBIDDEN
           type: string
         reasonCode:
           maxLength: 80

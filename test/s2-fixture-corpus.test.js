@@ -147,7 +147,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 870);
+  assert.equal(files.length, 871);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -184,8 +184,13 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // SCHEMA_NEGATED_RULE_MATCHED twice, SCHEMA_UNION_INVALID), making 870.
     // The template-composition root oneOf case is a genuine union failure
     // (two profiles' declared members together), so parity reports it as one.
+    //
+    // 3.9.0 (reviewed 2026-10-12): the problem root's fieldError gained the
+    // optional `reason` enum and `paths` array, regenerating the problem
+    // root's valid, boundary, invalid and unknown-field fixtures and adding
+    // one case file (problem/SCHEMA_ENUM_INVALID), making 871.
     aggregate.digest('hex'),
-    '881f1fa2876b603a9a7455139172ec082541e4ebb4474c42f476ddd2fee44b10',
+    '0359f206a37bcfef1195d859fbeae16efe69f674f039561751ee6cf232e222d5',
   );
 });
 

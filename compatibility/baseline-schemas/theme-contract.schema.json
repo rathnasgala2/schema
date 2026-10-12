@@ -32,12 +32,19 @@
       "allOf": [
         { "$ref": "#/$defs/packageExact" },
         {
-          "pattern": "^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@"
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^@rathnasgala2/theme-(?:default|amaze|flashy|minimal|zebra)@"
+            },
+            { "type": "string", "pattern": "^@rathnasgala2/theme-editorial@" }
+          ]
         }
       ]
     },
     "contractVersion": { "$ref": "#/$defs/semver" },
     "templateRange": { "$ref": "#/$defs/semverRange" },
+    "composition": { "$ref": "#/$defs/templateComposition" },
     "stylesheets": {
       "type": "array",
       "items": { "$ref": "#/$defs/repoRelativePath" },
@@ -1526,6 +1533,170 @@
       "format": "gala-spdx-expression",
       "x-gala-utf8ByteLength": { "minimum": 1, "maximum": 128 }
     },
+    "templateComposition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "schemaId",
+            "schemaVersion",
+            "profile",
+            "homeLayout",
+            "articleLayout",
+            "authorLayout",
+            "listingLayout",
+            "headerLayout",
+            "footerLayout",
+            "mediaRatio",
+            "density"
+          ],
+          "properties": {
+            "schemaId": {
+              "const": "urn:gala:schema:template-composition:2.0.0"
+            },
+            "schemaVersion": { "const": "2.0.0" },
+            "profile": { "const": "editorial" },
+            "homeLayout": { "const": "magazine" },
+            "articleLayout": { "const": "editorial" },
+            "authorLayout": { "const": "portrait" },
+            "listingLayout": { "const": "rows" },
+            "headerLayout": { "const": "masthead" },
+            "footerLayout": { "const": "expanded" },
+            "mediaRatio": { "const": "landscape" },
+            "density": { "const": "comfortable" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "schemaId",
+            "schemaVersion",
+            "profile",
+            "homeLayout",
+            "articleLayout",
+            "authorLayout",
+            "listingLayout",
+            "headerLayout",
+            "footerLayout",
+            "mediaRatio",
+            "density"
+          ],
+          "properties": {
+            "schemaId": {
+              "const": "urn:gala:schema:template-composition:2.0.0"
+            },
+            "schemaVersion": { "const": "2.0.0" },
+            "profile": { "const": "newsletter" },
+            "homeLayout": { "const": "newspaper" },
+            "articleLayout": { "const": "issue" },
+            "authorLayout": { "const": "profile" },
+            "listingLayout": { "const": "issues" },
+            "headerLayout": { "const": "publication" },
+            "footerLayout": { "const": "expanded" },
+            "mediaRatio": { "const": "landscape" },
+            "density": { "const": "comfortable" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "schemaId",
+            "schemaVersion",
+            "profile",
+            "homeLayout",
+            "articleLayout",
+            "authorLayout",
+            "listingLayout",
+            "headerLayout",
+            "footerLayout",
+            "mediaRatio",
+            "density"
+          ],
+          "properties": {
+            "schemaId": {
+              "const": "urn:gala:schema:template-composition:2.0.0"
+            },
+            "schemaVersion": { "const": "2.0.0" },
+            "profile": { "const": "visual" },
+            "homeLayout": { "const": "gallery" },
+            "articleLayout": { "const": "full-bleed" },
+            "authorLayout": { "const": "portfolio" },
+            "listingLayout": { "const": "image-grid" },
+            "headerLayout": { "const": "minimal" },
+            "footerLayout": { "const": "compact" },
+            "mediaRatio": { "const": "mixed" },
+            "density": { "const": "comfortable" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "schemaId",
+            "schemaVersion",
+            "profile",
+            "homeLayout",
+            "articleLayout",
+            "authorLayout",
+            "listingLayout",
+            "headerLayout",
+            "footerLayout",
+            "mediaRatio",
+            "density"
+          ],
+          "properties": {
+            "schemaId": {
+              "const": "urn:gala:schema:template-composition:2.0.0"
+            },
+            "schemaVersion": { "const": "2.0.0" },
+            "profile": { "const": "personal" },
+            "homeLayout": { "const": "chronological" },
+            "articleLayout": { "const": "prose" },
+            "authorLayout": { "const": "biography" },
+            "listingLayout": { "const": "dated-rows" },
+            "headerLayout": { "const": "compact" },
+            "footerLayout": { "const": "compact" },
+            "mediaRatio": { "const": "landscape" },
+            "density": { "const": "spacious" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "schemaId",
+            "schemaVersion",
+            "profile",
+            "homeLayout",
+            "articleLayout",
+            "authorLayout",
+            "listingLayout",
+            "headerLayout",
+            "footerLayout",
+            "mediaRatio",
+            "density"
+          ],
+          "properties": {
+            "schemaId": {
+              "const": "urn:gala:schema:template-composition:2.0.0"
+            },
+            "schemaVersion": { "const": "2.0.0" },
+            "profile": { "const": "developer" },
+            "homeLayout": { "const": "topic-index" },
+            "articleLayout": { "const": "technical" },
+            "authorLayout": { "const": "biography" },
+            "listingLayout": { "const": "rows" },
+            "headerLayout": { "const": "utility" },
+            "footerLayout": { "const": "compact" },
+            "mediaRatio": { "const": "landscape" },
+            "density": { "const": "compact" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
     "themeToken": {
       "type": "object",
       "required": ["key", "type", "light", "dark"],
@@ -1905,6 +2076,12 @@
             "themeId": { "const": "zebra" },
             "package": { "pattern": "^@rathnasgala2\\/theme-zebra@" }
           }
+        },
+        {
+          "properties": {
+            "themeId": { "const": "editorial" },
+            "package": { "pattern": "^@rathnasgala2\\/theme-editorial@" }
+          }
         }
       ]
     },
@@ -1941,6 +2118,110 @@
           }
         }
       ]
+    },
+    {
+      "if": {
+        "properties": { "contractVersion": { "const": "4.0.0" } },
+        "required": ["contractVersion"]
+      },
+      "then": {
+        "properties": { "templateRange": { "const": "^4.0.0" } },
+        "required": ["composition"],
+        "allOf": [
+          {
+            "if": {
+              "properties": { "themeId": { "const": "default" } },
+              "required": ["themeId"]
+            },
+            "then": {
+              "properties": {
+                "composition": {
+                  "properties": { "profile": { "const": "newsletter" } },
+                  "required": ["profile"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "themeId": { "const": "amaze" } },
+              "required": ["themeId"]
+            },
+            "then": {
+              "properties": {
+                "composition": {
+                  "properties": { "profile": { "const": "editorial" } },
+                  "required": ["profile"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "themeId": { "const": "editorial" } },
+              "required": ["themeId"]
+            },
+            "then": {
+              "properties": {
+                "composition": {
+                  "properties": { "profile": { "const": "editorial" } },
+                  "required": ["profile"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "themeId": { "const": "flashy" } },
+              "required": ["themeId"]
+            },
+            "then": {
+              "properties": {
+                "composition": {
+                  "properties": { "profile": { "const": "visual" } },
+                  "required": ["profile"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "themeId": { "const": "minimal" } },
+              "required": ["themeId"]
+            },
+            "then": {
+              "properties": {
+                "composition": {
+                  "properties": { "profile": { "const": "personal" } },
+                  "required": ["profile"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "themeId": { "const": "zebra" } },
+              "required": ["themeId"]
+            },
+            "then": {
+              "properties": {
+                "composition": {
+                  "properties": { "profile": { "const": "developer" } },
+                  "required": ["profile"]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "else": { "not": { "required": ["composition"] } }
+    },
+    {
+      "if": {
+        "properties": { "themeId": { "const": "editorial" } },
+        "required": ["themeId"]
+      },
+      "then": { "properties": { "contractVersion": { "const": "4.0.0" } } }
     }
   ],
   "$comment": "The semantic validator enforces package/theme identity, slot/fixture catalogs, non-color palette equality, CSS/package admission, evidence, budgets, and every self-excluding digest."
