@@ -147,7 +147,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 887);
+  assert.equal(files.length, 871);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -189,8 +189,17 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // optional `reason` enum and `paths` array, regenerating the problem
     // root's valid, boundary, invalid and unknown-field fixtures and adding
     // one case file (problem/SCHEMA_ENUM_INVALID), making 871.
+    //
+    // 3.10.0 (reviewed 2026-10-12): $defs/semanticTokens became the closed
+    // publication palette (optional accent, canvas and text, each {light,
+    // dark} of lowercase #rrggbb) and theme-contract gained the optional
+    // closed `palette` block with a $defs/paletteFollow entry, regenerating
+    // the appearance, build-input and theme-contract fixtures. One new case
+    // file (appearance/SCHEMA_PATTERN_INVALID) replaced one that no longer
+    // applies (build-input/SCHEMA_OBJECT_TOO_LARGE, once the empty-object
+    // cap was gone), so the count stays 871.
     aggregate.digest('hex'),
-    '0359f206a37bcfef1195d859fbeae16efe69f674f039561751ee6cf232e222d5',
+    '3a01a2d5a066902826561909236d6d2b7b20acef60eeed654e8749a0745f45cf',
   );
 });
 

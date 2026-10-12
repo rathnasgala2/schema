@@ -194,14 +194,30 @@ test('every schema embeds the same complete 20-scalar library', async () => {
   assert.equal(Object.keys(expectedScalars).length, 20);
 });
 
-test('the unresolved visual catalogs fail closed', async () => {
+test('the unresolved visual catalogs fail closed, and the palette is closed', async () => {
   const repository = await readSchema('repository');
   const appearance = await readSchema('appearance');
   assert.equal(repository.$defs.passiveVisualToken, false);
-  assert.deepEqual(appearance.$defs.semanticTokens.properties, {});
+  // SCHEMA-3.10.0: semanticTokens is the closed publication palette, three
+  // optional roles each requiring both modes as lowercase #rrggbb.
+  assert.deepEqual(Object.keys(appearance.$defs.semanticTokens.properties), [
+    'accent',
+    'canvas',
+    'text',
+  ]);
   assert.deepEqual(appearance.$defs.semanticTokens.required, []);
-  assert.equal(appearance.$defs.semanticTokens.maxProperties, 0);
+  assert.equal(appearance.$defs.semanticTokens.maxProperties, undefined);
   assert.equal(appearance.$defs.semanticTokens.additionalProperties, false);
+  for (const pick of Object.values(
+    /** @type {Record<string, any>} */ (
+      appearance.$defs.semanticTokens.properties
+    ),
+  )) {
+    assert.deepEqual(pick.required, ['light', 'dark']);
+    assert.equal(pick.additionalProperties, false);
+    assert.equal(pick.properties.light.pattern, '^#[0-9a-f]{6}$');
+    assert.equal(pick.properties.dark.pattern, '^#[0-9a-f]{6}$');
+  }
 });
 
 test('the scalar library fixes its portable syntax and semantic formats', async () => {

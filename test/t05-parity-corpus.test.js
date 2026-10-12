@@ -137,7 +137,7 @@ test('the committed snapshot locks each complete normalized result', async () =>
     corpus.cases.map(({ caseId }) => caseId).sort(),
   );
   const caseIds = [
-    'appearance:appearance-invalid-2e436a50b7903a6e:invalid',
+    'appearance:appearance-invalid-136d818380685de0:invalid',
     'appearance:appearance-unknown-e01b29a6b0d28dc0:unknownField',
     'deployment-intent:deployment-intent-invalid-1ba811a8262fc120:invalid',
   ];

@@ -37,7 +37,8 @@ const ROOT_LEDGERS = {
       'evidenceDigest',
       'stylingContractDigest',
     ],
-    optional: ['composition'],
+    // SCHEMA-3.10.0: the optional closed palette block.
+    optional: ['composition', 'palette'],
   },
   lock: {
     required: [
