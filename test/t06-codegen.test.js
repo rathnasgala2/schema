@@ -147,34 +147,48 @@ test('package exports the generated API and machine catalogs explicitly', async 
   );
 });
 
-test('release workflow validates and packages without publication authority', async () => {
+test('release workflow validates the gate, refuses version reuse and publishes with provenance', async () => {
+  // Reviewed 2026-10-12: generation 4 had turned the release into a
+  // source-only artifact upload; the registry is the only supply chain the
+  // consumers (api, app, template, publish) pin against, so the release must
+  // publish, and only after the complete gate and the version-reuse refusal.
   const source = await readFile('.github/workflows/release.yaml', 'utf8');
   const workflow = /** @type {{
-    on: {push: {branches: string[], paths: string[]}},
+    on: {push: {branches: string[], paths: string[]}, workflow_dispatch: unknown},
     permissions: Record<string, string>,
-    jobs: {package: {
-      steps: Array<{name: string, run?: string, uses?: string}>
+    jobs: {publish: {
+      environment: string,
+      permissions: Record<string, string>,
+      steps: Array<{name: string, run?: string, uses?: string, if?: string}>
     }}
   }} */ (parseYaml(source));
   assert.deepEqual(workflow.on.push.branches, ['main']);
   assert.ok(workflow.on.push.paths.includes('generated/**'));
   assert.ok(workflow.on.push.paths.includes('LICENSE'));
   assert.ok(workflow.on.push.paths.includes('NOTICE'));
+  assert.ok('workflow_dispatch' in workflow.on);
   assert.deepEqual(workflow.permissions, { contents: 'read' });
-  assert.equal('publish' in workflow.jobs, false);
-  const steps = workflow.jobs.package.steps;
+  assert.ok('publish' in workflow.jobs);
+  assert.equal('package' in workflow.jobs, false);
+  const publish = workflow.jobs.publish;
+  assert.equal(publish.environment, 'npm');
+  assert.deepEqual(publish.permissions, {
+    contents: 'write',
+    'id-token': 'write',
+  });
+  const names = publish.steps.map(({ name }) => name);
+  const gateIndex = names.indexOf('Run the complete release gate');
+  const reuseIndex = names.indexOf('Reject version reuse');
+  const publishIndex = names.indexOf('Publish with trusted provenance');
+  const tagIndex = names.indexOf('Tag the release');
+  assert.ok(gateIndex >= 0 && reuseIndex > gateIndex);
+  assert.ok(publishIndex > reuseIndex && tagIndex > publishIndex);
   assert.match(
-    steps.find(({ name }) => name === 'Build the package artifact')?.run ?? '',
-    /npm pack --pack-destination dist/u,
+    publish.steps[publishIndex]?.run ?? '',
+    /npm publish --access public --provenance/u,
   );
-  assert.equal(
-    steps.find(({ name }) => name === 'Upload the package artifact')?.uses,
-    'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
-  );
-  assert.equal(
-    /npm publish|npm view|git push|NODE_AUTH_TOKEN|id-token|environment:\s*npm/u.test(
-      source,
-    ),
-    false,
-  );
+  for (const index of [publishIndex, tagIndex]) {
+    assert.match(publish.steps[index]?.if ?? '', /should_publish == 'true'/u);
+  }
+  assert.equal(/NODE_AUTH_TOKEN/u.test(source), false);
 });
