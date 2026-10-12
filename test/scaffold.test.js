@@ -75,6 +75,11 @@ test('package metadata pins the accepted runtime and package manager', async () 
       types: './types/frozen-envelope.d.ts',
       import: './src/frozen-envelope.js',
     },
+    // SCHEMA-3.10.0: the publication palette module (derive, check, suggest).
+    './palette': {
+      types: './types/palette.d.ts',
+      import: './src/palette.js',
+    },
     './schemas/adapter-capability.schema.json':
       './schemas/adapter-capability.schema.json',
     './schemas/appearance.schema.json': './schemas/appearance.schema.json',
@@ -121,6 +126,12 @@ test('package metadata pins the accepted runtime and package manager', async () 
     // implementation reproduces (LOCAL-60, packet API-INTENT-DERIVATION-1).
     './parity/digest-record-vectors.json':
       './parity/digest-record-vectors.json',
+    // SCHEMA-3.10.0: the palette golden vectors, stress corpus and default
+    // theme fixture the template, theme-tooling and App test against.
+    './palette/golden-vectors.json': './parity/palette/golden-vectors.json',
+    './palette/stress-corpus.json': './parity/palette/stress-corpus.json',
+    './palette/theme-default.fixture.json':
+      './parity/palette/theme-default.fixture.json',
     './catalog-sources/internal-event-actions.json':
       './catalog-sources/internal-event-actions.json',
     './docs/catalogs/app-components.json':

@@ -42,7 +42,12 @@ const T03_SCHEMA_HASHES = {
     //
     // SCHEMA-3.3.0: optional closed attribution { showMadeWith } (new
     // $defs/attribution, shared byte-for-byte with build-input). Additive.
-    '574c79362d2eb9c8eaf430c40efae6e12b2b3ecdef07a22eba5de1658b6e4f44',
+    //
+    // 3.10.0 (reviewed 2026-10-12): $defs/semanticTokens, which only admitted
+    // `{}`, becomes the closed publication palette (optional accent, canvas
+    // and text, each {light, dark} of lowercase #rrggbb); `{}` stays valid.
+    // Shared byte-for-byte with build-input. Additive.
+    '671a6d833f28eef653ce031c8440cf14aee1275ec3a54ea3b42285770c93c30d',
   'artifact-manifest':
     // SCHEMA-2.10.0: $comment updated to note the standalone build-provenance
     // root alongside the unchanged internal #/$defs/buildProvenance nesting.
@@ -81,7 +86,10 @@ const T03_SCHEMA_HASHES = {
     // contentFrontmatterNormalized admits kind edition with the closed
     // edition block (new $defs attribution and contentEdition, shared with
     // appearance and content-frontmatter). Additive.
-    '0b0772b3ad13ad267686d05d12cc7741cd529949f364fb5ad0bac696d012c7d8',
+    //
+    // 3.10.0 (reviewed 2026-10-12): the same $defs/semanticTokens palette
+    // body as appearance (see above). Additive.
+    'da72d045d928eb35c05389974aaa38b6981d17d229c4a221da20ce5efd29a36a',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -122,7 +130,12 @@ const T03_SCHEMA_HASHES = {
   'theme-contract':
     // 2026-09-25 code-discipline review, SCH-C3: positiveInt64 gained a real
     // upper bound (see artifact-manifest above).
-    '1f20d4595a105aa5777ffd07b5f8db3ef4b2d6ba40c15dcb6129f89bf1bc4cb8',
+    //
+    // 3.10.0 (reviewed 2026-10-12): optional closed `palette` {profile,
+    // follow[]} (new $defs/paletteFollow, keyed by the 40 palette-drivable
+    // tokens from src/palette.js) and a contract-4 theme may declare
+    // templateRange ^4.1.0 as well as ^4.0.0. Additive.
+    '127562a9c0df349fa1fff2bef4576b6b99863ae35e0b0e83d37bb8538c37d2e7',
 };
 
 const ADVERSARIAL_CATEGORIES = [
