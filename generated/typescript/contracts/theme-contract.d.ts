@@ -21,6 +21,53 @@ export type ThemeContractPackageExact = string;
 
 export type ThemeContractPackageRange = string;
 
+export type ThemeContractPaletteFollow = Readonly<{
+  readonly dark: ReadonlyArray<'accent' | 'canvas' | 'text' | null>;
+  readonly key:
+    | 'border-button'
+    | 'border-card'
+    | 'border-chip'
+    | 'border-media-divider'
+    | 'border-quote'
+    | 'border-row-divider'
+    | 'border-section-rule'
+    | 'color-accent'
+    | 'color-accent-2'
+    | 'color-border'
+    | 'color-btn-panel'
+    | 'color-btn-panel-text'
+    | 'color-btn-text'
+    | 'color-canvas'
+    | 'color-chip-text'
+    | 'color-focus'
+    | 'color-footer'
+    | 'color-header'
+    | 'color-icon-accent'
+    | 'color-link'
+    | 'color-link-underline'
+    | 'color-link-underline-hover'
+    | 'color-link-visited'
+    | 'color-on-accent'
+    | 'color-panel-muted'
+    | 'color-panel-text'
+    | 'color-selection'
+    | 'color-surface'
+    | 'color-surface-raised'
+    | 'color-text'
+    | 'color-text-faint'
+    | 'color-text-muted'
+    | 'color-toc-active'
+    | 'color-toc-active-text'
+    | 'paint-button'
+    | 'paint-chip'
+    | 'paint-page-decor'
+    | 'paint-panel'
+    | 'shadow-avatar-ring'
+    | 'shadow-button';
+  readonly light: ReadonlyArray<'accent' | 'canvas' | 'text' | null>;
+}> &
+  unknown;
+
 export type ThemeContractPassiveAsset = Readonly<{
   readonly byteLength: ThemeContractNonNegativeInt64;
   readonly license: ThemeContractSpdxExpression;
@@ -330,6 +377,10 @@ export type ThemeContractDocument = (
     readonly integrity: ThemeContractDigest;
     readonly modes: ['dark', 'light', 'system'];
     readonly package: string & ThemeContractPackageExact;
+    readonly palette?: Readonly<{
+      readonly follow: ReadonlyArray<ThemeContractPaletteFollow>;
+      readonly profile: 'gala-palette-follow-v1';
+    }>;
     readonly schemaId: 'urn:gala:schema:theme-contract:2.0.0';
     readonly schemaVersion: '2.0.0';
     readonly slotHooks: ReadonlyArray<ThemeContractPlainLabel>;

@@ -26,6 +26,7 @@ const BROWSER_ENTRY_SUBPATHS = Object.freeze([
   '.',
   './runtime-origins',
   './digest-profiles',
+  './palette',
 ]);
 
 /**

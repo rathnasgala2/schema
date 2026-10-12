@@ -366,7 +366,20 @@ export type BuildInputResolvedMedia = Readonly<{
 
 export type BuildInputRfc3339 = string;
 
-export type BuildInputSemanticTokens = Readonly<Record<string, never>>;
+export type BuildInputSemanticTokens = Readonly<{
+  readonly accent?: Readonly<{
+    readonly dark: string;
+    readonly light: string;
+  }>;
+  readonly canvas?: Readonly<{
+    readonly dark: string;
+    readonly light: string;
+  }>;
+  readonly text?: Readonly<{
+    readonly dark: string;
+    readonly light: string;
+  }>;
+}>;
 
 export type BuildInputSemver = string;
 

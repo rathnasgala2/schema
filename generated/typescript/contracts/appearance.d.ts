@@ -41,7 +41,20 @@ export type AppearanceRepoRelativePath = string;
 
 export type AppearanceRfc3339 = string;
 
-export type AppearanceSemanticTokens = Readonly<Record<string, never>>;
+export type AppearanceSemanticTokens = Readonly<{
+  readonly accent?: Readonly<{
+    readonly dark: string;
+    readonly light: string;
+  }>;
+  readonly canvas?: Readonly<{
+    readonly dark: string;
+    readonly light: string;
+  }>;
+  readonly text?: Readonly<{
+    readonly dark: string;
+    readonly light: string;
+  }>;
+}>;
 
 export type AppearanceSemver = string;
 

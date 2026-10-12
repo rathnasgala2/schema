@@ -1,6 +1,6 @@
 {
   "name": "@rathnasgala2/schemas",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "description": "Executable JSON Schema and OpenAPI contracts for Galascribe",
   "type": "module",
   "license": "Apache-2.0",
@@ -29,6 +29,10 @@
       "types": "./types/frozen-envelope.d.ts",
       "import": "./src/frozen-envelope.js"
     },
+    "./palette": {
+      "types": "./types/palette.d.ts",
+      "import": "./src/palette.js"
+    },
     "./schemas/adapter-capability.schema.json": "./schemas/adapter-capability.schema.json",
     "./schemas/appearance.schema.json": "./schemas/appearance.schema.json",
     "./schemas/artifact-manifest.schema.json": "./schemas/artifact-manifest.schema.json",
@@ -55,6 +59,9 @@
       "import": "./generated/typescript/index.js"
     },
     "./parity/digest-record-vectors.json": "./parity/digest-record-vectors.json",
+    "./palette/golden-vectors.json": "./parity/palette/golden-vectors.json",
+    "./palette/stress-corpus.json": "./parity/palette/stress-corpus.json",
+    "./palette/theme-default.fixture.json": "./parity/palette/theme-default.fixture.json",
     "./catalog-sources/internal-event-actions.json": "./catalog-sources/internal-event-actions.json",
     "./docs/catalogs/app-components.json": "./docs/catalogs/app-components.json",
     "./docs/catalogs/app-routes.json": "./docs/catalogs/app-routes.json",
@@ -85,6 +92,7 @@
     "docs/catalogs/app-routes.json",
     "docs/catalogs/app-components.json",
     "parity/digest-record-vectors.json",
+    "parity/palette/",
     "LICENSE",
     "NOTICE",
     "README.md",
@@ -142,6 +150,7 @@
     "app-catalogs:generate": "node scripts/generate-app-catalogs.mjs",
     "app-catalogs:check": "node scripts/generate-app-catalogs.mjs --check",
     "browser-safety:check": "node scripts/check-browser-safety.mjs",
+    "palette-vectors:generate": "node scripts/generate-palette-vectors.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",

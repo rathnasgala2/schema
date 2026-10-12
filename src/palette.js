@@ -25,10 +25,14 @@
 export const PALETTE_PROFILE = 'gala-palette-follow-v1';
 
 /** The three roles an author may pick, in canonical order. */
-export const PALETTE_ROLES = Object.freeze(['accent', 'canvas', 'text']);
+export const PALETTE_ROLES = /** @type {readonly PaletteRole[]} */ (
+  Object.freeze(['accent', 'canvas', 'text'])
+);
 
 /** The two colour modes, in canonical order. */
-export const PALETTE_MODES = Object.freeze(['light', 'dark']);
+export const PALETTE_MODES = /** @type {readonly PaletteMode[]} */ (
+  Object.freeze(['light', 'dark'])
+);
 
 /** The seed token each role is read from, and the token that carries it. */
 export const PALETTE_SEED_KEYS = Object.freeze({
@@ -460,6 +464,16 @@ function deriveValue(value, follow, themeSeeds, seeds) {
 
 /**
  * @param {unknown} value candidate
+ * @returns {value is PaletteRole} whether it names a palette role
+ */
+function isRole(value) {
+  return (
+    typeof value === 'string' && PALETTE_ROLES.some((role) => role === value)
+  );
+}
+
+/**
+ * @param {unknown} value candidate
  * @returns {value is Record<string, unknown>} whether it is a plain object
  */
 function isRecord(value) {
@@ -513,9 +527,7 @@ export function validateThemePalette(theme) {
       if (
         !Array.isArray(list) ||
         list.length !== paletteColourCount(token[mode]) ||
-        !list.every(
-          (role) => role === null || PALETTE_ROLES.includes(String(role)),
-        )
+        !list.every((role) => role === null || isRole(role))
       ) {
         throw invalid(`${key} ${mode} follow list does not match its value`);
       }
@@ -536,7 +548,7 @@ export function validatePaletteTokens(tokens) {
     new PaletteError('APPEARANCE_PALETTE_INVALID', detail);
   if (!isRecord(tokens)) throw invalid('tokens must be an object');
   for (const [role, pair] of Object.entries(tokens)) {
-    if (!PALETTE_ROLES.includes(role)) throw invalid(`unknown role ${role}`);
+    if (!isRole(role)) throw invalid(`unknown role ${role}`);
     if (
       !isRecord(pair) ||
       Object.keys(pair).length !== 2 ||
@@ -711,6 +723,7 @@ export function derivePalette(theme, tokens) {
 
   /** @type {PaletteAdjustment[]} */
   const adjusted = [];
+  /** @type {Set<string>} */
   const seedKeys = new Set(Object.values(PALETTE_SEED_KEYS));
   for (const mode of PALETTE_MODES) {
     const foregrounds = [
@@ -885,7 +898,7 @@ export function checkPickedColours(tokens) {
  * @throws {PaletteError} `APPEARANCE_PALETTE_INVALID` for a malformed pick or role
  */
 export function suggestDarkSeed(theme, role, lightHex) {
-  if (!PALETTE_ROLES.includes(role) || !PICK_HEX.test(lightHex)) {
+  if (!isRole(role) || !PICK_HEX.test(lightHex)) {
     throw new PaletteError(
       'APPEARANCE_PALETTE_INVALID',
       'role or colour malformed',
