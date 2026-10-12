@@ -182,8 +182,10 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // admission regenerated those roots' fixtures and added five adversarial
     // case files (SCHEMA_CONSTANT_INVALID, SCHEMA_ENUM_INVALID,
     // SCHEMA_NEGATED_RULE_MATCHED twice, SCHEMA_UNION_INVALID), making 870.
+    // The template-composition root oneOf case is a genuine union failure
+    // (two profiles' declared members together), so parity reports it as one.
     aggregate.digest('hex'),
-    '2a66230a1adb6a7da206a5cc766c186a3f84d9d49c224e9cca57318980dcc0a5',
+    '881f1fa2876b603a9a7455139172ec082541e4ebb4474c42f476ddd2fee44b10',
   );
 });
 

@@ -2229,7 +2229,19 @@ function rejectedCase(rule, root) {
     return literal(
       synthesize(rule.ruleValue, root, `${rule.schemaPointer}/not`),
     );
-  if (keyword === 'oneOf') return literal({ outcome: '__invalid_union__' });
+  if (keyword === 'oneOf') {
+    // A root whose oneOf selects among closed generation-4 profile branches
+    // declares every member, so the generic placeholder would fail
+    // additionalProperties instead of the union. Name two profiles' members
+    // together: declared, individually valid, matching no branch.
+    const ownerProperties = /** @type {Record<string, unknown> | undefined} */ (
+      /** @type {Record<string, unknown>} */ (owner).properties
+    );
+    if (rule.schemaPointer === '#' && ownerProperties?.profile !== undefined) {
+      return literal({ profile: 'editorial', homeLayout: 'newspaper' });
+    }
+    return literal({ outcome: '__invalid_union__' });
+  }
   if (keyword === 'anyOf') return literal({});
   if (keyword.startsWith('x-gala-')) {
     if (keyword === 'x-gala-maxCanonicalBytes') {
