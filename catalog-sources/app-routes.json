@@ -325,6 +325,8 @@
         "getGithubInstallations",
         "getSelfAuthenticators",
         "getSelfReaderConnections",
+        "postSelfContactEmailGrant",
+        "postSelfContactEmailWithdraw",
         "postSelfIdentityLinks"
       ]
     },
@@ -565,10 +567,13 @@
       "pathTemplate": "/platform/users",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
-      "mutation": false,
+      "mutation": true,
       "collection": true,
       "screenJob": "Platform users; Operators inspect paged person state, provider display snapshots, account creation, last sign-in, accessible publication count and organization plan tiers without inferred subscription or traffic data.",
-      "apiOperationIds": ["getPlatformUsers"]
+      "apiOperationIds": [
+        "getPlatformUsers",
+        "postPlatformUsersByPersonIdContact"
+      ]
     },
     {
       "pathTemplate": "/platform/integrations",

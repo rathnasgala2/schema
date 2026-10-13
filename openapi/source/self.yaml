@@ -661,6 +661,329 @@ paths:
         - NONE
       x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
+  /v2/self/contact-email:grant:
+    post:
+      description: |
+        Records the person's agreement to receive account and security notices
+        at their verified GitHub primary email. The server reads the address from
+        GitHub with the stored sign-in token, seals it, and answers with the
+        masked form only; the full address never leaves the server. Needs
+        recent authentication: a stale session gets `401 REAUTH_REQUIRED`.
+        `409 CONTACT_EMAIL_UNAVAILABLE` when GitHub reports no verified primary
+        email (`errors[].code` `NO_VERIFIED_PRIMARY_EMAIL`) or the sign-in did
+        not grant the email scope (`SCOPE_NOT_GRANTED`), both at pointer
+        `/contactEmail`; the person signs in again to grant the scope.
+      operationId: postSelfContactEmailGrant
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    contactEmail:
+                      maskedAddress: a…d@example.com
+                      state: ON_FILE
+                      updatedAt: 2026-10-13T12:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostSelfContactEmailGrantResponse'
+          description: grant contact email succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                CONTACT_EMAIL_UNAVAILABLE:
+                  summary: CONTACT_EMAIL_UNAVAILABLE
+                  value:
+                    code: CONTACT_EMAIL_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors:
+                      - code: NO_VERIFIED_PRIMARY_EMAIL
+                        pointer: /contactEmail
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CONTACT_EMAIL_UNAVAILABLE
+                    type: urn:gala:problem:contact-email-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT, CONTACT_EMAIL_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - CONTACT_EMAIL_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: grant contact email
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: grant contact email
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - CONTACT_EMAIL_UNAVAILABLE
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/self/contact-email:withdraw:
+    post:
+      description: |
+        Withdraws the agreement to receive notices by email. The sealed address
+        is deleted, the state reads `WITHDRAWN`, and the person is not asked
+        again. Safe to repeat. Needs recent authentication: a stale session
+        gets `401 REAUTH_REQUIRED`.
+      operationId: postSelfContactEmailWithdraw
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    contactEmail:
+                      state: WITHDRAWN
+                      updatedAt: 2026-10-13T12:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostSelfContactEmailWithdrawResponse'
+          description: withdraw contact email succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: withdraw contact email
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: withdraw contact email
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
   /v2/self/exports:
     get:
       description: |

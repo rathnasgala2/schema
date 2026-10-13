@@ -57,6 +57,9 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       CANONICAL_BASE_MISMATCH: { statuses: [409], retryable: false },
       CAPABILITY_NOT_ASSIGNABLE: { statuses: [422], retryable: false },
       COLLABORATION_REQUIRED: { statuses: [409], retryable: false },
+      // SCHEMA-3.11.0: contact email consent and operator contact.
+      CONTACT_EMAIL_ABSENT: { statuses: [409], retryable: false },
+      CONTACT_EMAIL_UNAVAILABLE: { statuses: [409], retryable: false },
       CONSEQUENCE_DIGEST_MISMATCH: { statuses: [409], retryable: false },
       CURRENT_SESSION: { statuses: [409], retryable: false },
       DESTINATION_NOT_FOUND: { statuses: [404], retryable: false },

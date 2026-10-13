@@ -124,6 +124,8 @@
         "getGithubInstallations",
         "getSelfAuthenticators",
         "getSelfReaderConnections",
+        "postSelfContactEmailGrant",
+        "postSelfContactEmailWithdraw",
         "postSelfIdentityLinks"
       ],
       "componentIds": [
@@ -2234,18 +2236,28 @@
       "pathTemplate": "/platform/users",
       "screenId": "platform.users.screen",
       "authenticationClass": "SESSION_REQUIRED",
-      "capabilityKeys": ["platform.users.view"],
-      "apiOperationIds": ["getPlatformUsers"],
+      "capabilityKeys": ["platform.users.contact", "platform.users.view"],
+      "apiOperationIds": [
+        "getPlatformUsers",
+        "postPlatformUsersByPersonIdContact"
+      ],
       "componentIds": [
         "AppShell",
         "Breadcrumbs",
         "ContextHeader",
         "StatePanel",
+        "FormField",
+        "ValidationSummary",
+        "AsyncCommand",
         "DataTable"
       ],
       "contentKeyIds": [
         "platform.users.screen.capability_unavailable.recovery",
         "platform.users.screen.capability_unavailable.status",
+        "platform.users.screen.conflicted.recovery",
+        "platform.users.screen.conflicted.status",
+        "platform.users.screen.dirty.recovery",
+        "platform.users.screen.dirty.status",
         "platform.users.screen.empty.recovery",
         "platform.users.screen.empty.status",
         "platform.users.screen.forbidden.recovery",
@@ -2256,6 +2268,8 @@
         "platform.users.screen.not_found.status",
         "platform.users.screen.offline.recovery",
         "platform.users.screen.offline.status",
+        "platform.users.screen.rate_limited.recovery",
+        "platform.users.screen.rate_limited.status",
         "platform.users.screen.ready.recovery",
         "platform.users.screen.ready.status",
         "platform.users.screen.ready.summary",
@@ -2264,10 +2278,14 @@
         "platform.users.screen.reconciling.status",
         "platform.users.screen.refreshing.recovery",
         "platform.users.screen.refreshing.status",
+        "platform.users.screen.submitting.recovery",
+        "platform.users.screen.submitting.status",
         "platform.users.screen.success.recovery",
         "platform.users.screen.success.status",
         "platform.users.screen.terminal_failure.recovery",
-        "platform.users.screen.terminal_failure.status"
+        "platform.users.screen.terminal_failure.status",
+        "platform.users.screen.validating.recovery",
+        "platform.users.screen.validating.status"
       ],
       "tokenBearing": false,
       "requiredStates": [
@@ -2281,6 +2299,11 @@
         "CAPABILITY_UNAVAILABLE",
         "RECONCILING",
         "TERMINAL_FAILURE",
+        "DIRTY",
+        "VALIDATING",
+        "SUBMITTING",
+        "CONFLICTED",
+        "RATE_LIMITED",
         "SUCCESS"
       ]
     },
@@ -3181,5 +3204,5 @@
       ]
     }
   ],
-  "digest": "sha256:89469bb975394d8bb896f2419d425f10ade1c2460780b656fec4ce084360f279"
+  "digest": "sha256:c7b9a0364eed013e5fb791e4de022b7630e261717325951bdba044779df1c84c"
 }

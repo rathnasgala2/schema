@@ -147,7 +147,9 @@ test('generated catalogs match the committed projection', async () => {
   ]);
   assert.deepEqual(JSON.parse(committedComponentsText), components);
   assert.deepEqual(JSON.parse(committedRoutesText), routes);
-  assert.equal(authoredMessageCount, 566);
+  // 3.11.0 (reviewed 2026-10-13): five authored recovery messages for the
+  // contact-email grant/withdraw and platform contact operations (566 to 571).
+  assert.equal(authoredMessageCount, 571);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {

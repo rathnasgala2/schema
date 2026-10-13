@@ -8,6 +8,28 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.11.0] - 2026-10-13
+
+### Added
+
+- Contact email. `GetSessionResponse.contactEmail` (optional, closed
+  `ContactEmail`: `state` `NONE | ON_FILE | WITHDRAWN`, `maskedAddress` such as
+  `a…d@example.com`, `updatedAt`) reports the verified GitHub primary email the
+  person agreed to receive account and security notices at. The full address
+  never leaves the server.
+- `POST /v2/self/contact-email:grant` (`postSelfContactEmailGrant`) and
+  `POST /v2/self/contact-email:withdraw` (`postSelfContactEmailWithdraw`), both
+  returning `{ contactEmail }`. Grant needs recent authentication
+  (`401 REAUTH_REQUIRED`) and fails `409 CONTACT_EMAIL_UNAVAILABLE` with
+  `errors[].code` `NO_VERIFIED_PRIMARY_EMAIL` or `SCOPE_NOT_GRANTED`.
+- `POST /v2/platform/users/{personId}:contact`
+  (`postPlatformUsersByPersonIdContact`, capability `platform.users.contact`):
+  an operator queues a message (`category` `ACCOUNT | SECURITY | SERVICE`,
+  `subject`, `body`, `reason`) and gets `202 { messageId, state: QUEUED }`;
+  `409 CONTACT_EMAIL_ABSENT` when no contact email is on file.
+- `PlatformUser.contactEmailOnFile` (boolean) on `GET /v2/platform/users`.
+- Problem codes `CONTACT_EMAIL_UNAVAILABLE` and `CONTACT_EMAIL_ABSENT`.
+
 ## [3.10.0] - 2026-10-12
 
 ### Added
@@ -2690,6 +2712,7 @@ with independently verifiable dates.
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
 [Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.8.0...HEAD
+[3.11.0]: https://github.com/rathnasgala2/schema/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/rathnasgala2/schema/compare/v3.9.0...v3.10.0
 [3.9.0]: https://github.com/rathnasgala2/schema/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/rathnasgala2/schema/compare/v3.7.0...v3.8.0

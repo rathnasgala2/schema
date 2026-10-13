@@ -1757,6 +1757,8 @@ components:
           uniqueItems: true
         closure:
           $ref: '#/components/schemas/SessionClosure'
+        contactEmail:
+          $ref: '#/components/schemas/ContactEmail'
         credentialEpoch:
           format: int64
           minimum: 0
@@ -9876,6 +9878,88 @@ components:
       required:
         - state
       type: object
+    ContactEmail:
+      additionalProperties: false
+      description:
+        The verified GitHub primary email the person agreed to receive account
+        and security notices at. The full address never leaves the server; only
+        a masked form is shown.
+      properties:
+        maskedAddress:
+          description:
+            Masked form such as `a…d@example.com`, never the full address. Null
+            or absent unless `state` is `ON_FILE`.
+          maxLength: 320
+          type:
+            - string
+            - 'null'
+        state:
+          enum:
+            - NONE
+            - ON_FILE
+            - WITHDRAWN
+          type: string
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - state
+      type: object
+    PostSelfContactEmailGrantResponse:
+      additionalProperties: false
+      properties:
+        contactEmail:
+          $ref: '#/components/schemas/ContactEmail'
+      required:
+        - contactEmail
+      type: object
+    PostSelfContactEmailWithdrawResponse:
+      additionalProperties: false
+      properties:
+        contactEmail:
+          $ref: '#/components/schemas/ContactEmail'
+      required:
+        - contactEmail
+      type: object
+    PostPlatformUsersByPersonIdContactRequest:
+      additionalProperties: false
+      properties:
+        body:
+          maxLength: 5000
+          minLength: 1
+          type: string
+        category:
+          enum:
+            - ACCOUNT
+            - SECURITY
+            - SERVICE
+          type: string
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+        subject:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - category
+        - subject
+        - body
+        - reason
+      type: object
+    PostPlatformUsersByPersonIdContactResponse:
+      additionalProperties: false
+      properties:
+        messageId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          enum:
+            - QUEUED
+          type: string
+      required:
+        - messageId
+        - state
+      type: object
     SessionClosure:
       additionalProperties: false
       description:
@@ -11270,6 +11354,11 @@ components:
     PlatformUser:
       additionalProperties: false
       properties:
+        contactEmailOnFile:
+          description:
+            Whether a contact email the person agreed to is on file. The address
+            itself is never returned.
+          type: boolean
         createdAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         displayName:
@@ -11312,6 +11401,7 @@ components:
         - lastSignInAt
         - publicationCount
         - planTiers
+        - contactEmailOnFile
       type: object
     GetPlatformUsersResponse:
       additionalProperties: false
