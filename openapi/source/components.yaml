@@ -3927,9 +3927,20 @@ components:
         optional: the author's publication palette, written as
         `gala/appearance.json`'s `tokens`; when absent the file's `tokens`
         are preserved unchanged, and `{}` resets to the theme's own colours.
+        `brandMark` (SCHEMA-3.12.0) is optional: a repository-relative path
+        under `assets/brand/`, written as `gala/appearance.json`'s
+        `brandMark` (the site icon); `null` clears it and an absent member
+        preserves the file's value. The App uploads the image file as an
+        ordinary `assets[]` entry in the same plan.
       properties:
         attribution:
           $ref: ../schemas/appearance.schema.json#/$defs/attribution
+        brandMark:
+          oneOf:
+            - allOf:
+                - $ref: ../schemas/appearance.schema.json#/$defs/repoRelativePath
+                - pattern: ^assets/brand/
+            - type: 'null'
         colorModeDefault:
           $ref: '#/components/schemas/AppearanceColorMode'
         themeId:
@@ -3939,6 +3950,55 @@ components:
       required:
         - themeId
         - colorModeDefault
+      type: object
+    ContentChangePublicationProfileEntry:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.12.0: site-level settings inside a batch
+        `content-changes:plan` request, the same lifecycle and capability as
+        `appearance` (a pending change that goes live on Publish). The
+        server loads `gala/publication.json` at `baseRevision`, applies the
+        members that are present, validates the result against
+        `publication.schema.json`, and plans one `PUT` of
+        `gala/publication.json`. An absent member is preserved. `null`
+        resets `description` to the publication title (the file requires a
+        description); `null` clears `defaultImageRef` and `crawlers`.
+        `title`, `defaultLanguage` and `socialLinks` cannot be cleared.
+        `socialLinks` (max 32, the publication file's own limit) replaces
+        the whole list. `canonicalBase` is never client-settable: it changes
+        only through domain attach and detach. A profile that changes nothing is
+        `422 VALIDATION_FAILED` pointed at `/publicationProfile`; member
+        failures point at `/publicationProfile/<member>`.
+      properties:
+        crawlers:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/crawlers
+            - type: 'null'
+        defaultImageRef:
+          oneOf:
+            - allOf:
+                - $ref: ../schemas/publication.schema.json#/$defs/repoRelativePath
+                - pattern: ^assets/brand/
+            - type: 'null'
+        defaultLanguage:
+          $ref: ../schemas/publication.schema.json#/$defs/bcp47
+        description:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/plainText
+              x-gala-graphemeLength:
+                maximum: 300
+                minimum: 1
+            - type: 'null'
+        socialLinks:
+          items:
+            $ref: ../schemas/publication.schema.json#/$defs/socialLink
+          maxItems: 32
+          type: array
+        title:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
       type: object
     PublicationAppearanceBuilt:
       additionalProperties: false
@@ -4011,10 +4071,21 @@ components:
         (SCHEMA-3.3.0, optional) is the file's footer attribution switch;
         absent means the file has none, which renders as shown. `tokens`
         (SCHEMA-3.10.0, optional) is the file's publication palette as read;
-        absent or `{}` means the theme's own colours.
+        absent or `{}` means the theme's own colours. `brandMark`
+        (SCHEMA-3.12.0, optional): the publication's brand mark as currently
+        committed, absent when none.
       properties:
         attribution:
           $ref: ../schemas/appearance.schema.json#/$defs/attribution
+        brandMark:
+          description: >-
+            SCHEMA-3.12.0: the publication's brand mark as currently committed,
+            absent when none
+          oneOf:
+            - allOf:
+                - $ref: ../schemas/appearance.schema.json#/$defs/repoRelativePath
+                - pattern: ^assets/brand/
+            - type: 'null'
         colorModeDefault:
           $ref: '#/components/schemas/AppearanceColorMode'
         themeId:
@@ -4287,14 +4358,36 @@ components:
             $ref: '#/components/schemas/ContentPublicationAuthorSummary'
           maxItems: 200
           type: array
+        crawlers:
+          $ref: ../schemas/publication.schema.json#/$defs/crawlers
+        defaultImageRef:
+          $ref: ../schemas/publication.schema.json#/$defs/repoRelativePath
         defaultLanguage:
           $ref: ../schemas/publication.schema.json#/$defs/bcp47
+        description:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 500
+            minimum: 1
+        socialLinks:
+          items:
+            $ref: ../schemas/publication.schema.json#/$defs/socialLink
+          maxItems: 32
+          type: array
         theme:
           $ref: ../schemas/appearance.schema.json#/$defs/packageRange
+        title:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 200
+            minimum: 1
       required:
         - defaultLanguage
         - theme
         - authors
+        - title
+        - description
+        - socialLinks
       type: object
     DefaultBranchUpdateState:
       description: |
@@ -4688,13 +4781,15 @@ components:
         Two request shapes, both accepted. The 2.13.0 single-document shape
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
-        (`baseRevision` and at least one of `documents`/`assets`/`appearance`)
+        (`baseRevision` and at least one of `documents`/`assets`/`appearance`/
+        `publicationProfile`)
         plans up to 20 documents and 20 assets -- each `PUT` with its own
         text or bytes and digest, each `DELETE` naming only its path -- and
         optionally one theme selection in one change, against the exact
         expected main-branch head asserted as `baseRevision`. A request
         mixing the two shapes, or a batch request naming none of
-        `documents`, `assets` and `appearance`, is `422 VALIDATION_FAILED`.
+        `documents`, `assets`, `appearance` and `publicationProfile`, is
+        `422 VALIDATION_FAILED`.
         `appearance` names a catalog theme and a default colour mode, and
         optionally the footer `attribution` (SCHEMA-3.3.0); the server
         writes `gala/appearance.json` (only `theme`, `colorMode.default` and,
@@ -4704,6 +4799,10 @@ components:
         selection (theme, default colour mode and, when sent, attribution)
         is `422 VALIDATION_FAILED` pointed at `/appearance`. Document paths
         under `gala/` and `gala.lock.json` remain forbidden.
+        `publicationProfile` (SCHEMA-3.12.0) is a further batch member beside
+        `appearance`, counting as one of the named members: it edits
+        `gala/publication.json` through one planned `PUT` (see
+        `ContentChangePublicationProfileEntry`).
         Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
         at most 20 per change, each at most 5 MiB and together at most
         20 MiB, measured on the decoded bytes -- `assets[].bytesBase64` is
@@ -4736,6 +4835,8 @@ components:
           maxLength: 512
           minLength: 1
           type: string
+        publicationProfile:
+          $ref: '#/components/schemas/ContentChangePublicationProfileEntry'
       required: []
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse:
@@ -5363,7 +5464,16 @@ components:
       type: object
     PostOrganizationsByOrganizationIdPublicationsRequest:
       additionalProperties: false
+      description: |
+        `description` (SCHEMA-3.12.0) is the optional site tagline, written
+        as `gala/publication.json`'s `description`. When absent the server
+        keeps its fallback (the site name).
       properties:
+        description:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 300
+            minimum: 1
         name:
           maxLength: 80
           minLength: 1

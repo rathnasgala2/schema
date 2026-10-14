@@ -2654,3 +2654,93 @@ test('SCHEMA-3.7.0: platform console exposes only implemented projections', asyn
     /trailing seven days/,
   );
 });
+
+test('3.12.0 OpenAPI additions: publicationProfile, brandMark, create description, summary', async () => {
+  const { bundle } = await readProjections();
+  const check = async (/** @type {string} */ name) =>
+    compileResolvedSchema(bundle, {
+      $ref: `#/components/schemas/${name}`,
+    });
+  const profile = await check('ContentChangePublicationProfileEntry');
+  const social = { type: 'github', uri: 'https://github.com/example' };
+  assert.equal(profile({}), true);
+  assert.equal(profile({ description: null, defaultImageRef: null }), true);
+  assert.equal(profile({ crawlers: null }), true);
+  assert.equal(
+    profile({
+      title: 'Site',
+      description: 'Tagline',
+      defaultLanguage: 'en',
+      socialLinks: [social],
+      defaultImageRef: 'assets/brand/card.png',
+      crawlers: { ai: 'block' },
+    }),
+    true,
+  );
+  assert.equal(profile({ socialLinks: Array(32).fill(social) }), true);
+  assert.equal(profile({ socialLinks: Array(33).fill(social) }), false);
+  assert.equal(profile({ defaultImageRef: 'assets/other/card.png' }), false);
+  assert.equal(profile({ title: null }), false);
+  assert.equal(profile({ canonicalBase: 'https://example.com/' }), false);
+  const profileProps =
+    bundle.components.schemas.ContentChangePublicationProfileEntry.properties;
+  assert.deepEqual(profileProps.title['x-gala-graphemeLength'], {
+    minimum: 1,
+    maximum: 120,
+  });
+  assert.equal(
+    profileProps.description.oneOf[0]['x-gala-graphemeLength'].maximum,
+    300,
+  );
+
+  const appearance = await check('ContentChangeAppearanceEntry');
+  const base = { themeId: 'default', colorModeDefault: 'system' };
+  assert.equal(appearance(base), true);
+  assert.equal(
+    appearance({ ...base, brandMark: 'assets/brand/mark.png' }),
+    true,
+  );
+  assert.equal(appearance({ ...base, brandMark: null }), true);
+  assert.equal(
+    appearance({ ...base, brandMark: 'assets/other/mark.png' }),
+    false,
+  );
+
+  const selected = await check('PublicationAppearanceSelected');
+  const read = {
+    themeId: 'default',
+    themePackage: '@rathnasgala2/theme-default@^4.0.0',
+    colorModeDefault: 'system',
+  };
+  assert.equal(selected(read), true);
+  assert.equal(selected({ ...read, brandMark: 'assets/brand/mark.png' }), true);
+  assert.equal(selected({ ...read, brandMark: 'mark.png' }), false);
+
+  const create = await check(
+    'PostOrganizationsByOrganizationIdPublicationsRequest',
+  );
+  assert.equal(create({ name: 'n', slug: 's', description: 'Tagline' }), true);
+  assert.equal(create({ name: 'n', slug: 's', description: 7 }), false);
+  assert.deepEqual(
+    bundle.components.schemas
+      .PostOrganizationsByOrganizationIdPublicationsRequest.properties
+      .description['x-gala-graphemeLength'],
+    { minimum: 1, maximum: 300 },
+  );
+
+  const summary = await check('ContentPublicationSummary');
+  const full = {
+    authors: [],
+    defaultLanguage: 'en',
+    theme: '@rathnasgala2/theme-default@^4.0.0',
+    title: 'Site',
+    description: 'Tagline',
+    socialLinks: [],
+  };
+  assert.equal(summary(full), true);
+  assert.equal(summary({ ...full, crawlers: { ai: 'allow' } }), true);
+  const withoutTitle = Object.fromEntries(
+    Object.entries(full).filter(([key]) => key !== 'title'),
+  );
+  assert.equal(summary(withoutTitle), false);
+});

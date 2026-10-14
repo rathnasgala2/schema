@@ -43,8 +43,8 @@
     {
       "contract": "build-input",
       "schemaId": "urn:gala:schema:build-input:2.0.0",
-      "schemaSha256": "da72d045d928eb35c05389974aaa38b6981d17d229c4a221da20ce5efd29a36a",
-      "ruleCount": 557,
+      "schemaSha256": "4a8fd292061cdd86bcaa03d3b2edf65dc5cf8953c41a0275399b52e21518fc95",
+      "ruleCount": 562,
       "validExample": "examples/valid/build-input/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-input/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/build-input/root.json"
@@ -61,8 +61,8 @@
     {
       "contract": "content-frontmatter",
       "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
-      "schemaSha256": "b8fb8172fff5ff361d51b5af5e1444b42953e585beaf7e9e4aa46675b20b7e65",
-      "ruleCount": 145,
+      "schemaSha256": "f2aeb8c783053868dc26d094efe4020f1ac2394f265c07bdd115e7b3b5d48654",
+      "ruleCount": 150,
       "validExample": "examples/valid/content-frontmatter/canonical.json",
       "boundaryFixture": "fixtures/boundary/content-frontmatter/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/content-frontmatter/root.json"
@@ -49469,6 +49469,121 @@
     },
     {
       "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentSeo:additionalProperties",
+      "schemaPointer": "#/$defs/contentSeo",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e64e682d59e775bb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6eb7adf4232f7466"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-8d6958d5d461014c",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentSeo:type",
+      "schemaPointer": "#/$defs/contentSeo",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-e64e682d59e775bb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6eb7adf4232f7466"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-6ba812fd3a1a21bf",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentSeo/properties/description:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentSeo/properties/description",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2603dd81c82547dd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-e8040cb07cb39dc8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-50934c0430090e9e",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentSeo/properties/noindex:type",
+      "schemaPointer": "#/$defs/contentSeo/properties/noindex",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9c89b2bcf93d64c7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-c90dcdd887740b2f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-12e2d34705c5acfa",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentSeo/properties/title:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentSeo/properties/title",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-84f00378e5e40a4d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-ba5cee482176cea1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-c226da3a1e501e13",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "build-input",
       "ruleId": "build-input:#/$defs/destinationCapabilityProfile:additionalProperties",
       "schemaPointer": "#/$defs/destinationCapabilityProfile",
       "keyword": "additionalProperties",
@@ -67554,6 +67669,121 @@
       "unknownField": {
         "file": "fixtures/unknown-field/content-frontmatter/rules.json",
         "caseId": "content-frontmatter-unknown-7d80f5971b255b6b"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentSeo:additionalProperties",
+      "schemaPointer": "#/$defs/contentSeo",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-e64e682d59e775bb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-6eb7adf4232f7466"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "content-frontmatter-invalid-e83c37551cf883a4",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentSeo:type",
+      "schemaPointer": "#/$defs/contentSeo",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-e64e682d59e775bb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-6eb7adf4232f7466"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-33870632748afd96",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentSeo/properties/description:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentSeo/properties/description",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-2603dd81c82547dd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-e8040cb07cb39dc8"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-3d5ab29ad66b0c54",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentSeo/properties/noindex:type",
+      "schemaPointer": "#/$defs/contentSeo/properties/noindex",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9c89b2bcf93d64c7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-c90dcdd887740b2f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-7e8d27ef4d7246a4",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-e64e682d59e775bb"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentSeo/properties/title:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentSeo/properties/title",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-84f00378e5e40a4d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-ba5cee482176cea1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-89940d0d5670b79c",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-e64e682d59e775bb"
       }
     },
     {

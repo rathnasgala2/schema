@@ -9,6 +9,7 @@ import {
   createAttributionDefinition,
   createCompositionBuildSchemas,
   createContentEditionDefinition,
+  createContentSeoDefinition,
   createSemanticTokensDefinition,
   editionKindRule,
 } from './s0-t03-composition-build-schemas.mjs';
@@ -608,6 +609,7 @@ const schemas = {
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
       newsletter: { enum: ['ineligible', 'eligible'] },
       edition: ref('contentEdition'),
+      seo: ref('contentSeo'),
       extensions: ref('extensionMap'),
     },
     [
@@ -626,6 +628,11 @@ const schemas = {
     {
       mediaRef,
       contentEdition: createContentEditionDefinition({ ref, closedObject }),
+      contentSeo: createContentSeoDefinition({
+        ref,
+        closedObject,
+        graphemeBound,
+      }),
       extensionMap,
     },
     {

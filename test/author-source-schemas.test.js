@@ -133,6 +133,8 @@ const ROOT_LEDGERS = {
       'socialImageRef',
       'newsletter',
       'edition',
+      // SCHEMA-3.12.0: the optional closed per-document search block.
+      'seo',
     ],
   },
 };

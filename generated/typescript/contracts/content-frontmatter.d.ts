@@ -17,6 +17,13 @@ export type ContentFrontmatterContentEdition = Readonly<{
   readonly sourceDigest: ContentFrontmatterDigest;
 }>;
 
+export type ContentFrontmatterContentSeo = Readonly<{
+  readonly canonicalUrl?: ContentFrontmatterUrlHttps;
+  readonly description?: ContentFrontmatterPlainText;
+  readonly noindex?: boolean;
+  readonly title?: ContentFrontmatterPlainText;
+}>;
+
 export type ContentFrontmatterDigest = string;
 
 export type ContentFrontmatterExtensionKey = string;
@@ -78,6 +85,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly route?: ContentFrontmatterCanonicalRoute;
   readonly schemaId: 'urn:gala:schema:content-frontmatter:2.0.0';
   readonly schemaVersion: '2.0.0';
+  readonly seo?: ContentFrontmatterContentSeo;
   readonly series?: ContentFrontmatterPlainLabel;
   readonly seriesOrder?: number;
   readonly slug: ContentFrontmatterSlug;

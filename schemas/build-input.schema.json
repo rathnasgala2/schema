@@ -867,7 +867,8 @@
           "maxItems": 32,
           "uniqueItems": true
         },
-        "edition": { "$ref": "#/$defs/contentEdition" }
+        "edition": { "$ref": "#/$defs/contentEdition" },
+        "seo": { "$ref": "#/$defs/contentSeo" }
       },
       "additionalProperties": false,
       "dependentRequired": { "seriesOrder": ["series"] },
@@ -904,6 +905,24 @@
       },
       "additionalProperties": false,
       "description": "Prism edition of the article whose slug is `of`. `sourceDigest` is the digest of that article body the edition was generated from; an edition whose `sourceDigest` differs from the current article body digest is stale and is not rendered."
+    },
+    "contentSeo": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 70 }
+        },
+        "description": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 300 }
+        },
+        "canonicalUrl": { "$ref": "#/$defs/urlHttps" },
+        "noindex": { "type": "boolean" }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.12.0: optional search overrides for one document. `title` replaces the page title in search results (the site suffix is still appended on non-home pages), `description` replaces the search description, `canonicalUrl` is an absolute HTTPS canonical for syndicated or moved content, and `noindex: true` keeps a listed document out of search engines. Every member is optional; absent members fall back to the document's own title and description."
     },
     "contentBuildMediaFile": {
       "type": "object",

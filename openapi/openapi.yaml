@@ -1081,9 +1081,20 @@ components:
         optional: the author's publication palette, written as
         `gala/appearance.json`'s `tokens`; when absent the file's `tokens`
         are preserved unchanged, and `{}` resets to the theme's own colours.
+        `brandMark` (SCHEMA-3.12.0) is optional: a repository-relative path
+        under `assets/brand/`, written as `gala/appearance.json`'s
+        `brandMark` (the site icon); `null` clears it and an absent member
+        preserves the file's value. The App uploads the image file as an
+        ordinary `assets[]` entry in the same plan.
       properties:
         attribution:
           $ref: "#/components/schemas/PortableAppearanceAttribution"
+        brandMark:
+          oneOf:
+            - allOf:
+                - $ref: "#/components/schemas/PortableAppearanceRepoRelativePath"
+                - pattern: ^assets/brand/
+            - type: "null"
         colorModeDefault:
           $ref: "#/components/schemas/AppearanceColorMode"
         themeId:
@@ -1207,6 +1218,55 @@ components:
       required:
         - path
         - action
+      type: object
+    ContentChangePublicationProfileEntry:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.12.0: site-level settings inside a batch
+        `content-changes:plan` request, the same lifecycle and capability as
+        `appearance` (a pending change that goes live on Publish). The
+        server loads `gala/publication.json` at `baseRevision`, applies the
+        members that are present, validates the result against
+        `publication.schema.json`, and plans one `PUT` of
+        `gala/publication.json`. An absent member is preserved. `null`
+        resets `description` to the publication title (the file requires a
+        description); `null` clears `defaultImageRef` and `crawlers`.
+        `title`, `defaultLanguage` and `socialLinks` cannot be cleared.
+        `socialLinks` (max 32, the publication file's own limit) replaces
+        the whole list. `canonicalBase` is never client-settable: it changes
+        only through domain attach and detach. A profile that changes nothing is
+        `422 VALIDATION_FAILED` pointed at `/publicationProfile`; member
+        failures point at `/publicationProfile/<member>`.
+      properties:
+        crawlers:
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationCrawlers"
+            - type: "null"
+        defaultImageRef:
+          oneOf:
+            - allOf:
+                - $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+                - pattern: ^assets/brand/
+            - type: "null"
+        defaultLanguage:
+          $ref: "#/components/schemas/PortablePublicationBcp47"
+        description:
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 300
+                minimum: 1
+            - type: "null"
+        socialLinks:
+          items:
+            $ref: "#/components/schemas/PortablePublicationSocialLink"
+          maxItems: 32
+          type: array
+        title:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
       type: object
     ContentFrontmatter:
       $ref: "#/components/schemas/PortableContentFrontmatterDocument"
@@ -1345,14 +1405,36 @@ components:
             $ref: "#/components/schemas/ContentPublicationAuthorSummary"
           maxItems: 200
           type: array
+        crawlers:
+          $ref: "#/components/schemas/PortablePublicationCrawlers"
+        defaultImageRef:
+          $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
         defaultLanguage:
           $ref: "#/components/schemas/PortablePublicationBcp47"
+        description:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 500
+            minimum: 1
+        socialLinks:
+          items:
+            $ref: "#/components/schemas/PortablePublicationSocialLink"
+          maxItems: 32
+          type: array
         theme:
           $ref: "#/components/schemas/PortableAppearancePackageRange"
+        title:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 200
+            minimum: 1
       required:
         - defaultLanguage
         - theme
         - authors
+        - title
+        - description
+        - socialLinks
       type: object
     DefaultBranchUpdateState:
       description: |
@@ -7070,6 +7152,15 @@ components:
       minLength: 3
       pattern: ^(?:@[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?|[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)@(?:\S+|\S+ \S+)$
       type: string
+    PortableAppearanceRepoRelativePath:
+      description: NFC UTF-8 repository-relative path using slash separators, with no leading slash, dot segment, NUL, backslash, or percent-decoded traversal.
+      format: gala-repository-relative-path
+      maxLength: 512
+      minLength: 1
+      pattern: ^(?!/)(?!.*\\)(?!.*\u0000).+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 512
     PortableAppearanceSemanticTokens:
       additionalProperties: false
       description: "SCHEMA-3.10.0: the author's publication palette. Each role (accent, canvas, text) is optional; when present it carries both light and dark as opaque lowercase #rrggbb. An absent role uses the theme's default; `{}` selects the theme's default palette entirely."
@@ -7172,6 +7263,26 @@ components:
         - generation
         - approvedAt
       type: object
+    PortableContentFrontmatterContentSeo:
+      additionalProperties: false
+      description: "SCHEMA-3.12.0: optional search overrides for one document. `title` replaces the page title in search results (the site suffix is still appended on non-home pages), `description` replaces the search description, `canonicalUrl` is an absolute HTTPS canonical for syndicated or moved content, and `noindex: true` keeps a listed document out of search engines. Every member is optional; absent members fall back to the document's own title and description."
+      properties:
+        canonicalUrl:
+          $ref: "#/components/schemas/PortableContentFrontmatterUrlHttps"
+        description:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+          x-gala-graphemeLength:
+            maximum: 300
+            minimum: 1
+        noindex:
+          type: boolean
+        title:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+          x-gala-graphemeLength:
+            maximum: 70
+            minimum: 1
+      required: []
+      type: object
     PortableContentFrontmatterDigest:
       pattern: ^sha256:[0-9a-f]{64}$
       type: string
@@ -7268,6 +7379,8 @@ components:
           pattern: ^2\.0\.0$
           type: string
           x-gala-const: 2.0.0
+        seo:
+          $ref: "#/components/schemas/PortableContentFrontmatterContentSeo"
         series:
           $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
         seriesOrder:
@@ -7397,6 +7510,11 @@ components:
     PortableContentFrontmatterStableId:
       description: Lowercase canonical UUIDv7. Once published, it is immutable; its time ordering conveys neither chronology nor authority.
       pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      type: string
+    PortableContentFrontmatterUrlHttps:
+      description: Absolute HTTPS URL without embedded credentials.
+      format: uri
+      pattern: ^https://(?![^/?#]*@)
       type: string
     PortableDeploymentIntentAdapterIdentity:
       additionalProperties: false
@@ -12953,6 +13071,84 @@ components:
       x-gala-utf8ByteLength:
         maximum: 255
         minimum: 1
+    PortablePublicationCrawlers:
+      additionalProperties: false
+      properties:
+        ai:
+          enum:
+            - allow
+            - block
+      required:
+        - ai
+      type: object
+    PortablePublicationPlainLabel:
+      description: Normalized Unicode plain text without markup, controls, or bidi overrides.
+      format: gala-plain-label
+      type: string
+      x-gala-graphemeLength:
+        maximum: 80
+        minimum: 1
+    PortablePublicationPlainText:
+      description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
+      format: gala-plain-text
+      type: string
+    PortablePublicationRepoRelativePath:
+      description: NFC UTF-8 repository-relative path using slash separators, with no leading slash, dot segment, NUL, backslash, or percent-decoded traversal.
+      format: gala-repository-relative-path
+      maxLength: 512
+      minLength: 1
+      pattern: ^(?!/)(?!.*\\)(?!.*\u0000).+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 512
+    PortablePublicationSocialLink:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              uri:
+                $ref: "#/components/schemas/PortablePublicationUrlHttps"
+          if:
+            properties:
+              type:
+                pattern: ^email$
+                type: string
+                x-gala-const: email
+            required:
+              - type
+          then:
+            properties:
+              uri:
+                format: uri
+                pattern: "^mailto:"
+                type: string
+      properties:
+        label:
+          $ref: "#/components/schemas/PortablePublicationPlainLabel"
+        type:
+          enum:
+            - website
+            - email
+            - github
+            - linkedin
+            - mastodon
+            - bluesky
+            - x
+            - youtube
+            - other
+        uri:
+          maxLength: 2048
+          minLength: 1
+          type: string
+      required:
+        - type
+        - uri
+      type: object
+    PortablePublicationUrlHttps:
+      description: Absolute HTTPS URL without embedded credentials.
+      format: uri
+      pattern: ^https://(?![^/?#]*@)
+      type: string
     PostAuthenticationGithubTransactionsRequest:
       additionalProperties: false
       properties:
@@ -13731,13 +13927,15 @@ components:
         Two request shapes, both accepted. The 2.13.0 single-document shape
         (`path`, `contentDigest`, `expectedHead`) plans one document write
         against the exact expected head. The additive batch shape
-        (`baseRevision` and at least one of `documents`/`assets`/`appearance`)
+        (`baseRevision` and at least one of `documents`/`assets`/`appearance`/
+        `publicationProfile`)
         plans up to 20 documents and 20 assets -- each `PUT` with its own
         text or bytes and digest, each `DELETE` naming only its path -- and
         optionally one theme selection in one change, against the exact
         expected main-branch head asserted as `baseRevision`. A request
         mixing the two shapes, or a batch request naming none of
-        `documents`, `assets` and `appearance`, is `422 VALIDATION_FAILED`.
+        `documents`, `assets`, `appearance` and `publicationProfile`, is
+        `422 VALIDATION_FAILED`.
         `appearance` names a catalog theme and a default colour mode, and
         optionally the footer `attribution` (SCHEMA-3.3.0); the server
         writes `gala/appearance.json` (only `theme`, `colorMode.default` and,
@@ -13747,6 +13945,10 @@ components:
         selection (theme, default colour mode and, when sent, attribution)
         is `422 VALIDATION_FAILED` pointed at `/appearance`. Document paths
         under `gala/` and `gala.lock.json` remain forbidden.
+        `publicationProfile` (SCHEMA-3.12.0) is a further batch member beside
+        `appearance`, counting as one of the named members: it edits
+        `gala/publication.json` through one planned `PUT` (see
+        `ContentChangePublicationProfileEntry`).
         Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
         at most 20 per change, each at most 5 MiB and together at most
         20 MiB, measured on the decoded bytes -- `assets[].bytesBase64` is
@@ -13779,6 +13981,8 @@ components:
           maxLength: 512
           minLength: 1
           type: string
+        publicationProfile:
+          $ref: "#/components/schemas/ContentChangePublicationProfileEntry"
       required: []
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse:
@@ -14606,7 +14810,16 @@ components:
         - $ref: "#/components/schemas/PublicationTransfer"
     PostOrganizationsByOrganizationIdPublicationsRequest:
       additionalProperties: false
+      description: |
+        `description` (SCHEMA-3.12.0) is the optional site tagline, written
+        as `gala/publication.json`'s `description`. When absent the server
+        keeps its fallback (the site name).
       properties:
+        description:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 300
+            minimum: 1
         name:
           maxLength: 80
           minLength: 1
@@ -15812,10 +16025,19 @@ components:
         (SCHEMA-3.3.0, optional) is the file's footer attribution switch;
         absent means the file has none, which renders as shown. `tokens`
         (SCHEMA-3.10.0, optional) is the file's publication palette as read;
-        absent or `{}` means the theme's own colours.
+        absent or `{}` means the theme's own colours. `brandMark`
+        (SCHEMA-3.12.0, optional): the publication's brand mark as currently
+        committed, absent when none.
       properties:
         attribution:
           $ref: "#/components/schemas/PortableAppearanceAttribution"
+        brandMark:
+          description: "SCHEMA-3.12.0: the publication's brand mark as currently committed, absent when none"
+          oneOf:
+            - allOf:
+                - $ref: "#/components/schemas/PortableAppearanceRepoRelativePath"
+                - pattern: ^assets/brand/
+            - type: "null"
         colorModeDefault:
           $ref: "#/components/schemas/AppearanceColorMode"
         themeId:
@@ -30308,7 +30530,10 @@ paths:
                         - displayName: Example Author
                           id: 018f0000-0000-7000-8000-000000000001
                       defaultLanguage: en
+                      description: Example tagline
+                      socialLinks: []
                       theme: "@rathnasgala2/theme-default@^4.0.0"
+                      title: Example
                     setUp: true
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse"

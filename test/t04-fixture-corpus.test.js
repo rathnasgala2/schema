@@ -89,12 +89,19 @@ const T03_SCHEMA_HASHES = {
     //
     // 3.10.0 (reviewed 2026-10-12): the same $defs/semanticTokens palette
     // body as appearance (see above). Additive.
-    'da72d045d928eb35c05389974aaa38b6981d17d229c4a221da20ce5efd29a36a',
+    //
+    // 3.12.0 (reviewed 2026-10-13): contentFrontmatterNormalized gains the
+    // optional closed seo block (new $defs/contentSeo, shared with
+    // content-frontmatter). Additive.
+    '4a8fd292061cdd86bcaa03d3b2edf65dc5cf8953c41a0275399b52e21518fc95',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
     // Additive.
-    'b8fb8172fff5ff361d51b5af5e1444b42953e585beaf7e9e4aa46675b20b7e65',
+    //
+    // 3.12.0 (reviewed 2026-10-13): the optional closed seo block (new
+    // $defs/contentSeo, shared with build-input). Additive.
+    'f2aeb8c783053868dc26d094efe4020f1ac2394f265c07bdd115e7b3b5d48654',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound

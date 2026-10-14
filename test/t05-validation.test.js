@@ -52,6 +52,36 @@ test('the public validator accepts a canonical document', async () => {
   });
 });
 
+test('content frontmatter admits the closed optional seo block', async () => {
+  const base = await readJson(
+    'examples/valid/content-frontmatter/canonical.json',
+  );
+  const withSeo = (/** @type {unknown} */ seo) => ({ ...base, seo });
+  const valid = (/** @type {unknown} */ seo) =>
+    validateGalaDocument(base.schemaId, withSeo(seo)).valid;
+  assert.equal(validateGalaDocument(base.schemaId, base).valid, true);
+  assert.equal(valid({}), true);
+  assert.equal(
+    valid({
+      title: 'A search title',
+      description: 'A search description.',
+      canonicalUrl: 'https://example.com/original/',
+      noindex: true,
+    }),
+    true,
+  );
+  assert.equal(valid({ title: 'x'.repeat(70) }), true);
+  assert.equal(valid({ title: 'x'.repeat(71) }), false);
+  assert.equal(valid({ title: '' }), false);
+  assert.equal(valid({ description: '' }), false);
+  assert.equal(valid({ description: 'x'.repeat(300) }), true);
+  assert.equal(valid({ description: 'x'.repeat(301) }), false);
+  assert.equal(valid({ canonicalUrl: 'http://example.com/' }), false);
+  assert.equal(valid({ canonicalUrl: 'https://u:p@example.com/' }), false);
+  assert.equal(valid({ noindex: 'yes' }), false);
+  assert.equal(valid({ robots: 'noindex' }), false);
+});
+
 test('build input admits Editorial and rejects an unknown theme package', async () => {
   const editorial = await readJson('examples/valid/build-input/canonical.json');
   editorial.packages.theme.package = '@rathnasgala2/theme-editorial';

@@ -198,8 +198,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // file (appearance/SCHEMA_PATTERN_INVALID) replaced one that no longer
     // applies (build-input/SCHEMA_OBJECT_TOO_LARGE, once the empty-object
     // cap was gone), so the count stays 871.
+    //
+    // 3.12.0 (reviewed 2026-10-13): the optional closed `seo` block on
+    // content-frontmatter and build-input regenerated those roots' valid,
+    // boundary, unknown-field and invalid fixtures; no file added or removed.
     aggregate.digest('hex'),
-    '3a01a2d5a066902826561909236d6d2b7b20acef60eeed654e8749a0745f45cf',
+    '436312ebdd3a137d101a2a98d2a0494c9195682d5f01f001a03741ce5c6d27b6',
   );
 });
 

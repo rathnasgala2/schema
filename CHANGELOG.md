@@ -8,6 +8,37 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.12.0] - 2026-10-13
+
+### Added
+
+- Advanced SEO management, additive only (document `schemaVersion` stays
+  `2.0.0`). `content-frontmatter` and the normalized `build-input` front matter
+  gain an optional closed `seo` object (`$defs/contentSeo`): `title`
+  (`plainText`, 1-70 graphemes), `description` (`plainText`, 1-300 graphemes),
+  `canonicalUrl` (`urlHttps`) and `noindex` (boolean). Frontmatter `description`
+  remains the default search description.
+- `ContentChangePlanRequest.publicationProfile`
+  (`ContentChangePublicationProfileEntry`): optional `title`, `description`,
+  `defaultLanguage`, `socialLinks` (max 32, replaces the whole list),
+  `defaultImageRef` (under `assets/brand/`, `null` clears) and `crawlers`. The
+  server applies the present members to `gala/publication.json` at
+  `baseRevision` and plans one `PUT`; `canonicalBase` is never client-settable.
+  `publicationProfile` counts as one of the named batch members of the plan
+  request. `title`, `defaultLanguage` and `socialLinks` cannot be cleared;
+  `null` resets `description` to the publication title (the file requires one)
+  and clears `defaultImageRef` and `crawlers`. A profile that changes nothing is
+  `422` at `/publicationProfile`. Validation pointers are
+  `/publicationProfile/<member>` and, for frontmatter, `/text/seo/<member>`.
+- `ContentChangeAppearanceEntry.brandMark` (path under `assets/brand/`, `null`
+  clears); the `PublicationAppearanceSelected` read model gains an optional
+  nullable `brandMark` so a client can show the current mark.
+- `POST /v2/organizations/{organizationId}/publications` accepts an optional
+  `description` (the site tagline, 1-300 graphemes).
+- `ContentPublicationSummary` gains `title`, `description`, `socialLinks` and
+  optional `defaultImageRef` and `crawlers` so a client can prefill site
+  settings.
+
 ## [3.11.0] - 2026-10-13
 
 ### Added
@@ -2712,6 +2743,7 @@ with independently verifiable dates.
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
 [Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.8.0...HEAD
+[3.12.0]: https://github.com/rathnasgala2/schema/compare/v3.11.0...v3.12.0
 [3.11.0]: https://github.com/rathnasgala2/schema/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/rathnasgala2/schema/compare/v3.9.0...v3.10.0
 [3.9.0]: https://github.com/rathnasgala2/schema/compare/v3.8.0...v3.9.0

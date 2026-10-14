@@ -146,6 +146,7 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly publishedAt: BuildInputRfc3339;
   readonly redirects: ReadonlyArray<BuildInputCanonicalRoute>;
   readonly route?: BuildInputCanonicalRoute;
+  readonly seo?: BuildInputContentSeo;
   readonly series?: BuildInputPlainLabel;
   readonly seriesOrder?: number;
   readonly slug: BuildInputSlug;
@@ -156,6 +157,13 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly updatedAt?: BuildInputRfc3339;
 }> &
   unknown;
+
+export type BuildInputContentSeo = Readonly<{
+  readonly canonicalUrl?: BuildInputUrlHttps;
+  readonly description?: BuildInputPlainText;
+  readonly noindex?: boolean;
+  readonly title?: BuildInputPlainText;
+}>;
 
 export type BuildInputDestinationCapabilityProfile = Readonly<{
   readonly adapter: BuildInputAuthoredAdapterIdentity;

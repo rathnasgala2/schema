@@ -258,6 +258,37 @@ export function createContentEditionDefinition({ ref, closedObject }) {
 }
 
 /**
+ * SCHEMA-3.12.0: the optional per-document search block, shared byte-for-byte
+ * by the `content-frontmatter` author-source root and the normalized
+ * `build-input` front matter (one `$defs/contentSeo` body).
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @param {Function} language.graphemeBound grapheme-bound constructor
+ * @returns {Record<string, unknown>} closed SEO object schema
+ */
+export function createContentSeoDefinition({
+  ref,
+  closedObject,
+  graphemeBound,
+}) {
+  return closedObject(
+    {
+      title: graphemeBound(ref('plainText'), 1, 70),
+      description: graphemeBound(ref('plainText'), 1, 300),
+      canonicalUrl: ref('urlHttps'),
+      noindex: { type: 'boolean' },
+    },
+    [],
+    {
+      description:
+        "SCHEMA-3.12.0: optional search overrides for one document. `title` replaces the page title in search results (the site suffix is still appended on non-home pages), `description` replaces the search description, `canonicalUrl` is an absolute HTTPS canonical for syndicated or moved content, and `noindex: true` keeps a listed document out of search engines. Every member is optional; absent members fall back to the document's own title and description.",
+    },
+  );
+}
+
+/**
  * The `kind`/`edition` agreement every front matter shape carries: an
  * `edition` block is required exactly when `kind` is `edition`.
  *
@@ -973,6 +1004,7 @@ export function createCompositionBuildSchemas(language) {
       socialImage: ref('resolvedFile'),
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
       edition: ref('contentEdition'),
+      seo: ref('contentSeo'),
     },
     [
       'id',
@@ -2066,6 +2098,7 @@ export function createCompositionBuildSchemas(language) {
         attribution: createAttributionDefinition(language),
         contentFrontmatterNormalized,
         contentEdition: createContentEditionDefinition(language),
+        contentSeo: createContentSeoDefinition(language),
         contentBuildMediaFile,
         contentBuildRecord,
         moduleBuildSelection: closedObject(
