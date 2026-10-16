@@ -3611,6 +3611,19 @@ paths:
           content:
             application/problem+json:
               examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
                 SETTING_UNKNOWN:
                   summary: SETTING_UNKNOWN
                   value:
@@ -3626,13 +3639,14 @@ paths:
                     type: urn:gala:problem:setting-unknown
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: SETTING_UNKNOWN
+          description: RESOURCE_NOT_FOUND, SETTING_UNKNOWN
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
             X-Correlation-Id:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
             - SETTING_UNKNOWN
         '409':
           content:
@@ -3683,6 +3697,7 @@ paths:
         - COMMAND_REPLAY_CONFLICT
         - REAUTH_REQUIRED
         - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
         - SETTING_UNKNOWN
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key

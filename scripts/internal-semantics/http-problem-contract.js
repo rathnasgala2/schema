@@ -100,6 +100,7 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       // and platform settings.
       CHANNEL_MISMATCH: { statuses: [409], retryable: false },
       CLAIM_ALREADY_CLAIMED: { statuses: [409], retryable: false },
+      CLAIM_CODE_PENDING: { statuses: [409], retryable: false },
       CLAIM_EXPIRED: { statuses: [410], retryable: false },
       CLAIM_NOT_FOUND: { statuses: [404], retryable: false },
       CLAIM_NOT_VERIFIED: { statuses: [409], retryable: false },

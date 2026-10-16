@@ -58,3 +58,30 @@ test('demo-site claimUrl is optional', () => {
     S.GetPlatformDemoSitesByPublicationIdResponse.properties.steps,
   );
 });
+
+test('description-code 409 lists CLAIM_CODE_PENDING with an example', () => {
+  const r =
+    doc.paths['/v2/claims/{token}/description-code'].post.responses['409'];
+  assert.deepEqual(r['x-gala-problem-codes'], [
+    'CLAIM_ALREADY_CLAIMED',
+    'CLAIM_CODE_PENDING',
+  ]);
+  const e = r.content['application/problem+json'].examples.CLAIM_CODE_PENDING;
+  assert.equal(e.value.code, 'CLAIM_CODE_PENDING');
+  assert.equal(e.value.status, 409);
+});
+
+test('platform override put lists RESOURCE_NOT_FOUND on 404', () => {
+  const key = Object.keys(doc.paths).find((p) =>
+    p.startsWith('/v2/platform/settings/overrides/'),
+  );
+  assert.ok(key);
+  const r = doc.paths[key].put.responses['404'];
+  assert.deepEqual(r['x-gala-problem-codes'], [
+    'RESOURCE_NOT_FOUND',
+    'SETTING_UNKNOWN',
+  ]);
+  const ex = r.content['application/problem+json'].examples;
+  assert.equal(ex.RESOURCE_NOT_FOUND.value.status, 404);
+  assert.ok(ex.SETTING_UNKNOWN);
+});

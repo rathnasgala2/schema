@@ -83,7 +83,13 @@ and this project adheres to
 - Problem registry: `KEY_AND_SESSION`, `CHANNEL_MISMATCH`,
   `CODE_NOT_FOUND_IN_DESCRIPTION`, `TRANSFER_NOT_ACCEPTED` and
   `IMPORT_QUOTA_EXHAUSTED` are registered for the API to raise; the first is the
-  `401` for a bearer key together with a session cookie.
+  `401` for a bearer key together with a session cookie. `CLAIM_CODE_PENDING`
+  (`409`) is reachable on `POST /v2/claims/{token}/description-code`: a
+  description code issued to another person for this claim is still pending; it
+  expires at the time in the problem detail, so verify with Google instead or
+  try again after it expires.
+  `PUT /v2/platform/settings/overrides/{kind}/{id}/{key}` now also lists
+  `404 RESOURCE_NOT_FOUND` (the person or organisation does not exist).
 - The App route registry gains `/platform/api-keys`, `/platform/settings`,
   `/claim/{token}` and `/v1/sites/{organizationId}/{publicationId}/handover`.
 
