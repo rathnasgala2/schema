@@ -681,16 +681,19 @@ remediation, and documentation URL fields without including authored values.
   `capabilityKeys` projected from `openapi/http-catalog.json`.
 - `openapi/source/` — reviewed, complete OpenAPI root, component, and path
   fragments, one fragment per tag, grouped by resource or by feature
-  (SCHEMA-3.3.0 adds `publication-transfers`, `domains`, `prism` and
-  `platform`); the root tags name exactly the fragments on disk. A build input,
-  not part of the npm payload (SCH-H7: `!openapi/source/` in `package.json`'s
-  `files`) -- a consumer reads the materialized `openapi/openapi.yaml` instead.
+  (SCHEMA-3.3.0 adds `publication-transfers`, `domains`, `prism` and `platform`;
+  SCHEMA-3.13.0 adds `claims`); the root tags name exactly the fragments on
+  disk. A build input, not part of the npm payload (SCH-H7: `!openapi/source/`
+  in `package.json`'s `files`) -- a consumer reads the materialized
+  `openapi/openapi.yaml` instead.
 - `openapi/openapi.yaml` — deterministic OpenAPI 3.1 bundle for the MVP
   operations plus health.
 - `openapi/http-catalog.json` — generated digest-bound method/path/purpose and
   capability inventory, including `conditionalCapabilityKeys` (SCHEMA-2.7.1) and
-  the per-operation `assuranceClass`/`actionGrant` pair (SCHEMA-2.8.0); it is
-  not a parallel transport authority.
+  the per-operation `assuranceClass`/`actionGrant` pair (SCHEMA-2.8.0) and the
+  admin API key scope `apiKeyScope` (SCHEMA-3.13.0, `null` when a key is always
+  refused; `npm run api-key-scopes:check` proves no human-only operation carries
+  one); it is not a parallel transport authority.
 - `openapi/generator/` — serialized Spring and TypeScript Fetch options for
   OpenAPI Generator 7.25.0. Also a build input excluded from the npm payload
   (SCH-H7).

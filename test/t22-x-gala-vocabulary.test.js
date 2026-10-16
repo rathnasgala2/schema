@@ -37,6 +37,7 @@ const CLOSED_OPENAPI_X_GALA_EXTENSIONS = new Set([
   'x-gala-action-grant',
   'x-gala-activation-gate',
   'x-gala-activation-guards',
+  'x-gala-api-key-scope',
   'x-gala-asciiByteLength',
   'x-gala-assurance-class',
   'x-gala-capability-key',

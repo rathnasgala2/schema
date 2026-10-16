@@ -692,6 +692,64 @@
       "collection": false,
       "screenJob": "Invitation; See which organization, role and site an invitation link offers and who sent it, then sign in to accept it.",
       "apiOperationIds": ["getMembershipInvitationsByToken"]
+    },
+    {
+      "pathTemplate": "/platform/api-keys",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Platform API keys; Operators create scoped admin API keys, shown once, and list and revoke them.",
+      "apiOperationIds": [
+        "getPlatformApiKeys",
+        "postPlatformApiKeys",
+        "postPlatformApiKeysByApiKeyIdRevoke"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/settings",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Platform settings; Operators read and version-safely change app-wide limits and the article model, and set per-person or per-organization overrides.",
+      "apiOperationIds": [
+        "deletePlatformSettingsOverridesByKindByIdByKey",
+        "getPlatformSettingsByKey",
+        "getPlatformSettingsOverridesByKindByIdByKey",
+        "putPlatformSettingsByKey",
+        "putPlatformSettingsOverridesByKindByIdByKey"
+      ]
+    },
+    {
+      "pathTemplate": "/claim/{token}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Claim your site; Prove you own the YouTube channel a demo site was made for, then take ownership of it.",
+      "apiOperationIds": [
+        "getCallbacksGoogleClaim",
+        "getClaimsByToken",
+        "postClaimsByTokenAccept",
+        "postClaimsByTokenDescriptionCode",
+        "postClaimsByTokenDescriptionCodeCheck",
+        "postClaimsByTokenGoogleStart"
+      ]
+    },
+    {
+      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/handover",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Move my site; Move a demo site's repository into your own GitHub account and follow the move until the site is live at its new address.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverCancel"
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:ced018280539ba1489140480f22f9d4d559bfffc0fc383979d96ce6bdbd511db",
+  "openApiDigest": "sha256:a5ece3bb40e4996d666b285849719928c14cce1d176a71e912743e83362b12fa",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -13,6 +13,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "internal"
     },
     {
@@ -25,6 +26,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "authentication"
     },
     {
@@ -37,6 +39,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "authentication"
     },
     {
@@ -49,6 +52,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "authentication"
     },
     {
@@ -61,6 +65,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "authentication"
     },
     {
@@ -73,6 +78,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "callbacks"
     },
     {
@@ -85,6 +91,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "callbacks"
     },
     {
@@ -97,7 +104,86 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "callbacks"
+    },
+    {
+      "operationId": "getCallbacksGoogleClaim",
+      "method": "GET",
+      "path": "/v2/callbacks/google/claim",
+      "purpose": "consume the exact Google claim callback transaction",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "callbacks"
+    },
+    {
+      "operationId": "getClaimsByToken",
+      "method": "GET",
+      "path": "/v2/claims/{token}",
+      "purpose": "read what a claim link offers",
+      "capabilityKey": "claim.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "claims"
+    },
+    {
+      "operationId": "postClaimsByTokenAccept",
+      "method": "POST",
+      "path": "/v2/claims/{token}:accept",
+      "purpose": "accept claim and take ownership",
+      "capabilityKey": "claim.accept",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "claims"
+    },
+    {
+      "operationId": "postClaimsByTokenDescriptionCode",
+      "method": "POST",
+      "path": "/v2/claims/{token}/description-code",
+      "purpose": "issue channel description code",
+      "capabilityKey": "claim.verify",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "claims"
+    },
+    {
+      "operationId": "postClaimsByTokenDescriptionCodeCheck",
+      "method": "POST",
+      "path": "/v2/claims/{token}/description-code:check",
+      "purpose": "check channel description code",
+      "capabilityKey": "claim.verify",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "claims"
+    },
+    {
+      "operationId": "postClaimsByTokenGoogleStart",
+      "method": "POST",
+      "path": "/v2/claims/{token}/google:start",
+      "purpose": "start Google channel verification",
+      "capabilityKey": "claim.verify",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "claims"
     },
     {
       "operationId": "getGithubApp",
@@ -109,6 +195,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "github"
     },
     {
@@ -121,6 +208,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "github"
     },
     {
@@ -133,6 +221,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "github"
     },
     {
@@ -145,6 +234,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "github"
     },
     {
@@ -157,6 +247,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "membership-invitations"
     },
     {
@@ -169,6 +260,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "membership-invitations"
     },
     {
@@ -181,6 +273,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "organizations"
     },
     {
@@ -193,6 +286,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -205,6 +299,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "organizations"
     },
     {
@@ -219,6 +314,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -231,6 +327,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -243,6 +340,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -255,6 +353,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -267,6 +366,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -279,6 +379,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -291,6 +392,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -303,6 +405,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -315,6 +418,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -327,6 +431,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -339,6 +444,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -351,6 +457,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "publish",
       "sourceFragment": "organizations"
     },
     {
@@ -363,6 +470,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -375,6 +483,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -387,6 +496,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -399,6 +509,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -411,6 +522,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -423,6 +535,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -435,6 +548,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -447,6 +561,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -459,6 +574,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -471,6 +587,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -483,6 +600,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -495,6 +613,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -507,6 +626,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -519,6 +639,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -531,6 +652,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -543,6 +665,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -555,6 +678,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -567,6 +691,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "organizations"
     },
     {
@@ -579,6 +704,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -591,6 +717,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -603,6 +730,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "organizations"
     },
     {
@@ -615,6 +743,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -627,6 +756,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -639,6 +769,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -653,6 +784,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "publish",
       "sourceFragment": "organizations"
     },
     {
@@ -668,6 +800,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -680,6 +813,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -692,6 +826,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "content:write",
       "sourceFragment": "organizations"
     },
     {
@@ -704,6 +839,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -716,6 +852,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -728,6 +865,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "publish",
       "sourceFragment": "organizations"
     },
     {
@@ -740,6 +878,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -752,6 +891,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "publish",
       "sourceFragment": "organizations"
     },
     {
@@ -764,6 +904,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -776,6 +917,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -788,6 +930,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -800,6 +943,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -812,6 +956,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -824,6 +969,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -836,6 +982,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -848,6 +995,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -860,6 +1008,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -872,6 +1021,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -884,6 +1034,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -896,6 +1047,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "domains"
     },
     {
@@ -908,7 +1060,47 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover",
+      "purpose": "read publication handover",
+      "capabilityKey": "publication.handover.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover",
+      "purpose": "start publication handover",
+      "capabilityKey": "publication.handover.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverCancel",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover:cancel",
+      "purpose": "cancel publication handover",
+      "capabilityKey": "publication.handover.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
     },
     {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
@@ -920,6 +1112,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -932,6 +1125,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "moderation"
     },
     {
@@ -944,6 +1138,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "interaction-settings"
     },
     {
@@ -956,6 +1151,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "content:write",
       "sourceFragment": "interaction-settings"
     },
     {
@@ -968,6 +1164,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "moderation"
     },
     {
@@ -980,6 +1177,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "moderation"
     },
     {
@@ -992,6 +1190,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
     },
     {
@@ -1004,6 +1203,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
     },
     {
@@ -1016,6 +1216,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
     },
     {
@@ -1028,6 +1229,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
     },
     {
@@ -1040,6 +1242,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
     },
     {
@@ -1052,6 +1255,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "prism"
     },
     {
@@ -1066,6 +1270,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1078,6 +1283,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1090,6 +1296,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1102,6 +1309,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1114,6 +1322,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1128,6 +1337,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1140,6 +1350,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "organizations"
     },
     {
@@ -1152,6 +1363,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1164,6 +1376,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "read",
       "sourceFragment": "organizations"
     },
     {
@@ -1176,6 +1389,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1188,6 +1402,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": "content:write",
       "sourceFragment": "organizations"
     },
     {
@@ -1200,6 +1415,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1212,6 +1428,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1224,6 +1441,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1238,6 +1456,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1250,6 +1469,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1264,6 +1484,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1276,6 +1497,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1290,6 +1512,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1302,6 +1525,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1314,6 +1538,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -1326,6 +1551,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -1338,6 +1564,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -1350,6 +1577,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "publication-transfers"
     },
     {
@@ -1362,6 +1590,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1374,6 +1603,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1386,6 +1616,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1398,6 +1629,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1410,6 +1642,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1422,6 +1655,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "organizations"
     },
     {
@@ -1434,6 +1668,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1446,6 +1681,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1458,6 +1694,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1470,6 +1707,46 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformApiKeys",
+      "method": "GET",
+      "path": "/v2/platform/api-keys",
+      "purpose": "list admin API keys",
+      "capabilityKey": "platform.apikeys.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformApiKeys",
+      "method": "POST",
+      "path": "/v2/platform/api-keys",
+      "purpose": "create admin API key",
+      "capabilityKey": "platform.apikeys.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformApiKeysByApiKeyIdRevoke",
+      "method": "POST",
+      "path": "/v2/platform/api-keys/{apiKeyId}:revoke",
+      "purpose": "revoke admin API key",
+      "capabilityKey": "platform.apikeys.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1482,6 +1759,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1494,6 +1772,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1506,6 +1785,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1518,6 +1798,46 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformDemoSites",
+      "method": "POST",
+      "path": "/v2/platform/demo-sites",
+      "purpose": "set up demo site",
+      "capabilityKey": "platform.demosites.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": "demo:setup",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformDemoSitesPreflight",
+      "method": "GET",
+      "path": "/v2/platform/demo-sites:preflight",
+      "purpose": "check demo site set-up readiness",
+      "capabilityKey": "platform.demosites.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": "demo:setup",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformDemoSitesByPublicationId",
+      "method": "GET",
+      "path": "/v2/platform/demo-sites/{publicationId}",
+      "purpose": "read demo site set-up",
+      "capabilityKey": "platform.demosites.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": "demo:setup",
       "sourceFragment": "platform"
     },
     {
@@ -1530,6 +1850,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1542,6 +1863,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1554,6 +1876,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1566,6 +1889,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1578,6 +1902,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1590,6 +1915,72 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformSettingsByKey",
+      "method": "GET",
+      "path": "/v2/platform/settings/{key}",
+      "purpose": "read platform setting",
+      "capabilityKey": "platform.settings.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "putPlatformSettingsByKey",
+      "method": "PUT",
+      "path": "/v2/platform/settings/{key}",
+      "purpose": "update platform setting",
+      "capabilityKey": "platform.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "deletePlatformSettingsOverridesByKindByIdByKey",
+      "method": "DELETE",
+      "path": "/v2/platform/settings/overrides/{kind}/{id}/{key}",
+      "purpose": "remove platform setting override",
+      "capabilityKey": "platform.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformSettingsOverridesByKindByIdByKey",
+      "method": "GET",
+      "path": "/v2/platform/settings/overrides/{kind}/{id}/{key}",
+      "purpose": "read platform setting override",
+      "capabilityKey": "platform.settings.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "putPlatformSettingsOverridesByKindByIdByKey",
+      "method": "PUT",
+      "path": "/v2/platform/settings/overrides/{kind}/{id}/{key}",
+      "purpose": "set platform setting override",
+      "capabilityKey": "platform.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1602,6 +1993,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1614,6 +2006,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1626,6 +2019,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1638,6 +2032,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -1650,6 +2045,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1662,6 +2058,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1674,6 +2071,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1686,6 +2084,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1698,6 +2097,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1710,6 +2110,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1722,6 +2123,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1734,6 +2136,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1746,6 +2149,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1758,6 +2162,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "public-interactions"
     },
     {
@@ -1770,6 +2175,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "reader"
     },
     {
@@ -1782,6 +2188,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "reader"
     },
     {
@@ -1794,6 +2201,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "reader"
     },
     {
@@ -1806,6 +2214,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1818,6 +2227,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1830,6 +2240,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1842,6 +2253,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1854,6 +2266,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1866,6 +2279,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1878,6 +2292,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1890,6 +2305,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1902,6 +2318,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1914,6 +2331,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1926,6 +2344,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1938,6 +2357,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1950,6 +2370,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1962,6 +2383,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1974,6 +2396,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1986,6 +2409,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -1998,6 +2422,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2010,6 +2435,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2022,6 +2448,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2034,6 +2461,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2046,6 +2474,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2058,6 +2487,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2070,6 +2500,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2082,6 +2513,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2094,6 +2526,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "self"
     },
     {
@@ -2106,6 +2539,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "session"
     },
     {
@@ -2118,6 +2552,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "session"
     },
     {
@@ -2130,6 +2565,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "session"
     },
     {
@@ -2142,6 +2578,7 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "workloads"
     },
     {
@@ -2154,8 +2591,9 @@
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
       "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:abdb9d0b55df0c670b75a6bb175ef2cf8bd0b6566ceffb54e2683037072ee0ea"
+  "digest": "sha256:82aebc6a435a87322d3d12d3cb6e1878b618ecad66a0b324dae958d5985e003c"
 }

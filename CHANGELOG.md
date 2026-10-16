@@ -8,6 +8,70 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.13.0] - 2026-10-16
+
+### Added
+
+- Admin API keys. `POST /v2/platform/api-keys` (`postPlatformApiKeys`,
+  capability `platform.apikeys.manage`) creates a scoped credential that acts as
+  the calling operator and returns `201` with the whole key
+  `gk_<prefix>_<secret>` (`secret`, shown only here).
+  `GET /v2/platform/api-keys` lists keys (`platform.apikeys.view`) and
+  `POST /v2/platform/api-keys/{apiKeyId}:revoke` ends one. Scopes are `read`,
+  `demo:setup`, `content:write` and `publish`; `expiresInDays` defaults to 90
+  and is at most 365. The capability keys spell `apikeys` and `demosites`
+  without a hyphen because capability keys are lowercase dot-separated words.
+- `adminApiKey`, an HTTP bearer security scheme, and the operation extension
+  `x-gala-api-key-scope` (`read | demo:setup | content:write | publish`). An
+  operation that carries it lists `adminApiKey` next to `browserSession`; an
+  operation without it is always refused to a key, so the allowlist is data. It
+  is on the three demo-site operations (`demo:setup`), `content-changes:plan`,
+  the repository-change `:confirm` and `PUT interaction-settings`
+  (`content:write`), `changes:publish` with the operation and deployment status
+  reads the publish flow polls (`publish`), and the reads of the caller's
+  organisations, publications, repository changes and interaction settings
+  (`read`). The HTTP catalog gains `apiKeyScope` per operation (`null` when a
+  key is refused), and `npm run api-key-scopes:check` (with its test) fails if
+  any phishing-resistant, owner-transfer, membership, invitation, self, passkey,
+  recovery, identity, export, closure, API-key, claim, handover or
+  settings-write operation carries the extension.
+- Demo sites. `GET /v2/platform/demo-sites:preflight`
+  (`getPlatformDemoSitesPreflight`), `POST /v2/platform/demo-sites`
+  (`postPlatformDemoSites`, `202`; the request carries `slug`, `siteName`,
+  `organizationName`, `channel`, optional `installationLogin`, a required
+  `author` (`displayName` 1-120, `biography` 0-2000) the set-up personalizer
+  writes to `gala/authors/*.json`, and an optional `description` 0-300, the site
+  tagline; `claimUrl` is returned only here) and
+  `GET /v2/platform/demo-sites/{publicationId}`, all under
+  `platform.demosites.manage`. Problems `DEMO_SLUG_TAKEN` and
+  `GITHUB_LINK_UNUSABLE`.
+- Platform settings. `GET` and `PUT /v2/platform/settings/{key}`
+  (`platform.settings.view`, `platform.settings.manage`, `If-Match` on the
+  release version) and `GET`, `PUT` and
+  `DELETE /v2/platform/settings/overrides/{kind}/{id}/{key}` for per-person and
+  per-organisation overrides. `404 SETTING_UNKNOWN` for an undefined key.
+- Creator claim, in a new `claims` fragment: `GET /v2/claims/{token}`,
+  `POST /v2/claims/{token}/google:start`,
+  `POST /v2/claims/{token}/description-code`,
+  `POST /v2/claims/{token}/description-code:check` and
+  `POST /v2/claims/{token}:accept` (capabilities `claim.view`, `claim.verify`,
+  `claim.accept`; accept needs recent authentication), plus the redirect-only
+  `GET /v2/callbacks/google/claim` (always `303` to the App with
+  `outcome=verified|channel_mismatch|denied|error`). Problems `CLAIM_NOT_FOUND`,
+  `CLAIM_EXPIRED`, `CLAIM_NOT_VERIFIED`, `CLAIM_ALREADY_CLAIMED`.
+- Handover by repository transfer. `GET`, `POST` and `POST :cancel` on
+  `/v2/organizations/{organizationId}/publications/{publicationId}/handover`
+  (`publication.handover.manage`, owner with recent authentication). Problems
+  `HANDOVER_EXISTS`, `HANDOVER_TARGET_NOT_INSTALLED`,
+  `HANDOVER_NOT_CANCELLABLE`; `DEPENDENCY_UNAVAILABLE` is reachable on the
+  handover start and the description-code check.
+- Problem registry: `KEY_AND_SESSION`, `CHANNEL_MISMATCH`,
+  `CODE_NOT_FOUND_IN_DESCRIPTION`, `TRANSFER_NOT_ACCEPTED` and
+  `IMPORT_QUOTA_EXHAUSTED` are registered for the API to raise; the first is the
+  `401` for a bearer key together with a session cookie.
+- The App route registry gains `/platform/api-keys`, `/platform/settings`,
+  `/claim/{token}` and `/v1/sites/{organizationId}/{publicationId}/handover`.
+
 ## [3.12.0] - 2026-10-13
 
 ### Added
@@ -2743,6 +2807,7 @@ with independently verifiable dates.
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
 [Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.8.0...HEAD
+[3.13.0]: https://github.com/rathnasgala2/schema/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/rathnasgala2/schema/compare/v3.11.0...v3.12.0
 [3.11.0]: https://github.com/rathnasgala2/schema/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/rathnasgala2/schema/compare/v3.9.0...v3.10.0

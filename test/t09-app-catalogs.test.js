@@ -102,8 +102,8 @@ async function loadFixtures() {
 test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
   assert.equal(validateAppComponentSource(componentSourceValue).length, 15);
-  // SCHEMA-3.7.0 adds the ten operator-console routes.
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 44);
+  // SCHEMA-3.7.0 adds the ten operator-console routes; SCHEMA-3.13.0 four more.
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 48);
   const paths = new Set(
     /** @type {JsonObject[]} */ (
       /** @type {JsonObject} */ (routeSourceValue).routes
@@ -149,7 +149,9 @@ test('generated catalogs match the committed projection', async () => {
   assert.deepEqual(JSON.parse(committedRoutesText), routes);
   // 3.11.0 (reviewed 2026-10-13): five authored recovery messages for the
   // contact-email grant/withdraw and platform contact operations (566 to 571).
-  assert.equal(authoredMessageCount, 571);
+  // 3.13.0 (reviewed 2026-10-16): the API keys, settings, claim and handover
+  // routes (571 to 629).
+  assert.equal(authoredMessageCount, 629);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
@@ -315,7 +317,7 @@ test('SCHEMA-2.8.1: every App-facing operation is bound to a route, and the sing
     .filter((operationId) => !bound.has(operationId))
     .sort();
   // Only operations no App screen can call stay unbound: the health probe, the
-  // GitHub App webhook, the two workload (GitHub Actions) endpoints, and the
+  // GitHub App webhook, the three operator demo-site (CLI-only) operations, the two workload (GitHub Actions) endpoints, and the
   // reader operations a published blog's own script calls (`/v2/public/**` and
   // the reader token exchange and sign-out).
   assert.deepEqual(unbound, [
@@ -323,9 +325,12 @@ test('SCHEMA-2.8.1: every App-facing operation is bound to a route, and the sing
     'deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
     'deleteReaderTokensCurrent',
     'getInternalHealth',
+    'getPlatformDemoSitesByPublicationId',
+    'getPlatformDemoSitesPreflight',
     'getPublicPublicationsByPublicationIdContentsByContentIdComments',
     'getPublicPublicationsByPublicationIdContentsByContentIdInteractions',
     'postCallbacksGithubApp',
+    'postPlatformDemoSites',
     'postPublicCommentsByCommentIdAppeals',
     'postPublicCommentsByCommentIdReports',
     'postPublicCommentsByCommentIdRevisions',

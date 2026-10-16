@@ -96,5 +96,22 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       DNS_CONNECTION_NOT_FOUND: { statuses: [404], retryable: false },
       DNS_PROVIDER_NOT_CONFIGURED: { statuses: [503], retryable: false },
       DNS_PROVIDER_REJECTED: { statuses: [502], retryable: true },
+      // SCHEMA-3.13.0: admin API keys, demo sites, creator claims, handover
+      // and platform settings.
+      CHANNEL_MISMATCH: { statuses: [409], retryable: false },
+      CLAIM_ALREADY_CLAIMED: { statuses: [409], retryable: false },
+      CLAIM_EXPIRED: { statuses: [410], retryable: false },
+      CLAIM_NOT_FOUND: { statuses: [404], retryable: false },
+      CLAIM_NOT_VERIFIED: { statuses: [409], retryable: false },
+      CODE_NOT_FOUND_IN_DESCRIPTION: { statuses: [409], retryable: false },
+      DEMO_SLUG_TAKEN: { statuses: [409], retryable: false },
+      GITHUB_LINK_UNUSABLE: { statuses: [409], retryable: false },
+      HANDOVER_EXISTS: { statuses: [409], retryable: false },
+      HANDOVER_NOT_CANCELLABLE: { statuses: [409], retryable: false },
+      HANDOVER_TARGET_NOT_INSTALLED: { statuses: [409], retryable: false },
+      IMPORT_QUOTA_EXHAUSTED: { statuses: [429], retryable: false },
+      KEY_AND_SESSION: { statuses: [401], retryable: false },
+      SETTING_UNKNOWN: { statuses: [404], retryable: false },
+      TRANSFER_NOT_ACCEPTED: { statuses: [409], retryable: false },
     })
   );

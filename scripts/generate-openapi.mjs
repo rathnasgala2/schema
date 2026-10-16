@@ -79,6 +79,18 @@ export const ASSURANCE_CLASSES = Object.freeze([
 // extension -- whether the operation consumes a short-lived action grant issued by a
 // step-up, alongside its capability key.
 export const ACTION_GRANT_MODES = Object.freeze(['none', 'required']);
+// SCHEMA-3.13.0: closed vocabulary for the operation-level `x-gala-api-key-scope`
+// extension. An operation that carries it may be called with an admin API key
+// holding that scope (and declares the `adminApiKey` security scheme next to
+// `browserSession`); an operation without it is never callable with a key. The
+// allowlist is therefore data in the contract, and `check-api-key-scopes.mjs`
+// proves no human-only operation ever carries it.
+export const API_KEY_SCOPES = Object.freeze([
+  'read',
+  'demo:setup',
+  'content:write',
+  'publish',
+]);
 // Mechanical shape every capability key in this repository follows: two to four
 // lowercase dot-separated segments, no digits, no hyphens.
 export const CAPABILITY_KEY_PATTERN = /^[a-z]+(?:\.[a-z]+){1,3}$/u;
@@ -111,6 +123,7 @@ const SUCCESS_STATUSES = /** @type {Readonly<Record<string, string>>} */ (
  *   'x-gala-conditional-capability-keys'?: ConditionalCapabilityKey[],
  *   'x-gala-assurance-class'?: string,
  *   'x-gala-action-grant'?: string,
+ *   'x-gala-api-key-scope'?: string,
  *   'x-gala-activation-gate': string,
  *   'x-gala-activation-guards': string[],
  *   'x-gala-state-guards': string[],
@@ -690,6 +703,18 @@ function validateContractClosure(records, components) {
         `${identity}: an action grant requires recent authentication`,
       );
     }
+    const apiKeyScope = operation['x-gala-api-key-scope'];
+    const usesApiKey = operation.security.some(
+      (requirement) => 'adminApiKey' in requirement,
+    );
+    if (apiKeyScope !== undefined && !API_KEY_SCOPES.includes(apiKeyScope)) {
+      throw new Error(`${identity}: API key scope is not in the vocabulary`);
+    }
+    if ((apiKeyScope !== undefined) !== usesApiKey) {
+      throw new Error(
+        `${identity}: adminApiKey security and x-gala-api-key-scope are declared apart`,
+      );
+    }
     const hasStateGuards = operation['x-gala-state-guards'][0] !== 'NONE';
     if (hasStateGuards !== reachable.has('INVALID_SOURCE_STATE')) {
       throw new Error(`${identity}: lifecycle guard/problem mapping drift`);
@@ -719,6 +744,10 @@ function validateContractClosure(records, components) {
         // accepted Prism candidate was generated from.
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck',
+        // SCHEMA-3.13.0: the YouTube Data API is read synchronously to check a
+        // channel description code, and GitHub to look up a handover target.
+        'postClaimsByTokenDescriptionCodeCheck',
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
@@ -1291,6 +1320,9 @@ export async function createOpenApiArtifacts() {
         // defaults are the ordinary case: an authenticated session, no action grant.
         assuranceClass: operation['x-gala-assurance-class'] ?? 'SESSION',
         actionGrant: operation['x-gala-action-grant'] ?? 'none',
+        // SCHEMA-3.13.0: the admin API key scope that admits the operation, or
+        // null when a key is always refused.
+        apiKeyScope: operation['x-gala-api-key-scope'] ?? null,
         sourceFragment,
       }),
     ),

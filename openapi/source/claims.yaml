@@ -1,0 +1,1317 @@
+paths:
+  /v2/claims/{token}:
+    get:
+      description: |
+        Needs a signed-in session; signed out is `401 AUTHENTICATION_REQUIRED` and reveals nothing. Returns the channel and site the link offers and the ways to prove the channel is the caller's. `404 CLAIM_NOT_FOUND` for an unknown or revoked link, `410 CLAIM_EXPIRED` once the demo is past its archive date. Rate limited per caller (`429 RATE_LIMITED`).
+      operationId: getClaimsByToken
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
+          in: path
+          name: token
+          required: true
+          schema:
+            description: 'Claim token: 32 random bytes as unpadded base64url.'
+            maxLength: 43
+            minLength: 43
+            pattern: ^[A-Za-z0-9_-]{43}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    channel:
+                      handle: '@mayacooks'
+                      name: Maya Cooks
+                    claimId: 018f0000-0000-7000-8000-000000000001
+                    methods:
+                      - GOOGLE
+                      - DESCRIPTION_CODE
+                    site:
+                      name: Maya Cooks
+                      url: https://rathnasdemo.github.io/maya-cooks/
+                    state: OPEN
+              schema:
+                $ref: '#/components/schemas/GetClaimsByTokenResponse'
+          description: read what a claim link offers succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_NOT_FOUND:
+                  summary: CLAIM_NOT_FOUND
+                  value:
+                    code: CLAIM_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: CLAIM_NOT_FOUND
+                    type: urn:gala:problem:claim-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_NOT_FOUND
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_EXPIRED:
+                  summary: CLAIM_EXPIRED
+                  value:
+                    code: CLAIM_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: CLAIM_EXPIRED
+                    type: urn:gala:problem:claim-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_EXPIRED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - browserSession: []
+      summary: read what a claim link offers
+      tags:
+        - claims
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: SESSION
+      x-gala-capability-key: claim.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read what a claim link offers
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CLAIM_EXPIRED
+        - CLAIM_NOT_FOUND
+        - RATE_LIMITED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/claims/{token}/description-code:
+    post:
+      description: |
+        Needs a signed-in session. Issues a one-time code to put in the YouTube channel description, valid 24 hours; a new request replaces an unexpired code. `404 CLAIM_NOT_FOUND`, `410 CLAIM_EXPIRED`, `409 CLAIM_ALREADY_CLAIMED`. Rate limited (`429 RATE_LIMITED`).
+      operationId: postClaimsByTokenDescriptionCode
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
+          in: path
+          name: token
+          required: true
+          schema:
+            description: 'Claim token: 32 random bytes as unpadded base64url.'
+            maxLength: 43
+            minLength: 43
+            pattern: ^[A-Za-z0-9_-]{43}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    code: galascribe-7K3M9Q2XAB
+                    expiresAt: '2026-10-17T12:00:00.000Z'
+              schema:
+                $ref: '#/components/schemas/PostClaimsByTokenDescriptionCodeResponse'
+          description: issue channel description code succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_NOT_FOUND:
+                  summary: CLAIM_NOT_FOUND
+                  value:
+                    code: CLAIM_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: CLAIM_NOT_FOUND
+                    type: urn:gala:problem:claim-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_ALREADY_CLAIMED:
+                  summary: CLAIM_ALREADY_CLAIMED
+                  value:
+                    code: CLAIM_ALREADY_CLAIMED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CLAIM_ALREADY_CLAIMED
+                    type: urn:gala:problem:claim-already-claimed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_ALREADY_CLAIMED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_ALREADY_CLAIMED
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_EXPIRED:
+                  summary: CLAIM_EXPIRED
+                  value:
+                    code: CLAIM_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: CLAIM_EXPIRED
+                    type: urn:gala:problem:claim-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_EXPIRED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - browserSession: []
+      summary: issue channel description code
+      tags:
+        - claims
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: SESSION
+      x-gala-capability-key: claim.verify
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: issue channel description code
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CLAIM_ALREADY_CLAIMED
+        - CLAIM_EXPIRED
+        - CLAIM_NOT_FOUND
+        - RATE_LIMITED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/claims/{token}/description-code:check:
+    post:
+      description: |
+        Needs a signed-in session. Reads the channel description through the YouTube Data API and, when it contains the issued code, marks the claim verified for this person and spends the code. A code that is not there yet is `200` with `verified: false` and a `reason`, not a problem. `503 DEPENDENCY_UNAVAILABLE` when YouTube cannot be reached. Rate limited (`429 RATE_LIMITED`).
+      operationId: postClaimsByTokenDescriptionCodeCheck
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
+          in: path
+          name: token
+          required: true
+          schema:
+            description: 'Claim token: 32 random bytes as unpadded base64url.'
+            maxLength: 43
+            minLength: 43
+            pattern: ^[A-Za-z0-9_-]{43}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    reason: CODE_NOT_FOUND_IN_DESCRIPTION
+                    verified: false
+              schema:
+                $ref: '#/components/schemas/PostClaimsByTokenDescriptionCodeCheckResponse'
+          description: check channel description code succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_NOT_FOUND:
+                  summary: CLAIM_NOT_FOUND
+                  value:
+                    code: CLAIM_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: CLAIM_NOT_FOUND
+                    type: urn:gala:problem:claim-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_ALREADY_CLAIMED:
+                  summary: CLAIM_ALREADY_CLAIMED
+                  value:
+                    code: CLAIM_ALREADY_CLAIMED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CLAIM_ALREADY_CLAIMED
+                    type: urn:gala:problem:claim-already-claimed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_ALREADY_CLAIMED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_ALREADY_CLAIMED
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_EXPIRED:
+                  summary: CLAIM_EXPIRED
+                  value:
+                    code: CLAIM_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: CLAIM_EXPIRED
+                    type: urn:gala:problem:claim-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_EXPIRED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        '503':
+          content:
+            application/problem+json:
+              examples:
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: check channel description code
+      tags:
+        - claims
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: SESSION
+      x-gala-capability-key: claim.verify
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: check channel description code
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CLAIM_ALREADY_CLAIMED
+        - CLAIM_EXPIRED
+        - CLAIM_NOT_FOUND
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/claims/{token}/google:start:
+    post:
+      description: |
+        Needs a signed-in session. Returns the Google authorize URL for one single-use, PKCE-protected transaction bound to this session; the callback is `GET /v2/callbacks/google/claim`. `404 CLAIM_NOT_FOUND`, `410 CLAIM_EXPIRED`, `409 CLAIM_ALREADY_CLAIMED` when the site was taken. Rate limited (`429 RATE_LIMITED`).
+      operationId: postClaimsByTokenGoogleStart
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
+          in: path
+          name: token
+          required: true
+          schema:
+            description: 'Claim token: 32 random bytes as unpadded base64url.'
+            maxLength: 43
+            minLength: 43
+            pattern: ^[A-Za-z0-9_-]{43}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    authorizeUrl: https://accounts.google.com/o/oauth2/v2/auth?client_id=example&state=example
+              schema:
+                $ref: '#/components/schemas/PostClaimsByTokenGoogleStartResponse'
+          description: start Google channel verification succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_NOT_FOUND:
+                  summary: CLAIM_NOT_FOUND
+                  value:
+                    code: CLAIM_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: CLAIM_NOT_FOUND
+                    type: urn:gala:problem:claim-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_ALREADY_CLAIMED:
+                  summary: CLAIM_ALREADY_CLAIMED
+                  value:
+                    code: CLAIM_ALREADY_CLAIMED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CLAIM_ALREADY_CLAIMED
+                    type: urn:gala:problem:claim-already-claimed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_ALREADY_CLAIMED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_ALREADY_CLAIMED
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_EXPIRED:
+                  summary: CLAIM_EXPIRED
+                  value:
+                    code: CLAIM_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: CLAIM_EXPIRED
+                    type: urn:gala:problem:claim-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_EXPIRED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - browserSession: []
+      summary: start Google channel verification
+      tags:
+        - claims
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: SESSION
+      x-gala-capability-key: claim.verify
+      x-gala-concurrency: single-use-transaction
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: start Google channel verification
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CLAIM_ALREADY_CLAIMED
+        - CLAIM_EXPIRED
+        - CLAIM_NOT_FOUND
+        - RATE_LIMITED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: oauth-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/claims/{token}:accept:
+    post:
+      description: |
+        Needs recent authentication. Requires the claim to be verified by this same person (`409 CLAIM_NOT_VERIFIED` otherwise), then makes the caller the owner of the demo organisation. Repeating the call after success returns the same organisation. `409 CLAIM_ALREADY_CLAIMED` when another person claimed it; `410 CLAIM_EXPIRED`. An API key is always refused.
+      operationId: postClaimsByTokenAccept
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
+          in: path
+          name: token
+          required: true
+          schema:
+            description: 'Claim token: 32 random bytes as unpadded base64url.'
+            maxLength: 43
+            minLength: 43
+            pattern: ^[A-Za-z0-9_-]{43}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    organizationId: 018f0000-0000-7000-8000-000000000001
+              schema:
+                $ref: '#/components/schemas/PostClaimsByTokenAcceptResponse'
+          description: accept claim and take ownership succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_NOT_FOUND:
+                  summary: CLAIM_NOT_FOUND
+                  value:
+                    code: CLAIM_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: CLAIM_NOT_FOUND
+                    type: urn:gala:problem:claim-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_ALREADY_CLAIMED:
+                  summary: CLAIM_ALREADY_CLAIMED
+                  value:
+                    code: CLAIM_ALREADY_CLAIMED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CLAIM_ALREADY_CLAIMED
+                    type: urn:gala:problem:claim-already-claimed
+                CLAIM_NOT_VERIFIED:
+                  summary: CLAIM_NOT_VERIFIED
+                  value:
+                    code: CLAIM_NOT_VERIFIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CLAIM_NOT_VERIFIED
+                    type: urn:gala:problem:claim-not-verified
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_ALREADY_CLAIMED, CLAIM_NOT_VERIFIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_ALREADY_CLAIMED
+            - CLAIM_NOT_VERIFIED
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                CLAIM_EXPIRED:
+                  summary: CLAIM_EXPIRED
+                  value:
+                    code: CLAIM_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: CLAIM_EXPIRED
+                    type: urn:gala:problem:claim-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CLAIM_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CLAIM_EXPIRED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - browserSession: []
+      summary: accept claim and take ownership
+      tags:
+        - claims
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: RECENT_AUTHENTICATION
+      x-gala-capability-key: claim.accept
+      x-gala-concurrency: organization-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: accept claim and take ownership
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CLAIM_ALREADY_CLAIMED
+        - CLAIM_EXPIRED
+        - CLAIM_NOT_FOUND
+        - CLAIM_NOT_VERIFIED
+        - RATE_LIMITED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE

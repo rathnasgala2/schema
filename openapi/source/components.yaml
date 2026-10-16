@@ -12432,7 +12432,780 @@ components:
         - expiresAt
         - state
       type: object
+    CreatorClaimMethod:
+      enum:
+        - GOOGLE
+        - DESCRIPTION_CODE
+      type: string
+    CreatorClaimState:
+      enum:
+        - OPEN
+        - VERIFIED
+        - CLAIMED
+        - REVOKED
+        - EXPIRED
+      type: string
+    DemoSiteAuthor:
+      additionalProperties: false
+      description:
+        The site author, written to `gala/authors/*.json` by the set-up
+        personalizer; nothing edits it afterwards.
+      properties:
+        biography:
+          maxLength: 2000
+          minLength: 0
+          type: string
+        displayName:
+          maxLength: 120
+          minLength: 1
+          type: string
+      required:
+        - displayName
+        - biography
+      type: object
+    DemoSiteChannel:
+      additionalProperties: false
+      properties:
+        handle:
+          maxLength: 31
+          minLength: 4
+          pattern: ^@[A-Za-z0-9._-]{3,30}$
+          type: string
+        id:
+          $ref: '#/components/schemas/YoutubeChannelId'
+        name:
+          maxLength: 200
+          minLength: 1
+          type: string
+        url:
+          format: uri
+          maxLength: 300
+          pattern: ^https://[^\s]+$
+          type: string
+      required:
+        - id
+        - handle
+        - name
+        - url
+      type: object
+    DemoSiteState:
+      enum:
+        - PENDING
+        - RUNNING
+        - DONE
+        - FAILED
+      type: string
+    DemoSiteStep:
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/DemoSiteStepName'
+        problem:
+          description:
+            Problem code of the failure; present only when `state` is `FAILED`.
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+          type: string
+        state:
+          $ref: '#/components/schemas/DemoSiteState'
+      required:
+        - name
+        - state
+      type: object
+    DemoSiteStepName:
+      enum:
+        - ORGANIZATION
+        - PUBLICATION
+        - REPOSITORY
+        - SET_UP_AND_PUBLISH
+        - INTERACTIONS
+        - DEMO_RECORD
+        - CLAIM
+      type: string
+    DemoSlug:
+      description:
+        'The demo site slug: the repository name under the demo organisation and
+        the site path. Lowercase letters, digits and single hyphens.'
+      maxLength: 40
+      minLength: 3
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+      type: string
+    GetClaimsByTokenResponse:
+      additionalProperties: false
+      properties:
+        channel:
+          additionalProperties: false
+          properties:
+            handle:
+              maxLength: 31
+              minLength: 4
+              pattern: ^@[A-Za-z0-9._-]{3,30}$
+              type: string
+            name:
+              maxLength: 200
+              minLength: 1
+              type: string
+          required:
+            - handle
+            - name
+          type: object
+        claimId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        methods:
+          items:
+            $ref: '#/components/schemas/CreatorClaimMethod'
+          maxItems: 2
+          minItems: 1
+          type: array
+          uniqueItems: true
+        site:
+          additionalProperties: false
+          properties:
+            name:
+              maxLength: 120
+              minLength: 1
+              type: string
+            url:
+              format: uri
+              maxLength: 2048
+              pattern: ^https://[^\s]+$
+              type: string
+          required:
+            - name
+            - url
+          type: object
+        state:
+          $ref: '#/components/schemas/CreatorClaimState'
+      required:
+        - claimId
+        - state
+        - channel
+        - site
+        - methods
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse:
+      additionalProperties: false
+      properties:
+        appInstalledOnTarget:
+          type: boolean
+        failureCode:
+          description: Present only when `state` is `FAILED`.
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+          type: string
+        siteUrlAfter:
+          format: uri
+          maxLength: 2048
+          pattern: ^https://[^\s]+$
+          type: string
+        state:
+          $ref: '#/components/schemas/HandoverState'
+        steps:
+          items:
+            $ref: '#/components/schemas/HandoverStep'
+          maxItems: 10
+          type: array
+        target:
+          additionalProperties: false
+          properties:
+            kind:
+              enum:
+                - USER
+                - ORGANIZATION
+              type: string
+            ownerLogin:
+              description:
+                'GitHub login grammar: letters, digits and single hyphens, not
+                starting or ending with a hyphen.'
+              maxLength: 39
+              minLength: 1
+              pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+              type: string
+          required:
+            - ownerLogin
+            - kind
+          type: object
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - state
+        - target
+        - appInstalledOnTarget
+        - steps
+        - siteUrlAfter
+        - version
+      type: object
+    GetPlatformApiKeysResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformApiKey'
+          maxItems: 500
+          type: array
+      required:
+        - items
+      type: object
+    GetPlatformDemoSitesByPublicationIdResponse:
+      additionalProperties: false
+      properties:
+        repositoryFullName:
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9-]{1,39}/[A-Za-z0-9._-]{1,100}$
+          type: string
+        siteUrl:
+          format: uri
+          maxLength: 2048
+          pattern: ^https://[^\s]+$
+          type: string
+        state:
+          $ref: '#/components/schemas/DemoSiteState'
+        steps:
+          items:
+            $ref: '#/components/schemas/DemoSiteStep'
+          maxItems: 10
+          type: array
+      required:
+        - state
+        - steps
+        - siteUrl
+        - repositoryFullName
+      type: object
+    GetPlatformDemoSitesPreflightResponse:
+      additionalProperties: false
+      properties:
+        githubLinkUsable:
+          type: boolean
+        installation:
+          oneOf:
+            - additionalProperties: false
+              properties:
+                login:
+                  description:
+                    'GitHub login grammar: letters, digits and single hyphens,
+                    not starting or ending with a hyphen.'
+                  maxLength: 39
+                  minLength: 1
+                  pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+                  type: string
+                providerInstallationId:
+                  format: int64
+                  minimum: 1
+                  type: integer
+              required:
+                - login
+                - providerInstallationId
+              type: object
+            - type: 'null'
+        problems:
+          items:
+            maxLength: 80
+            minLength: 1
+            pattern: ^[A-Z][A-Z0-9_]{0,79}$
+            type: string
+          maxItems: 20
+          type: array
+      required:
+        - githubLinkUsable
+        - installation
+        - problems
+      type: object
+    GetPlatformSettingsByKeyResponse:
+      $ref: '#/components/schemas/PlatformSetting'
+    GetPlatformSettingsOverridesByKindByIdByKeyResponse:
+      $ref: '#/components/schemas/PlatformSettingOverride'
+    HandoverState:
+      enum:
+        - REQUESTED
+        - TRANSFER_STARTED
+        - AWAITING_ACCEPT
+        - TRANSFERRED
+        - RELINKED
+        - PUBLISHING
+        - DONE
+        - FAILED
+        - CANCELLED
+      type: string
+    HandoverStep:
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/HandoverStepName'
+        problem:
+          description:
+            Problem code of the failure; present only when `state` is `FAILED`.
+          maxLength: 80
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+          type: string
+        state:
+          $ref: '#/components/schemas/DemoSiteState'
+      required:
+        - name
+        - state
+      type: object
+    HandoverStepName:
+      enum:
+        - FINALIZE_CHANGE
+        - TRANSFER
+        - RELINK
+        - PAGES
+        - PUBLISH
+      type: string
+    PlatformApiKey:
+      additionalProperties: false
+      description:
+        One admin API key as listed. The secret is never returned again after
+        creation.
+      properties:
+        apiKeyId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        createdBy:
+          description: The operator the key acts as.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        lastUsedAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        prefix:
+          $ref: '#/components/schemas/PlatformApiKeyPrefix'
+        revokedAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        scopes:
+          items:
+            $ref: '#/components/schemas/PlatformApiKeyScope'
+          maxItems: 4
+          minItems: 1
+          type: array
+          uniqueItems: true
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - apiKeyId
+        - name
+        - scopes
+        - prefix
+        - createdBy
+        - createdAt
+        - expiresAt
+        - lastUsedAt
+        - revokedAt
+        - version
+      type: object
+    PlatformApiKeyPrefix:
+      description:
+        Eight Crockford base32 characters; unique, shown in lists and in the key
+        itself.
+      maxLength: 8
+      minLength: 8
+      pattern: ^[0-9A-HJKMNP-TV-Z]{8}$
+      type: string
+    PlatformApiKeyScope:
+      description:
+        What an admin API key may do. Each scope names a closed set of
+        operations through `x-gala-api-key-scope`; an operation without that
+        extension is never callable with a key.
+      enum:
+        - read
+        - demo:setup
+        - content:write
+        - publish
+      type: string
+    PlatformSetting:
+      additionalProperties: false
+      description:
+        'An app-wide setting: the active release value, or the default when none
+        is released.'
+      properties:
+        allowedValues:
+          description:
+            The allowlist for a string setting; absent for an integer setting.
+          items:
+            maxLength: 128
+            minLength: 1
+            type: string
+          maxItems: 100
+          type: array
+        defaultValue:
+          $ref: '#/components/schemas/PlatformSettingValue'
+        key:
+          $ref: '#/components/schemas/PlatformSettingKey'
+        maximum:
+          description: Inclusive upper bound of an integer setting.
+          format: int64
+          type: integer
+        minimum:
+          description: Inclusive lower bound of an integer setting.
+          format: int64
+          type: integer
+        updatedAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        value:
+          $ref: '#/components/schemas/PlatformSettingValue'
+        valueType:
+          enum:
+            - INTEGER
+            - STRING
+          type: string
+        version:
+          description:
+            'The release version: send it back in `If-Match` as `"<version>"`.'
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - key
+        - valueType
+        - value
+        - defaultValue
+        - version
+        - updatedAt
+      type: object
+    PlatformSettingKey:
+      description:
+        A setting key such as `youtube.monthlyImportLimit` or
+        `article.generationModel`. The server answers `404 SETTING_UNKNOWN` for
+        a key it does not define.
+      maxLength: 64
+      minLength: 3
+      pattern: ^[a-z][A-Za-z0-9]*(?:\.[A-Za-z0-9]+){1,3}$
+      type: string
+    PlatformSettingOverride:
+      additionalProperties: false
+      description: A per-person or per-organisation override of one setting.
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        key:
+          $ref: '#/components/schemas/PlatformSettingKey'
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+        subjectId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        subjectKind:
+          $ref: '#/components/schemas/PlatformSettingOverrideKind'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        updatedByPersonId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        value:
+          $ref: '#/components/schemas/PlatformSettingValue'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - subjectKind
+        - subjectId
+        - key
+        - value
+        - reason
+        - updatedByPersonId
+        - createdAt
+        - updatedAt
+        - version
+      type: object
+    PlatformSettingOverrideKind:
+      description: Whom an override applies to.
+      enum:
+        - PERSON
+        - ORGANIZATION
+      type: string
+    PlatformSettingValue:
+      description:
+        'A setting value: an integer or a short string, as the key defines.'
+      oneOf:
+        - format: int64
+          type: integer
+        - maxLength: 128
+          minLength: 1
+          type: string
+    PostClaimsByTokenAcceptResponse:
+      additionalProperties: false
+      properties:
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - organizationId
+      type: object
+    PostClaimsByTokenDescriptionCodeCheckResponse:
+      additionalProperties: false
+      properties:
+        reason:
+          description:
+            Why the check did not verify; absent when `verified` is true.
+          enum:
+            - CODE_NOT_FOUND_IN_DESCRIPTION
+            - CODE_EXPIRED
+            - NO_CODE_ISSUED
+            - CHANNEL_MISMATCH
+          type: string
+        verified:
+          type: boolean
+      required:
+        - verified
+      type: object
+    PostClaimsByTokenDescriptionCodeResponse:
+      additionalProperties: false
+      properties:
+        code:
+          description:
+            'One-time code to place in the channel description: `galascribe-`
+            and ten Crockford base32 characters.'
+          maxLength: 21
+          minLength: 21
+          pattern: ^galascribe-[0-9A-HJKMNP-TV-Z]{10}$
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - code
+        - expiresAt
+      type: object
+    PostClaimsByTokenGoogleStartResponse:
+      additionalProperties: false
+      properties:
+        authorizeUrl:
+          format: uri
+          maxLength: 2048
+          pattern: ^https://[^\s]+$
+          type: string
+      required:
+        - authorizeUrl
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverCancelResponse:
+      $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverRequest:
+      additionalProperties: false
+      properties:
+        targetOwnerLogin:
+          description:
+            'GitHub login grammar: letters, digits and single hyphens, not
+            starting or ending with a hyphen.'
+          maxLength: 39
+          minLength: 1
+          pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+          type: string
+      required:
+        - targetOwnerLogin
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse:
+      $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse'
+    PostPlatformApiKeysByApiKeyIdRevokeResponse:
+      $ref: '#/components/schemas/PlatformApiKey'
+    PostPlatformApiKeysRequest:
+      additionalProperties: false
+      properties:
+        expiresInDays:
+          default: 90
+          description: Days until the key expires; at most 365.
+          maximum: 365
+          minimum: 1
+          type: integer
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        scopes:
+          items:
+            $ref: '#/components/schemas/PlatformApiKeyScope'
+          maxItems: 4
+          minItems: 1
+          type: array
+          uniqueItems: true
+      required:
+        - name
+        - scopes
+      type: object
+    PostPlatformApiKeysResponse:
+      additionalProperties: false
+      properties:
+        apiKeyId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        prefix:
+          $ref: '#/components/schemas/PlatformApiKeyPrefix'
+        scopes:
+          items:
+            $ref: '#/components/schemas/PlatformApiKeyScope'
+          maxItems: 4
+          minItems: 1
+          type: array
+          uniqueItems: true
+        secret:
+          description:
+            'The whole key, `gk_<prefix>_<secret>` (secret: 32 random bytes as
+            unpadded base64url). Appears only in this response.'
+          maxLength: 55
+          minLength: 55
+          pattern: ^gk_[0-9A-HJKMNP-TV-Z]{8}_[A-Za-z0-9_-]{43}$
+          type: string
+      required:
+        - apiKeyId
+        - name
+        - scopes
+        - prefix
+        - createdAt
+        - expiresAt
+        - secret
+      type: object
+    PostPlatformDemoSitesRequest:
+      additionalProperties: false
+      properties:
+        author:
+          $ref: '#/components/schemas/DemoSiteAuthor'
+        channel:
+          $ref: '#/components/schemas/DemoSiteChannel'
+        description:
+          description:
+            The publication description (the site tagline shown in the preview
+            notice).
+          maxLength: 300
+          minLength: 0
+          type: string
+        installationLogin:
+          default: rathnasdemo
+          description:
+            'GitHub login grammar: letters, digits and single hyphens, not
+            starting or ending with a hyphen.'
+          maxLength: 39
+          minLength: 1
+          pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+          type: string
+        organizationName:
+          maxLength: 120
+          minLength: 1
+          type: string
+        siteName:
+          maxLength: 120
+          minLength: 1
+          type: string
+        slug:
+          $ref: '#/components/schemas/DemoSlug'
+      required:
+        - slug
+        - siteName
+        - organizationName
+        - channel
+        - author
+      type: object
+    PostPlatformDemoSitesResponse:
+      additionalProperties: false
+      properties:
+        claimUrl:
+          description: The creator claim link. Appears only in this response.
+          format: uri
+          maxLength: 2048
+          pattern: ^https://[^\s]+$
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        repositoryFullName:
+          maxLength: 140
+          minLength: 3
+          pattern: ^[A-Za-z0-9-]{1,39}/[A-Za-z0-9._-]{1,100}$
+          type: string
+        siteUrl:
+          format: uri
+          maxLength: 2048
+          pattern: ^https://[^\s]+$
+          type: string
+        state:
+          $ref: '#/components/schemas/DemoSiteState'
+      required:
+        - organizationId
+        - publicationId
+        - repositoryFullName
+        - siteUrl
+        - claimUrl
+        - state
+      type: object
+    PutPlatformSettingsByKeyRequest:
+      additionalProperties: false
+      properties:
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+        value:
+          $ref: '#/components/schemas/PlatformSettingValue'
+      required:
+        - value
+        - reason
+      type: object
+    PutPlatformSettingsByKeyResponse:
+      $ref: '#/components/schemas/PlatformSetting'
+    PutPlatformSettingsOverridesByKindByIdByKeyRequest:
+      additionalProperties: false
+      properties:
+        reason:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+        value:
+          $ref: '#/components/schemas/PlatformSettingValue'
+      required:
+        - value
+        - reason
+      type: object
+    PutPlatformSettingsOverridesByKindByIdByKeyResponse:
+      $ref: '#/components/schemas/PlatformSettingOverride'
+    YoutubeChannelId:
+      description: 'A YouTube channel id: `UC` and 22 base64url characters.'
+      maxLength: 24
+      minLength: 24
+      pattern: ^UC[A-Za-z0-9_-]{22}$
+      type: string
   securitySchemes:
+    adminApiKey:
+      bearerFormat: Admin API key (gk_<prefix>_<secret>)
+      description:
+        Scoped credential an operator creates; acts as that operator within its
+        scopes. Refused for every operation without `x-gala-api-key-scope`.
+      scheme: bearer
+      type: http
     readerBearer:
       bearerFormat: Opaque publication-scoped reader token
       scheme: bearer

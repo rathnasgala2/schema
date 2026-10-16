@@ -203,6 +203,7 @@ paths:
             - DEPENDENCY_UNAVAILABLE
       security:
         - browserSession: []
+        - adminApiKey: []
       summary:
         read this publication's reader interaction settings at the main branch
         head
@@ -212,6 +213,7 @@ paths:
       x-gala-activation-guards:
         - Active repository binding and configured GitHub App identity
           capability
+      x-gala-api-key-scope: read
       x-gala-capability-key: publication.view
       x-gala-concurrency: binding-epoch
       x-gala-conditional-capabilities: []
@@ -541,6 +543,7 @@ paths:
             - CAPABILITY_UNAVAILABLE
       security:
         - browserSession: []
+        - adminApiKey: []
       summary:
         save this publication's reader interaction settings as a repository
         change
@@ -550,6 +553,7 @@ paths:
       x-gala-activation-guards:
         - Active repository binding and configured GitHub App identity
           capability
+      x-gala-api-key-scope: content:write
       x-gala-capability-key: publication.source.write
       x-gala-concurrency: expected-git-head-and-binding-epoch
       x-gala-conditional-capabilities: []

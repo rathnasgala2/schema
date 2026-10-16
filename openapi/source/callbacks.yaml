@@ -410,3 +410,83 @@ paths:
         - NONE
       x-gala-success-category: oauth-callback
       x-gala-tenant-scope: NONE
+  /v2/callbacks/google/claim:
+    get:
+      description: |
+        The address Google sends the person back to after the consent screen. It never answers with a problem document for what the provider sends: every outcome is a `303` to the App at `/claim/<token>?outcome=verified|channel_mismatch|denied|error` (to `/claim` with `outcome=error` when the transaction cannot be identified). `code`, `state`, `error`, `scope` and `iss` are never logged or echoed. Only a value longer than its limit is refused as `400 VALIDATION_FAILED`, before any transaction is touched.
+      operationId: getCallbacksGoogleClaim
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: example
+          in: query
+          name: code
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: state
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: error
+          required: false
+          schema:
+            maxLength: 512
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: iss
+          required: false
+          schema:
+            maxLength: 2048
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: scope
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+      responses:
+        '303':
+          description:
+            consume the exact Google claim callback transaction succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+      security: []
+      summary: consume the exact Google claim callback transaction
+      tags:
+        - callbacks
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: single-use-transaction
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: consume the exact Google claim callback transaction
+      x-gala-reachable-problems:
+        - VALIDATION_FAILED
+      x-gala-replay-identity: oauth-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: oauth-callback
+      x-gala-tenant-scope: NONE

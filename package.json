@@ -1,6 +1,6 @@
 {
   "name": "@rathnasgala2/schemas",
-  "version": "3.12.0",
+  "version": "3.13.0",
   "description": "Executable JSON Schema and OpenAPI contracts for Galascribe",
   "type": "module",
   "license": "Apache-2.0",
@@ -121,7 +121,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run schemas:shared-defs:check && npm run compatibility:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run events:check && npm run codegen:check && npm run app-catalogs:check && npm run browser-safety:check",
+    "build": "npm run source-data:check && npm run tables:check && npm run schemas:check && npm run schemas:shared-defs:check && npm run compatibility:check && npm run fixtures:check && npm run diagnostics:check && npm run parity-expectations:check && npm run declarations:check && npm run openapi:check && npm run api-key-scopes:check && npm run events:check && npm run codegen:check && npm run app-catalogs:check && npm run browser-safety:check",
     "schemas:generate": "node scripts/generate-author-source-schemas.mjs",
     "schemas:check": "node scripts/generate-author-source-schemas.mjs --check",
     "schemas:shared-defs:check": "node scripts/check-shared-defs.mjs",
@@ -145,6 +145,7 @@
     "codegen:check": "npm run codegen:compile && node .build/codegen/generate-contracts.js --check",
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/generate-openapi.mjs --check",
+    "api-key-scopes:check": "node scripts/check-api-key-scopes.mjs",
     "events:generate": "node scripts/generate-internal-event-actions.mjs",
     "events:check": "node scripts/generate-internal-event-actions.mjs --check",
     "app-catalogs:generate": "node scripts/generate-app-catalogs.mjs",
