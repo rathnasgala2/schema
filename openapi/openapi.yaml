@@ -2171,6 +2171,16 @@ components:
           minItems: 1
           type: array
           uniqueItems: true
+        organizationId:
+          description: Present only when `state` is `CLAIMED` and the caller is the person who claimed it.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          description: Present only when `state` is `CLAIMED` and the caller is the person who claimed it.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
         site:
           additionalProperties: false
           properties:
@@ -3122,6 +3132,7 @@ components:
       additionalProperties: false
       properties:
         appInstalledOnTarget:
+          description: Absent when `state` is `NOT_STARTED`.
           type: boolean
         failureCode:
           description: Present only when `state` is `FAILED`.
@@ -3130,6 +3141,7 @@ components:
           pattern: ^[A-Z][A-Z0-9_]{0,79}$
           type: string
         siteUrlAfter:
+          description: Absent when `state` is `NOT_STARTED`.
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$
@@ -3143,6 +3155,7 @@ components:
           type: array
         target:
           additionalProperties: false
+          description: Absent when `state` is `NOT_STARTED`.
           properties:
             kind:
               enum:
@@ -3165,10 +3178,7 @@ components:
           type: integer
       required:
         - state
-        - target
-        - appInstalledOnTarget
         - steps
-        - siteUrlAfter
         - version
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdHistoryResponse:
@@ -4810,6 +4820,7 @@ components:
       type: string
     HandoverState:
       enum:
+        - NOT_STARTED
         - REQUESTED
         - TRANSFER_STARTED
         - AWAITING_ACCEPT
@@ -13929,8 +13940,13 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
       required:
         - organizationId
+        - publicationId
       type: object
     PostClaimsByTokenDescriptionCodeCheckResponse:
       additionalProperties: false
@@ -15629,7 +15645,7 @@ components:
       additionalProperties: false
       properties:
         claimUrl:
-          description: The creator claim link. Appears only in this response.
+          description: "Present only in the response that issued the claim link, or re-issued it while the claim is still OPEN. Save it then: it is never shown again."
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$
@@ -15654,13 +15670,18 @@ components:
           type: string
         state:
           $ref: "#/components/schemas/DemoSiteState"
+        steps:
+          items:
+            $ref: "#/components/schemas/DemoSiteStep"
+          maxItems: 10
+          type: array
       required:
         - organizationId
         - publicationId
         - repositoryFullName
         - siteUrl
-        - claimUrl
         - state
+        - steps
       type: object
     PostPlatformOauthClientsByOauthClientIdRevokeRequest:
       additionalProperties: false
@@ -21040,6 +21061,7 @@ paths:
                   summary: Nominal successful response
                   value:
                     organizationId: 018f0000-0000-7000-8000-000000000001
+                    publicationId: 018f0000-0000-7000-8000-000000000001
               schema:
                 $ref: "#/components/schemas/PostClaimsByTokenAcceptResponse"
           description: accept claim and take ownership succeeded
@@ -38390,7 +38412,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/handover:
     get:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Reports the handover of a demo site into the creator's own GitHub account: its state, the target, whether the Galascribe App is installed on the target, each step and the address the site will have. `404 RESOURCE_NOT_FOUND` when no handover was started.
+        The organisation owner, with recent authentication; an API key is always refused. Reports the handover of a demo site into the creator's own GitHub account: its state, the target, whether the Galascribe App is installed on the target, each step and the address the site will have. `200` with `state: NOT_STARTED` (empty `steps`, `version` 0, no `target`, `appInstalledOnTarget` or `siteUrlAfter`) for a demo publication (one with a demo-site record) that has no handover yet; `200` with the latest handover otherwise, including `DONE`, `FAILED` and `CANCELLED`; `404 RESOURCE_NOT_FOUND` only for a publication that is not a demo publication.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -38436,6 +38458,12 @@ paths:
                       kind: ORGANIZATION
                       ownerLogin: creator-org
                     version: 1
+                notStarted:
+                  summary: Demo publication with no handover yet
+                  value:
+                    state: NOT_STARTED
+                    steps: []
+                    version: 0
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse"
           description: read publication handover succeeded
@@ -38595,7 +38623,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     post:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Moves a demo site's repository into `targetOwnerLogin` (a person or an organisation where the Galascribe App is installed): plans and confirms the finalize change in the caller's session, then starts the GitHub transfer. `202` accepts; `GET` reports progress. `409 HANDOVER_EXISTS` while one is live, `409 HANDOVER_TARGET_NOT_INSTALLED` when the App is not installed on the target, `503 DEPENDENCY_UNAVAILABLE` when GitHub cannot be reached. `404 RESOURCE_NOT_FOUND` when the publication is not a demo site.
+        The organisation owner, with recent authentication; an API key is always refused. Moves a demo site's repository into `targetOwnerLogin` (a person or an organisation where the Galascribe App is installed): plans and confirms the finalize change in the caller's session, then starts the GitHub transfer. `202` accepts; `GET` reports progress. `409 HANDOVER_EXISTS` while one is live, `409 HANDOVER_TARGET_NOT_INSTALLED` when the App is not installed on the target, `503 DEPENDENCY_UNAVAILABLE` when GitHub cannot be reached. `404 RESOURCE_NOT_FOUND` when the publication is not a demo site. The response never carries `state: NOT_STARTED`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -51826,7 +51854,7 @@ paths:
   /v2/platform/demo-sites:
     post:
       description: |
-        Operators only. Starts the resumable set-up of a demo site: a single-person organisation owned by the operator, the publication, the repository `<installationLogin>/<slug>` from the template, bind, set-up and first publish, likes and comments on, the demo record and a creator claim. `author` is written by the set-up personalizer and is the only chance to set it, because no API edits `gala/authors/*.json` afterwards. `description` is the publication description (the site tagline in the preview notice). `202` returns the identifiers and the claim link, which appears only in this response; `GET .../demo-sites/{publicationId}` reports progress. `409 DEMO_SLUG_TAKEN` for a slug in use or ever transferred out; `409 GITHUB_LINK_UNUSABLE` when the operator's GitHub link cannot create the repository.
+        Operators only. Starts the resumable set-up of a demo site: a single-person organisation owned by the operator, the publication, the repository `<installationLogin>/<slug>` from the template, bind, set-up and first publish, likes and comments on, the demo record and a creator claim. `author` is written by the set-up personalizer and is the only chance to set it, because no API edits `gala/authors/*.json` afterwards. `description` is the publication description (the site tagline in the preview notice). `GET .../demo-sites/{publicationId}` reports progress. Each call advances the set-up for at most about 45 seconds and returns 202 with the current `state` and steps. While `state` is `PENDING` or `RUNNING`, call again with the same body (any Idempotency-Key) to continue. The set-up resumes where it stopped. `DONE` and `FAILED` are final for that call. A later call with the same body retries a FAILED step. If a call reaches a finished site whose claim is still OPEN, it revokes that link and issues a new one in `claimUrl`; the old link stops working. Once the claim is VERIFIED or CLAIMED, the call returns `DONE` without `claimUrl`. `409 DEMO_SLUG_TAKEN` for a slug in use or ever transferred out; `409 GITHUB_LINK_UNUSABLE` when the operator's GitHub link cannot create the repository.
       operationId: postPlatformDemoSites
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -51869,6 +51897,9 @@ paths:
                     repositoryFullName: rathnasdemo/maya-cooks
                     siteUrl: https://rathnasdemo.github.io/maya-cooks/
                     state: PENDING
+                    steps:
+                      - name: ORGANIZATION
+                        state: RUNNING
               schema:
                 $ref: "#/components/schemas/PostPlatformDemoSitesResponse"
           description: set up demo site succeeded

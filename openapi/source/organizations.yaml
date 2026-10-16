@@ -19839,7 +19839,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/handover:
     get:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Reports the handover of a demo site into the creator's own GitHub account: its state, the target, whether the Galascribe App is installed on the target, each step and the address the site will have. `404 RESOURCE_NOT_FOUND` when no handover was started.
+        The organisation owner, with recent authentication; an API key is always refused. Reports the handover of a demo site into the creator's own GitHub account: its state, the target, whether the Galascribe App is installed on the target, each step and the address the site will have. `200` with `state: NOT_STARTED` (empty `steps`, `version` 0, no `target`, `appInstalledOnTarget` or `siteUrlAfter`) for a demo publication (one with a demo-site record) that has no handover yet; `200` with the latest handover otherwise, including `DONE`, `FAILED` and `CANCELLED`; `404 RESOURCE_NOT_FOUND` only for a publication that is not a demo publication.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -19885,6 +19885,12 @@ paths:
                       kind: ORGANIZATION
                       ownerLogin: creator-org
                     version: 1
+                notStarted:
+                  summary: Demo publication with no handover yet
+                  value:
+                    state: NOT_STARTED
+                    steps: []
+                    version: 0
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse'
           description: read publication handover succeeded
@@ -20044,7 +20050,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     post:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Moves a demo site's repository into `targetOwnerLogin` (a person or an organisation where the Galascribe App is installed): plans and confirms the finalize change in the caller's session, then starts the GitHub transfer. `202` accepts; `GET` reports progress. `409 HANDOVER_EXISTS` while one is live, `409 HANDOVER_TARGET_NOT_INSTALLED` when the App is not installed on the target, `503 DEPENDENCY_UNAVAILABLE` when GitHub cannot be reached. `404 RESOURCE_NOT_FOUND` when the publication is not a demo site.
+        The organisation owner, with recent authentication; an API key is always refused. Moves a demo site's repository into `targetOwnerLogin` (a person or an organisation where the Galascribe App is installed): plans and confirms the finalize change in the caller's session, then starts the GitHub transfer. `202` accepts; `GET` reports progress. `409 HANDOVER_EXISTS` while one is live, `409 HANDOVER_TARGET_NOT_INSTALLED` when the App is not installed on the target, `503 DEPENDENCY_UNAVAILABLE` when GitHub cannot be reached. `404 RESOURCE_NOT_FOUND` when the publication is not a demo site. The response never carries `state: NOT_STARTED`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

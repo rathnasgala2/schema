@@ -12550,6 +12550,13 @@ components:
             - handle
             - name
           type: object
+        organizationId:
+          description:
+            Present only when `state` is `CLAIMED` and the caller is the person
+            who claimed it.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
         claimId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -12561,6 +12568,13 @@ components:
           minItems: 1
           type: array
           uniqueItems: true
+        publicationId:
+          description:
+            Present only when `state` is `CLAIMED` and the caller is the person
+            who claimed it.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
         site:
           additionalProperties: false
           properties:
@@ -12590,6 +12604,7 @@ components:
       additionalProperties: false
       properties:
         appInstalledOnTarget:
+          description: Absent when `state` is `NOT_STARTED`.
           type: boolean
         failureCode:
           description: Present only when `state` is `FAILED`.
@@ -12598,6 +12613,7 @@ components:
           pattern: ^[A-Z][A-Z0-9_]{0,79}$
           type: string
         siteUrlAfter:
+          description: Absent when `state` is `NOT_STARTED`.
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$
@@ -12611,6 +12627,7 @@ components:
           type: array
         target:
           additionalProperties: false
+          description: Absent when `state` is `NOT_STARTED`.
           properties:
             kind:
               enum:
@@ -12635,10 +12652,7 @@ components:
           type: integer
       required:
         - state
-        - target
-        - appInstalledOnTarget
         - steps
-        - siteUrlAfter
         - version
       type: object
     GetPlatformApiKeysResponse:
@@ -12723,6 +12737,7 @@ components:
       $ref: '#/components/schemas/PlatformSettingOverride'
     HandoverState:
       enum:
+        - NOT_STARTED
         - REQUESTED
         - TRANSFER_STARTED
         - AWAITING_ACCEPT
@@ -12956,8 +12971,13 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
       required:
         - organizationId
+        - publicationId
       type: object
     PostClaimsByTokenDescriptionCodeCheckResponse:
       additionalProperties: false
@@ -13133,7 +13153,10 @@ components:
       additionalProperties: false
       properties:
         claimUrl:
-          description: The creator claim link. Appears only in this response.
+          description:
+            'Present only in the response that issued the claim link, or
+            re-issued it while the claim is still OPEN. Save it then: it is
+            never shown again.'
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$
@@ -13158,13 +13181,18 @@ components:
           type: string
         state:
           $ref: '#/components/schemas/DemoSiteState'
+        steps:
+          items:
+            $ref: '#/components/schemas/DemoSiteStep'
+          maxItems: 10
+          type: array
       required:
         - organizationId
         - publicationId
         - repositoryFullName
         - siteUrl
-        - claimUrl
         - state
+        - steps
       type: object
     PutPlatformSettingsByKeyRequest:
       additionalProperties: false

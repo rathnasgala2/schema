@@ -2413,7 +2413,7 @@ paths:
   /v2/platform/demo-sites:
     post:
       description: |
-        Operators only. Starts the resumable set-up of a demo site: a single-person organisation owned by the operator, the publication, the repository `<installationLogin>/<slug>` from the template, bind, set-up and first publish, likes and comments on, the demo record and a creator claim. `author` is written by the set-up personalizer and is the only chance to set it, because no API edits `gala/authors/*.json` afterwards. `description` is the publication description (the site tagline in the preview notice). `202` returns the identifiers and the claim link, which appears only in this response; `GET .../demo-sites/{publicationId}` reports progress. `409 DEMO_SLUG_TAKEN` for a slug in use or ever transferred out; `409 GITHUB_LINK_UNUSABLE` when the operator's GitHub link cannot create the repository.
+        Operators only. Starts the resumable set-up of a demo site: a single-person organisation owned by the operator, the publication, the repository `<installationLogin>/<slug>` from the template, bind, set-up and first publish, likes and comments on, the demo record and a creator claim. `author` is written by the set-up personalizer and is the only chance to set it, because no API edits `gala/authors/*.json` afterwards. `description` is the publication description (the site tagline in the preview notice). `GET .../demo-sites/{publicationId}` reports progress. Each call advances the set-up for at most about 45 seconds and returns 202 with the current `state` and steps. While `state` is `PENDING` or `RUNNING`, call again with the same body (any Idempotency-Key) to continue. The set-up resumes where it stopped. `DONE` and `FAILED` are final for that call. A later call with the same body retries a FAILED step. If a call reaches a finished site whose claim is still OPEN, it revokes that link and issues a new one in `claimUrl`; the old link stops working. Once the claim is VERIFIED or CLAIMED, the call returns `DONE` without `claimUrl`. `409 DEMO_SLUG_TAKEN` for a slug in use or ever transferred out; `409 GITHUB_LINK_UNUSABLE` when the operator's GitHub link cannot create the repository.
       operationId: postPlatformDemoSites
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -2456,6 +2456,9 @@ paths:
                     repositoryFullName: rathnasdemo/maya-cooks
                     siteUrl: https://rathnasdemo.github.io/maya-cooks/
                     state: PENDING
+                    steps:
+                      - name: ORGANIZATION
+                        state: RUNNING
               schema:
                 $ref: '#/components/schemas/PostPlatformDemoSitesResponse'
           description: set up demo site succeeded

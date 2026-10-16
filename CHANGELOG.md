@@ -60,12 +60,26 @@ and this project adheres to
   `GET /v2/callbacks/google/claim` (always `303` to the App with
   `outcome=verified|channel_mismatch|denied|error`). Problems `CLAIM_NOT_FOUND`,
   `CLAIM_EXPIRED`, `CLAIM_NOT_VERIFIED`, `CLAIM_ALREADY_CLAIMED`.
+  `GET /v2/claims/{token}` carries optional `organizationId` and `publicationId`
+  once the caller is the person who claimed it, and
+  `POST /v2/claims/{token}:accept` returns a required `publicationId`.
 - Handover by repository transfer. `GET`, `POST` and `POST :cancel` on
   `/v2/organizations/{organizationId}/publications/{publicationId}/handover`
   (`publication.handover.manage`, owner with recent authentication). Problems
   `HANDOVER_EXISTS`, `HANDOVER_TARGET_NOT_INSTALLED`,
   `HANDOVER_NOT_CANCELLABLE`; `DEPENDENCY_UNAVAILABLE` is reachable on the
-  handover start and the description-code check.
+  handover start and the description-code check. `HandoverState` gains
+  `NOT_STARTED`: `GET .../handover` answers `200` with `state: NOT_STARTED`
+  (empty `steps`, `version` 0, and no `target`, `appInstalledOnTarget` or
+  `siteUrlAfter`, which are no longer required) for a demo publication with no
+  handover yet, the latest handover otherwise, and `404 RESOURCE_NOT_FOUND` only
+  for a non-demo publication. `POST` never returns `NOT_STARTED`.
+- Demo-site set-up is resumable across calls (the API sits behind a 100 s proxy
+  timeout): each `POST /v2/platform/demo-sites` advances at most about 45
+  seconds and returns `202` with the current `state`; repeat the same body while
+  `PENDING` or `RUNNING`. `claimUrl` is no longer required: it appears only in
+  the response that issued or re-issued the link while the claim is OPEN, and
+  the response carries a required `steps` array (as the demo-site read does).
 - Problem registry: `KEY_AND_SESSION`, `CHANNEL_MISMATCH`,
   `CODE_NOT_FOUND_IN_DESCRIPTION`, `TRANSFER_NOT_ACCEPTED` and
   `IMPORT_QUOTA_EXHAUSTED` are registered for the API to raise; the first is the
