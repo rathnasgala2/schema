@@ -22,6 +22,7 @@ const EXPECTED = Object.freeze({
   [`get${O}OperationsByOperationId`]: 'publish',
   [`get${O}Publications`]: 'read',
   [`get${P}`]: 'read',
+  [`get${P}Content`]: 'read',
   [`get${P}Deployments`]: 'publish',
   [`get${P}DeploymentsByGenerationId`]: 'publish',
   [`get${P}InteractionSettings`]: 'read',

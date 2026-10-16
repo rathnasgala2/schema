@@ -30,11 +30,12 @@ and this project adheres to
   (`content:write`), `changes:publish` with the operation and deployment status
   reads the publish flow polls (`publish`), and the reads of the caller's
   organisations, publications, repository changes and interaction settings
-  (`read`). The HTTP catalog gains `apiKeyScope` per operation (`null` when a
-  key is refused), and `npm run api-key-scopes:check` (with its test) fails if
-  any phishing-resistant, owner-transfer, membership, invitation, self, passkey,
-  recovery, identity, export, closure, API-key, claim, handover or
-  settings-write operation carries the extension.
+  (`read`), and the publication content read (`GET .../content`, the repository
+  head and authors) is `read` too. The HTTP catalog gains `apiKeyScope` per
+  operation (`null` when a key is refused), and `npm run api-key-scopes:check`
+  (with its test) fails if any phishing-resistant, owner-transfer, membership,
+  invitation, self, passkey, recovery, identity, export, closure, API-key,
+  claim, handover or settings-write operation carries the extension.
 - Demo sites. `GET /v2/platform/demo-sites:preflight`
   (`getPlatformDemoSitesPreflight`), `POST /v2/platform/demo-sites`
   (`postPlatformDemoSites`, `202`; the request carries `slug`, `siteName`,
