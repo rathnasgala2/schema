@@ -6,9 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-Draft for 3.14.0 (additive; not released).
+## [3.14.0] - 2026-10-17
 
 ### Added
 
@@ -2891,7 +2889,7 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.8.0...HEAD
+[3.14.0]: https://github.com/rathnasgala2/schema/compare/v3.13.0...v3.14.0
 [3.13.0]: https://github.com/rathnasgala2/schema/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/rathnasgala2/schema/compare/v3.11.0...v3.12.0
 [3.11.0]: https://github.com/rathnasgala2/schema/compare/v3.10.0...v3.11.0
