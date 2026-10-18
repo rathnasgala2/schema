@@ -12437,6 +12437,31 @@ components:
         - GOOGLE
         - DESCRIPTION_CODE
       type: string
+    CreatorClaimProof:
+      additionalProperties: false
+      description:
+        What a claimant must show before accepting. `YOUTUBE_CHANNEL` needs the
+        claimant to prove they control the channel (`channelId`, and `handle`
+        when it is known); `LINK_ONLY` needs nothing beyond the link itself, so
+        anyone who holds a `LINK_ONLY` link and signs in can claim the site.
+      properties:
+        channelId:
+          $ref: '#/components/schemas/YoutubeChannelId'
+        handle:
+          maxLength: 31
+          minLength: 4
+          pattern: ^@[A-Za-z0-9._-]{3,30}$
+          type: string
+        kind:
+          $ref: '#/components/schemas/CreatorClaimProofKind'
+      required:
+        - kind
+      type: object
+    CreatorClaimProofKind:
+      enum:
+        - YOUTUBE_CHANNEL
+        - LINK_ONLY
+      type: string
     CreatorClaimState:
       enum:
         - OPEN
@@ -12536,6 +12561,7 @@ components:
       properties:
         channel:
           additionalProperties: false
+          description: Present only when `proof.kind` is `YOUTUBE_CHANNEL`.
           properties:
             handle:
               maxLength: 31
@@ -12562,12 +12588,17 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         methods:
+          description:
+            The ways to prove the channel is the caller's; empty when
+            `proof.kind` is `LINK_ONLY`, which has nothing to prove.
           items:
             $ref: '#/components/schemas/CreatorClaimMethod'
           maxItems: 2
-          minItems: 1
+          minItems: 0
           type: array
           uniqueItems: true
+        proof:
+          $ref: '#/components/schemas/CreatorClaimProof'
         publicationId:
           description:
             Present only when `state` is `CLAIMED` and the caller is the person
@@ -12596,9 +12627,20 @@ components:
       required:
         - claimId
         - state
-        - channel
         - site
         - methods
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          description: Newest first, every state; at most the 50 most recent.
+          items:
+            $ref: '#/components/schemas/HandoverClaim'
+          maxItems: 50
+          type: array
+      required:
+        - items
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse:
       additionalProperties: false
@@ -12735,6 +12777,67 @@ components:
       $ref: '#/components/schemas/PlatformSetting'
     GetPlatformSettingsOverridesByKindByIdByKeyResponse:
       $ref: '#/components/schemas/PlatformSettingOverride'
+    HandoverClaim:
+      additionalProperties: false
+      description:
+        One claim link that hands a site to whoever accepts it. Demo-site claims
+        appear here too, with proof `YOUTUBE_CHANNEL`.
+      properties:
+        claimId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        claimUrl:
+          description:
+            Present only while `state` is `OPEN`, so the owner can copy the link
+            again; absent in every other state. The link is a bearer secret, so
+            anyone who holds it can open the claim page.
+          format: uri
+          maxLength: 2048
+          pattern: ^https://[^\s]+$
+          type: string
+        claimedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        claimedBy:
+          additionalProperties: false
+          description: Present only when `state` is `CLAIMED`.
+          properties:
+            displayName:
+              maxLength: 200
+              minLength: 1
+              type: string
+            login:
+              description:
+                'GitHub login grammar: letters, digits and single hyphens, not
+                starting or ending with a hyphen. Absent when the claimant has
+                no linked GitHub login.'
+              maxLength: 39
+              minLength: 1
+              pattern: ^[A-Za-z0-9](?:-?[A-Za-z0-9]){0,38}$
+              type: string
+          required:
+            - displayName
+          type: object
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        proof:
+          $ref: '#/components/schemas/CreatorClaimProof'
+        state:
+          $ref: '#/components/schemas/CreatorClaimState'
+        version:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - claimId
+        - state
+        - createdAt
+        - expiresAt
+        - proof
+        - version
+      type: object
     HandoverState:
       enum:
         - NOT_STARTED
@@ -13024,6 +13127,32 @@ components:
       required:
         - authorizeUrl
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsByClaimIdRevokeResponse:
+      $ref: '#/components/schemas/HandoverClaim'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsRequest:
+      additionalProperties: false
+      properties:
+        channelId:
+          $ref: '#/components/schemas/YoutubeChannelId'
+        expiresInDays:
+          default: 30
+          description: Days until the link expires; at most 365.
+          maximum: 365
+          minimum: 1
+          type: integer
+        proof:
+          $ref: '#/components/schemas/CreatorClaimProofKind'
+        replace:
+          default: false
+          description:
+            Set to revoke the site's OPEN claim and issue this one in its place.
+            Without it, an OPEN claim answers `409 INVALID_SOURCE_STATE`.
+          type: boolean
+      required:
+        - proof
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsResponse:
+      $ref: '#/components/schemas/HandoverClaim'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverCancelResponse:
       $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverResponse'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverRequest:
@@ -13155,8 +13284,9 @@ components:
         claimUrl:
           description:
             'Present only in the response that issued the claim link, or
-            re-issued it while the claim is still OPEN. Save it then: it is
-            never shown again.'
+            re-issued it while the claim is still OPEN. While the claim is OPEN
+            the site owner can read the link again from `GET
+            .../handover-claims`; once it is VERIFIED or CLAIMED it is gone.'
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$

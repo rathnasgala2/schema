@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:b118c48f3c3c426a0af3f547474e3ad265dd0a5d509dc771861c4d7b91566828",
+  "openApiDigest": "sha256:0e7ebaaea8be4d3c43ba677f7d85ba3d85a65423c55db00818266f38e04968a3",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1081,6 +1081,45 @@
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover",
       "purpose": "start publication handover",
+      "capabilityKey": "publication.handover.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover-claims",
+      "purpose": "list site handover claims",
+      "capabilityKey": "publication.handover.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover-claims",
+      "purpose": "issue site handover claim",
+      "capabilityKey": "publication.handover.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsByClaimIdRevoke",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover-claims/{claimId}:revoke",
+      "purpose": "revoke site handover claim",
       "capabilityKey": "publication.handover.manage",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -2595,5 +2634,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:fba927df061e36a12d84e67201924fdf5c449cb1b86a30b17e758f1090c955d1"
+  "digest": "sha256:056e9c629fbe8d61974d331343227579b041307c49bce3dd3277d89e21fa86af"
 }

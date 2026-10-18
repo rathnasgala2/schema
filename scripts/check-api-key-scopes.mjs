@@ -31,7 +31,7 @@ const HUMAN_ONLY_PATH_RULES = /** @type {ReadonlyArray<[string, RegExp]>} */ ([
   ['closure', /\/closure(?:[/:]|$)/u],
   ['API key management', /^\/v2\/platform\/api-keys(?:[/:]|$)/u],
   ['claims', /^\/v2\/claims(?:[/:]|$)|^\/v2\/callbacks\/google\/claim$/u],
-  ['handover', /\/handover(?:[/:]|$)/u],
+  ['handover', /\/handover(?:-claims)?(?:[/:]|$)/u],
 ]);
 
 /**

@@ -8,6 +8,61 @@ and this project adheres to
 
 ## [Unreleased]
 
+Draft for 3.14.0 (additive; not released).
+
+### Added
+
+- Site handover claims: every site owner can hand their site to someone else
+  with a claim link, from the site's Settings. It reuses the creator-claim
+  machinery (claim token, the claimant signs in, proves when the claim asks for
+  proof, accepts, ownership succession) and is the same record the operator's
+  demo sites already use, so a demo site's claim link, while its claim is
+  `OPEN`, appears in that site's Settings (a demo site is owned by the
+  operator's organisation until claimed).
+  - `GET /v2/organizations/{organizationId}/publications/{publicationId}/handover-claims`
+    (`getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims`)
+    lists the site's claims, newest first and in every state, at most 50:
+    `claimId`, `state` (`OPEN | VERIFIED | CLAIMED | EXPIRED | REVOKED`),
+    `createdAt`, `expiresAt`, `proof`, `version`, `claimUrl` only while `OPEN`
+    (the owner can copy it again), and `claimedBy` (`displayName`, optional
+    `login`) with `claimedAt` once `CLAIMED`.
+  - `POST` on the same path issues a claim and returns it with its `claimUrl`
+    (`201`). Body: `proof` (`LINK_ONLY | YOUTUBE_CHANNEL`), `channelId`
+    (required for `YOUTUBE_CHANNEL`, refused for `LINK_ONLY`), `expiresInDays`
+    (default 30, at most 365) and `replace` (default `false`). A site holds one
+    `OPEN` claim: a second issue answers `409 INVALID_SOURCE_STATE` unless
+    `replace` is `true`, which revokes the `OPEN` claim and issues the new one
+    in one transaction. A `VERIFIED` claim is never replaced.
+    `409 HANDOVER_EXISTS` while a repository move (`/handover`) is live.
+  - `POST .../handover-claims/{claimId}:revoke` ends an `OPEN` or `VERIFIED`
+    claim at once (`200`; revoking a `REVOKED` claim returns it unchanged;
+    `409 CLAIM_ALREADY_CLAIMED`, `410 CLAIM_EXPIRED`).
+  - All three use the existing capability `publication.handover.manage`, the
+    organisation owner with recent authentication, `browserSession` only (an API
+    key is always refused; `check-api-key-scopes` now matches `handover-claims`
+    as a human-only path). Issue and revoke are keyed by `Idempotency-Key`.
+  - `CreatorClaimProof { kind: YOUTUBE_CHANNEL | LINK_ONLY, channelId?, handle? }`
+    on `GET /v2/claims/{token}` as an optional `proof` (absent means
+    `YOUTUBE_CHANNEL`). For `LINK_ONLY` the claim read has no `channel` and an
+    empty `methods` (`channel` is no longer required and `methods` may be
+    empty), and the App goes straight from sign-in to
+    `POST /v2/claims/{token}:accept`, which accepts a `LINK_ONLY` claim from
+    `OPEN`. The three verify operations answer `400 VALIDATION_FAILED` for a
+    `LINK_ONLY` claim.
+  - No new problem codes: `INVALID_SOURCE_STATE`, `HANDOVER_EXISTS`,
+    `CLAIM_ALREADY_CLAIMED`, `CLAIM_EXPIRED` and `RESOURCE_NOT_FOUND` are
+    reused.
+  - The three operations are listed on the App route
+    `/v1/sites/{organizationId}/{publicationId}/settings`.
+  - Risk of `LINK_ONLY`: whoever holds the link and signs in can take the site,
+    with no channel proof. The contract answers with expiry (default 30 days, at
+    most 365), revoke (also revokes a `VERIFIED` claim), one `OPEN` claim per
+    site, a `claimUrl` shown only to the owner and only while `OPEN`, and
+    `claimedBy` in the list so the owner sees who took it; telling the owner
+    when a claim is accepted is API behaviour, not part of this contract.
+- `PostPlatformDemoSitesResponse.claimUrl` text no longer says the link is never
+  shown again: while the claim is `OPEN` it is readable from the list above.
+
 ## [3.13.0] - 2026-10-16
 
 ### Added
