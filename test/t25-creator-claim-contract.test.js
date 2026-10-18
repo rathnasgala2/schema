@@ -248,3 +248,83 @@ test('claim accept answers INVALID_SOURCE_STATE for the issuer and exposes the s
     /already owns the site/,
   );
 });
+
+const HANDOVER_PATH =
+  '/v2/organizations/{organizationId}/publications/{publicationId}/handover';
+
+test('the handover progress read is a session-level view; every write stays recent-authentication', () => {
+  const read = doc.paths[HANDOVER_PATH].get;
+  assert.equal(read['x-gala-capability-key'], 'publication.handover.view');
+  assert.equal(read['x-gala-assurance-class'], 'SESSION');
+  assert.equal(read['x-gala-action-grant'], 'none');
+  assert.deepEqual(read.security, [{ browserSession: [] }]);
+  assert.ok(!read['x-gala-reachable-problems'].includes('REAUTH_REQUIRED'));
+  assert.ok(
+    read['x-gala-reachable-problems'].includes('AUTHENTICATION_REQUIRED'),
+  );
+  assert.ok(read['x-gala-reachable-problems'].includes('RESOURCE_NOT_FOUND'));
+  assert.deepEqual(read.responses['401']['x-gala-problem-codes'], [
+    'AUTHENTICATION_REQUIRED',
+  ]);
+  assert.doesNotMatch(read.description, /recent authentication/);
+  const start = doc.paths[HANDOVER_PATH].post;
+  const cancel = doc.paths[`${HANDOVER_PATH}:cancel`].post;
+  for (const operation of [start, cancel]) {
+    assert.equal(
+      operation['x-gala-capability-key'],
+      'publication.handover.manage',
+    );
+    assert.equal(operation['x-gala-assurance-class'], 'RECENT_AUTHENTICATION');
+    assert.ok(
+      operation['x-gala-reachable-problems'].includes('REAUTH_REQUIRED'),
+    );
+  }
+});
+
+test('the capability catalog lists the handover view as SESSION and the manage capability as RECENT_AUTHENTICATION', async () => {
+  const catalog = JSON.parse(
+    await readFile(
+      new URL('../openapi/http-catalog.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  /** @type {Map<string, Set<string>>} */
+  const classes = new Map();
+  for (const entry of catalog.operations) {
+    if (!String(entry.capabilityKey).startsWith('publication.handover.')) {
+      continue;
+    }
+    const set = classes.get(entry.capabilityKey) ?? new Set();
+    set.add(entry.assuranceClass);
+    classes.set(entry.capabilityKey, set);
+  }
+  assert.deepEqual(
+    [...(classes.get('publication.handover.view') ?? [])],
+    ['SESSION'],
+  );
+  assert.deepEqual(
+    [...(classes.get('publication.handover.manage') ?? [])],
+    ['RECENT_AUTHENTICATION'],
+  );
+  const views = catalog.operations.filter(
+    (/** @type {{ capabilityKey: string }} */ e) =>
+      e.capabilityKey === 'publication.handover.view',
+  );
+  assert.deepEqual(
+    views.map((/** @type {{ operationId: string }} */ e) => e.operationId),
+    ['getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover'],
+  );
+});
+
+test('the claim verify operations state the first-to-complete ownership rule', () => {
+  const sentence =
+    'The first person to complete acceptance owns the site. Until a claim is `CLAIMED`, anyone who proves the channel may verify it, and a later proof replaces an earlier one.';
+  for (const path of [
+    '/v2/claims/{token}/description-code',
+    '/v2/claims/{token}/description-code:check',
+    '/v2/claims/{token}/google:start',
+    '/v2/claims/{token}:accept',
+  ]) {
+    assert.ok(doc.paths[path].post.description.includes(sentence), path);
+  }
+});

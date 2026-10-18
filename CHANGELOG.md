@@ -8,6 +8,31 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.14.1] - 2026-10-18
+
+### Changed
+
+- The move page's progress read,
+  `GET /v2/organizations/{organizationId}/publications/{publicationId}/handover`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover`), no
+  longer needs a fresh sign-in. A read commits nothing, so it moves to a new
+  capability `publication.handover.view` (assurance class `SESSION`, the same
+  role grants and links as `publication.handover.manage`). Its description drops
+  "with recent authentication" and `REAUTH_REQUIRED` leaves its `401` response
+  and its reachable problems (`AUTHENTICATION_REQUIRED`, the concealment
+  `404 RESOURCE_NOT_FOUND` and the rest are unchanged). Starting a handover
+  (`POST .../handover`), `POST .../handover:cancel`, the three `handover-claims`
+  operations and `POST /v2/claims/{token}:accept` are unchanged:
+  `publication.handover.manage`, `RECENT_AUTHENTICATION`. The App route
+  `/v1/sites/{organizationId}/{publicationId}/handover` now lists both
+  capabilities in the route catalog.
+- The contract text of the claim verify operations
+  (`POST /v2/claims/{token}/description-code`, `description-code:check`,
+  `google:start`) and of `POST /v2/claims/{token}:accept` states the ownership
+  rule: the first person to complete acceptance owns the site; until a claim is
+  `CLAIMED`, anyone who proves the channel may verify it, and a later proof
+  replaces an earlier one. No behaviour change.
+
 ## [3.14.0] - 2026-10-17
 
 ### Added
@@ -2891,7 +2916,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.14.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.14.1...HEAD
+[3.14.1]: https://github.com/rathnasgala2/schema/compare/v3.14.0...v3.14.1
 [3.14.0]: https://github.com/rathnasgala2/schema/compare/v3.13.0...v3.14.0
 [3.13.0]: https://github.com/rathnasgala2/schema/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/rathnasgala2/schema/compare/v3.11.0...v3.12.0

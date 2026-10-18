@@ -20359,7 +20359,7 @@ paths:
   /v2/claims/{token}/description-code:
     post:
       description: |
-        Needs a signed-in session. Issues a one-time code to put in the YouTube channel description, valid 24 hours; a new request replaces an unexpired code issued to the same person. `404 CLAIM_NOT_FOUND`, `410 CLAIM_EXPIRED`, `409 CLAIM_ALREADY_CLAIMED`, and `409 CLAIM_CODE_PENDING` when a description code issued to another person for this claim is still pending: it expires at the time in the problem detail, so verify with Google instead, or try again after it expires. A `LINK_ONLY` claim has no channel to prove, so this answers `400 VALIDATION_FAILED` for one. Rate limited (`429 RATE_LIMITED`).
+        Needs a signed-in session. Issues a one-time code to put in the YouTube channel description, valid 24 hours; a new request replaces an unexpired code issued to the same person. `404 CLAIM_NOT_FOUND`, `410 CLAIM_EXPIRED`, `409 CLAIM_ALREADY_CLAIMED`, and `409 CLAIM_CODE_PENDING` when a description code issued to another person for this claim is still pending: it expires at the time in the problem detail, so verify with Google instead, or try again after it expires. A `LINK_ONLY` claim has no channel to prove, so this answers `400 VALIDATION_FAILED` for one. Rate limited (`429 RATE_LIMITED`). The first person to complete acceptance owns the site. Until a claim is `CLAIMED`, anyone who proves the channel may verify it, and a later proof replaces an earlier one.
       operationId: postClaimsByTokenDescriptionCode
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -20630,7 +20630,7 @@ paths:
   /v2/claims/{token}/description-code:check:
     post:
       description: |
-        Needs a signed-in session. Reads the channel description through the YouTube Data API and, when it contains the issued code, marks the claim verified for this person and spends the code. A code that is not there yet is `200` with `verified: false` and a `reason`, not a problem. `503 DEPENDENCY_UNAVAILABLE` when YouTube cannot be reached. A `LINK_ONLY` claim has no channel to prove, so this answers `400 VALIDATION_FAILED` for one. Rate limited (`429 RATE_LIMITED`).
+        Needs a signed-in session. Reads the channel description through the YouTube Data API and, when it contains the issued code, marks the claim verified for this person and spends the code. A code that is not there yet is `200` with `verified: false` and a `reason`, not a problem. `503 DEPENDENCY_UNAVAILABLE` when YouTube cannot be reached. A `LINK_ONLY` claim has no channel to prove, so this answers `400 VALIDATION_FAILED` for one. Rate limited (`429 RATE_LIMITED`). The first person to complete acceptance owns the site. Until a claim is `CLAIMED`, anyone who proves the channel may verify it, and a later proof replaces an earlier one.
       operationId: postClaimsByTokenDescriptionCodeCheck
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -20914,7 +20914,7 @@ paths:
   /v2/claims/{token}/google:start:
     post:
       description: |
-        Needs a signed-in session. Returns the Google authorize URL for one single-use, PKCE-protected transaction bound to this session; the callback is `GET /v2/callbacks/google/claim`. `404 CLAIM_NOT_FOUND`, `410 CLAIM_EXPIRED`, `409 CLAIM_ALREADY_CLAIMED` when the site was taken. A `LINK_ONLY` claim has no channel to prove, so this answers `400 VALIDATION_FAILED` for one. Rate limited (`429 RATE_LIMITED`).
+        Needs a signed-in session. Returns the Google authorize URL for one single-use, PKCE-protected transaction bound to this session; the callback is `GET /v2/callbacks/google/claim`. `404 CLAIM_NOT_FOUND`, `410 CLAIM_EXPIRED`, `409 CLAIM_ALREADY_CLAIMED` when the site was taken. A `LINK_ONLY` claim has no channel to prove, so this answers `400 VALIDATION_FAILED` for one. Rate limited (`429 RATE_LIMITED`). The first person to complete acceptance owns the site. Until a claim is `CLAIMED`, anyone who proves the channel may verify it, and a later proof replaces an earlier one.
       operationId: postClaimsByTokenGoogleStart
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -21169,7 +21169,7 @@ paths:
   /v2/claims/{token}:accept:
     post:
       description: |
-        Needs recent authentication. For a `YOUTUBE_CHANNEL` claim it requires the claim to be verified by this same person (`409 CLAIM_NOT_VERIFIED` otherwise); a `LINK_ONLY` claim has nothing to verify and is accepted from `OPEN`. Then it makes the caller the owner of the site's organisation, which hands the site over. Repeating the call after success returns the same organisation. `409 INVALID_SOURCE_STATE` when the caller is the person who issued the claim or already owns the site: nobody can claim their own site. `409 CLAIM_ALREADY_CLAIMED` when another person claimed it; `410 CLAIM_EXPIRED`. An API key is always refused.
+        Needs recent authentication. For a `YOUTUBE_CHANNEL` claim it requires the claim to be verified by this same person (`409 CLAIM_NOT_VERIFIED` otherwise); a `LINK_ONLY` claim has nothing to verify and is accepted from `OPEN`. Then it makes the caller the owner of the site's organisation, which hands the site over. Repeating the call after success returns the same organisation. `409 INVALID_SOURCE_STATE` when the caller is the person who issued the claim or already owns the site: nobody can claim their own site. `409 CLAIM_ALREADY_CLAIMED` when another person claimed it; `410 CLAIM_EXPIRED`. An API key is always refused. The first person to complete acceptance owns the site. Until a claim is `CLAIMED`, anyone who proves the channel may verify it, and a later proof replaces an earlier one.
       operationId: postClaimsByTokenAccept
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -38560,7 +38560,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/handover:
     get:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Reports the handover of a demo site into the creator's own GitHub account: its state, the target, whether the Galascribe App is installed on the target, each step and the address the site will have. `200` with `state: NOT_STARTED` (empty `steps`, `version` 0, no `target`, `appInstalledOnTarget` or `siteUrlAfter`) for a demo publication (one with a demo-site record) that has no handover yet; `200` with the latest handover otherwise, including `DONE`, `FAILED` and `CANCELLED`; `404 RESOURCE_NOT_FOUND` only for a publication that is not a demo publication.
+        The organisation owner, signed in (a read needs no fresh sign-in); an API key is always refused. Reports the handover of a demo site into the creator's own GitHub account: its state, the target, whether the Galascribe App is installed on the target, each step and the address the site will have. `200` with `state: NOT_STARTED` (empty `steps`, `version` 0, no `target`, `appInstalledOnTarget` or `siteUrlAfter`) for a demo publication (one with a demo-site record) that has no handover yet; `200` with the latest handover otherwise, including `DONE`, `FAILED` and `CANCELLED`; `404 RESOURCE_NOT_FOUND` only for a publication that is not a demo publication.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -38664,22 +38664,9 @@ paths:
                     status: 401
                     title: AUTHENTICATION_REQUIRED
                     type: urn:gala:problem:authentication-required
-                REAUTH_REQUIRED:
-                  summary: REAUTH_REQUIRED
-                  value:
-                    code: REAUTH_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: REAUTH_REQUIRED
-                    type: urn:gala:problem:reauth-required
               schema:
                 $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          description: AUTHENTICATION_REQUIRED
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
@@ -38687,7 +38674,6 @@ paths:
               $ref: "#/components/headers/XCorrelationId"
           x-gala-problem-codes:
             - AUTHENTICATION_REQUIRED
-            - REAUTH_REQUIRED
         "403":
           content:
             application/problem+json:
@@ -38751,8 +38737,8 @@ paths:
       x-gala-activation-gate: MVP
       x-gala-activation-guards:
         - NONE
-      x-gala-assurance-class: RECENT_AUTHENTICATION
-      x-gala-capability-key: publication.handover.manage
+      x-gala-assurance-class: SESSION
+      x-gala-capability-key: publication.handover.view
       x-gala-concurrency: none
       x-gala-conditional-capabilities: []
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
@@ -38761,7 +38747,6 @@ paths:
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - AUTHORIZATION_DENIED
-        - REAUTH_REQUIRED
         - RESOURCE_NOT_FOUND
         - VALIDATION_FAILED
       x-gala-replay-identity: safe-query
