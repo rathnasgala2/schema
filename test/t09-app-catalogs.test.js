@@ -101,28 +101,64 @@ async function loadFixtures() {
 
 test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
-  assert.equal(validateAppComponentSource(componentSourceValue).length, 15);
-  // SCHEMA-3.7.0 adds the ten operator-console routes; SCHEMA-3.13.0 four more.
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 48);
+  // 3.15.0: the catalogs describe only the current UI. One component survives
+  // (ValidationSummary) and 44 routes, one for every address the App mounts.
+  assert.equal(validateAppComponentSource(componentSourceValue).length, 1);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 44);
   const paths = new Set(
     /** @type {JsonObject[]} */ (
       /** @type {JsonObject} */ (routeSourceValue).routes
     ).map((route) => route.pathTemplate),
   );
   for (const path of [
+    '/',
+    '/sign-in',
+    '/reader/connect',
+    '/start',
+    '/start/import',
+    '/start/import/{organizationId}/{importId}',
+    '/start/{organizationId}/{publicationId}',
+    '/sites/{organizationId}/{publicationId}',
+    '/sites/{organizationId}/{publicationId}/posts',
+    '/sites/{organizationId}/{publicationId}/posts/new',
+    '/sites/{organizationId}/{publicationId}/posts/{path}',
+    '/sites/{organizationId}/{publicationId}/reviews',
+    '/sites/{organizationId}/{publicationId}/look',
+    '/sites/{organizationId}/{publicationId}/history',
+    '/sites/{organizationId}/{publicationId}/comments',
+    '/sites/{organizationId}/{publicationId}/domain',
+    '/sites/{organizationId}/{publicationId}/settings',
+    '/sites/{organizationId}/{publicationId}/reconnect',
+    '/sites/{organizationId}/{publicationId}/handover',
+    '/sites/{organizationId}/{publicationId}/changes/{changeId}/preview',
+    '/account',
+    '/orgs',
+    '/orgs/{organizationId}',
+    '/orgs/{organizationId}/people',
+    '/orgs/{organizationId}/roles',
+    '/orgs/{organizationId}/activity',
+    '/invitations/accept',
+    '/claim',
+    '/claim/{token}',
     '/platform',
     '/platform/users',
-    '/platform/integrations',
     '/platform/abuse',
     '/platform/abuse/{commentId}',
-    '/platform/caches',
+    '/platform/audit',
+    '/platform/configuration',
+    '/platform/configuration/{family}',
     '/platform/plans',
     '/platform/plans/{planKey}',
     '/platform/webhooks',
     '/platform/webhooks/{eventId}',
+    '/platform/caches',
+    '/platform/adapters',
+    '/platform/api-keys',
+    '/platform/settings',
   ]) {
     assert.ok(paths.has(path), path);
   }
+  assert.equal(paths.size, 44);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -151,7 +187,9 @@ test('generated catalogs match the committed projection', async () => {
   // contact-email grant/withdraw and platform contact operations (566 to 571).
   // 3.13.0 (reviewed 2026-10-16): the API keys, settings, claim and handover
   // routes (571 to 629).
-  assert.equal(authoredMessageCount, 629);
+  // 3.15.0 (reviewed 2026-10-18): the catalog is the current UI's 44 routes
+  // alone (629 to 580).
+  assert.equal(authoredMessageCount, 580);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
@@ -217,33 +255,75 @@ test('componentId and contentKey are independently unique', async () => {
   assert.equal(new Set(contentKeyIds).size, contentKeyIds.length);
 });
 
-test('the MVP account.recover route stays RECOVERY-scoped to StatePanel and its mutation group', async () => {
+test('the catalog describes only the current UI: every route is an APP route and no retired address remains', async () => {
   const routesText = await readFile(ROUTES_OUTPUT_PATH, 'utf8');
   const routes = /** @type {AppRouteCatalog} */ (JSON.parse(routesText)).routes;
-  const recover = /** @type {RouteEntry} */ (
-    routes.find((route) => route.routeId === 'account.recover')
+  for (const route of routes) {
+    assert.equal(route.originClass, 'APP', route.routeId);
+    assert.ok(!route.pathTemplate.startsWith('/v1/'), route.routeId);
+    assert.ok(!route.pathTemplate.startsWith('/organizations'), route.routeId);
+    assert.ok(!route.pathTemplate.startsWith('/t/'), route.routeId);
+    assert.ok(!route.pathTemplate.startsWith('/account/'), route.routeId);
+  }
+  const routeIds = new Set(routes.map((route) => route.routeId));
+  for (const retired of [
+    'account.recover',
+    'account.security',
+    'account.connections',
+    'account.export',
+    'account.closure',
+    'organizations',
+    'platform.integrations',
+    't.invitations.by-token-id',
+  ]) {
+    assert.ok(!routeIds.has(retired), retired);
+  }
+  // The only token-bearing route is the claim link.
+  assert.deepEqual(
+    routes.filter((route) => route.tokenBearing).map((route) => route.routeId),
+    ['claim.by-token-id'],
   );
-  assert.deepEqual(recover.componentIds, [
-    'StatePanel',
-    'FormField',
-    'ValidationSummary',
-    'AsyncCommand',
-  ]);
-  assert.equal(recover.originClass, 'RECOVERY');
-  assert.equal(recover.tokenBearing, false);
 });
 
-test('only the home route has empty apiOperationIds', async () => {
+test('the one registered component, ValidationSummary, is named by exactly the routes that change something', async () => {
+  const componentsText = await readFile(COMPONENTS_OUTPUT_PATH, 'utf8');
+  const routesText = await readFile(ROUTES_OUTPUT_PATH, 'utf8');
+  const components = /** @type {AppComponentCatalog} */ (
+    JSON.parse(componentsText)
+  );
+  const routes = /** @type {AppRouteCatalog} */ (JSON.parse(routesText)).routes;
+  assert.deepEqual(
+    components.components.map((component) => component.componentId),
+    ['ValidationSummary'],
+  );
+  const { httpCatalog } = await loadFixtures();
+  /** @type {Map<string, string>} */
+  const methodByOperationId = new Map(
+    /** @type {{operationId: string, method: string}[]} */ (
+      httpCatalog.operations
+    ).map((operation) => [operation.operationId, operation.method]),
+  );
+  for (const route of routes) {
+    const mutates = route.apiOperationIds.some(
+      (operationId) => methodByOperationId.get(operationId) !== 'GET',
+    );
+    assert.deepEqual(
+      route.componentIds,
+      mutates ? ['ValidationSummary'] : [],
+      route.routeId,
+    );
+  }
+});
+
+test('every route has at least one apiOperationId', async () => {
   const routesText = await readFile(ROUTES_OUTPUT_PATH, 'utf8');
   const routes = /** @type {AppRouteCatalog} */ (JSON.parse(routesText)).routes;
   const emptyRoutes = routes
     .filter((route) => route.apiOperationIds.length === 0)
     .map((route) => route.routeId);
-  // `home` has no pre-authentication API surface by design (document 14).
-  // The LOCAL-12 exception for `organizations.by-organization-id.roles` is
-  // retired: LOCAL-36 G-16 adds `getOrganizationsByOrganizationIdRoles`, so the
-  // roles screen reads its role templates from the contract.
-  assert.deepEqual(emptyRoutes.sort(), ['home']);
+  // 3.15.0: the current UI's `/` lists the person's sites and starts sign-in,
+  // so the old exception for the public landing page is gone.
+  assert.deepEqual(emptyRoutes, []);
 });
 
 test('capabilityKeys is exactly the sorted unique set of non-null capabilityKey values, excluding conditionalCapabilityKeys', async () => {
@@ -292,22 +372,21 @@ test('every content entry has a complete defaultMessage, description, typed plac
   }
 });
 
-test('SCHEMA-2.8.1: every App-facing operation is bound to a route, and the single deployment read to Releases', async () => {
+test('every operation a screen of the current UI calls is bound to a route, and the single deployment read to History', async () => {
   const { httpCatalog } = await loadFixtures();
   const routesText = await readFile(ROUTES_OUTPUT_PATH, 'utf8');
   const routes = /** @type {AppRouteCatalog} */ (JSON.parse(routesText)).routes;
-  const releases = /** @type {RouteEntry} */ (
+  const history = /** @type {RouteEntry} */ (
     routes.find(
       (route) =>
-        route.routeId ===
-        'organizations.by-organization-id.publications.by-publication-id.releases',
+        route.routeId === 'sites.by-organization-id.by-publication-id.history',
     )
   );
   assert.ok(
-    releases.apiOperationIds.includes(
+    history.apiOperationIds.includes(
       'getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId',
     ),
-    'the App mounts the single deployment read on Releases (?generation=)',
+    'the App mounts the single deployment read on History',
   );
   const bound = new Set(routes.flatMap((route) => route.apiOperationIds));
   /** @type {{operationId: string}[]} */
@@ -316,28 +395,55 @@ test('SCHEMA-2.8.1: every App-facing operation is bound to a route, and the sing
     .map((operation) => operation.operationId)
     .filter((operationId) => !bound.has(operationId))
     .sort();
-  // Only operations no App screen can call stay unbound: the health probe, the
-  // GitHub App webhook, the three operator demo-site (CLI-only) operations, the two workload (GitHub Actions) endpoints, and the
-  // reader operations a published blog's own script calls (`/v2/public/**` and
-  // the reader token exchange and sign-out).
+  // Only operations no screen of the current UI calls stay unbound: the health
+  // probe, the GitHub App webhook, the three operator demo-site (CLI-only)
+  // operations, the two workload (GitHub Actions) endpoints, the reader
+  // operations a published blog's own script calls (`/v2/public/**` and the
+  // reader token exchange and sign-out), and, since 3.15.0, the operations
+  // only the retired UI called: the passkey sign-in ceremony and passkey
+  // step-up, identity linking, the data-export read and archive, the OAuth
+  // client management, the deployment, domain, repository-change, import and
+  // publication-transfer reads it paged through, starting a publish by its own
+  // operation, changing the deployment destination and planning a configuration
+  // change.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
     'deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
     'deleteReaderTokensCurrent',
     'getInternalHealth',
+    'getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId',
+    'getOrganizationsByOrganizationIdPublicationImports',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId',
     'getPlatformDemoSitesByPublicationId',
     'getPlatformDemoSitesPreflight',
+    'getPlatformOauthClients',
     'getPublicPublicationsByPublicationIdContentsByContentIdComments',
     'getPublicPublicationsByPublicationIdContentsByContentIdInteractions',
+    'getSelfExportsByExportId',
+    'getSelfExportsByExportIdArchive',
+    'postAuthenticationPasskeyAssertionOptions',
+    'postAuthenticationPasskeyAssertions',
     'postCallbacksGithubApp',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlan',
     'postPlatformDemoSites',
+    'postPlatformOauthClients',
+    'postPlatformOauthClientsByOauthClientIdRevoke',
     'postPublicCommentsByCommentIdAppeals',
     'postPublicCommentsByCommentIdReports',
     'postPublicCommentsByCommentIdRevisions',
     'postPublicPublicationsByPublicationIdContentsByContentIdComments',
     'postReaderTokens',
+    'postSelfIdentityLinks',
+    'postSessionReauthentication',
     'postWorkloadsDeploymentReceipts',
     'postWorkloadsGithubReceiptExchanges',
+    'putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination',
     'putPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
   ]);
 });

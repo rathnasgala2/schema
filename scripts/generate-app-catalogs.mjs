@@ -32,16 +32,6 @@ const AUTHENTICATION_CLASSES = new Set([
   'SESSION_REQUIRED',
   'ACCOUNTLESS_CAPABILITY',
 ]);
-const CONSEQUENTIAL_CONFIRMATION_PATH_TOKENS = Object.freeze([
-  ':cancel',
-  ':deny',
-  ':revoke',
-  ':remove',
-  ':detach',
-  '/closure',
-  '/transfers',
-  '/owner-transfers',
-]);
 const SENSITIVITIES = new Set(['PUBLIC', 'AUTHENTICATED', 'SECRET_PROHIBITED']);
 
 /**
@@ -256,9 +246,10 @@ function assertSortedUniqueStrings(value, identity, allowEmpty) {
 }
 
 /**
- * Assert a string array is non-empty and unique, without requiring sort
- * order. Used for `componentIds`, whose order is the meaningful, deterministic
- * document 07 assignment sequence rather than an alphabetical listing.
+ * Assert a string array is unique, without requiring sort order. Used for
+ * `componentIds`, whose order is the meaningful, deterministic assignment
+ * sequence rather than an alphabetical listing. The list may be empty: a route
+ * whose screen composes no catalog component names none.
  *
  * @param {unknown} value candidate array
  * @param {string} identity diagnostic identity
@@ -267,11 +258,10 @@ function assertSortedUniqueStrings(value, identity, allowEmpty) {
 function assertUniqueOrderedStrings(value, identity) {
   if (
     !Array.isArray(value) ||
-    value.length === 0 ||
     value.some((item) => typeof item !== 'string') ||
     new Set(value).size !== value.length
   ) {
-    throw new TypeError(`${identity}: must be a non-empty unique string list`);
+    throw new TypeError(`${identity}: must be a unique string list`);
   }
 }
 
@@ -420,22 +410,15 @@ export function validateAppRouteSource(value) {
         `${String(route.pathTemplate)}: app route is invalid`,
       );
     }
-    // The document 14 Beta-complete invariant holds again: `/` is the only
-    // route without a backing operation, because it has no pre-authentication
-    // API surface by design. The LOCAL-12 exception for
-    // `/organizations/{organizationId}/roles` is retired -- LOCAL-36 G-16 adds
-    // `getOrganizationsByOrganizationIdRoles` to the contract, so role
-    // templates are read from the API rather than transcribed by the client.
+    // Every route has a backing operation: the current UI's `/` lists the
+    // person's sites and starts sign-in, and every other screen reads or
+    // changes something through the API. A route that calls nothing is not a
+    // route this catalog describes.
     assertSortedUniqueStrings(
       route.apiOperationIds,
       `${route.pathTemplate}: apiOperationIds`,
-      true,
+      false,
     );
-    if (route.apiOperationIds.length === 0 && route.pathTemplate !== '/') {
-      throw new TypeError(
-        `${route.pathTemplate}: only \`/\` may have empty apiOperationIds`,
-      );
-    }
     const pairKey = `${route.originClass}\u0000${route.pathTemplate}`;
     if (seenPairs.has(pairKey)) {
       throw new TypeError(
@@ -471,82 +454,17 @@ function computeRequiredStates(mutation, collection) {
 }
 
 /**
- * Determine whether any of a route's matched operations is `DELETE` or
- * carries a document 14 destructive-consequence path token.
- *
- * @param {string[]} apiOperationIds route's matched operation IDs
- * @param {Map<string, {method: string, path: string}>} operationIndex http-catalog operation index
- * @returns {boolean} whether ConsequentialConfirmation is admitted
- */
-function requiresConsequentialConfirmation(apiOperationIds, operationIndex) {
-  return apiOperationIds.some((operationId) => {
-    const operation = operationIndex.get(operationId);
-    if (operation === undefined) {
-      return false;
-    }
-    if (operation.method === 'DELETE') {
-      return true;
-    }
-    return CONSEQUENTIAL_CONFIRMATION_PATH_TOKENS.some((token) =>
-      operation.path.includes(token),
-    );
-  });
-}
-
-/**
- * Compute one route's ordered, deduplicated componentIds using document 07's
- * exact ordered rule and the S5 brief's RECOVERY/TRANSACTIONAL_LINK override.
+ * Compute one route's ordered, deduplicated componentIds. Since 3.15.0 the
+ * catalog registers one component, `ValidationSummary`, and a route that
+ * changes something names it. A screen that composes no registered component
+ * names none: the App's shell, tables, timelines and confirmations are not
+ * catalog components.
  *
  * @param {RouteSource} route reviewed route source
- * @param {boolean} consequentialConfirmation whether CC is admitted
  * @returns {string[]} ordered componentIds
  */
-function computeComponentIds(route, consequentialConfirmation) {
-  const isRecoveryOrLink =
-    route.originClass === 'RECOVERY' ||
-    route.originClass === 'TRANSACTIONAL_LINK';
-  const components = [];
-  if (isRecoveryOrLink) {
-    components.push('StatePanel');
-    if (route.mutation) {
-      components.push('FormField', 'ValidationSummary', 'AsyncCommand');
-    }
-    if (consequentialConfirmation) {
-      components.push('ConsequentialConfirmation');
-    }
-    return components;
-  }
-  components.push('AppShell');
-  if (route.pathTemplate !== '/' && route.pathTemplate !== '/sign-in') {
-    components.push('Breadcrumbs', 'ContextHeader');
-  }
-  components.push('StatePanel');
-  if (route.mutation) {
-    components.push('FormField', 'ValidationSummary', 'AsyncCommand');
-  }
-  if (consequentialConfirmation) {
-    components.push('ConsequentialConfirmation');
-  }
-  if (route.collection) {
-    components.push('DataTable');
-  }
-  if (
-    route.pathTemplate.endsWith('/source') ||
-    route.pathTemplate.endsWith('/content') ||
-    route.pathTemplate.endsWith('/reviews')
-  ) {
-    components.push('SemanticDiffReview');
-  }
-  if (
-    route.pathTemplate.endsWith('/releases') ||
-    route.pathTemplate.includes('/operations/')
-  ) {
-    components.push('OperationTimeline');
-  }
-  if (route.pathTemplate === '/account/security') {
-    components.push('SecretOrTokenDisplay');
-  }
-  return [...new Set(components)];
+function computeComponentIds(route) {
+  return route.mutation ? ['ValidationSummary'] : [];
 }
 
 /**
@@ -615,11 +533,7 @@ export function projectAppCatalogs(
       route.mutation,
       route.collection,
     );
-    const consequentialConfirmation = requiresConsequentialConfirmation(
-      route.apiOperationIds,
-      operationIndex,
-    );
-    const componentIds = computeComponentIds(route, consequentialConfirmation);
+    const componentIds = computeComponentIds(route);
     for (const componentId of componentIds) {
       if (!componentIdSet.has(componentId)) {
         throw new TypeError(
@@ -659,14 +573,14 @@ export function projectAppCatalogs(
     contentKeys.push({
       contentKey: `${screenId}.ready.title`,
       defaultMessage: title,
-      description: `Title for the ${routeId} screen, copied verbatim from document 14's Screen/job cell.`,
+      description: `Title for the ${routeId} screen, copied verbatim from the route's screenJob in catalog-sources/app-routes.json.`,
       placeholders: {},
       sensitivity,
     });
     contentKeys.push({
       contentKey: `${screenId}.ready.summary`,
       defaultMessage: summary,
-      description: `Summary for the ${routeId} screen, copied verbatim from document 14's Screen/job cell.`,
+      description: `Summary for the ${routeId} screen, copied verbatim from the route's screenJob in catalog-sources/app-routes.json.`,
       placeholders: {},
       sensitivity,
     });

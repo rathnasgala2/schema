@@ -532,25 +532,28 @@ test('the publish command is offered where the App mounts it, not on Reviews', a
     return entry;
   };
   const publish =
-    'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes';
-  const cancel = `${publish}ByPublishIdCancel`;
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish';
+  const cancel =
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel';
+  // The current UI publishes from the pages that open its publish sheet (Home,
+  // the editor, Look, History and the rest), and cancels a publish from the
+  // organization's Activity page as well as from the site bar.
   for (const pathTemplate of [
-    '/organizations/{organizationId}/publications/{publicationId}',
-    '/organizations/{organizationId}/publications/{publicationId}/source',
+    '/sites/{organizationId}/{publicationId}',
+    '/sites/{organizationId}/{publicationId}/posts/new',
+    '/sites/{organizationId}/{publicationId}/posts/{path}',
+    '/sites/{organizationId}/{publicationId}/look',
+    '/sites/{organizationId}/{publicationId}/history',
   ]) {
     const entry = route(pathTemplate);
     assert.ok(entry.apiOperationIds.includes(publish), pathTemplate);
     assert.ok(entry.apiOperationIds.includes(cancel), pathTemplate);
   }
   assert.ok(
-    route(
-      '/organizations/{organizationId}/operations/{operationId}',
-    ).apiOperationIds.includes(cancel),
-    'the operation screen is where the App actually cancels a publish',
+    route('/orgs/{organizationId}/activity').apiOperationIds.includes(cancel),
+    'the Activity page is where a publish is cancelled outside the site',
   );
-  const reviews = route(
-    '/organizations/{organizationId}/publications/{publicationId}/reviews',
-  );
+  const reviews = route('/sites/{organizationId}/{publicationId}/reviews');
   assert.ok(!reviews.apiOperationIds.includes(publish));
   assert.ok(!reviews.apiOperationIds.includes(cancel));
   assert.ok(
@@ -562,8 +565,8 @@ test('the publish command is offered where the App mounts it, not on Reviews', a
     await readFile('catalog-sources/app-routes.json', 'utf8'),
   );
   for (const pathTemplate of [
-    '/organizations/{organizationId}/publications/{publicationId}/reviews',
-    '/organizations/{organizationId}/publications/{publicationId}/releases',
+    '/sites/{organizationId}/{publicationId}/reviews',
+    '/sites/{organizationId}/{publicationId}/history',
   ]) {
     const entry = ledger.routes.find(
       (/** @type {JsonObject} */ candidate) =>

@@ -72,23 +72,25 @@ independently identified event actions (SCHEMA-2.11.0 adds the
 retire into the sole aggregate gateway). Each action binds its aggregate and
 organization or publication scope, exact predecessor/target states, the closed
 DEC-101 payload, the transactional outbox producer, and a non-empty registered
-consumer set. S5-T00 materializes document 07's closed 15-component App semantic
-catalog and document 14's 20-entry MVP App route registry (S5 brief section 4)
-as `docs/catalogs/app-components.json` and `docs/catalogs/app-routes.json`, with
-every `apiOperationIds` entry validated against `openapi/openapi.yaml`, every
-`componentIds`/`contentKeyIds` entry validated against the component catalog,
-and `capabilityKeys` projected from `openapi/http-catalog.json`. S4-T01 adds the
-separately generated `fixtures/s4/` deployment/certification consumer-fixture
-family (deployment-intent, deployment-observation, deployment-receipt,
-public-generation-marker, and adapter-capability rows for `local-directory`,
-`github-pages`, and `do-spaces`) alongside the existing `fixtures/s2/` family,
-each with its own manifest. LOCAL-21 admits a 21st App route,
-`/invitations/accept` (`routeId` `invitations.accept`), an ordinary
-`SESSION_REQUIRED` `APP` route (not `TRANSACTIONAL_LINK`: it is served by the
-App origin after sign-in, unlike the deferred `/t/**` template family) that
-calls `postMembershipInvitationsByTokenAccept`; its non-enumerating failure
-states collapse onto that operation's single declared `INVALID_SOURCE_STATE`
-problem, which covers an expired, already-used or unknown token alike.
+consumer set. S5-T00 materialized document 07's App semantic component catalog
+and document 14's App route registry (S5 brief section 4) as
+`docs/catalogs/app-components.json` and `docs/catalogs/app-routes.json`; since
+3.15.0 they describe only the App's current UI (one registered component, 44
+routes). Every `apiOperationIds` entry is validated against
+`openapi/openapi.yaml`, every `componentIds`/`contentKeyIds` entry against the
+component catalog, and `capabilityKeys` are projected from
+`openapi/http-catalog.json`. S4-T01 adds the separately generated `fixtures/s4/`
+deployment/certification consumer-fixture family (deployment-intent,
+deployment-observation, deployment-receipt, public-generation-marker, and
+adapter-capability rows for `local-directory`, `github-pages`, and `do-spaces`)
+alongside the existing `fixtures/s2/` family, each with its own manifest.
+LOCAL-21 admits a 21st App route, `/invitations/accept` (`routeId`
+`invitations.accept`), an ordinary `SESSION_REQUIRED` `APP` route (not
+`TRANSACTIONAL_LINK`: it is served by the App origin after sign-in, unlike the
+deferred `/t/**` template family) that calls
+`postMembershipInvitationsByTokenAccept`; its non-enumerating failure states
+collapse onto that operation's single declared `INVALID_SOURCE_STATE` problem,
+which covers an expired, already-used or unknown token alike.
 
 SCHEMA-2.17.0 (design `scrap/20260928_write-preview-publish.md` section 9) is
 media in articles: a cover image, and images, sound and video referenced from an
@@ -669,16 +671,16 @@ remediation, and documentation URL fields without including authored values.
 - `catalog-sources/app-components.json` and `catalog-sources/app-routes.json` —
   reviewed document 07/14 component and route source ledgers for the S5 App
   control plane.
-- `docs/catalogs/app-components.json` — generated digest-bound catalog of the 15
-  closed semantic App components and the per-screen title/summary/status/
-  recovery content-key inventory for every registered route.
-- `docs/catalogs/app-routes.json` — generated digest-bound catalog of the 33 App
-  route registry entries (S5 brief section 4, plus LOCAL-21's
-  `/invitations/accept`, SCHEMA-2.8.0's Reviews list, the v1 site screens, and
-  SCHEMA-3.3.0's site Domain screen and three `/platform` operator screens),
-  each with its derived `routeId`/`screenId`, `componentIds`, `contentKeyIds`,
-  `apiOperationIds` validated against `openapi/openapi.yaml`, and
-  `capabilityKeys` projected from `openapi/http-catalog.json`.
+- `docs/catalogs/app-components.json` — generated digest-bound catalog of the
+  one registered semantic App component (`ValidationSummary`) and the per-screen
+  title/summary/status/recovery content-key inventory for every registered
+  route.
+- `docs/catalogs/app-routes.json` — generated digest-bound catalog of the 44
+  routes the App's current UI mounts (3.15.0 dropped the retired UI's rows and
+  its components), each with its derived `routeId`/`screenId`, `componentIds`,
+  `contentKeyIds`, `apiOperationIds` validated against `openapi/openapi.yaml`
+  (the operations the App's page for the route reaches through its API
+  wrappers), and `capabilityKeys` projected from `openapi/http-catalog.json`.
 - `openapi/source/` — reviewed, complete OpenAPI root, component, and path
   fragments, one fragment per tag, grouped by resource or by feature
   (SCHEMA-3.3.0 adds `publication-transfers`, `domains`, `prism` and `platform`;

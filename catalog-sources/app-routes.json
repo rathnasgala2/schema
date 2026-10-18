@@ -5,38 +5,18 @@
       "pathTemplate": "/",
       "originClass": "APP",
       "authenticationClass": "PUBLIC",
-      "mutation": false,
-      "collection": false,
-      "screenJob": "Home; See what Galascribe offers and sign in with GitHub.",
-      "apiOperationIds": []
-    },
-    {
-      "pathTemplate": "/sign-in",
-      "originClass": "APP",
-      "authenticationClass": "PUBLIC",
       "mutation": true,
       "collection": false,
-      "screenJob": "Sign in; Sign in with your GitHub account to manage your organizations and publications.",
-      "apiOperationIds": [
-        "getCallbacksGithubOauth",
-        "postAuthenticationGithubTransactions",
-        "postAuthenticationPasskeyAssertionOptions",
-        "postAuthenticationPasskeyAssertions",
-        "postAuthenticationRecoveryCode"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Organizations; Organizations you belong to, and where to create a new one.",
+      "screenJob": "Home; See what Galascribe offers and sign in with GitHub, then open your first site, or start one if you have none.",
       "apiOperationIds": [
         "getOrganizations",
+        "getOrganizationsByOrganizationId",
         "getOrganizationsByOrganizationIdPublicationTransfers",
+        "getOrganizationsByOrganizationIdPublications",
         "getSelfOwnerTransfers",
-        "postOrganizations",
+        "getSession",
+        "postAuthenticationGithubTransactions",
+        "postAuthenticationRecoveryCode",
         "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
         "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
         "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdAccept",
@@ -44,85 +24,498 @@
       ]
     },
     {
-      "pathTemplate": "/organizations/{organizationId}",
+      "pathTemplate": "/sign-in",
       "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": false,
+      "authenticationClass": "PUBLIC",
+      "mutation": true,
       "collection": false,
-      "screenJob": "Overview; This organization's name and status.",
-      "apiOperationIds": ["getOrganizationsByOrganizationId"]
+      "screenJob": "Sign in; Sign in with your GitHub account, or a recovery code, to manage your sites, and come back to where you were.",
+      "apiOperationIds": [
+        "getCallbacksGithubOauth",
+        "getMembershipInvitationsByToken",
+        "getSession",
+        "postAuthenticationGithubTransactions",
+        "postAuthenticationRecoveryCode"
+      ]
     },
     {
-      "pathTemplate": "/organizations/{organizationId}/publications",
+      "pathTemplate": "/reader/connect",
+      "originClass": "APP",
+      "authenticationClass": "PUBLIC",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Connect as a reader; Let a blog you are visiting show your name on your likes and comments.",
+      "apiOperationIds": [
+        "getPublicPublicationsByPublicationId",
+        "getSelfReaderConnections",
+        "getSession",
+        "postAuthenticationGithubTransactions",
+        "postReaderAuthorizations"
+      ]
+    },
+    {
+      "pathTemplate": "/start",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Publications; Your publications, and where to create a new one. Importing or restoring a publication is not available yet.",
+      "screenJob": "Create a site; Choose a name and an address for a new site.",
       "apiOperationIds": [
-        "getGithubInstallations",
-        "getGithubInstallationsByInstallationIdRepositories",
-        "getOrganizationsByOrganizationIdPublicationImports",
-        "getOrganizationsByOrganizationIdPublicationImportsByImportId",
-        "getOrganizationsByOrganizationIdPublications",
-        "postOrganizationsByOrganizationIdPublicationImports",
-        "postOrganizationsByOrganizationIdPublicationImportsByImportIdCancel",
-        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConnect",
-        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConvert",
+        "getOrganizations",
+        "postOrganizations",
         "postOrganizationsByOrganizationIdPublications"
       ]
     },
     {
-      "pathTemplate": "/organizations/{organizationId}/members",
+      "pathTemplate": "/start/import",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Members; People in this organization and their roles, plus pending invitations, which anyone holding the invitation link can accept, so send a link only to the person you mean to invite.",
+      "screenJob": "Bring a repository; Choose the organization, GitHub account and repository of a site you already have, and let Galascribe look at it before anything is written.",
       "apiOperationIds": [
-        "deleteOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
-        "deleteOrganizationsByOrganizationIdMembershipsByMembershipId",
-        "deleteOrganizationsByOrganizationIdMembershipsByMembershipIdGrantsByGrantId",
-        "getOrganizationsByOrganizationIdMembershipInvitations",
-        "getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
-        "getOrganizationsByOrganizationIdMemberships",
-        "getOrganizationsByOrganizationIdOwnerTransfers",
-        "getOrganizationsByOrganizationIdOwnerTransfersByTransferId",
-        "getOrganizationsByOrganizationIdRoles",
-        "patchOrganizationsByOrganizationIdMembershipsByMembershipId",
-        "postOrganizationsByOrganizationIdMembershipInvitations",
-        "postOrganizationsByOrganizationIdOwnerTransfers",
-        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
-        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdCancel",
-        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
-        "postOrganizationsByOrganizationIdOwnerTransfersPreview"
+        "getGithubApp",
+        "getGithubInstallations",
+        "getGithubInstallationsByInstallationIdRepositories",
+        "getOrganizations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "postOrganizationsByOrganizationIdPublicationImports"
       ]
     },
     {
-      "pathTemplate": "/organizations/{organizationId}/roles",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Roles; The roles available in this organization and what each one can do.",
-      "apiOperationIds": [
-        "deleteOrganizationsByOrganizationIdRolesByRoleId",
-        "getOrganizationsByOrganizationId",
-        "getOrganizationsByOrganizationIdCapabilities",
-        "getOrganizationsByOrganizationIdRoles",
-        "getOrganizationsByOrganizationIdRolesByRoleId",
-        "getOrganizationsByOrganizationIdRolesByRoleIdMembers",
-        "patchOrganizationsByOrganizationIdRolesByRoleId",
-        "postOrganizationsByOrganizationIdRoles"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/settings",
+      "pathTemplate": "/start/import/{organizationId}/{importId}",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": false,
-      "screenJob": "Settings; Update this organization's name and details, or close it.",
+      "screenJob": "Import progress; Follow a repository import from looking through connecting and converting to a connected site, or cancel it.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationImportsByImportId",
+        "postOrganizationsByOrganizationIdPublicationImports",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdCancel",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConnect",
+        "postOrganizationsByOrganizationIdPublicationImportsByImportIdConvert"
+      ]
+    },
+    {
+      "pathTemplate": "/start/{organizationId}/{publicationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Set up your site; Connect GitHub, install Galascribe, link a repository and set the site up, resuming at the right step after a reload or a trip to GitHub.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getGithubApp",
+        "getGithubInstallations",
+        "getGithubInstallationsByInstallationIdRepositories",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "postGithubInstallationsByInstallationIdRepositories",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindings",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Home; See whether your site is live and where, what is waiting to be published, and what needs attention, then publish the waiting changes together.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizations",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "getSelfOwnerTransfers",
+        "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdOwnerTransfersByTransferIdDecline",
+        "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdAccept",
+        "postOrganizationsByOrganizationIdPublicationTransfersByTransferIdDecline",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdDismiss",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/posts",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Posts; Find and open the site's posts and pages, and start a new one.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdDismiss",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/posts/new",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "New post; Write, preview and save a new post or page as a change, ask for a review when the site requires one, and publish it.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "getSession",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/posts/{path}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Edit post; Change a post or page, preview it, save it as a change, ask for a review when the site requires one, and publish it.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "getSession",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/reviews",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Reviews; See every review of a change to this site, and decide the ones that are waiting for you.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/look",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Look; See the site in each theme and colour mode, choose a look as a change, and publish it now or later.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/history",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "History; See the versions of the site that went live, who published them and what changed, and restore one that was live.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdOperations",
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdReconcile",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/comments",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Comments; Review, hold, restore and remove the comments readers leave on this site, and see how many reactions each post has.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregates",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/domain",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Domain; Put the site on your own domain: add the DNS records shown (or let Cloudflare add them), then follow DNS, certificate and routing until it is live, or remove the domain.",
+      "apiOperationIds": [
+        "getCallbacksCloudflareOauth",
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetach",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnections",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdApply",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdDiscard",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/settings",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Settings; Update this site's name and details, choose whether publishing needs a review and whether Galascribe merges pull requests, see where it is published, repair its repository connection, hand it to someone else with a claim link (the operator finds a demo site's claim link here), or retire it.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizations",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationTransfers",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsByClaimIdRevoke",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/reconnect",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Reconnect repository; Connect the site to a different repository when GitHub no longer has its repository or it moved to another owner, then set it up and publish.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getGithubApp",
+        "getGithubInstallations",
+        "getGithubInstallationsByInstallationIdRepositories",
+        "getOrganizationsByOrganizationIdOperationsByOperationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postGithubInstallationsByInstallationIdRepositories",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindings",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/handover",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Move my site; Move a demo site's repository into your own GitHub account and follow the move until the site is live at its new address.",
+      "apiOperationIds": [
+        "getGithubApp",
+        "getGithubInstallations",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverCancel"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/changes/{changeId}/preview",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Preview a change; See one waiting change as readers will see it, drawn in the site's theme, before anything is published.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite"
+      ]
+    },
+    {
+      "pathTemplate": "/account",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Account; See and manage how you sign in (passkeys, recovery codes and sessions), your GitHub and reader connections, your contact email, a copy of your data, and closing your account.",
+      "apiOperationIds": [
+        "deleteSelfIdentityLinksByIdentityLinkId",
+        "deleteSelfPasskeysByPasskeyId",
+        "deleteSelfReaderConnectionsByPublicationId",
+        "deleteSelfSessionsBySessionFamilyId",
+        "deleteSession",
+        "getGithubApp",
+        "getGithubInstallations",
+        "getOrganizations",
+        "getSelfAuthenticators",
+        "getSelfClosure",
+        "getSelfExports",
+        "getSelfReaderConnections",
+        "getSelfSessions",
+        "getSession",
+        "patchSelfPasskeysByPasskeyId",
+        "postAuthenticationGithubTransactions",
+        "postSelfClosure",
+        "postSelfClosureCancel",
+        "postSelfClosurePreview",
+        "postSelfContactEmailGrant",
+        "postSelfContactEmailWithdraw",
+        "postSelfExports",
+        "postSelfExportsByExportIdDownload",
+        "postSelfPasskeyRegistrationOptions",
+        "postSelfPasskeys",
+        "postSelfRecoveryCodeSets",
+        "postSelfSessionsRevokeOthers"
+      ]
+    },
+    {
+      "pathTemplate": "/orgs",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": true,
+      "screenJob": "Organizations; See the organizations you belong to, your role in each and how many sites each has.",
+      "apiOperationIds": [
+        "getOrganizations",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdMemberships"
+      ]
+    },
+    {
+      "pathTemplate": "/orgs/{organizationId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Organization; Rename an organization, see its sites and start a new one, and, for owners, transfer its ownership, suspend, reactivate or close it.",
       "apiOperationIds": [
         "getOrganizationsByOrganizationId",
         "getOrganizationsByOrganizationIdMemberships",
@@ -135,243 +528,56 @@
       ]
     },
     {
-      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Overview; This publication's name and status, its chosen deployment destination, and where a publish is started from an approved review.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/source",
+      "pathTemplate": "/orgs/{organizationId}/people",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Source; Connect this publication to a GitHub repository by choosing one of your GitHub App installations and then a repository it grants, install the Galascribe GitHub App first if you have not already, and review proposed changes before they apply.",
+      "screenJob": "People; See who belongs to an organization, change their roles and grants, remove them, and invite new people.",
       "apiOperationIds": [
-        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
-        "getGithubApp",
-        "getGithubInstallations",
-        "getGithubInstallationsByInstallationIdRepositories",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
-        "postGithubInstallationsByInstallationIdRepositories",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindings",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp"
+        "deleteOrganizationsByOrganizationIdMembershipInvitationsByInvitationId",
+        "deleteOrganizationsByOrganizationIdMembershipsByMembershipId",
+        "deleteOrganizationsByOrganizationIdMembershipsByMembershipIdGrantsByGrantId",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdMembershipInvitations",
+        "getOrganizationsByOrganizationIdMemberships",
+        "getOrganizationsByOrganizationIdRoles",
+        "patchOrganizationsByOrganizationIdMembershipsByMembershipId",
+        "postOrganizationsByOrganizationIdMembershipInvitations"
       ]
     },
     {
-      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/content",
+      "pathTemplate": "/orgs/{organizationId}/roles",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Content; Write, preview, propose, review and publish this publication's content, with drafts kept in the browser until proposed.",
+      "screenJob": "Roles; See an organization's default and custom roles and who holds each, and create, change or retire a custom role.",
       "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdRolesByRoleId",
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdCapabilities",
+        "getOrganizationsByOrganizationIdRoles",
+        "getOrganizationsByOrganizationIdRolesByRoleId",
+        "getOrganizationsByOrganizationIdRolesByRoleIdMembers",
+        "patchOrganizationsByOrganizationIdRolesByRoleId",
+        "postOrganizationsByOrganizationIdRoles"
+      ]
+    },
+    {
+      "pathTemplate": "/orgs/{organizationId}/activity",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Activity; See what is running and what has run for an organization, open the details of an operation, and cancel it where its state allows.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationId",
+        "getOrganizationsByOrganizationIdOperations",
         "getOrganizationsByOrganizationIdOperationsByOperationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/reviews",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Reviews; Open the exact GitHub pull request for a proposed change, use GitHub for discussion and review, then Galascribe observes its exact merge automatically before publishing.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsEvents",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/releases",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Releases; Every deployment generation this publication has had, newest first, with what was deployed and how it ended. Reconcile a generation whose outcome is unknown, or roll back to a named earlier one.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
-        "postOrganizationsByOrganizationIdOperationsByOperationIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationIdReconcile",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/publications/{publicationId}/settings",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Settings; Update this publication's name and details, choose its deployment destination, or retire it. Change its theme under Appearance. Changing its modules and membership, and transferring it, are not available yet.",
-      "apiOperationIds": [
-        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizations",
-        "getOrganizationsByOrganizationIdPublicationTransfers",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId",
-        "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
-        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination"
-      ]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/operations",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": false,
-      "collection": true,
-      "screenJob": "Operations; Background work in this organization, newest first, so you can pick up anything that is still running or needs attention.",
-      "apiOperationIds": ["getOrganizationsByOrganizationIdOperations"]
-    },
-    {
-      "pathTemplate": "/organizations/{organizationId}/operations/{operationId}",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Operation status; Track the progress of this operation, see what's blocking it, and cancel it if needed -- including cancelling the publish an accepted publish operation started.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
         "postOrganizationsByOrganizationIdOperationsByOperationIdCancel",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel"
-      ]
-    },
-    {
-      "pathTemplate": "/account/security",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Security; Manage the passkeys registered on your account, including when each one was added and last used, and sign out of your current session. Viewing your session history and recovery codes is not available yet.",
-      "apiOperationIds": [
-        "deleteSelfPasskeysByPasskeyId",
-        "deleteSelfSessionsBySessionFamilyId",
-        "deleteSession",
-        "getSelfAuthenticators",
-        "getSelfSessions",
-        "getSession",
-        "patchSelfPasskeysByPasskeyId",
-        "postSelfPasskeyRegistrationOptions",
-        "postSelfPasskeys",
-        "postSelfRecoveryCodeSets",
-        "postSelfSessionsRevokeOthers",
-        "postSessionReauthentication"
-      ]
-    },
-    {
-      "pathTemplate": "/account/connections",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Connections; The GitHub App installations linked to your profile. Linking other accounts is not available yet.",
-      "apiOperationIds": [
-        "deleteSelfIdentityLinksByIdentityLinkId",
-        "deleteSelfReaderConnectionsByPublicationId",
-        "getGithubApp",
-        "getGithubInstallations",
-        "getSelfAuthenticators",
-        "getSelfReaderConnections",
-        "postSelfContactEmailGrant",
-        "postSelfContactEmailWithdraw",
-        "postSelfIdentityLinks"
-      ]
-    },
-    {
-      "pathTemplate": "/account/export",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Export account data; Exporting a copy of your account data is not available yet.",
-      "apiOperationIds": [
-        "getSelfExports",
-        "getSelfExportsByExportId",
-        "getSelfExportsByExportIdArchive",
-        "postSelfExports",
-        "postSelfExportsByExportIdDownload"
-      ]
-    },
-    {
-      "pathTemplate": "/account/closure",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Close account; Closing your account is not available yet.",
-      "apiOperationIds": [
-        "getSelfClosure",
-        "postSelfClosure",
-        "postSelfClosureCancel",
-        "postSelfClosurePreview"
-      ]
-    },
-    {
-      "pathTemplate": "/account/recover",
-      "originClass": "RECOVERY",
-      "authenticationClass": "PUBLIC",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Recover account; Regain access to your account using a passkey or your GitHub account. Recovery codes are not available yet.",
-      "apiOperationIds": [
-        "getCallbacksGithubOauth",
-        "postAuthenticationGithubTransactions",
-        "postAuthenticationPasskeyAssertionOptions",
-        "postAuthenticationPasskeyAssertions",
-        "postAuthenticationRecoveryCode"
       ]
     },
     {
@@ -380,182 +586,43 @@
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": false,
-      "screenJob": "Accept invitation; Accept an invitation to join an organization.",
-      "apiOperationIds": ["postMembershipInvitationsByTokenAccept"]
-    },
-    {
-      "pathTemplate": "/reader/connect",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Connect as a reader; Let a blog you are visiting show your name on your likes and comments.",
+      "screenJob": "Accept invitation; See whose account would join an organization and accept the invitation.",
       "apiOperationIds": [
-        "getPublicPublicationsByPublicationId",
-        "postReaderAuthorizations"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Home; See whether your site is live and where, what is waiting to be published, and what needs attention, then publish the waiting changes together.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdDismiss",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/posts",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Posts; Write, preview and save posts and pages as changes, ask for a review when the publication requires one, and publish them.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviews",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdReviewsByReviewIdDecide"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/look",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Look; See the site in each theme and colour mode, choose a look as a change, and publish it now or later.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdConfirm"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/history",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "History; See the versions of the site that went live, who published them and what changed, and restore one that was live.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsByGenerationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDeploymentsRollback"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/comments",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Comments; Review, hold, restore and remove the comments readers leave on this site, and see how many reactions each post has.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregates",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdModerationQueue",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/settings",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Settings; Update this site's name and details, choose whether publishing needs a review and whether Galascribe merges pull requests, choose its deployment destination, repair its repository connection, hand it to someone else with a claim link (the operator finds a demo site's claim link here), or retire it.",
-      "apiOperationIds": [
-        "deleteOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "deleteSession",
+        "getMembershipInvitationsByToken",
         "getOrganizations",
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationTransfers",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId",
-        "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsByClaimIdRevoke",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirement",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
-        "putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
-        "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings"
+        "getOrganizationsByOrganizationIdPublications",
+        "getSession",
+        "postMembershipInvitationsByTokenAccept"
       ]
     },
     {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/domain",
+      "pathTemplate": "/claim/{token}",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": false,
-      "screenJob": "Domain; Put the site on your own domain: add the DNS records shown (or let Cloudflare add them), then follow DNS, certificate and routing until it is live, or remove the domain.",
+      "screenJob": "Claim your site; Prove you own the YouTube channel a demo site was made for, then take ownership of it.",
       "apiOperationIds": [
-        "getCallbacksCloudflareOauth",
-        "getOrganizationsByOrganizationIdOperationsByOperationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetach",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnections",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdApply",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDnsConnectionsByConnectionIdDiscard"
+        "deleteSession",
+        "getCallbacksGoogleClaim",
+        "getClaimsByToken",
+        "getSession",
+        "postAuthenticationGithubTransactions",
+        "postClaimsByTokenAccept",
+        "postClaimsByTokenDescriptionCode",
+        "postClaimsByTokenDescriptionCodeCheck",
+        "postClaimsByTokenGoogleStart"
       ]
+    },
+    {
+      "pathTemplate": "/claim",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Claim not finished; Say that the channel check could not be matched to a claim, and send the person back to the link they were given.",
+      "apiOperationIds": ["getCallbacksGoogleClaim"]
     },
     {
       "pathTemplate": "/platform",
@@ -572,23 +639,14 @@
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Platform users; Operators inspect paged person state, provider display snapshots, account creation, last sign-in, accessible publication count and organization plan tiers without inferred subscription or traffic data.",
+      "screenJob": "Platform users; Operators inspect paged person state, provider display snapshots, account creation, last sign-in, accessible publication count and organization plan tiers without inferred subscription or traffic data, contact a person who allows it, and manage per-person settings overrides.",
       "apiOperationIds": [
+        "deletePlatformSettingsOverridesByKindByIdByKey",
+        "getPlatformSettingsByKey",
+        "getPlatformSettingsOverridesByKindByIdByKey",
         "getPlatformUsers",
-        "postPlatformUsersByPersonIdContact"
-      ]
-    },
-    {
-      "pathTemplate": "/platform/integrations",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": true,
-      "screenJob": "Platform integrations; Operators list, register and revoke OAuth clients, with a confidential client's generated secret shown only once.",
-      "apiOperationIds": [
-        "getPlatformOauthClients",
-        "postPlatformOauthClients",
-        "postPlatformOauthClientsByOauthClientIdRevoke"
+        "postPlatformUsersByPersonIdContact",
+        "putPlatformSettingsOverridesByKindByIdByKey"
       ]
     },
     {
@@ -613,16 +671,31 @@
       ]
     },
     {
-      "pathTemplate": "/platform/caches",
+      "pathTemplate": "/platform/audit",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
+      "mutation": false,
       "collection": true,
-      "screenJob": "Platform caches; Operators inspect safe cache metadata and coordinate eviction across all serving instances.",
-      "apiOperationIds": [
-        "getPlatformCaches",
-        "postPlatformCachesByCacheIdEvict"
-      ]
+      "screenJob": "Platform audit; Operators read redacted audit events across every organization, using the trailing seven days by default and optionally filtering by organization, publication, actor, action and time.",
+      "apiOperationIds": ["getPlatformAuditEvents"]
+    },
+    {
+      "pathTemplate": "/platform/configuration",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Platform configuration; Operators read every configuration family's effective values and where each comes from.",
+      "apiOperationIds": ["getPlatformConfiguration"]
+    },
+    {
+      "pathTemplate": "/platform/configuration/{family}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": false,
+      "collection": false,
+      "screenJob": "Platform configuration family; Operators read one configuration family's effective values and where each comes from.",
+      "apiOperationIds": ["getPlatformConfiguration"]
     },
     {
       "pathTemplate": "/platform/plans",
@@ -661,22 +734,16 @@
       "apiOperationIds": ["getPlatformWebhookEventsByEventId"]
     },
     {
-      "pathTemplate": "/platform/audit",
+      "pathTemplate": "/platform/caches",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
-      "mutation": false,
+      "mutation": true,
       "collection": true,
-      "screenJob": "Platform audit; Operators read redacted audit events across every organization, using the trailing seven days by default and optionally filtering by organization, publication, actor, action and time.",
-      "apiOperationIds": ["getPlatformAuditEvents"]
-    },
-    {
-      "pathTemplate": "/platform/configuration/{family}",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": false,
-      "collection": false,
-      "screenJob": "Platform configuration; Operators read one configuration family's effective values and where each comes from.",
-      "apiOperationIds": ["getPlatformConfiguration"]
+      "screenJob": "Platform caches; Operators inspect safe cache metadata and coordinate eviction across all serving instances.",
+      "apiOperationIds": [
+        "getPlatformCaches",
+        "postPlatformCachesByCacheIdEvict"
+      ]
     },
     {
       "pathTemplate": "/platform/adapters",
@@ -686,15 +753,6 @@
       "collection": false,
       "screenJob": "Platform adapters; Operators see the admitted adapters and their state.",
       "apiOperationIds": ["getPlatformAdapters"]
-    },
-    {
-      "pathTemplate": "/t/invitations/{token}",
-      "originClass": "TRANSACTIONAL_LINK",
-      "authenticationClass": "ACCOUNTLESS_CAPABILITY",
-      "mutation": false,
-      "collection": false,
-      "screenJob": "Invitation; See which organization, role and site an invitation link offers and who sent it, then sign in to accept it.",
-      "apiOperationIds": ["getMembershipInvitationsByToken"]
     },
     {
       "pathTemplate": "/platform/api-keys",
@@ -715,43 +773,10 @@
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Platform settings; Operators read and version-safely change app-wide limits and the article model, and set per-person or per-organization overrides.",
+      "screenJob": "Platform settings; Operators read and version-safely change app-wide limits and the article model.",
       "apiOperationIds": [
-        "deletePlatformSettingsOverridesByKindByIdByKey",
         "getPlatformSettingsByKey",
-        "getPlatformSettingsOverridesByKindByIdByKey",
-        "putPlatformSettingsByKey",
-        "putPlatformSettingsOverridesByKindByIdByKey"
-      ]
-    },
-    {
-      "pathTemplate": "/claim/{token}",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Claim your site; Prove you own the YouTube channel a demo site was made for, then take ownership of it.",
-      "apiOperationIds": [
-        "getCallbacksGoogleClaim",
-        "getClaimsByToken",
-        "postClaimsByTokenAccept",
-        "postClaimsByTokenDescriptionCode",
-        "postClaimsByTokenDescriptionCodeCheck",
-        "postClaimsByTokenGoogleStart"
-      ]
-    },
-    {
-      "pathTemplate": "/v1/sites/{organizationId}/{publicationId}/handover",
-      "originClass": "APP",
-      "authenticationClass": "SESSION_REQUIRED",
-      "mutation": true,
-      "collection": false,
-      "screenJob": "Move my site; Move a demo site's repository into your own GitHub account and follow the move until the site is live at its new address.",
-      "apiOperationIds": [
-        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
-        "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverCancel"
+        "putPlatformSettingsByKey"
       ]
     }
   ]

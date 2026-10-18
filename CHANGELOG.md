@@ -8,6 +8,76 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-10-18
+
+### Changed
+
+- The App catalogs describe only the App's current UI. No OpenAPI operation,
+  JSON Schema or generated validator changes; only
+  `docs/catalogs/app-routes.json`, `docs/catalogs/app-components.json` and the
+  content keys they carry do.
+  - `app-routes.json` lists 44 routes (was 48), one for every address the App
+    mounts, all `originClass: APP`: `/`, `/sign-in`, `/reader/connect`,
+    `/start`, `/start/import`, `/start/import/{organizationId}/{importId}`,
+    `/start/{organizationId}/{publicationId}`, the thirteen site routes under
+    `/sites/{organizationId}/{publicationId}` (Home, `posts`, `posts/new`,
+    `posts/{path}`, `reviews`, `look`, `history`, `comments`, `domain`,
+    `settings`, `reconnect`, `handover`, `changes/{changeId}/preview`),
+    `/account`, `/orgs` with `{organizationId}`, `people`, `roles` and
+    `activity`, `/invitations/accept`, `/claim`, `/claim/{token}`, and the
+    fifteen operator routes under `/platform` (the overview, `users`, `abuse`,
+    `abuse/{commentId}`, `audit`, `configuration`, `configuration/{family}`,
+    `plans`, `plans/{planKey}`, `webhooks`, `webhooks/{eventId}`, `caches`,
+    `adapters`, `api-keys`, `settings`).
+  - The eight site rows moved from `/v1/sites/...` to `/sites/...`: `/v1` is
+    only the transition layout's mount, so their ids change from
+    `v1.sites.by-organization-id.by-publication-id[.x]` to
+    `sites.by-organization-id.by-publication-id[.x]`.
+  - `/reader/connect` is `PUBLIC`: the App shows the site before it asks the
+    reader to sign in. `/` now lists the operations the signed-in index and the
+    sign-in view call (it was the one route without any), and `mutation` is true
+    for it.
+  - Every route's `apiOperationIds` are the operations the App's page for it
+    reaches through its API wrappers, including those of the publish sheet on
+    the pages that open it and the OAuth callbacks that land on a route. Account
+    now binds the passkey, recovery-code, session, GitHub-connection,
+    reader-connection, contact-email, export and closure operations that the
+    retired `/account/*` rows held; `/platform/users` binds the per-person
+    settings overrides that `/platform/settings` held.
+  - `componentIds` follow one rule: a route that changes something names
+    `ValidationSummary`, and every other route names none (the list may now be
+    empty). The generator accepts an empty `componentIds` and rejects a route
+    with no `apiOperationIds`.
+  - The content keys follow the routes (1,248, was 1,354). Their descriptions
+    point at the route's `screenJob` in `catalog-sources/app-routes.json`
+    instead of a design document.
+
+### Removed
+
+- Twenty-one `app-routes.json` rows the App no longer serves: `/organizations`
+  and the fourteen routes under it (members, roles, settings, the publications
+  and their `source`, `content`, `reviews`, `releases` and `settings` pages, and
+  the operations list and operation), `/account/security`,
+  `/account/connections`, `/account/export`, `/account/closure`,
+  `/platform/integrations`, and the two addresses no origin ever mounted:
+  `/account/recover` (`RECOVERY`) and `/t/invitations/{token}`
+  (`TRANSACTIONAL_LINK`).
+- Fourteen `app-components.json` components the App no longer implements:
+  `AppShell`, `AsyncCommand`, `Breadcrumbs`, `CapabilityGate`,
+  `ConsequentialConfirmation`, `ContextHeader`, `DataTable`, `FormField`,
+  `Notification`, `OperationTimeline`, `SecretOrTokenDisplay`,
+  `SemanticDiffReview`, `StatePanel` and `Status`. `ValidationSummary` remains
+  the one registered component.
+- Twenty operations are bound to no route now because no screen of the current
+  UI calls them (they are still in the contract): the passkey sign-in ceremony
+  and `POST /v2/session/reauthentication`, identity linking, the export read and
+  archive, the OAuth-client operations, setting the deployment destination,
+  planning a configuration or repository change, bringing a repository change up
+  to date, starting a publish through `.../publishes`, and the deployment,
+  domain, import, invitation, repository-change and transfer reads the retired
+  screens paged through. A consumer that gated screens on the removed route ids
+  must regenerate its constants.
+
 ## [3.14.1] - 2026-10-18
 
 ### Changed
@@ -2916,7 +2986,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.14.1...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.15.0...HEAD
+[3.15.0]: https://github.com/rathnasgala2/schema/compare/v3.14.1...v3.15.0
 [3.14.1]: https://github.com/rathnasgala2/schema/compare/v3.14.0...v3.14.1
 [3.14.0]: https://github.com/rathnasgala2/schema/compare/v3.13.0...v3.14.0
 [3.13.0]: https://github.com/rathnasgala2/schema/compare/v3.12.0...v3.13.0
