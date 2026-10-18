@@ -215,3 +215,35 @@ test('claim read carries proof; a LINK_ONLY claim has no channel and no methods'
     assert.match(doc.paths[route].post.description, /LINK_ONLY/, route);
   }
 });
+
+test('handover claim issue refuses non-single organisations and documents what blocks it', () => {
+  const issue = doc.paths[CLAIMS_PATH].post;
+  assert.match(issue.description, /not a single-person organisation/);
+  assert.match(issue.description, /`CLAIMED` claim never blocks/);
+  assert.ok(issue['x-gala-state-guards'].includes('Organization:SINGLE'));
+  assert.ok(
+    issue['x-gala-reachable-problems'].includes('INVALID_SOURCE_STATE'),
+  );
+  assert.match(
+    doc.paths[CLAIMS_PATH].get.description,
+    /issued before 3\.14\.0 may have no `claimUrl`/,
+  );
+});
+
+test('claim accept answers INVALID_SOURCE_STATE for the issuer and exposes the site ids to them', () => {
+  const accept = doc.paths['/v2/claims/{token}:accept'].post;
+  assert.deepEqual(accept.responses['409']['x-gala-problem-codes'], [
+    'CLAIM_ALREADY_CLAIMED',
+    'CLAIM_NOT_VERIFIED',
+    'INVALID_SOURCE_STATE',
+  ]);
+  assert.ok(
+    accept.responses['409'].content['application/problem+json'].examples
+      .INVALID_SOURCE_STATE,
+  );
+  assert.match(accept.description, /issued the claim or already owns the site/);
+  assert.match(
+    S.GetClaimsByTokenResponse.properties.publicationId.description,
+    /already owns the site/,
+  );
+});

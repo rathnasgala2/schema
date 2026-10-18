@@ -2195,14 +2195,14 @@ components:
           type: array
           uniqueItems: true
         organizationId:
-          description: Present only when `state` is `CLAIMED` and the caller is the person who claimed it.
+          description: Present only when `state` is `CLAIMED` and the caller is the person who claimed it, or when the caller already owns the site (the owner who issued the link, reading it).
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         proof:
           $ref: "#/components/schemas/CreatorClaimProof"
         publicationId:
-          description: Present only when `state` is `CLAIMED` and the caller is the person who claimed it.
+          description: Present only when `state` is `CLAIMED` and the caller is the person who claimed it, or when the caller already owns the site (the owner who issued the link, reading it).
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
@@ -4863,7 +4863,7 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         claimUrl:
-          description: Present only while `state` is `OPEN`, so the owner can copy the link again; absent in every other state. The link is a bearer secret, so anyone who holds it can open the claim page.
+          description: Present only while `state` is `OPEN`, so the owner can copy the link again; absent in every other state. It is also absent on an `OPEN` claim issued before 3.14.0 whose token the API does not hold sealed, until the owner re-issues the claim with `replace`. The link is a bearer secret, so anyone who holds it can open the claim page.
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$
@@ -20119,7 +20119,7 @@ paths:
   /v2/claims/{token}:
     get:
       description: |
-        Needs a signed-in session; signed out is `401 AUTHENTICATION_REQUIRED` and reveals nothing. Returns the site the link offers, what the claimant must show (`proof`) and the ways to show it. For `proof.kind` `YOUTUBE_CHANNEL` the response carries the `channel` and the `methods` that prove it is the caller's. For `LINK_ONLY` there is no channel and `methods` is empty: the caller goes straight to `POST /v2/claims/{token}:accept` after signing in. A response without `proof` is a `YOUTUBE_CHANNEL` claim. `404 CLAIM_NOT_FOUND` for an unknown or revoked link, `410 CLAIM_EXPIRED` once the claim is past its expiry (a demo site's archive date, or the `expiresAt` the site owner chose). Rate limited per caller (`429 RATE_LIMITED`).
+        Needs a signed-in session; signed out is `401 AUTHENTICATION_REQUIRED` and reveals nothing. Returns the site the link offers, what the claimant must show (`proof`) and the ways to show it. For `proof.kind` `YOUTUBE_CHANNEL` the response carries the `channel` and the `methods` that prove it is the caller's. For `LINK_ONLY` there is no channel and `methods` is empty: the caller goes straight to `POST /v2/claims/{token}:accept` after signing in. A response without `proof` is a `YOUTUBE_CHANNEL` claim. `organizationId` and `publicationId` are also returned to the person who issued the link (the site owner reading their own link), who owns the site; accepting it is refused with `409 INVALID_SOURCE_STATE`. `404 CLAIM_NOT_FOUND` for an unknown or revoked link, `410 CLAIM_EXPIRED` once the claim is past its expiry (a demo site's archive date, or the `expiresAt` the site owner chose). Rate limited per caller (`429 RATE_LIMITED`).
       operationId: getClaimsByToken
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -21169,7 +21169,7 @@ paths:
   /v2/claims/{token}:accept:
     post:
       description: |
-        Needs recent authentication. For a `YOUTUBE_CHANNEL` claim it requires the claim to be verified by this same person (`409 CLAIM_NOT_VERIFIED` otherwise); a `LINK_ONLY` claim has nothing to verify and is accepted from `OPEN`. Then it makes the caller the owner of the site's organisation, which hands the site over. Repeating the call after success returns the same organisation. `409 CLAIM_ALREADY_CLAIMED` when another person claimed it; `410 CLAIM_EXPIRED`. An API key is always refused.
+        Needs recent authentication. For a `YOUTUBE_CHANNEL` claim it requires the claim to be verified by this same person (`409 CLAIM_NOT_VERIFIED` otherwise); a `LINK_ONLY` claim has nothing to verify and is accepted from `OPEN`. Then it makes the caller the owner of the site's organisation, which hands the site over. Repeating the call after success returns the same organisation. `409 INVALID_SOURCE_STATE` when the caller is the person who issued the claim or already owns the site: nobody can claim their own site. `409 CLAIM_ALREADY_CLAIMED` when another person claimed it; `410 CLAIM_EXPIRED`. An API key is always refused.
       operationId: postClaimsByTokenAccept
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -21354,9 +21354,22 @@ paths:
                     status: 409
                     title: CLAIM_NOT_VERIFIED
                     type: urn:gala:problem:claim-not-verified
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
               schema:
                 $ref: "#/components/schemas/Problem"
-          description: CLAIM_ALREADY_CLAIMED, CLAIM_NOT_VERIFIED
+          description: CLAIM_ALREADY_CLAIMED, CLAIM_NOT_VERIFIED, INVALID_SOURCE_STATE
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
@@ -21365,6 +21378,7 @@ paths:
           x-gala-problem-codes:
             - CLAIM_ALREADY_CLAIMED
             - CLAIM_NOT_VERIFIED
+            - INVALID_SOURCE_STATE
         "410":
           content:
             application/problem+json:
@@ -21444,12 +21458,14 @@ paths:
         - CLAIM_EXPIRED
         - CLAIM_NOT_FOUND
         - CLAIM_NOT_VERIFIED
+        - INVALID_SOURCE_STATE
         - RATE_LIMITED
         - REAUTH_REQUIRED
         - VALIDATION_FAILED
       x-gala-replay-identity: natural-idempotent-state
       x-gala-state-guards:
-        - NONE
+        - CreatorClaim:OPEN -> CLAIMED
+        - CreatorClaim:VERIFIED -> CLAIMED
       x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
   /v2/github/app:
@@ -39075,7 +39091,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/handover-claims:
     get:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Lists the claim links that hand this site to whoever accepts them, newest first and in every state (`OPEN`, `VERIFIED`, `CLAIMED`, `EXPIRED`, `REVOKED`), at most the 50 most recent. `claimUrl` is present only on an `OPEN` claim so the owner can copy it again; it is a bearer secret and is never returned for any other state. `claimedBy` is present only on a `CLAIMED` claim. A claim past `expiresAt` reads `EXPIRED`. Demo sites are owned by the operator's organisation until claimed, so the operator finds a demo site's claim link here, in that site's Settings. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation.
+        The organisation owner, with recent authentication; an API key is always refused. Lists the claim links that hand this site to whoever accepts them, newest first and in every state (`OPEN`, `VERIFIED`, `CLAIMED`, `EXPIRED`, `REVOKED`), at most the 50 most recent. `claimUrl` is present only on an `OPEN` claim whose token the API holds sealed, so the owner can copy it again; it is a bearer secret and is never returned for any other state. A claim issued before 3.14.0 may have no `claimUrl` until the owner re-issues it with `replace`. `claimedBy` is present only on a `CLAIMED` claim. A claim past `expiresAt` reads `EXPIRED`. Demo sites are owned by the operator's organisation until claimed, so the operator finds a demo site's claim link here, in that site's Settings. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -39284,7 +39300,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     post:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Issues a claim link that hands this site to whoever signs in and accepts it, and returns the claim with its `claimUrl`. `proof` is `LINK_ONLY` (anyone who holds the link and signs in can claim the site, so share it only with the person you mean; it expires and can be revoked) or `YOUTUBE_CHANNEL` (the claimant must also prove they control the channel in `channelId`, which is required for that proof and refused with `LINK_ONLY`: `400 VALIDATION_FAILED`). `expiresInDays` defaults to 30 and is at most 365. A site holds one `OPEN` claim at a time: while one exists the call answers `409 INVALID_SOURCE_STATE` unless `replace` is `true`, which revokes the `OPEN` claim and issues this one in the same transaction, so the old link stops working. A `VERIFIED` claim is never replaced; revoke it first. `409 HANDOVER_EXISTS` while a repository move (`/handover`) is live. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation. `Idempotency-Key` is the issue identity: repeating it returns the same claim and `claimUrl`.
+        The organisation owner, with recent authentication; an API key is always refused. Issues a claim link that hands this site to whoever signs in and accepts it, and returns the claim with its `claimUrl`. `proof` is `LINK_ONLY` (anyone who holds the link and signs in can claim the site, so share it only with the person you mean; it expires and can be revoked) or `YOUTUBE_CHANNEL` (the claimant must also prove they control the channel in `channelId`, which is required for that proof and refused with `LINK_ONLY`: `400 VALIDATION_FAILED`). `expiresInDays` defaults to 30 and is at most 365. A site holds one `OPEN` claim at a time: while one exists the call answers `409 INVALID_SOURCE_STATE` unless `replace` is `true`, which revokes the `OPEN` claim and issues this one in the same transaction, so the old link stops working. A `VERIFIED` claim is never replaced (`409 INVALID_SOURCE_STATE`); revoke it first. A `CLAIMED` claim never blocks a new one, because ownership can chain. `409 INVALID_SOURCE_STATE` also for a site whose organisation is not a single-person organisation, since only a single-person organisation can be handed over. `409 HANDOVER_EXISTS` while a repository move (`/handover`) is live. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation. `Idempotency-Key` is the issue identity: repeating it returns the same claim and `claimUrl`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -39569,7 +39585,9 @@ paths:
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
         - Publication:ACTIVE
-        - CreatorClaim:OPEN -> REVOKED
+        - Organization:SINGLE
+        - CreatorClaim:no VERIFIED claim
+        - CreatorClaim:OPEN -> REVOKED when replace is true, otherwise no OPEN claim
       x-gala-success-category: create
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/handover-claims/{claimId}:revoke:

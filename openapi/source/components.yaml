@@ -12579,7 +12579,8 @@ components:
         organizationId:
           description:
             Present only when `state` is `CLAIMED` and the caller is the person
-            who claimed it.
+            who claimed it, or when the caller already owns the site (the owner
+            who issued the link, reading it).
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
@@ -12602,7 +12603,8 @@ components:
         publicationId:
           description:
             Present only when `state` is `CLAIMED` and the caller is the person
-            who claimed it.
+            who claimed it, or when the caller already owns the site (the owner
+            who issued the link, reading it).
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
@@ -12790,8 +12792,10 @@ components:
         claimUrl:
           description:
             Present only while `state` is `OPEN`, so the owner can copy the link
-            again; absent in every other state. The link is a bearer secret, so
-            anyone who holds it can open the claim page.
+            again; absent in every other state. It is also absent on an `OPEN`
+            claim issued before 3.14.0 whose token the API does not hold sealed,
+            until the owner re-issues the claim with `replace`. The link is a
+            bearer secret, so anyone who holds it can open the claim page.
           format: uri
           maxLength: 2048
           pattern: ^https://[^\s]+$

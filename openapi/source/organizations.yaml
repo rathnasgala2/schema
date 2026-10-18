@@ -20625,7 +20625,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/handover-claims:
     get:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Lists the claim links that hand this site to whoever accepts them, newest first and in every state (`OPEN`, `VERIFIED`, `CLAIMED`, `EXPIRED`, `REVOKED`), at most the 50 most recent. `claimUrl` is present only on an `OPEN` claim so the owner can copy it again; it is a bearer secret and is never returned for any other state. `claimedBy` is present only on a `CLAIMED` claim. A claim past `expiresAt` reads `EXPIRED`. Demo sites are owned by the operator's organisation until claimed, so the operator finds a demo site's claim link here, in that site's Settings. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation.
+        The organisation owner, with recent authentication; an API key is always refused. Lists the claim links that hand this site to whoever accepts them, newest first and in every state (`OPEN`, `VERIFIED`, `CLAIMED`, `EXPIRED`, `REVOKED`), at most the 50 most recent. `claimUrl` is present only on an `OPEN` claim whose token the API holds sealed, so the owner can copy it again; it is a bearer secret and is never returned for any other state. A claim issued before 3.14.0 may have no `claimUrl` until the owner re-issues it with `replace`. `claimedBy` is present only on a `CLAIMED` claim. A claim past `expiresAt` reads `EXPIRED`. Demo sites are owned by the operator's organisation until claimed, so the operator finds a demo site's claim link here, in that site's Settings. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -20834,7 +20834,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     post:
       description: |
-        The organisation owner, with recent authentication; an API key is always refused. Issues a claim link that hands this site to whoever signs in and accepts it, and returns the claim with its `claimUrl`. `proof` is `LINK_ONLY` (anyone who holds the link and signs in can claim the site, so share it only with the person you mean; it expires and can be revoked) or `YOUTUBE_CHANNEL` (the claimant must also prove they control the channel in `channelId`, which is required for that proof and refused with `LINK_ONLY`: `400 VALIDATION_FAILED`). `expiresInDays` defaults to 30 and is at most 365. A site holds one `OPEN` claim at a time: while one exists the call answers `409 INVALID_SOURCE_STATE` unless `replace` is `true`, which revokes the `OPEN` claim and issues this one in the same transaction, so the old link stops working. A `VERIFIED` claim is never replaced; revoke it first. `409 HANDOVER_EXISTS` while a repository move (`/handover`) is live. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation. `Idempotency-Key` is the issue identity: repeating it returns the same claim and `claimUrl`.
+        The organisation owner, with recent authentication; an API key is always refused. Issues a claim link that hands this site to whoever signs in and accepts it, and returns the claim with its `claimUrl`. `proof` is `LINK_ONLY` (anyone who holds the link and signs in can claim the site, so share it only with the person you mean; it expires and can be revoked) or `YOUTUBE_CHANNEL` (the claimant must also prove they control the channel in `channelId`, which is required for that proof and refused with `LINK_ONLY`: `400 VALIDATION_FAILED`). `expiresInDays` defaults to 30 and is at most 365. A site holds one `OPEN` claim at a time: while one exists the call answers `409 INVALID_SOURCE_STATE` unless `replace` is `true`, which revokes the `OPEN` claim and issues this one in the same transaction, so the old link stops working. A `VERIFIED` claim is never replaced (`409 INVALID_SOURCE_STATE`); revoke it first. A `CLAIMED` claim never blocks a new one, because ownership can chain. `409 INVALID_SOURCE_STATE` also for a site whose organisation is not a single-person organisation, since only a single-person organisation can be handed over. `409 HANDOVER_EXISTS` while a repository move (`/handover`) is live. `404 RESOURCE_NOT_FOUND` for a publication that is not in the organisation. `Idempotency-Key` is the issue identity: repeating it returns the same claim and `claimUrl`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -21120,7 +21120,10 @@ paths:
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
         - Publication:ACTIVE
-        - CreatorClaim:OPEN -> REVOKED
+        - Organization:SINGLE
+        - CreatorClaim:no VERIFIED claim
+        - CreatorClaim:OPEN -> REVOKED when replace is true, otherwise no OPEN
+          claim
       x-gala-success-category: create
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/handover-claims/{claimId}:revoke:
