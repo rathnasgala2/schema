@@ -120,7 +120,8 @@ test('handover claims: list, issue and revoke are owner-only browser-session ope
     assert.equal(operation['x-gala-replay-identity'], 'idempotency-key');
     assert.ok(
       operation.parameters.some(
-        (p) => p.$ref === '#/components/parameters/IdempotencyKey',
+        (/** @type {{ $ref?: string }} */ p) =>
+          p.$ref === '#/components/parameters/IdempotencyKey',
       ),
     );
   }
