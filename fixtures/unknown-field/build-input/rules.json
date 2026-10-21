@@ -344,6 +344,27 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-2aefdd49d58caf31",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider/properties/kind:enum",
+      "build-input:#/$defs/analyticsConfig/properties/provider/properties/measurementId:pattern",
+      "build-input:#/$defs/analyticsConfig/properties/provider/properties/measurementId:type",
+      "build-input:#/$defs/analyticsConfig/properties/provider:additionalProperties",
+      "build-input:#/$defs/analyticsConfig/properties/provider:required:kind",
+      "build-input:#/$defs/analyticsConfig/properties/provider:required:measurementId",
+      "build-input:#/$defs/analyticsConfig/properties/provider:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider",
+    "keyword": "additionalProperties",
+    "instance": {
+      "kind": "google-analytics-4",
+      "measurementId": "G-ABC123XYZ",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-2ed430983d83c4f7",
     "coveredRuleIds": [
       "build-input:#/$defs/colorMode/allOf/0/if/properties/default:const",
@@ -809,6 +830,20 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-3bd134ad8db0c3fa",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/consent/properties/policy:enum",
+      "build-input:#/$defs/analyticsConfig/properties/consent:additionalProperties",
+      "build-input:#/$defs/analyticsConfig/properties/consent:required:policy",
+      "build-input:#/$defs/analyticsConfig/properties/consent:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/consent",
+    "keyword": "additionalProperties",
+    "instance": { "policy": "opt-in", "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-3e63676d6a733634",
     "coveredRuleIds": [
       "build-input:#/$defs/interactionsConfig/properties/schemaId:const",
@@ -1093,6 +1128,30 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-94808b2b0fef174e",
+    "coveredRuleIds": [
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:additionalProperties",
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:required:config",
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/moduleBuildSelection/properties/analytics",
+    "keyword": "additionalProperties",
+    "instance": {
+      "config": {
+        "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+        "schemaVersion": "2.0.0",
+        "provider": {
+          "kind": "google-analytics-4",
+          "measurementId": "G-ABC123XYZ"
+        },
+        "consent": { "policy": "opt-in" }
+      },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-9c1128252c60c49e",
     "coveredRuleIds": [
       "build-input:#/$defs/publicationNormalized/properties/footerCard/properties/authorIds:maxItems",
@@ -1153,6 +1212,33 @@
     "instance": {
       "type": "website",
       "uri": "https://fixture-1.example.com/",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-a1c201ba46d34950",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/schemaId:const",
+      "build-input:#/$defs/analyticsConfig/properties/schemaVersion:const",
+      "build-input:#/$defs/analyticsConfig:additionalProperties",
+      "build-input:#/$defs/analyticsConfig:required:consent",
+      "build-input:#/$defs/analyticsConfig:required:provider",
+      "build-input:#/$defs/analyticsConfig:required:schemaId",
+      "build-input:#/$defs/analyticsConfig:required:schemaVersion",
+      "build-input:#/$defs/analyticsConfig:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "additionalProperties",
+    "instance": {
+      "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+      "schemaVersion": "2.0.0",
+      "provider": {
+        "kind": "google-analytics-4",
+        "measurementId": "G-ABC123XYZ"
+      },
+      "consent": { "policy": "opt-in" },
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

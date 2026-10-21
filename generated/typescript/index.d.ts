@@ -18,6 +18,10 @@ export type { AdapterCapabilityDocument } from './contracts/adapter-capability.j
 export declare function isAdapterCapabilityDocument(
   value: unknown,
 ): value is import('./contracts/adapter-capability.js').AdapterCapabilityDocument;
+export type { AnalyticsConfigDocument } from './contracts/analytics-config.js';
+export declare function isAnalyticsConfigDocument(
+  value: unknown,
+): value is import('./contracts/analytics-config.js').AnalyticsConfigDocument;
 export type { AppearanceDocument } from './contracts/appearance.js';
 export declare function isAppearanceDocument(
   value: unknown,

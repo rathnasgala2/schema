@@ -252,11 +252,11 @@ test('event transition payload keeps aggregate version only in the envelope', as
   assert.equal(schema.$defs.registeredEventPayload.additionalProperties, false);
 });
 
-test('all twenty-one schemas embed the identical twenty-scalar library', async () => {
+test('all twenty-two schemas embed the identical twenty-scalar library', async () => {
   const names = (await readdir('schemas')).filter((name) =>
     name.endsWith('.json'),
   );
-  assert.equal(names.length, 21);
+  assert.equal(names.length, 22);
   const expected = await readSchema('repository');
   const scalarNames = Object.keys(expected.$defs).slice(0, 20);
   assert.equal(scalarNames.length, 20);

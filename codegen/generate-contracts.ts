@@ -89,6 +89,7 @@ const standaloneCode = standaloneCodeModule as unknown as (
 
 const CONTRACTS = [
   'adapter-capability',
+  'analytics-config',
   'appearance',
   'artifact-manifest',
   'author',

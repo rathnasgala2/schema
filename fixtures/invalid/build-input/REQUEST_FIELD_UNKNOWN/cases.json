@@ -1,5 +1,25 @@
 [
   {
+    "caseId": "build-input-invalid-012062b00a76ee58",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "additionalProperties",
+    "instance": {
+      "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+      "schemaVersion": "2.0.0",
+      "provider": {
+        "kind": "google-analytics-4",
+        "measurementId": "G-ABC123XYZ"
+      },
+      "consent": { "policy": "opt-in" },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-invalid-02ea8ac9a2bfe9b0",
     "coveredRuleIds": [
       "build-input:#/$defs/semanticTokens:additionalProperties"
@@ -111,6 +131,39 @@
       ],
       "unexpected": true
     },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-invalid-200468e4c44696db",
+    "coveredRuleIds": [
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/moduleBuildSelection/properties/analytics",
+    "keyword": "additionalProperties",
+    "instance": {
+      "config": {
+        "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+        "schemaVersion": "2.0.0",
+        "provider": {
+          "kind": "google-analytics-4",
+          "measurementId": "G-ABC123XYZ"
+        },
+        "consent": { "policy": "opt-in" }
+      },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-invalid-244815496877bc8b",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/consent:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/consent",
+    "keyword": "additionalProperties",
+    "instance": { "policy": "opt-in", "unexpected": true },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
@@ -269,6 +322,21 @@
       "name": "gala-render-policy",
       "version": "2.0.0",
       "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-invalid-565dfdd3ef826339",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider",
+    "keyword": "additionalProperties",
+    "instance": {
+      "kind": "google-analytics-4",
+      "measurementId": "G-ABC123XYZ",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

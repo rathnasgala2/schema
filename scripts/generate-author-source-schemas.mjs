@@ -14,6 +14,7 @@ import {
   editionKindRule,
 } from './s0-t03-composition-build-schemas.mjs';
 import { createDeploymentSchemas } from './s0-t03-deployment-schemas.mjs';
+import { createAnalyticsConfigSchema } from './s0-analytics-config-schema.mjs';
 import { createInteractionsConfigSchema } from './s0-interactions-config-schema.mjs';
 import { createPlatformSchemas } from './s0-t04-platform-schemas.mjs';
 
@@ -682,6 +683,10 @@ const schemas = {
     arrayOf,
     closedObject,
     graphemeBound,
+  }),
+  'analytics-config.schema.json': createAnalyticsConfigSchema({
+    rootSchema,
+    closedObject,
   }),
   'interactions-config.schema.json': createInteractionsConfigSchema({
     rootSchema,

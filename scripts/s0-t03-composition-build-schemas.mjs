@@ -1,4 +1,8 @@
 import {
+  ANALYTICS_CONFIG_ID,
+  analyticsConfigParts,
+} from './s0-analytics-config-schema.mjs';
+import {
   INTERACTIONS_CONFIG_ID,
   interactionsConfigParts,
 } from './s0-interactions-config-schema.mjs';
@@ -320,6 +324,7 @@ export function editionKindRule() {
 export function createCompositionBuildSchemas(language) {
   const { rootSchema, ref, arrayOf, closedObject, graphemeBound } = language;
   const interactionsParts = interactionsConfigParts(language);
+  const analyticsParts = analyticsConfigParts(language);
 
   const npmPackageName = {
     type: 'string',
@@ -2103,6 +2108,9 @@ export function createCompositionBuildSchemas(language) {
         contentBuildRecord,
         moduleBuildSelection: closedObject(
           {
+            analytics: closedObject({ config: ref('analyticsConfig') }, [
+              'config',
+            ]),
             interactions: closedObject(
               {
                 config: ref('interactionsConfig'),
@@ -2124,6 +2132,15 @@ export function createCompositionBuildSchemas(language) {
           interactionsParts.keywords,
         ),
         ...interactionsParts.definitions,
+        analyticsConfig: closedObject(
+          {
+            schemaId: { const: ANALYTICS_CONFIG_ID },
+            schemaVersion: { const: '2.0.0' },
+            ...analyticsParts.properties,
+          },
+          ['schemaId', 'schemaVersion', ...analyticsParts.required],
+          analyticsParts.keywords,
+        ),
         interactionsServiceOrigin: {
           type: 'string',
           maxLength: 255,

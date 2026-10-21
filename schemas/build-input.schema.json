@@ -1030,6 +1030,12 @@
       "type": "object",
       "required": [],
       "properties": {
+        "analytics": {
+          "type": "object",
+          "required": ["config"],
+          "properties": { "config": { "$ref": "#/$defs/analyticsConfig" } },
+          "additionalProperties": false
+        },
         "interactions": {
           "type": "object",
           "required": ["config", "apiOrigin", "appOrigin"],
@@ -1139,6 +1145,44 @@
         "visual": { "$ref": "#/$defs/reactionVisual" },
         "order": { "type": "integer", "minimum": 1, "maximum": 16 },
         "enabled": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "analyticsConfig": {
+      "type": "object",
+      "required": ["schemaId", "schemaVersion", "provider", "consent"],
+      "properties": {
+        "schemaId": { "const": "urn:gala:schema:analytics-config:2.0.0" },
+        "schemaVersion": { "const": "2.0.0" },
+        "provider": {
+          "type": "object",
+          "required": ["kind", "measurementId"],
+          "properties": {
+            "kind": {
+              "enum": ["google-analytics-4"],
+              "description": "Which analytics provider the site uses. Closed list; a new provider is added as a new kind."
+            },
+            "measurementId": {
+              "type": "string",
+              "pattern": "^G-[A-Z0-9]{4,12}$",
+              "description": "The Google Analytics 4 measurement ID, for example G-ABC123XYZ."
+            }
+          },
+          "additionalProperties": false,
+          "description": "The analytics provider. The site's template loads this provider's script only after the reader consents, and extends the page Content-Security-Policy for that provider's origins."
+        },
+        "consent": {
+          "type": "object",
+          "required": ["policy"],
+          "properties": {
+            "policy": {
+              "enum": ["opt-in"],
+              "description": "opt-in: readers are asked before any analytics loads, and nothing loads until they accept."
+            }
+          },
+          "additionalProperties": false,
+          "description": "How readers are asked. The choice is stored in the reader’s browser and can be changed from the site footer."
+        }
       },
       "additionalProperties": false
     },

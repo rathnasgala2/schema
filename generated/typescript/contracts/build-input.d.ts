@@ -1,6 +1,18 @@
 // Generated from urn:gala:schema:build-input:2.0.0; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 // Do not edit.
 
+export type BuildInputAnalyticsConfig = Readonly<{
+  readonly consent: Readonly<{
+    readonly policy: 'opt-in';
+  }>;
+  readonly provider: Readonly<{
+    readonly kind: 'google-analytics-4';
+    readonly measurementId: string;
+  }>;
+  readonly schemaId: 'urn:gala:schema:analytics-config:2.0.0';
+  readonly schemaVersion: '2.0.0';
+}>;
+
 export type BuildInputAppearanceNormalized = Readonly<{
   readonly attribution?: BuildInputAttribution;
   readonly brandMark?: BuildInputResolvedFile;
@@ -216,6 +228,9 @@ export type BuildInputManifestRenderPolicyIdentity = Readonly<{
 }>;
 
 export type BuildInputModuleBuildSelection = Readonly<{
+  readonly analytics?: Readonly<{
+    readonly config: BuildInputAnalyticsConfig;
+  }>;
   readonly interactions?: Readonly<{
     readonly apiOrigin: BuildInputInteractionsServiceOrigin;
     readonly appOrigin: BuildInputInteractionsServiceOrigin;

@@ -5,6 +5,7 @@ import { validateGalaDocument } from '../../src/index.js';
 
 const SCHEMA_IDS = [
   'urn:gala:schema:adapter-capability:2.0.0',
+  'urn:gala:schema:analytics-config:2.0.0',
   'urn:gala:schema:appearance:2.0.0',
   'urn:gala:schema:artifact-manifest:2.0.0',
   'urn:gala:schema:author:2.0.0',
@@ -63,6 +64,19 @@ export function validateGeneratedDocument(schemaId, value) {
 export function isAdapterCapabilityDocument(value) {
   return validateGeneratedDocument(
     'urn:gala:schema:adapter-capability:2.0.0',
+    value,
+  ).valid;
+}
+
+/**
+ * Test whether a value is a valid AnalyticsConfigDocument.
+ *
+ * @param {unknown} value candidate document
+ * @returns {boolean} validation result
+ */
+export function isAnalyticsConfigDocument(value) {
+  return validateGeneratedDocument(
+    'urn:gala:schema:analytics-config:2.0.0',
     value,
   ).valid;
 }

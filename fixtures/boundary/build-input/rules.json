@@ -12,6 +12,16 @@
     }
   },
   {
+    "caseId": "build-input-boundary-01ba27ae243485bf",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/consent/properties/policy:enum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/consent/properties/policy",
+    "keyword": "enum",
+    "instance": "opt-in"
+  },
+  {
     "caseId": "build-input-boundary-02fa045274157fb7",
     "coveredRuleIds": [
       "build-input:#/$defs/localizedAuthor/properties/biography:x-gala-graphemeLength"
@@ -737,6 +747,17 @@
     "schemaPointer": "#/$defs/appearanceNormalized/properties/theme/allOf/1",
     "keyword": "anyOf",
     "instance": "@rathnasgala2/theme-default@2.0.0"
+  },
+  {
+    "caseId": "build-input-boundary-2745c12f44849f20",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider/properties/measurementId:pattern",
+      "build-input:#/$defs/analyticsConfig/properties/provider/properties/measurementId:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider/properties/measurementId",
+    "keyword": "pattern",
+    "instance": "G-ABC123XYZ"
   },
   {
     "caseId": "build-input-boundary-293ccca9525d626b",
@@ -1622,6 +1643,16 @@
     "instance": "#000000"
   },
   {
+    "caseId": "build-input-boundary-5b2e58e0b8dc512c",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/schemaVersion:const"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/schemaVersion",
+    "keyword": "const",
+    "instance": "2.0.0"
+  },
+  {
     "caseId": "build-input-boundary-5b5e96f439400c47",
     "coveredRuleIds": [
       "build-input:#/$defs/rfc3339:format",
@@ -1949,6 +1980,16 @@
     "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/enabled",
     "keyword": "type",
     "instance": false
+  },
+  {
+    "caseId": "build-input-boundary-70216f61994a0467",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/schemaId:const"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/schemaId",
+    "keyword": "const",
+    "instance": "urn:gala:schema:analytics-config:2.0.0"
   },
   {
     "caseId": "build-input-boundary-7024f381e5441094",
@@ -2496,6 +2537,18 @@
     "instance": "2.0.0"
   },
   {
+    "caseId": "build-input-boundary-960f2e24ba565de2",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/consent:additionalProperties",
+      "build-input:#/$defs/analyticsConfig/properties/consent:required:policy",
+      "build-input:#/$defs/analyticsConfig/properties/consent:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/consent",
+    "keyword": "additionalProperties",
+    "instance": { "policy": "opt-in" }
+  },
+  {
     "caseId": "build-input-boundary-97a60d8106bf8f79",
     "coveredRuleIds": [
       "build-input:#/$defs/appearanceNormalized/properties/headerComposition:enum"
@@ -2866,6 +2919,29 @@
         "byteLength": 1
       }
     ]
+  },
+  {
+    "caseId": "build-input-boundary-ad3f81560086e644",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig:additionalProperties",
+      "build-input:#/$defs/analyticsConfig:required:consent",
+      "build-input:#/$defs/analyticsConfig:required:provider",
+      "build-input:#/$defs/analyticsConfig:required:schemaId",
+      "build-input:#/$defs/analyticsConfig:required:schemaVersion",
+      "build-input:#/$defs/analyticsConfig:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "additionalProperties",
+    "instance": {
+      "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+      "schemaVersion": "2.0.0",
+      "provider": {
+        "kind": "google-analytics-4",
+        "measurementId": "G-ABC123XYZ"
+      },
+      "consent": { "policy": "opt-in" }
+    }
   },
   {
     "caseId": "build-input-boundary-b16096e9a6998b94",
@@ -3474,6 +3550,28 @@
     }
   },
   {
+    "caseId": "build-input-boundary-d72f68c3a956fc37",
+    "coveredRuleIds": [
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:additionalProperties",
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:required:config",
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/moduleBuildSelection/properties/analytics",
+    "keyword": "additionalProperties",
+    "instance": {
+      "config": {
+        "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+        "schemaVersion": "2.0.0",
+        "provider": {
+          "kind": "google-analytics-4",
+          "measurementId": "G-ABC123XYZ"
+        },
+        "consent": { "policy": "opt-in" }
+      }
+    }
+  },
+  {
     "caseId": "build-input-boundary-d74f0c9e553e593e",
     "coveredRuleIds": [
       "build-input:#/$defs/slug:pattern",
@@ -3845,6 +3943,16 @@
     }
   },
   {
+    "caseId": "build-input-boundary-f05f02979583abc9",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider/properties/kind:enum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider/properties/kind",
+    "keyword": "enum",
+    "instance": "google-analytics-4"
+  },
+  {
     "caseId": "build-input-boundary-f072a8d84ef69342",
     "coveredRuleIds": [
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:maximum"
@@ -3927,6 +4035,19 @@
     "schemaPointer": "#/$defs/renderableBody/properties/bodyMediaType",
     "keyword": "const",
     "instance": "text/html"
+  },
+  {
+    "caseId": "build-input-boundary-fa474e0e4cd06514",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider:additionalProperties",
+      "build-input:#/$defs/analyticsConfig/properties/provider:required:kind",
+      "build-input:#/$defs/analyticsConfig/properties/provider:required:measurementId",
+      "build-input:#/$defs/analyticsConfig/properties/provider:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider",
+    "keyword": "additionalProperties",
+    "instance": { "kind": "google-analytics-4", "measurementId": "G-ABC123XYZ" }
   },
   {
     "caseId": "build-input-boundary-fccde880d12f5b9a",

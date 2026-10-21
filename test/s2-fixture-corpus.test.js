@@ -20,6 +20,7 @@ const S2_FAMILIES = [
       'build-input-valid-empty-modules-placements',
       'build-input-rejects-nonempty-modules',
       'build-input-valid-interactions-module',
+      'build-input-valid-analytics-module',
       'build-input-rejects-nonempty-placements',
     ],
   },
@@ -147,7 +148,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 871);
+  assert.equal(files.length, 903);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -172,6 +173,9 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // 3.1.0: reader interactions added the interactions-config root and its
     // generated fixtures, moduleBuildSelection admitted `interactions`, and
     // interactionBearing became a boolean, making 865.
+    //
+    // 3.16.0: the analytics-config root and the build-input analytics module
+    // added their generated fixtures, making 903.
     //
     // 3.3.0: appearance/build-input attribution and the content-frontmatter/
     // build-input edition block regenerated those roots' valid, boundary,
@@ -203,7 +207,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // content-frontmatter and build-input regenerated those roots' valid,
     // boundary, unknown-field and invalid fixtures; no file added or removed.
     aggregate.digest('hex'),
-    '436312ebdd3a137d101a2a98d2a0494c9195682d5f01f001a03741ce5c6d27b6',
+    '60b03a85f8ab270979a1dd42bc65af01ca01ecfe8869748be65706a00806f2b4',
   );
 });
 
@@ -328,6 +332,10 @@ test('the nine S2 families preserve their consumer-facing invariants', async () 
   assert.deepEqual(
     Object.keys(value('build-input-valid-interactions-module').modules),
     ['interactions'],
+  );
+  assert.deepEqual(
+    Object.keys(value('build-input-valid-analytics-module').modules),
+    ['analytics'],
   );
   assert.notDeepEqual(
     value('build-input-rejects-nonempty-placements').placements,

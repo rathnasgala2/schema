@@ -93,7 +93,7 @@ const T03_SCHEMA_HASHES = {
     // 3.12.0 (reviewed 2026-10-13): contentFrontmatterNormalized gains the
     // optional closed seo block (new $defs/contentSeo, shared with
     // content-frontmatter). Additive.
-    '4a8fd292061cdd86bcaa03d3b2edf65dc5cf8953c41a0275399b52e21518fc95',
+    '621efa7e4450f67132c3783c086fa48f87a4b7a77701a434a4b99fd8f7e525d9',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -338,12 +338,12 @@ async function findFixture(filePath, caseId) {
   return fixtureCasesById.get(filePath).get(caseId);
 }
 
-test('fixture manifest covers exactly twenty-one roots and every rule class', async () => {
+test('fixture manifest covers exactly twenty-two roots and every rule class', async () => {
   const manifest = await readJson('fixtures/manifest.json');
   assert.equal(manifest.schemaVersion, '1.0.0');
   assert.equal(manifest.contractVersion, '2.0.0');
   assert.equal(manifest.fixtureRecipeVersion, '1.0.0');
-  assert.equal(manifest.schemas.length, 21);
+  assert.equal(manifest.schemas.length, 22);
   assert.deepEqual(
     manifest.schemas.map((/** @type {any} */ entry) => entry.contract),
     [

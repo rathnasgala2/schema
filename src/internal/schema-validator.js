@@ -1,5 +1,6 @@
 import diagnosticMap from '../../diagnostics/diagnostic-map.json' with { type: 'json' };
 import adapterCapabilitySchema from '../../schemas/adapter-capability.schema.json' with { type: 'json' };
+import analyticsConfigSchema from '../../schemas/analytics-config.schema.json' with { type: 'json' };
 import appearanceSchema from '../../schemas/appearance.schema.json' with { type: 'json' };
 import artifactManifestSchema from '../../schemas/artifact-manifest.schema.json' with { type: 'json' };
 import authorSchema from '../../schemas/author.schema.json' with { type: 'json' };
@@ -26,6 +27,7 @@ import { createValidatorSuite } from './validator-core.js';
 /** Statically imported schema documents, in CONTRACTS order. */
 const SCHEMAS_BY_CONTRACT = Object.freeze({
   'adapter-capability': adapterCapabilitySchema,
+  'analytics-config': analyticsConfigSchema,
   appearance: appearanceSchema,
   'artifact-manifest': artifactManifestSchema,
   author: authorSchema,
@@ -50,6 +52,7 @@ const SCHEMAS_BY_CONTRACT = Object.freeze({
 
 const CONTRACTS = Object.freeze([
   'adapter-capability',
+  'analytics-config',
   'appearance',
   'artifact-manifest',
   'author',

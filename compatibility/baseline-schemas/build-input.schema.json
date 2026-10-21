@@ -867,7 +867,8 @@
           "maxItems": 32,
           "uniqueItems": true
         },
-        "edition": { "$ref": "#/$defs/contentEdition" }
+        "edition": { "$ref": "#/$defs/contentEdition" },
+        "seo": { "$ref": "#/$defs/contentSeo" }
       },
       "additionalProperties": false,
       "dependentRequired": { "seriesOrder": ["series"] },
@@ -904,6 +905,24 @@
       },
       "additionalProperties": false,
       "description": "Prism edition of the article whose slug is `of`. `sourceDigest` is the digest of that article body the edition was generated from; an edition whose `sourceDigest` differs from the current article body digest is stale and is not rendered."
+    },
+    "contentSeo": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 70 }
+        },
+        "description": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 300 }
+        },
+        "canonicalUrl": { "$ref": "#/$defs/urlHttps" },
+        "noindex": { "type": "boolean" }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.12.0: optional search overrides for one document. `title` replaces the page title in search results (the site suffix is still appended on non-home pages), `description` replaces the search description, `canonicalUrl` is an absolute HTTPS canonical for syndicated or moved content, and `noindex: true` keeps a listed document out of search engines. Every member is optional; absent members fall back to the document's own title and description."
     },
     "contentBuildMediaFile": {
       "type": "object",
@@ -1011,6 +1030,12 @@
       "type": "object",
       "required": [],
       "properties": {
+        "analytics": {
+          "type": "object",
+          "required": ["config"],
+          "properties": { "config": { "$ref": "#/$defs/analyticsConfig" } },
+          "additionalProperties": false
+        },
         "interactions": {
           "type": "object",
           "required": ["config", "apiOrigin", "appOrigin"],
@@ -1120,6 +1145,44 @@
         "visual": { "$ref": "#/$defs/reactionVisual" },
         "order": { "type": "integer", "minimum": 1, "maximum": 16 },
         "enabled": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "analyticsConfig": {
+      "type": "object",
+      "required": ["schemaId", "schemaVersion", "provider", "consent"],
+      "properties": {
+        "schemaId": { "const": "urn:gala:schema:analytics-config:2.0.0" },
+        "schemaVersion": { "const": "2.0.0" },
+        "provider": {
+          "type": "object",
+          "required": ["kind", "measurementId"],
+          "properties": {
+            "kind": {
+              "enum": ["google-analytics-4"],
+              "description": "Which analytics provider the site uses. Closed list; a new provider is added as a new kind."
+            },
+            "measurementId": {
+              "type": "string",
+              "pattern": "^G-[A-Z0-9]{4,12}$",
+              "description": "The Google Analytics 4 measurement ID, for example G-ABC123XYZ."
+            }
+          },
+          "additionalProperties": false,
+          "description": "The analytics provider. The site's template loads this provider's script only after the reader consents, and extends the page Content-Security-Policy for that provider's origins."
+        },
+        "consent": {
+          "type": "object",
+          "required": ["policy"],
+          "properties": {
+            "policy": {
+              "enum": ["opt-in"],
+              "description": "opt-in: readers are asked before any analytics loads, and nothing loads until they accept."
+            }
+          },
+          "additionalProperties": false,
+          "description": "How readers are asked. The choice is stored in the reader’s browser and can be changed from the site footer."
+        }
       },
       "additionalProperties": false
     },

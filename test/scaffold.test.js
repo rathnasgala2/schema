@@ -82,6 +82,8 @@ test('package metadata pins the accepted runtime and package manager', async () 
     },
     './schemas/adapter-capability.schema.json':
       './schemas/adapter-capability.schema.json',
+    './schemas/analytics-config.schema.json':
+      './schemas/analytics-config.schema.json',
     './schemas/appearance.schema.json': './schemas/appearance.schema.json',
     './schemas/artifact-manifest.schema.json':
       './schemas/artifact-manifest.schema.json',

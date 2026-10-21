@@ -481,6 +481,7 @@ function stringValue(schema, pointer, variant = 0) {
     '@rathnasgala2/adapter-protocol@2.0.0',
     '@rathnasgala2/adapter-local-directory@2.0.0',
     '^2.0.0',
+    'G-ABC123XYZ',
     '/',
     '**',
   ];
@@ -2580,6 +2581,17 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       appOrigin: 'http://localhost:5173',
     },
   };
+  const analyticsModules = canonical('build-input');
+  analyticsModules.modules = {
+    analytics: {
+      config: {
+        schemaId: 'urn:gala:schema:analytics-config:2.0.0',
+        schemaVersion: '2.0.0',
+        provider: { kind: 'google-analytics-4', measurementId: 'G-ABC123XYZ' },
+        consent: { policy: 'opt-in' },
+      },
+    },
+  };
   const nonemptyPlacements = canonical('build-input');
   nonemptyPlacements.placements = [{}];
   families.set('empty-modules-placements', [
@@ -2591,6 +2603,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       },
     ]),
     s2Case('build-input-valid-interactions-module', interactionsModules),
+    s2Case('build-input-valid-analytics-module', analyticsModules),
     s2Case('build-input-rejects-nonempty-placements', nonemptyPlacements, [
       { code: 'SCHEMA_CONSTANT_INVALID', instancePointer: '/placements' },
     ]),
@@ -3520,7 +3533,7 @@ async function generateFixtureCorpus(check) {
       createHash('sha256').update(bytes).digest('hex'),
     );
   }
-  if (schemas.size !== 21)
+  if (schemas.size !== 22)
     throw new TypeError('FIXTURE_SCHEMA_INVENTORY_INVALID');
   const outputs = createCorpus(schemas, schemaHashes);
   const expectedFiles = [...outputs.keys()].sort();

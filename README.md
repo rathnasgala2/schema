@@ -5,7 +5,7 @@ the OpenAPI contract, generated validators, and generated consumer types. It
 does not contain API business behavior, UI code, publication rendering, or
 infrastructure configuration.
 
-This repository contains all 21 S0-T04 JSON Schema roots: the six author-source
+This repository contains all 22 S0-T04 JSON Schema roots: the six author-source
 contracts, the eleven composition/build/deployment contracts (SCHEMA-2.10.0 adds
 `build-provenance`, `urn:gala:metadata:build-provenance:2.0.0`, a pure addition
 nested identically at `artifact-manifest`'s internal `#/$defs/buildProvenance`
@@ -53,10 +53,10 @@ committed exact-result snapshot rejects mutually shared extra diagnostics. The
 same gate also executes 1,995 shared DEC-099 scalar vectors, including all 766
 pinned Unicode 17 grapheme-conformance rows, and raw RFC 8785 number and string
 spellings that have not first been normalized by Node. S0-T06 generates strict
-TypeScript root types and validators for the exact 21 roots (the codegen path
+TypeScript root types and validators for the exact 22 roots (the codegen path
 also generated a Java 21 records/Networknt registry tree until SCH-C4/SCH-H5
 removed it as unconsumed -- see "Package layout"). The schema inventory adds the
-separately owned OpenAPI contract as the twenty-second identity and carries
+separately owned OpenAPI contract as the twenty-third identity and carries
 DEC-091's domain-separated `sourceDesignRevision`. S0-T07 materializes the
 reviewed OpenAPI 3.1 source fragments, deterministic bundle, and digest-bound
 HTTP catalog for the MVP operations plus `/internal/health`. The operation set
@@ -376,7 +376,7 @@ server-derived members. `destinationIdentity` gains an optional closed
 it has always answered, `repository-changes:plan` names the two digests its
 confirm is fenced on, and no `format: date-time` member in the bundle carries a
 `pattern` any longer -- a generated `OffsetDateTime` cannot carry one, and the
-requirement moves into each member's description while all twenty-one JSON
+requirement moves into each member's description while all twenty-two JSON
 Schema roots keep enforcing it. Two reads join the contract --
 `GET .../publications/{publicationId}/reviews` (keyset, optional `state` filter,
 rows of the new `ReviewSummary`, which the single review read is now defined as)
@@ -614,7 +614,7 @@ remediation, and documentation URL fields without including authored values.
 ## Package layout
 
 - `src/` — JavaScript ESM runtime package surface, checked from JSDoc;
-  `index.js` is the twenty-one-contract `.` export (through
+  `index.js` is the twenty-two-contract `.` export (through
   `internal/browser-schema-validator.js`) and `runtime-origins.js` the narrow
   single-contract browser export, both bound to precompiled standalone
   validators (SCH-C2) through `internal/validator-core.js`'s
@@ -625,7 +625,7 @@ remediation, and documentation URL fields without including authored values.
   `frozen-envelope.js` is the Node-only `./frozen-envelope` re-export of
   `internal/frozen-envelope.js`.
 - `types/` — declaration output emitted from `src/`.
-- `schemas/` — 21 committed Draft 2020-12 contracts.
+- `schemas/` — 22 committed Draft 2020-12 contracts.
 - `compatibility/baseline-schemas/` — the last-released `schemas/*.schema.json`,
   refreshed only at release time (`npm run compatibility:baseline:update`);
   `npm run compatibility:check` diffs the current committed schemas against it
@@ -660,7 +660,7 @@ remediation, and documentation URL fields without including authored values.
   standalone structural core in parallel (SCH-M5) -- that used a second 2.73 MB
   Ajv standalone CommonJS core whose result could never disagree with the exact
   one, so it added no assertion and doubled the work.
-- `docs/catalogs/schema-inventory.json` — exact 21 JSON Schema roots plus the
+- `docs/catalogs/schema-inventory.json` — exact 22 JSON Schema roots plus the
   materialized OpenAPI identity.
 - `docs/COMPATIBILITY.md` — the compatibility policy `compatibility:check`
   enforces mechanically.

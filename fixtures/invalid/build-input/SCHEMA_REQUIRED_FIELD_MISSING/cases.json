@@ -310,6 +310,17 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "build-input-invalid-08e6b28500d442c7",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/consent:required:policy"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/consent",
+    "keyword": "required",
+    "instance": {},
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "build-input-invalid-095dcc1a39560cdc",
     "coveredRuleIds": ["build-input:#:required:packages"],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
@@ -1097,6 +1108,22 @@
         "sourcePath": "content/fixture-1.md",
         "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
       }
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "build-input-invalid-2038ee64d3d3739a",
+    "coveredRuleIds": ["build-input:#/$defs/analyticsConfig:required:schemaId"],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "required",
+    "instance": {
+      "schemaVersion": "2.0.0",
+      "provider": {
+        "kind": "google-analytics-4",
+        "measurementId": "G-ABC123XYZ"
+      },
+      "consent": { "policy": "opt-in" }
     },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
@@ -2008,6 +2035,19 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "build-input-invalid-562e64ae01b54bad",
+    "coveredRuleIds": ["build-input:#/$defs/analyticsConfig:required:provider"],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "required",
+    "instance": {
+      "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+      "schemaVersion": "2.0.0",
+      "consent": { "policy": "opt-in" }
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "build-input-invalid-56f1d3b28b5e256d",
     "coveredRuleIds": [
       "build-input:#/$defs/navigationLeaf/allOf/0/then:required:route"
@@ -2433,6 +2473,17 @@
       "slug": "fixture-1",
       "redirects": ["/fixture-1"]
     },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "build-input-invalid-69d71e88cbd256d0",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider:required:kind"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider",
+    "keyword": "required",
+    "instance": { "measurementId": "G-ABC123XYZ" },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
@@ -3277,6 +3328,17 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "build-input-invalid-7e8026035d3f376a",
+    "coveredRuleIds": [
+      "build-input:#/$defs/moduleBuildSelection/properties/analytics:required:config"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/moduleBuildSelection/properties/analytics",
+    "keyword": "required",
+    "instance": {},
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "build-input-invalid-7ef10b57f3901e1f",
     "coveredRuleIds": [
       "build-input:#/$defs/interactionsConfig/properties/comments:required:enabled"
@@ -3447,6 +3509,22 @@
         }
       ],
       "tokens": {}
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "build-input-invalid-874fb62759c4d884",
+    "coveredRuleIds": ["build-input:#/$defs/analyticsConfig:required:consent"],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "required",
+    "instance": {
+      "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+      "schemaVersion": "2.0.0",
+      "provider": {
+        "kind": "google-analytics-4",
+        "measurementId": "G-ABC123XYZ"
+      }
     },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
@@ -5441,6 +5519,17 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "build-input-invalid-da6219eecfc78c76",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig/properties/provider:required:measurementId"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig/properties/provider",
+    "keyword": "required",
+    "instance": { "kind": "google-analytics-4" },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "build-input-invalid-dc3b66073ce28d40",
     "coveredRuleIds": [
       "build-input:#/$defs/contentFrontmatterNormalized:required:createdAt"
@@ -6644,6 +6733,24 @@
       "version": "2.0.0",
       "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
       "registry": "https://fixture-1.example.com/"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "build-input-invalid-fc173e7a690fc07c",
+    "coveredRuleIds": [
+      "build-input:#/$defs/analyticsConfig:required:schemaVersion"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/analyticsConfig",
+    "keyword": "required",
+    "instance": {
+      "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+      "provider": {
+        "kind": "google-analytics-4",
+        "measurementId": "G-ABC123XYZ"
+      },
+      "consent": { "policy": "opt-in" }
     },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
