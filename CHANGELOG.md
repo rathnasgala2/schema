@@ -26,8 +26,8 @@ and this project adheres to
   `$defs.analyticsConfig`). Additive: existing build inputs stay valid.
 - The optional `policies` member of `publication.json`
   (`$defs.publicationPolicies`): a site's own Terms and Privacy pages, each a
-  `title` (1 to 80 graphemes) and a `body` that is a repository-relative path to
-  a Markdown file, the way `profile` names its body. Both pages are required
+  `title` (1 to 80 graphemes) and a `body` that is a repository-relative path
+  ending in `.md`, the way `profile` names its body. Both pages are required
   when `policies` is present, and the object is closed. When it is absent the
   template renders the default text below.
 - The optional `policies` member of the build input
@@ -43,9 +43,11 @@ and this project adheres to
   user-template seed files; the API never carries the text.
 - Four OpenAPI operations in the `interaction-settings` tag, under
   `/v2/organizations/{organizationId}/publications/{publicationId}`, with the
-  capabilities, guards, Problem responses and admin API key scopes of the
+  guards, Problem responses and admin API key scopes of the
   `interaction-settings` pair (so an admin API key may call them: `read` for the
-  two reads, `content:write` for the two writes):
+  two reads, `content:write` for the two writes). The reads need the
+  `publication.view` capability; the writes need `publication.settings.manage`
+  (the site admin, as the domain operations do):
   - `GET` and `PUT` `/analytics-settings`
     (`getOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings`,
     `putOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings`).
@@ -61,11 +63,14 @@ and this project adheres to
     `putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings`).
     The read answers
     `{ source: "FILE" | "DEFAULT", terms?, privacy?, openChange, setUp }`, with
-    `terms` and `privacy` present when `source` is `FILE`. The write takes both
-    pages (`SitePolicyPage`: `title` 1 to 80 graphemes, `markdown` 1 to 131072
-    UTF-8 bytes as stored in the repository, the most the API's text-file reader
-    returns) and writes `gala/policies/terms.md`, `gala/policies/privacy.md` and
-    the `policies` member of `gala/publication.json` as one repository change.
+    `terms` and `privacy` both present when `source` is `FILE` and both absent
+    when it is `DEFAULT` (the API enforces it, the schema is a plain object so
+    generated clients stay simple). The write takes both pages
+    (`SitePolicyPage`: `title` 1 to 80 graphemes, `markdown` 1 to 131072 UTF-8
+    bytes as stored in the repository, the most the API's text-file reader
+    returns, so it carries `x-gala-utf8ByteLength` as well as `maxLength`) and
+    writes `gala/policies/terms.md`, `gala/policies/privacy.md` and the
+    `policies` member of `gala/publication.json` as one repository change.
   - Each `Get...Response`, `Put...Request` and `Put...Response` is a component
     schema named after its operation, as the interaction-settings ones are. The
     write responses carry `change`, the shape the theme-selection write returns.

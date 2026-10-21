@@ -177,6 +177,25 @@ test('publication admits the optional closed policies member', async () => {
     valid({ terms: page, privacy: { ...page, body: '/gala/terms.md' } }),
     false,
   );
+  // The body is a Markdown file.
+  assert.equal(
+    valid({ terms: page, privacy: { ...page, body: 'privacy.md' } }),
+    true,
+  );
+  for (const body of [
+    'gala/policies/privacy.txt',
+    'gala/policies/privacy',
+    'gala/policies/privacy.MD',
+    'gala/policies/privacy.md/',
+    'gala/policies/privacy.md.txt',
+    '.md',
+  ]) {
+    assert.equal(
+      valid({ terms: page, privacy: { ...page, body } }),
+      false,
+      body,
+    );
+  }
 });
 
 test('build input admits the optional normalized policies member', async () => {

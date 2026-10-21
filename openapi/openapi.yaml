@@ -3383,19 +3383,6 @@ components:
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse:
       additionalProperties: false
-      allOf:
-        - if:
-            properties:
-              source:
-                pattern: ^FILE$
-                type: string
-                x-gala-const: FILE
-            required:
-              - source
-          then:
-            required:
-              - terms
-              - privacy
       properties:
         openChange:
           oneOf:
@@ -3406,6 +3393,7 @@ components:
         setUp:
           type: boolean
         source:
+          description: FILE when the repository names its own pages, and then both `terms` and `privacy` are present. DEFAULT when it does not, and then neither is. The API enforces this.
           enum:
             - FILE
             - DEFAULT
@@ -18933,6 +18921,9 @@ components:
           maxLength: 131072
           minLength: 1
           type: string
+          x-gala-utf8ByteLength:
+            maximum: 131072
+            minimum: 1
         title:
           $ref: "#/components/schemas/PortablePublicationPlainText"
           x-gala-graphemeLength:
@@ -32372,7 +32363,7 @@ paths:
       x-gala-activation-guards:
         - Active repository binding and configured GitHub App identity capability
       x-gala-api-key-scope: content:write
-      x-gala-capability-key: publication.source.write
+      x-gala-capability-key: publication.settings.manage
       x-gala-concurrency: expected-git-head-and-binding-epoch
       x-gala-conditional-capabilities: []
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
@@ -42704,7 +42695,7 @@ paths:
       x-gala-activation-guards:
         - Active repository binding and configured GitHub App identity capability
       x-gala-api-key-scope: content:write
-      x-gala-capability-key: publication.source.write
+      x-gala-capability-key: publication.settings.manage
       x-gala-concurrency: expected-git-head-and-binding-epoch
       x-gala-conditional-capabilities: []
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM

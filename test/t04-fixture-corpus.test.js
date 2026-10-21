@@ -135,8 +135,8 @@ const T03_SCHEMA_HASHES = {
   publication:
     // 3.16.0: the optional closed policies member (new $defs/policyPage and
     // publicationPolicies: a title and a repo-relative Markdown body per
-    // page). Additive.
-    '68b39dee8ce69c2b21ca0bd9d4b34fe90c888dafaed3a7d47addf9e60b9f37a8',
+    // page, the body a path ending in .md). Additive.
+    'de6a002710dd4ae0a8ea75f8c58f0cd3b287647405052d56da81a0149a4fa623',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

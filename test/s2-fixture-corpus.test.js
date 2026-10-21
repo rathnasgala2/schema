@@ -177,7 +177,8 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     //
     // 3.16.0: the analytics-config root and the build-input analytics module
     // added their generated fixtures, making 903. The publication and
-    // build-input policies members and theme-contract 4.1.0 then regenerated
+    // build-input policies members (the publication body a path ending in
+    // .md) and theme-contract 4.1.0 then regenerated
     // those roots' valid, boundary, invalid and unknown-field fixtures; no
     // file added or removed (903).
     //
@@ -211,7 +212,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // content-frontmatter and build-input regenerated those roots' valid,
     // boundary, unknown-field and invalid fixtures; no file added or removed.
     aggregate.digest('hex'),
-    'a3b36dbf865ab8b5294219c4ee4f28ff06a6d26f50ae2bd9d8d5cd00d15b4f9d',
+    'fb4bb2e37b1b6a757cfcf376a80caafe4df1e41025271af85c7715e3e55c82b7',
   );
 });
 

@@ -360,9 +360,12 @@ function spdxPackage(row, SPDXID) {
 /**
  * Build one complete, independently projected accepted fixture.
  *
+ * @param {{policies?: boolean}} [options] `policies` adds the site's own Terms
+ *   and Privacy pages: two Markdown sources, their rendered bodies in the build
+ *   input and their rows in the source inventory
  * @returns {{records: UnknownRecord, context: UnknownRecord}}
  */
-function makeFixture() {
+function makeFixture({ policies: withPolicies = false } = {}) {
   const packageNames = [
     '@rathnasgala2/schemas',
     '@rathnasgala2/template',
@@ -508,6 +511,8 @@ function makeFixture() {
     publication: Buffer.from('{"publication":true}\n'),
     author: Buffer.from('{"author":true}\n'),
     content: Buffer.from('# Source content\n'),
+    terms: Buffer.from('## Terms\n'),
+    privacy: Buffer.from('## Privacy\n'),
     caller: Buffer.from(
       `name: Gala caller\njobs:\n  build:\n    steps:\n      - run: |\n          printf '%s\\n' 'uses: ignored/example@${'5'.repeat(40)}'\n      - uses: ${rootAction.use}\n`,
     ),
@@ -620,11 +625,43 @@ function makeFixture() {
     'adapterCapability',
     adapterCapability,
   );
+  /**
+   * @param {string} page policy page name
+   * @param {string} title page title
+   * @param {Buffer} source the page's Markdown bytes
+   * @returns {{title: string, body: {sourcePath: string, sourceDigest: string, bodyMediaType: string, body: string, bodyDigest: string, renderPolicy: UnknownRecord}}} one normalized policy page
+   */
+  const policyPage = (page, title, source) => {
+    const rendered = `<h2>${title}</h2>\n`;
+    return {
+      title,
+      body: {
+        sourcePath: `gala/policies/${page}.md`,
+        sourceDigest: sha256Tagged(source),
+        bodyMediaType: 'text/html',
+        body: rendered,
+        bodyDigest: sha256Tagged(Buffer.from(rendered, 'utf8')),
+        renderPolicy,
+      },
+    };
+  };
+  const policyPages = withPolicies
+    ? {
+        terms: policyPage('terms', 'Terms', sourceBytes.terms),
+        privacy: policyPage('privacy', 'Privacy', sourceBytes.privacy),
+      }
+    : undefined;
   const treeEntries = [
     treeEntry('authors/example.json', sourceBytes.author),
     treeEntry('content/fixture.md', sourceBytes.content),
     treeEntry('.github/workflows/gala-publish-v2.yml', sourceBytes.caller),
     treeEntry('publication.json', sourceBytes.publication),
+    ...(withPolicies
+      ? [
+          treeEntry('gala/policies/terms.md', sourceBytes.terms),
+          treeEntry('gala/policies/privacy.md', sourceBytes.privacy),
+        ]
+      : []),
   ];
   const repositoryRootEntries = treeEntries
     .map(({ path, mode, objectId }) => ({ path, mode, objectId }))
@@ -674,6 +711,7 @@ function makeFixture() {
     navigation,
     appearance,
     modules: {},
+    ...(policyPages ? { policies: policyPages } : {}),
     buildEpoch: BUILD_EPOCH,
     baseUrl: 'https://example.com',
     basePath: '/',
@@ -961,6 +999,14 @@ function makeFixture() {
         sourceRevision: SOURCE_COMMIT,
         role: 'content',
       },
+      ...(policyPages
+        ? [policyPages.terms, policyPages.privacy].map(({ body }) => ({
+            path: body.sourcePath,
+            sha256: body.sourceDigest,
+            sourceRevision: SOURCE_COMMIT,
+            role: 'content',
+          }))
+        : []),
     ])
   );
   const excludedInputs = /** @type {UnknownRecord[]} */ (
@@ -1822,4 +1868,122 @@ test('publishes the explicit external-owner constraint ledger', () => {
     BUILD_ARTIFACT_CONTEXT_CONSTRAINTS[5],
     'Exclusion-rule catalog membership, renderer output completeness, output media classification, and execution in two distinct empty roots must be supplied as immutable evidence; this validator checks their complete projections, partition, bytes, and equality.',
   );
+});
+
+test('accepts the site policy pages as renderable bodies of the source closure', () => {
+  const fixture = makeFixture({ policies: true });
+  const buildInput = /** @type {UnknownRecord} */ (fixture.records.buildInput);
+  const policies = /** @type {UnknownRecord} */ (buildInput.policies);
+  assert.deepEqual(Object.keys(policies), ['terms', 'privacy']);
+  const result = validateBuildArtifactSemantics(
+    fixture.records,
+    fixture.context,
+  );
+  assert.equal(result.buildInputDigest, buildInput.inputDigest);
+  const manifest = /** @type {UnknownRecord} */ (
+    fixture.records.artifactManifest
+  );
+  const included = /** @type {UnknownRecord[]} */ (manifest.includedSources);
+  assert.deepEqual(included.map(({ path }) => path).sort(), [
+    'authors/example.json',
+    'content/fixture.md',
+    'gala/policies/privacy.md',
+    'gala/policies/terms.md',
+    'publication.json',
+  ]);
+});
+
+test('rejects a policy page whose rendered body, source or render policy is substituted', () => {
+  for (const {
+    code,
+    mutate,
+  } of /** @type {{code: string, mutate: (body: UnknownRecord) => void}[]} */ ([
+    {
+      code: 'BUILD_RENDER_POLICY_INVALID',
+      mutate: (body) => {
+        body.body = '<h2>substituted</h2>\n';
+      },
+    },
+    {
+      code: 'BUILD_RENDER_POLICY_INVALID',
+      mutate: (body) => {
+        body.bodyMediaType = 'text/markdown';
+      },
+    },
+    {
+      code: 'BUILD_RENDER_POLICY_INVALID',
+      mutate: (body) => {
+        body.renderPolicy = {
+          .../** @type {UnknownRecord} */ (body.renderPolicy),
+          digest: tagged('other-render-policy'),
+        };
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (body) => {
+        body.sourceDigest = tagged('substituted-policy-source');
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (body) => {
+        body.sourcePath = 'gala/policies/missing.md';
+      },
+    },
+  ])) {
+    for (const page of ['terms', 'privacy']) {
+      const fixture = makeFixture({ policies: true });
+      const buildInput = /** @type {UnknownRecord} */ (
+        fixture.records.buildInput
+      );
+      const policies = /** @type {UnknownRecord} */ (buildInput.policies);
+      const entry = /** @type {UnknownRecord} */ (policies[page]);
+      mutate(/** @type {UnknownRecord} */ (entry.body));
+      assertCode(
+        () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+        code,
+      );
+    }
+  }
+});
+
+test('rejects policy pages that are not exactly terms and privacy, and policy sources outside the closure', () => {
+  {
+    const fixture = makeFixture({ policies: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    const policies = /** @type {UnknownRecord} */ (buildInput.policies);
+    policies.cookies = policies.terms;
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      'BUILD_RENDER_POLICY_INVALID',
+    );
+  }
+  {
+    const fixture = makeFixture({ policies: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    const policies = /** @type {UnknownRecord} */ (buildInput.policies);
+    delete policies.privacy;
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      'BUILD_RENDER_POLICY_INVALID',
+    );
+  }
+  {
+    // The Markdown files are in the tree, but nothing in the build input names
+    // them any longer, so the source partition is no longer complete.
+    const fixture = makeFixture({ policies: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    delete buildInput.policies;
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      'ARTIFACT_SOURCE_PARTITION_INVALID',
+    );
+  }
 });

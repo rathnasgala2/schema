@@ -18,6 +18,7 @@ import {
   operationIdFor,
 } from '../scripts/generate-openapi.mjs';
 import { canonicalizeJcsBytes } from '../src/internal/canonical-jcs.js';
+import { galaUtf8ByteLength } from '../src/internal/gala-keywords.js';
 import { validateGalaFormat } from '../src/internal/format-validators.js';
 import { HTTP_PROBLEM_EXAMPLE_RULES } from '../scripts/internal-semantics/http-problem-contract.js';
 import { validateRfc3339 } from '../src/internal/portable-scalars.js';
@@ -2768,7 +2769,6 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
         'tags',
         'security',
         'x-gala-api-key-scope',
-        'x-gala-capability-key',
         'x-gala-concurrency',
         'x-gala-activation-gate',
         'x-gala-activation-guards',
@@ -2780,6 +2780,14 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
       ]) {
         assert.deepEqual(operation[member], precedent[member], member);
       }
+      // The reads need the view capability the interaction read needs; the
+      // writes change site settings, so they need the site admin capability
+      // the domain operations use.
+      assert.equal(
+        operation['x-gala-capability-key'],
+        method === 'get' ? 'publication.view' : 'publication.settings.manage',
+        `${slug} ${method} capability`,
+      );
       assert.deepEqual(
         Object.keys(operation.responses),
         Object.keys(precedent.responses),
@@ -2878,7 +2886,13 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
     policyRead({ ...envelope, source: 'FILE', terms: page, privacy: page }),
     true,
   );
-  assert.equal(policyRead({ ...envelope, source: 'FILE', terms: page }), false);
+  // The pairing of source with the pages is the API's to enforce; the schema
+  // stays a plain object so generated clients can bind it.
+  assert.equal(policyRead({ ...envelope, source: 'FILE', terms: page }), true);
+  assert.equal(
+    bundle.components.schemas[`Get${prefix}PolicySettingsResponse`].allOf,
+    undefined,
+  );
   assert.equal(policyRead({ ...envelope, source: 'OTHER' }), false);
   assert.equal(policyRead({ source: 'DEFAULT' }), false);
 
@@ -2913,4 +2927,47 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
     ],
     { minimum: 1, maximum: 80 },
   );
+
+  // The limit is bytes as stored in the repository: maxLength counts
+  // characters, so only the byte keyword refuses a multibyte body the API's
+  // text-file reader could never read back.
+  const ajv = new Ajv2020({
+    allErrors: true,
+    strict: false,
+    validateFormats: false,
+  });
+  ajv.addKeyword({
+    keyword: 'x-gala-utf8ByteLength',
+    schemaType: 'object',
+    type: 'string',
+    validate: galaUtf8ByteLength,
+  });
+  const byteBounded = ajv.compile(
+    /** @type {import('ajv').AnySchema} */ (
+      await materializeReferences(
+        { $ref: `#/components/schemas/Put${prefix}PolicySettingsRequest` },
+        bundle,
+        bundle,
+        new Map(),
+      )
+    ),
+  );
+  assert.deepEqual(
+    bundle.components.schemas.SitePolicyPage.properties.markdown[
+      'x-gala-utf8ByteLength'
+    ],
+    { minimum: 1, maximum: 131_072 },
+  );
+  const euro = '\u20ac';
+  const withMarkdown = (/** @type {string} */ markdown) => ({
+    terms: { ...page, markdown },
+    privacy: page,
+  });
+  assert.equal(byteBounded(withMarkdown('x'.repeat(131_072))), true);
+  assert.equal(byteBounded(withMarkdown('x'.repeat(131_073))), false);
+  assert.equal(byteBounded(withMarkdown(euro.repeat(43_690))), true);
+  assert.equal(byteBounded(withMarkdown(euro.repeat(43_691))), false);
+  assert.equal(policyWrite(withMarkdown(euro.repeat(50_000))), true);
+  assert.equal(byteBounded(withMarkdown(euro.repeat(50_000))), false);
+  assert.equal(byteBounded(withMarkdown('')), false);
 });

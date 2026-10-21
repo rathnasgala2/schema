@@ -1542,7 +1542,7 @@ function canonicalStringSet(value, code) {
  */
 function validateBuildInput(lock, buildInput, context) {
   const code = 'BUILD_INPUT_INVALID';
-  ledger(buildInput, BUILD_INPUT_KEYS, code);
+  ledger(buildInput, BUILD_INPUT_KEYS, code, ['policies']);
   equal(buildInput.schemaId, 'urn:gala:schema:build-input:2.0.0', code);
   equal(buildInput.schemaVersion, '2.0.0', code);
   equal(buildInput.contractVersion, '2.0.0', code);
@@ -1718,6 +1718,24 @@ function validateBuildInput(lock, buildInput, context) {
       treeFiles,
       addSource,
     );
+  }
+  if (Object.hasOwn(buildInput, 'policies')) {
+    // The site's own Terms and Privacy pages are rendered like the profile and
+    // footer bodies, and their Markdown files belong to the source closure.
+    const policies = ledger(
+      buildInput.policies,
+      ['terms', 'privacy'],
+      'BUILD_RENDER_POLICY_INVALID',
+    );
+    for (const page of ['terms', 'privacy']) {
+      const entry = asObject(policies[page], 'BUILD_RENDER_POLICY_INVALID');
+      validateRenderableBody(
+        asObject(entry.body, 'BUILD_RENDER_POLICY_INVALID'),
+        renderPolicy,
+        treeFiles,
+        addSource,
+      );
+    }
   }
 
   const authors = asArray(buildInput.authors, 'BUILD_AUTHOR_SET_INVALID').map(

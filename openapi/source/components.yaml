@@ -1343,17 +1343,6 @@ components:
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse:
       additionalProperties: false
-      allOf:
-        - if:
-            properties:
-              source:
-                const: FILE
-            required:
-              - source
-          then:
-            required:
-              - terms
-              - privacy
       properties:
         openChange:
           oneOf:
@@ -1364,6 +1353,10 @@ components:
         setUp:
           type: boolean
         source:
+          description:
+            FILE when the repository names its own pages, and then both `terms`
+            and `privacy` are present. DEFAULT when it does not, and then
+            neither is. The API enforces this.
           enum:
             - FILE
             - DEFAULT
@@ -7244,6 +7237,9 @@ components:
           maxLength: 131072
           minLength: 1
           type: string
+          x-gala-utf8ByteLength:
+            maximum: 131072
+            minimum: 1
         title:
           $ref: ../schemas/publication.schema.json#/$defs/plainText
           x-gala-graphemeLength:

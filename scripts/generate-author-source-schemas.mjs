@@ -278,7 +278,7 @@ const publicationProfile = closedObject(
 const policyPage = closedObject(
   {
     title: graphemeBound(ref('plainText'), 1, 80),
-    body: ref('repoRelativePath'),
+    body: { ...ref('repoRelativePath'), pattern: '^.+\\.md$' },
   },
   ['title', 'body'],
 );

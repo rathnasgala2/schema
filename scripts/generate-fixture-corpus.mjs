@@ -482,6 +482,7 @@ function stringValue(schema, pointer, variant = 0) {
     '@rathnasgala2/adapter-local-directory@2.0.0',
     '^2.0.0',
     'G-ABC123XYZ',
+    'gala/policies/terms.md',
     '/',
     '**',
   ];
@@ -2606,8 +2607,14 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
     renderPolicy: policySource.renderPolicy,
   };
   policiesBuildInput.policies = {
-    terms: { title: 'Terms', body: clone(policyBody) },
-    privacy: { title: 'Privacy', body: clone(policyBody) },
+    terms: {
+      title: 'Terms',
+      body: { ...policyBody, sourcePath: 'gala/policies/terms.md' },
+    },
+    privacy: {
+      title: 'Privacy',
+      body: { ...policyBody, sourcePath: 'gala/policies/privacy.md' },
+    },
   };
   const nonemptyPlacements = canonical('build-input');
   nonemptyPlacements.placements = [{}];
