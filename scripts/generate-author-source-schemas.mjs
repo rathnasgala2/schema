@@ -275,6 +275,19 @@ const publicationProfile = closedObject(
   ['route', 'body'],
 );
 
+const policyPage = closedObject(
+  {
+    title: graphemeBound(ref('plainText'), 1, 80),
+    body: ref('repoRelativePath'),
+  },
+  ['title', 'body'],
+);
+
+const publicationPolicies = closedObject(
+  { terms: ref('policyPage'), privacy: ref('policyPage') },
+  ['terms', 'privacy'],
+);
+
 const footerCard = closedObject(
   {
     enabled: { type: 'boolean' },
@@ -478,6 +491,7 @@ const schemas = {
       socialLinks: arrayOf(ref('socialLink'), 0, 32),
       defaultImageRef: ref('repoRelativePath'),
       profile: ref('publicationProfile'),
+      policies: ref('publicationPolicies'),
       footerCard: ref('footerCard'),
       newsletter: ref('newsletter'),
       crawlers: ref('crawlers'),
@@ -497,6 +511,8 @@ const schemas = {
     {
       socialLink,
       publicationProfile,
+      policyPage,
+      publicationPolicies,
       footerCard,
       newsletter,
       crawlers,

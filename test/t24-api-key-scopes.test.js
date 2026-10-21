@@ -22,10 +22,12 @@ const EXPECTED = Object.freeze({
   [`get${O}OperationsByOperationId`]: 'publish',
   [`get${O}Publications`]: 'read',
   [`get${P}`]: 'read',
+  [`get${P}AnalyticsSettings`]: 'read',
   [`get${P}Content`]: 'read',
   [`get${P}Deployments`]: 'publish',
   [`get${P}DeploymentsByGenerationId`]: 'publish',
   [`get${P}InteractionSettings`]: 'read',
+  [`get${P}PolicySettings`]: 'read',
   [`get${P}RepositoryChanges`]: 'read',
   [`get${P}RepositoryChangesByChangeId`]: 'read',
   getOrganizations: 'read',
@@ -35,7 +37,9 @@ const EXPECTED = Object.freeze({
   [`post${P}ContentChangesPlan`]: 'content:write',
   [`post${P}RepositoryChangesByChangeIdConfirm`]: 'content:write',
   postPlatformDemoSites: 'demo:setup',
+  [`put${P}AnalyticsSettings`]: 'content:write',
   [`put${P}InteractionSettings`]: 'content:write',
+  [`put${P}PolicySettings`]: 'content:write',
 });
 
 /**

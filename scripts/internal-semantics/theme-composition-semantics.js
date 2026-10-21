@@ -928,7 +928,9 @@ export function validateThemeContract(value) {
     value !== null && typeof value === 'object' && !Array.isArray(value)
       ? /** @type {UnknownRecord} */ (value)
       : undefined;
-  const generation4 = candidate?.contractVersion === '4.0.0';
+  const generation4 =
+    candidate?.contractVersion === '4.0.0' ||
+    candidate?.contractVersion === '4.1.0';
   const hasPalette =
     candidate !== undefined && Object.hasOwn(candidate, 'palette');
   const baseKeys = generation4 ? GENERATION_4_THEME_KEYS : THEME_KEYS;
@@ -952,7 +954,9 @@ export function validateThemeContract(value) {
   requireSemverRange(theme.templateRange, code);
   if (theme.themeId === 'editorial' && !generation4) invalid(code);
   if (generation4) {
-    if (theme.templateRange !== '^4.0.0' && theme.templateRange !== '^4.1.0') {
+    const admittedRanges =
+      theme.contractVersion === '4.1.0' ? ['^4.4.0'] : ['^4.0.0', '^4.1.0'];
+    if (!admittedRanges.includes(/** @type {string} */ (theme.templateRange))) {
       invalid(code);
     }
     validateTemplateComposition(theme.composition);

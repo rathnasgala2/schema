@@ -63,6 +63,8 @@ const ROOT_LEDGERS = {
       'contactRef',
       'defaultImageRef',
       'profile',
+      // SCHEMA-3.16.0: the site's own Terms and Privacy pages.
+      'policies',
       'footerCard',
       'newsletter',
       'crawlers',

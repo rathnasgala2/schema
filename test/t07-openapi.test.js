@@ -2744,3 +2744,173 @@ test('3.12.0 OpenAPI additions: publicationProfile, brandMark, create descriptio
   );
   assert.equal(summary(withoutTitle), false);
 });
+
+test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the interaction settings ones', async () => {
+  const { bundle } = await readProjections();
+  const base =
+    '/v2/organizations/{organizationId}/publications/{publicationId}';
+  const prefix = 'OrganizationsByOrganizationIdPublicationsByPublicationId';
+  const interaction = bundle.paths[`${base}/interaction-settings`];
+  for (const { slug, name } of [
+    { slug: 'analytics-settings', name: 'AnalyticsSettings' },
+    { slug: 'policy-settings', name: 'PolicySettings' },
+  ]) {
+    const item = bundle.paths[`${base}/${slug}`];
+    assert.deepEqual(Object.keys(item).sort(), ['get', 'put'], slug);
+    assert.equal(item.get.operationId, `get${prefix}${name}`);
+    assert.equal(item.put.operationId, `put${prefix}${name}`);
+    for (const method of ['get', 'put']) {
+      const operation = item[method];
+      const precedent = interaction[method];
+      // The same tag, security, capability, guards and Problem responses as
+      // the interaction-settings operation of the same method.
+      for (const member of [
+        'tags',
+        'security',
+        'x-gala-api-key-scope',
+        'x-gala-capability-key',
+        'x-gala-concurrency',
+        'x-gala-activation-gate',
+        'x-gala-activation-guards',
+        'x-gala-reachable-problems',
+        'x-gala-replay-identity',
+        'x-gala-state-guards',
+        'x-gala-success-category',
+        'x-gala-tenant-scope',
+      ]) {
+        assert.deepEqual(operation[member], precedent[member], member);
+      }
+      assert.deepEqual(
+        Object.keys(operation.responses),
+        Object.keys(precedent.responses),
+        `${slug} ${method}`,
+      );
+      for (const [status, response] of Object.entries(operation.responses)) {
+        if (status === '200') continue;
+        assert.deepEqual(response, precedent.responses[status], status);
+      }
+      assert.deepEqual(
+        operation.parameters,
+        precedent.parameters,
+        `${slug} ${method} parameters`,
+      );
+    }
+    const requestRef = (/** @type {string} */ method) =>
+      item[method].requestBody?.content['application/json'].schema.$ref;
+    const responseRef = (/** @type {string} */ method) =>
+      item[method].responses['200'].content['application/json'].schema.$ref;
+    assert.equal(
+      responseRef('get'),
+      `#/components/schemas/Get${prefix}${name}Response`,
+    );
+    assert.equal(
+      requestRef('put'),
+      `#/components/schemas/Put${prefix}${name}Request`,
+    );
+    assert.equal(
+      responseRef('put'),
+      `#/components/schemas/Put${prefix}${name}Response`,
+    );
+  }
+
+  const check = async (/** @type {string} */ name) =>
+    compileResolvedSchema(bundle, {
+      $ref: `#/components/schemas/${name}`,
+    });
+  const envelope = { openChange: null, setUp: true };
+
+  const analyticsRead = await check(`Get${prefix}AnalyticsSettingsResponse`);
+  const off = {
+    ...envelope,
+    enabled: false,
+    provider: 'google-analytics-4',
+    measurementId: null,
+    consentPolicy: 'opt-in',
+  };
+  assert.equal(analyticsRead(off), true);
+  assert.equal(
+    analyticsRead({ ...off, enabled: true, measurementId: 'G-ABC123XYZ' }),
+    true,
+  );
+  assert.equal(analyticsRead({ ...off, measurementId: 'G-abc' }), false);
+  assert.equal(analyticsRead({ ...off, provider: 'plausible' }), false);
+  assert.equal(analyticsRead({ ...off, consentPolicy: 'opt-out' }), false);
+  assert.equal(analyticsRead({ ...off, setUp: undefined }), false);
+  assert.equal(analyticsRead({ ...off, extra: 1 }), false);
+
+  const analyticsWrite = await check(`Put${prefix}AnalyticsSettingsRequest`);
+  assert.equal(analyticsWrite({ enabled: false }), true);
+  assert.equal(
+    analyticsWrite({ enabled: true, measurementId: 'G-ABCD' }),
+    true,
+  );
+  assert.equal(
+    analyticsWrite({ enabled: true, measurementId: 'G-ABCDEFGHIJKL' }),
+    true,
+  );
+  assert.equal(analyticsWrite({ enabled: true }), false);
+  assert.equal(
+    analyticsWrite({ enabled: true, measurementId: 'G-ABC' }),
+    false,
+  );
+  assert.equal(
+    analyticsWrite({ enabled: true, measurementId: 'G-ABCDEFGHIJKLM' }),
+    false,
+  );
+  assert.equal(
+    analyticsWrite({ enabled: true, measurementId: 'g-abc123' }),
+    false,
+  );
+  assert.equal(analyticsWrite({ measurementId: 'G-ABC123XYZ' }), false);
+  assert.equal(
+    analyticsWrite({
+      enabled: true,
+      measurementId: 'G-ABC123XYZ',
+      provider: 'google-analytics-4',
+    }),
+    false,
+  );
+
+  const page = { title: 'Terms', markdown: '## About\n\nText.' };
+  const policyRead = await check(`Get${prefix}PolicySettingsResponse`);
+  assert.equal(policyRead({ ...envelope, source: 'DEFAULT' }), true);
+  assert.equal(
+    policyRead({ ...envelope, source: 'FILE', terms: page, privacy: page }),
+    true,
+  );
+  assert.equal(policyRead({ ...envelope, source: 'FILE', terms: page }), false);
+  assert.equal(policyRead({ ...envelope, source: 'OTHER' }), false);
+  assert.equal(policyRead({ source: 'DEFAULT' }), false);
+
+  const policyWrite = await check(`Put${prefix}PolicySettingsRequest`);
+  assert.equal(policyWrite({ terms: page, privacy: page }), true);
+  assert.equal(policyWrite({ terms: page }), false);
+  assert.equal(
+    policyWrite({ terms: page, privacy: { ...page, markdown: '' } }),
+    false,
+  );
+  assert.equal(
+    policyWrite({
+      terms: { ...page, markdown: 'x'.repeat(131_072) },
+      privacy: page,
+    }),
+    true,
+  );
+  assert.equal(
+    policyWrite({
+      terms: { ...page, markdown: 'x'.repeat(131_073) },
+      privacy: page,
+    }),
+    false,
+  );
+  assert.equal(
+    policyWrite({ terms: { ...page, title: undefined }, privacy: page }),
+    false,
+  );
+  assert.deepEqual(
+    bundle.components.schemas.SitePolicyPage.properties.title[
+      'x-gala-graphemeLength'
+    ],
+    { minimum: 1, maximum: 80 },
+  );
+});

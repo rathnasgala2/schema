@@ -860,6 +860,22 @@ export function createCompositionBuildSchemas(language) {
     ],
   };
 
+  const policyPageNormalized = closedObject(
+    {
+      title: graphemeBound(ref('plainText'), 1, 80),
+      body: ref('renderableBody'),
+    },
+    ['title', 'body'],
+  );
+
+  const policiesNormalized = closedObject(
+    {
+      terms: ref('policyPageNormalized'),
+      privacy: ref('policyPageNormalized'),
+    },
+    ['terms', 'privacy'],
+  );
+
   const publicationNormalized = closedObject(
     {
       id: ref('stableId'),
@@ -1939,28 +1955,56 @@ export function createCompositionBuildSchemas(language) {
           },
           {
             if: {
-              properties: { contractVersion: { const: '4.0.0' } },
+              properties: { contractVersion: { enum: ['4.0.0', '4.1.0'] } },
               required: ['contractVersion'],
             },
+            // The union of the ranges a generation-4 contract may declare;
+            // the last two branches below pin each contract version to its
+            // own range. Appended after the profile branches so the
+            // established pointers of the 3.15.0 schema stay where they were.
             then: {
-              properties: { templateRange: { enum: ['^4.0.0', '^4.1.0'] } },
+              properties: {
+                templateRange: { enum: ['^4.0.0', '^4.1.0', '^4.4.0'] },
+              },
               required: ['composition'],
-              allOf: Object.entries(THEME_COMPOSITION_PROFILES).map(
-                ([themeId, profile]) => ({
+              allOf: [
+                ...Object.entries(THEME_COMPOSITION_PROFILES).map(
+                  ([themeId, profile]) => ({
+                    if: {
+                      properties: { themeId: { const: themeId } },
+                      required: ['themeId'],
+                    },
+                    then: {
+                      properties: {
+                        composition: {
+                          properties: { profile: { const: profile } },
+                          required: ['profile'],
+                        },
+                      },
+                    },
+                  }),
+                ),
+                {
                   if: {
-                    properties: { themeId: { const: themeId } },
-                    required: ['themeId'],
+                    properties: { contractVersion: { const: '4.0.0' } },
+                    required: ['contractVersion'],
                   },
                   then: {
                     properties: {
-                      composition: {
-                        properties: { profile: { const: profile } },
-                        required: ['profile'],
-                      },
+                      templateRange: { enum: ['^4.0.0', '^4.1.0'] },
                     },
                   },
-                }),
-              ),
+                },
+                {
+                  if: {
+                    properties: { contractVersion: { const: '4.1.0' } },
+                    required: ['contractVersion'],
+                  },
+                  then: {
+                    properties: { templateRange: { const: '^4.4.0' } },
+                  },
+                },
+              ],
             },
             else: { not: { required: ['composition'] } },
           },
@@ -1969,7 +2013,9 @@ export function createCompositionBuildSchemas(language) {
               properties: { themeId: { const: 'editorial' } },
               required: ['themeId'],
             },
-            then: { properties: { contractVersion: { const: '4.0.0' } } },
+            then: {
+              properties: { contractVersion: { enum: ['4.0.0', '4.1.0'] } },
+            },
           },
         ],
         $comment:
@@ -2054,6 +2100,7 @@ export function createCompositionBuildSchemas(language) {
         navigation: ref('navigationNormalized'),
         appearance: ref('appearanceNormalized'),
         modules: ref('moduleBuildSelection'),
+        policies: ref('policiesNormalized'),
         buildEpoch: ref('rfc3339'),
         baseUrl: ref('urlHttps'),
         basePath: ref('canonicalRoute'),
@@ -2092,6 +2139,8 @@ export function createCompositionBuildSchemas(language) {
         socialLink,
         localizedAuthor,
         publicationNormalized,
+        policyPageNormalized,
+        policiesNormalized,
         authorNormalized,
         navigationLeaf,
         navigationItem,

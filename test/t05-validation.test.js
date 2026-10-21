@@ -138,6 +138,165 @@ test('the immutable roots admit complete generation-4 Editorial contracts', asyn
   assert.equal(validateGalaDocument(theme.schemaId, theme).valid, false);
 });
 
+test('publication admits the optional closed policies member', async () => {
+  const base = await readJson('examples/valid/publication/canonical.json');
+  const page = { title: 'Terms', body: 'gala/policies/terms.md' };
+  const withPolicies = (/** @type {unknown} */ policies) => ({
+    ...base,
+    policies,
+  });
+  const valid = (/** @type {unknown} */ policies) =>
+    validateGalaDocument(base.schemaId, withPolicies(policies)).valid;
+  assert.equal(validateGalaDocument(base.schemaId, base).valid, true);
+  assert.equal(
+    valid({
+      terms: page,
+      privacy: { title: 'Privacy', body: 'gala/policies/privacy.md' },
+    }),
+    true,
+  );
+  assert.equal(valid({ terms: page }), false);
+  assert.equal(valid({ terms: page, privacy: page, cookies: page }), false);
+  assert.equal(valid({ terms: page, privacy: { ...page, extra: 1 } }), false);
+  assert.equal(valid({ terms: page, privacy: { title: 'Privacy' } }), false);
+  assert.equal(valid({ terms: page, privacy: { body: page.body } }), false);
+  assert.equal(valid({ terms: page, privacy: { ...page, title: '' } }), false);
+  assert.equal(
+    valid({ terms: page, privacy: { ...page, title: 'x'.repeat(80) } }),
+    true,
+  );
+  assert.equal(
+    valid({ terms: page, privacy: { ...page, title: 'x'.repeat(81) } }),
+    false,
+  );
+  assert.equal(
+    valid({ terms: page, privacy: { ...page, body: '../terms.md' } }),
+    false,
+  );
+  assert.equal(
+    valid({ terms: page, privacy: { ...page, body: '/gala/terms.md' } }),
+    false,
+  );
+});
+
+test('build input admits the optional normalized policies member', async () => {
+  const base = await readJson('examples/valid/build-input/canonical.json');
+  const source = base.content[0];
+  const body = {
+    sourcePath: source.sourcePath,
+    sourceDigest: source.sourceDigest,
+    bodyMediaType: source.bodyMediaType,
+    body: source.body,
+    bodyDigest: source.bodyDigest,
+    renderPolicy: source.renderPolicy,
+  };
+  const withPolicies = (/** @type {unknown} */ policies) => ({
+    ...base,
+    policies,
+  });
+  const valid = (/** @type {unknown} */ policies) =>
+    validateGalaDocument(base.schemaId, withPolicies(policies)).valid;
+  assert.equal(validateGalaDocument(base.schemaId, base).valid, true);
+  assert.equal(
+    valid({
+      terms: { title: 'Terms', body },
+      privacy: { title: 'Privacy', body },
+    }),
+    true,
+  );
+  assert.equal(valid({ terms: { title: 'Terms', body } }), false);
+  assert.equal(
+    valid({
+      terms: { title: 'Terms', body },
+      privacy: { title: 'Privacy', body: 'gala/policies/privacy.md' },
+    }),
+    false,
+  );
+  assert.equal(
+    valid({
+      terms: { title: 'Terms', body },
+      privacy: { title: 'x'.repeat(81), body },
+    }),
+    false,
+  );
+  assert.equal(
+    valid({
+      terms: { title: 'Terms', body },
+      privacy: { title: 'Privacy', body, extra: 1 },
+    }),
+    false,
+  );
+  assert.equal(
+    valid({
+      terms: { title: 'Terms', body },
+      privacy: { title: 'Privacy', body },
+      cookies: { title: 'Cookies', body },
+    }),
+    false,
+  );
+});
+
+test('theme contract 4.1.0 keeps the generation-4 requirements and pins templateRange ^4.4.0', async () => {
+  const composition = {
+    schemaId: 'urn:gala:schema:template-composition:2.0.0',
+    schemaVersion: '2.0.0',
+    profile: 'editorial',
+    homeLayout: 'magazine',
+    articleLayout: 'editorial',
+    authorLayout: 'portrait',
+    listingLayout: 'rows',
+    headerLayout: 'masthead',
+    footerLayout: 'expanded',
+    mediaRatio: 'landscape',
+    density: 'comfortable',
+  };
+  const canonical = await readJson(
+    'examples/valid/theme-contract/canonical.json',
+  );
+  const editorial = (
+    /** @type {string} */ contractVersion,
+    /** @type {string} */ templateRange,
+  ) => ({
+    ...canonical,
+    themeId: 'editorial',
+    package: '@rathnasgala2/theme-editorial@4.2.0',
+    contractVersion,
+    templateRange,
+    composition: structuredClone(composition),
+  });
+  const valid = (/** @type {Record<string, unknown>} */ theme) =>
+    validateGalaDocument(canonical.schemaId, theme).valid;
+
+  assert.equal(valid(editorial('4.1.0', '^4.4.0')), true);
+  // 4.0.0 keeps exactly the ranges it always had.
+  assert.equal(valid(editorial('4.0.0', '^4.0.0')), true);
+  assert.equal(valid(editorial('4.0.0', '^4.1.0')), true);
+  assert.equal(valid(editorial('4.0.0', '^4.4.0')), false);
+  // 4.1.0 declares ^4.4.0 and nothing else.
+  assert.equal(valid(editorial('4.1.0', '^4.0.0')), false);
+  assert.equal(valid(editorial('4.1.0', '^4.1.0')), false);
+  assert.equal(valid(editorial('4.1.0', '^4.5.0')), false);
+  assert.equal(valid(editorial('4.2.0', '^4.4.0')), false);
+
+  const withoutComposition = editorial('4.1.0', '^4.4.0');
+  delete (
+    /** @type {Record<string, unknown>} */ (withoutComposition).composition
+  );
+  assert.equal(valid(withoutComposition), false);
+  const mixed = editorial('4.1.0', '^4.4.0');
+  mixed.composition.profile = 'visual';
+  assert.equal(valid(mixed), false);
+  const incomplete = editorial('4.1.0', '^4.4.0');
+  delete (
+    /** @type {Record<string, unknown>} */ (incomplete.composition).authorLayout
+  );
+  assert.equal(valid(incomplete), false);
+
+  // Editorial is never admitted as a legacy contract.
+  const legacyEditorial = { ...canonical, themeId: 'editorial' };
+  assert.equal(valid(legacyEditorial), false);
+});
+
 test('the public validator returns complete stable diagnostics', async () => {
   const value = await readJson('examples/valid/repository/canonical.json');
   value.unexpected = true;

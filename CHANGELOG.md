@@ -24,6 +24,61 @@ and this project adheres to
 - The `analytics` member of the build-input `modules` object
   (`moduleBuildSelection.analytics.config`, an embedded copy of the schema as
   `$defs.analyticsConfig`). Additive: existing build inputs stay valid.
+- The optional `policies` member of `publication.json`
+  (`$defs.publicationPolicies`): a site's own Terms and Privacy pages, each a
+  `title` (1 to 80 graphemes) and a `body` that is a repository-relative path to
+  a Markdown file, the way `profile` names its body. Both pages are required
+  when `policies` is present, and the object is closed. When it is absent the
+  template renders the default text below.
+- The optional `policies` member of the build input
+  (`$defs.policiesNormalized`): the same two pages, each a `title` and a
+  `renderableBody`, the publish action's rendering of the Markdown file.
+  Additive: existing build inputs stay valid.
+- The `@rathnasgala2/schemas/site-policy-defaults` export
+  (`site-policy-defaults.json`, in `files`): the default Terms and Privacy text
+  of a site as `{ terms: { title, markdown }, privacy: { title, markdown } }`,
+  English, short headed sections, no HTML and no template placeholder, and
+  nothing about Galascribe (the template appends that section). It is the one
+  source for the template's fallback, the App's "Reset to default" and the
+  user-template seed files; the API never carries the text.
+- Four OpenAPI operations in the `interaction-settings` tag, under
+  `/v2/organizations/{organizationId}/publications/{publicationId}`, with the
+  capabilities, guards, Problem responses and admin API key scopes of the
+  `interaction-settings` pair (so an admin API key may call them: `read` for the
+  two reads, `content:write` for the two writes):
+  - `GET` and `PUT` `/analytics-settings`
+    (`getOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings`,
+    `putOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings`).
+    The read answers
+    `{ enabled, provider: "google-analytics-4", measurementId (string or null), consentPolicy: "opt-in", openChange, setUp }`,
+    with `enabled` false and `measurementId` null when
+    `gala/modules/analytics.json` is absent. The write takes
+    `{ enabled, measurementId? }`, requires `measurementId`
+    (`^G-[A-Z0-9]{4,12}$`) when `enabled` is true, and removes the file when
+    `enabled` is false.
+  - `GET` and `PUT` `/policy-settings`
+    (`getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings`,
+    `putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings`).
+    The read answers
+    `{ source: "FILE" | "DEFAULT", terms?, privacy?, openChange, setUp }`, with
+    `terms` and `privacy` present when `source` is `FILE`. The write takes both
+    pages (`SitePolicyPage`: `title` 1 to 80 graphemes, `markdown` 1 to 131072
+    UTF-8 bytes as stored in the repository, the most the API's text-file reader
+    returns) and writes `gala/policies/terms.md`, `gala/policies/privacy.md` and
+    the `policies` member of `gala/publication.json` as one repository change.
+  - Each `Get...Response`, `Put...Request` and `Put...Response` is a component
+    schema named after its operation, as the interaction-settings ones are. The
+    write responses carry `change`, the shape the theme-selection write returns.
+
+### Changed
+
+- `theme-contract` admits `contractVersion` `4.1.0` wherever it admitted
+  `4.0.0`: the generation-4 branch that requires `composition` and the Editorial
+  pin. A `4.1.0` contract keeps every structural requirement of `4.0.0` and
+  declares `templateRange` `^4.4.0` (a `4.0.0` contract keeps `^4.0.0` or
+  `^4.1.0`). The compatibility gate reports the two `const` to `enum` widenings
+  (`allOf/2/if` and the Editorial pin) as breaking; both only admit a value that
+  was rejected before, and the baseline is refreshed with this release.
 
 ## [3.15.0] - 2026-10-18
 

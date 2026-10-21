@@ -727,11 +727,13 @@ function validateContractClosure(records, components) {
     if (
       [
         'getCallbacksGithubOauth',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContent',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup',
         'postGithubInstallationsByInstallationIdRepositories',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish',

@@ -692,6 +692,57 @@ test('generation-4 theme contracts require their exact package composition while
     'THEME_CONTRACT_INVALID',
   );
 
+  // Contract 4.1.0 keeps every generation-4 requirement and is pinned to
+  // templateRange ^4.4.0, while 4.0.0 keeps ^4.0.0 and ^4.1.0.
+  for (const [themeId, profile] of identities) {
+    const candidate = structuredClone(base.theme);
+    candidate.themeId = themeId;
+    candidate.package = `@rathnasgala2/theme-${themeId}@4.2.0`;
+    candidate.contractVersion = '4.1.0';
+    candidate.templateRange = '^4.4.0';
+    candidate.composition = {
+      schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+      schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+      ...TEMPLATE_COMPOSITIONS[profile],
+    };
+    assert.doesNotThrow(() => validateThemeContract(candidate));
+
+    for (const templateRange of ['^4.0.0', '^4.1.0', '^4.5.0']) {
+      const wrongRange = structuredClone(candidate);
+      wrongRange.templateRange = templateRange;
+      assertDiagnostic(
+        () => validateThemeContract(wrongRange),
+        'THEME_CONTRACT_INVALID',
+      );
+    }
+
+    const mixed = structuredClone(candidate);
+    mixed.composition = {
+      schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,
+      schemaVersion: TEMPLATE_COMPOSITION_SCHEMA_VERSION,
+      ...TEMPLATE_COMPOSITIONS[profile === 'visual' ? 'personal' : 'visual'],
+    };
+    assertDiagnostic(
+      () => validateThemeContract(mixed),
+      'THEME_CONTRACT_INVALID',
+    );
+
+    const olderContractRange = structuredClone(candidate);
+    olderContractRange.contractVersion = '4.0.0';
+    assertDiagnostic(
+      () => validateThemeContract(olderContractRange),
+      'THEME_CONTRACT_INVALID',
+    );
+  }
+
+  const missingFourOne = structuredClone(base.theme);
+  missingFourOne.contractVersion = '4.1.0';
+  missingFourOne.templateRange = '^4.4.0';
+  assertDiagnostic(
+    () => validateThemeContract(missingFourOne),
+    'THEME_CONTRACT_INVALID',
+  );
+
   const legacyWithComposition = structuredClone(base.theme);
   legacyWithComposition.composition = {
     schemaId: TEMPLATE_COMPOSITION_SCHEMA_ID,

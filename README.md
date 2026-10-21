@@ -624,6 +624,11 @@ remediation, and documentation URL fields without including authored values.
   `./digest-profiles` re-export of `internal/digest-profiles.js`;
   `frozen-envelope.js` is the Node-only `./frozen-envelope` re-export of
   `internal/frozen-envelope.js`.
+- `site-policy-defaults.json` — the default Terms and Privacy text of a site
+  (`{ terms, privacy }`, each `{ title, markdown }`), the
+  `./site-policy-defaults` export (SCHEMA-3.16.0). The one source for the
+  template's fallback, the App's "Reset to default" and the user-template seed
+  files; the API never carries the text.
 - `types/` — declaration output emitted from `src/`.
 - `schemas/` — 22 committed Draft 2020-12 contracts.
 - `compatibility/baseline-schemas/` — the last-released `schemas/*.schema.json`,

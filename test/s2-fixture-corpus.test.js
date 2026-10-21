@@ -21,6 +21,7 @@ const S2_FAMILIES = [
       'build-input-rejects-nonempty-modules',
       'build-input-valid-interactions-module',
       'build-input-valid-analytics-module',
+      'build-input-valid-policies',
       'build-input-rejects-nonempty-placements',
     ],
   },
@@ -175,7 +176,10 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // interactionBearing became a boolean, making 865.
     //
     // 3.16.0: the analytics-config root and the build-input analytics module
-    // added their generated fixtures, making 903.
+    // added their generated fixtures, making 903. The publication and
+    // build-input policies members and theme-contract 4.1.0 then regenerated
+    // those roots' valid, boundary, invalid and unknown-field fixtures; no
+    // file added or removed (903).
     //
     // 3.3.0: appearance/build-input attribution and the content-frontmatter/
     // build-input edition block regenerated those roots' valid, boundary,
@@ -207,7 +211,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // content-frontmatter and build-input regenerated those roots' valid,
     // boundary, unknown-field and invalid fixtures; no file added or removed.
     aggregate.digest('hex'),
-    '60b03a85f8ab270979a1dd42bc65af01ca01ecfe8869748be65706a00806f2b4',
+    'a3b36dbf865ab8b5294219c4ee4f28ff06a6d26f50ae2bd9d8d5cd00d15b4f9d',
   );
 });
 
@@ -337,6 +341,10 @@ test('the nine S2 families preserve their consumer-facing invariants', async () 
     Object.keys(value('build-input-valid-analytics-module').modules),
     ['analytics'],
   );
+  assert.deepEqual(Object.keys(value('build-input-valid-policies').policies), [
+    'terms',
+    'privacy',
+  ]);
   assert.notDeepEqual(
     value('build-input-rejects-nonempty-placements').placements,
     [],

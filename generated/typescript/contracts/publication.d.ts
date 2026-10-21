@@ -44,6 +44,16 @@ export type PublicationPlainLabel = string;
 
 export type PublicationPlainText = string;
 
+export type PublicationPolicyPage = Readonly<{
+  readonly body: PublicationRepoRelativePath;
+  readonly title: PublicationPlainText;
+}>;
+
+export type PublicationPublicationPolicies = Readonly<{
+  readonly privacy: PublicationPolicyPage;
+  readonly terms: PublicationPolicyPage;
+}>;
+
 export type PublicationPublicationProfile = Readonly<{
   readonly body: PublicationRepoRelativePath;
   readonly route: PublicationCanonicalRoute;
@@ -93,6 +103,7 @@ export type PublicationDocument = Readonly<{
   readonly footerCard?: PublicationFooterCard;
   readonly id: PublicationStableId;
   readonly newsletter?: PublicationNewsletter;
+  readonly policies?: PublicationPublicationPolicies;
   readonly profile?: PublicationPublicationProfile;
   readonly schemaId: 'urn:gala:schema:publication:2.0.0';
   readonly schemaVersion: '2.0.0';

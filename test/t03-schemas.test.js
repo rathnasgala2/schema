@@ -74,7 +74,8 @@ const ROOT_LEDGERS = {
       'placements',
       'inputDigest',
     ],
-    optional: [],
+    // SCHEMA-3.16.0: the site's own Terms and Privacy pages, rendered.
+    optional: ['policies'],
   },
   // SCHEMA-2.10.0 (LOCAL-62 follow-up, DEC-097 "Build provenance and
   // verified workload binding", 2198-2228): the standalone buildProvenance

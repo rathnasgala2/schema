@@ -46,6 +46,7 @@
     "navigation": { "$ref": "#/$defs/navigationNormalized" },
     "appearance": { "$ref": "#/$defs/appearanceNormalized" },
     "modules": { "$ref": "#/$defs/moduleBuildSelection" },
+    "policies": { "$ref": "#/$defs/policiesNormalized" },
     "buildEpoch": { "$ref": "#/$defs/rfc3339" },
     "baseUrl": { "$ref": "#/$defs/urlHttps" },
     "basePath": { "$ref": "#/$defs/canonicalRoute" },
@@ -528,6 +529,27 @@
         },
         "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
         "sourceDigest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "policyPageNormalized": {
+      "type": "object",
+      "required": ["title", "body"],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 80 }
+        },
+        "body": { "$ref": "#/$defs/renderableBody" }
+      },
+      "additionalProperties": false
+    },
+    "policiesNormalized": {
+      "type": "object",
+      "required": ["terms", "privacy"],
+      "properties": {
+        "terms": { "$ref": "#/$defs/policyPageNormalized" },
+        "privacy": { "$ref": "#/$defs/policyPageNormalized" }
       },
       "additionalProperties": false
     },

@@ -2592,6 +2592,23 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       },
     },
   };
+  const policiesBuildInput = canonical('build-input');
+  const policySource = firstS2Record(
+    policiesBuildInput.content,
+    'S2_BUILD_CONTENT_ABSENT',
+  );
+  const policyBody = {
+    sourcePath: policySource.sourcePath,
+    sourceDigest: policySource.sourceDigest,
+    bodyMediaType: policySource.bodyMediaType,
+    body: policySource.body,
+    bodyDigest: policySource.bodyDigest,
+    renderPolicy: policySource.renderPolicy,
+  };
+  policiesBuildInput.policies = {
+    terms: { title: 'Terms', body: clone(policyBody) },
+    privacy: { title: 'Privacy', body: clone(policyBody) },
+  };
   const nonemptyPlacements = canonical('build-input');
   nonemptyPlacements.placements = [{}];
   families.set('empty-modules-placements', [
@@ -2604,6 +2621,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
     ]),
     s2Case('build-input-valid-interactions-module', interactionsModules),
     s2Case('build-input-valid-analytics-module', analyticsModules),
+    s2Case('build-input-valid-policies', policiesBuildInput),
     s2Case('build-input-rejects-nonempty-placements', nonemptyPlacements, [
       { code: 'SCHEMA_CONSTANT_INVALID', instancePointer: '/placements' },
     ]),

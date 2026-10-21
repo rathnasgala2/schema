@@ -2305,11 +2305,13 @@
     },
     {
       "if": {
-        "properties": { "contractVersion": { "const": "4.0.0" } },
+        "properties": { "contractVersion": { "enum": ["4.0.0", "4.1.0"] } },
         "required": ["contractVersion"]
       },
       "then": {
-        "properties": { "templateRange": { "enum": ["^4.0.0", "^4.1.0"] } },
+        "properties": {
+          "templateRange": { "enum": ["^4.0.0", "^4.1.0", "^4.4.0"] }
+        },
         "required": ["composition"],
         "allOf": [
           {
@@ -2395,6 +2397,24 @@
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": { "contractVersion": { "const": "4.0.0" } },
+              "required": ["contractVersion"]
+            },
+            "then": {
+              "properties": {
+                "templateRange": { "enum": ["^4.0.0", "^4.1.0"] }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "contractVersion": { "const": "4.1.0" } },
+              "required": ["contractVersion"]
+            },
+            "then": { "properties": { "templateRange": { "const": "^4.4.0" } } }
           }
         ]
       },
@@ -2405,7 +2425,9 @@
         "properties": { "themeId": { "const": "editorial" } },
         "required": ["themeId"]
       },
-      "then": { "properties": { "contractVersion": { "const": "4.0.0" } } }
+      "then": {
+        "properties": { "contractVersion": { "enum": ["4.0.0", "4.1.0"] } }
+      }
     }
   ],
   "$comment": "The semantic validator enforces package/theme identity, slot/fixture catalogs, non-color palette equality, CSS/package admission, evidence, budgets, and every self-excluding digest."

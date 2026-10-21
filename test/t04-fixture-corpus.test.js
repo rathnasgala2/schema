@@ -93,7 +93,11 @@ const T03_SCHEMA_HASHES = {
     // 3.12.0 (reviewed 2026-10-13): contentFrontmatterNormalized gains the
     // optional closed seo block (new $defs/contentSeo, shared with
     // content-frontmatter). Additive.
-    '621efa7e4450f67132c3783c086fa48f87a4b7a77701a434a4b99fd8f7e525d9',
+    //
+    // 3.16.0: the analytics module (see schema CHANGELOG) and the optional
+    // closed policies member (new $defs/policiesNormalized and
+    // policyPageNormalized: a title and a renderableBody per page). Additive.
+    'c0a1bac1e88ca42a5d40afd4be293b34ed959164783d8da163ce4693c8014ff6',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -129,7 +133,10 @@ const T03_SCHEMA_HASHES = {
   'public-generation-marker':
     'de1a21327cd07eb11af5d04a323f05025f29d200a6d11034ab37ede99dff2093',
   publication:
-    '90ce1cc0d061bd87b18539d9822aca2ec762be2e5fadad9aca80d8351f7a872e',
+    // 3.16.0: the optional closed policies member (new $defs/policyPage and
+    // publicationPolicies: a title and a repo-relative Markdown body per
+    // page). Additive.
+    '68b39dee8ce69c2b21ca0bd9d4b34fe90c888dafaed3a7d47addf9e60b9f37a8',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':
@@ -142,7 +149,11 @@ const T03_SCHEMA_HASHES = {
     // follow[]} (new $defs/paletteFollow, keyed by the 40 palette-drivable
     // tokens from src/palette.js) and a contract-4 theme may declare
     // templateRange ^4.1.0 as well as ^4.0.0. Additive.
-    '127562a9c0df349fa1fff2bef4576b6b99863ae35e0b0e83d37bb8538c37d2e7',
+    //
+    // 3.16.0: contractVersion admits 4.1.0 wherever it admitted 4.0.0 (the
+    // generation-4 branch and the Editorial pin), and a 4.1.0 contract
+    // declares templateRange ^4.4.0. A widening of two const members.
+    '5f221e67ba7611835a15b1fedbfa1bfb3c21a1df18790da598a9b08d419b5da3',
 };
 
 const ADVERSARIAL_CATEGORIES = [

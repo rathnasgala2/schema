@@ -46,6 +46,7 @@
     },
     "defaultImageRef": { "$ref": "#/$defs/repoRelativePath" },
     "profile": { "$ref": "#/$defs/publicationProfile" },
+    "policies": { "$ref": "#/$defs/publicationPolicies" },
     "footerCard": { "$ref": "#/$defs/footerCard" },
     "newsletter": { "$ref": "#/$defs/newsletter" },
     "crawlers": { "$ref": "#/$defs/crawlers" },
@@ -217,6 +218,27 @@
       "properties": {
         "route": { "$ref": "#/$defs/canonicalRoute" },
         "body": { "$ref": "#/$defs/repoRelativePath" }
+      },
+      "additionalProperties": false
+    },
+    "policyPage": {
+      "type": "object",
+      "required": ["title", "body"],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 80 }
+        },
+        "body": { "$ref": "#/$defs/repoRelativePath" }
+      },
+      "additionalProperties": false
+    },
+    "publicationPolicies": {
+      "type": "object",
+      "required": ["terms", "privacy"],
+      "properties": {
+        "terms": { "$ref": "#/$defs/policyPage" },
+        "privacy": { "$ref": "#/$defs/policyPage" }
       },
       "additionalProperties": false
     },

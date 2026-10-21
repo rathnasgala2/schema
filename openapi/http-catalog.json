@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:52ee6b8f76bd4677837614ccba3b895f38667c23a7d36e0d2201a45fd71ae7e9",
+  "openApiDigest": "sha256:9320e0ff9b825f79f657e2af1f5e58fd98689cce996d3408a6a9a667e8008b8c",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -760,6 +760,32 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/analytics-settings",
+      "purpose": "read this publication's analytics settings at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "read",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/analytics-settings",
+      "purpose": "save this publication's analytics settings as a repository change",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "content:write",
+      "sourceFragment": "interaction-settings"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/appearance",
@@ -1218,6 +1244,32 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "moderation"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/policy-settings",
+      "purpose": "read this publication's Terms and Privacy text at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "read",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/policy-settings",
+      "purpose": "save this publication's Terms and Privacy text as a repository change",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "content:write",
+      "sourceFragment": "interaction-settings"
     },
     {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
@@ -2634,5 +2686,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:b9653b8233ca2573186efe14bc3d5d4dd4709ef0814c1e3f843d8c45a8e9d32f"
+  "digest": "sha256:177b94f5c03406c1f3ec41d0406ea12b8f5edfe89a55b8419df89b23b25008b8"
 }

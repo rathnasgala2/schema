@@ -30,6 +30,7 @@ test('package metadata pins the accepted runtime and package manager', async () 
   assert.equal(packageDefinition.packageManager, 'npm@11.16.0');
   assert.equal(packageDefinition.bin, undefined);
   assert.ok(packageDefinition.files.includes('schemas/'));
+  assert.ok(packageDefinition.files.includes('site-policy-defaults.json'));
   assert.ok(
     packageDefinition.files.includes('diagnostics/diagnostic-map.json'),
   );
@@ -69,6 +70,9 @@ test('package metadata pins the accepted runtime and package manager', async () 
       types: './types/digest-profiles.d.ts',
       import: './src/digest-profiles.js',
     },
+    // SCHEMA-3.16.0: the default Terms and Privacy text for a site, one source
+    // for the template fallback, the App's reset and the user-template seed.
+    './site-policy-defaults': './site-policy-defaults.json',
     // SCHEMA-2.9.1: the Node-only frozen-envelope validator, so publish stops
     // importing `src/internal/frozen-envelope.js` by file path.
     './frozen-envelope': {

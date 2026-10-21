@@ -293,6 +293,16 @@ export type BuildInputPlainLabel = string;
 
 export type BuildInputPlainText = string;
 
+export type BuildInputPoliciesNormalized = Readonly<{
+  readonly privacy: BuildInputPolicyPageNormalized;
+  readonly terms: BuildInputPolicyPageNormalized;
+}>;
+
+export type BuildInputPolicyPageNormalized = Readonly<{
+  readonly body: BuildInputRenderableBody;
+  readonly title: BuildInputPlainText;
+}>;
+
 export type BuildInputPublicationNormalized = Readonly<{
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly canonicalBase: BuildInputUrlHttps;
@@ -446,6 +456,7 @@ export type BuildInputDocument = Readonly<{
   readonly navigation: BuildInputNavigationNormalized;
   readonly packages: BuildInputBuildPackages;
   readonly placements: [];
+  readonly policies?: BuildInputPoliciesNormalized;
   readonly publication: BuildInputPublicationNormalized;
   readonly repository: BuildInputRepositorySnapshot;
   readonly schemaId: 'urn:gala:schema:build-input:2.0.0';
