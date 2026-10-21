@@ -8,6 +8,154 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.17.0] - 2026-10-21
+
+Incident 2026-10-21: a site moved to a custom domain while its repository still
+carried the github.io base; the publish passed the guard, the deploy crashed on
+the redirect, and the destination fence stayed held. The API, toolchain and App
+now bind fences to operation lifecycles, move the base as a system operation
+before the CNAME is set, verify deploys at the origin that is serving, and
+report every failed deploy. These additions carry that state. RCA:
+`scrap/20261021_custom-domain-canonical-base-rca.md`. Every addition is optional
+or additive: a 3.16 document, request and response still validates, and
+`npm run compatibility:check` reports no breaking change.
+
+### Added
+
+- Operation responses (`ManagedDeploymentOperationResponse`, which the operation
+  read and the receipt-submission response share, and `OperationDetailResponse`,
+  which the cancel response uses): optional `reason` (`OperationReason`, a
+  string matching `^[A-Z][A-Z0-9_]{2,63}$`) and optional `held`
+  (`OperationHeld`: `byOperationId` uuid, `since` date-time, `holderPhase`
+  string, optional `holderReason`). Why: an operation that ended, or sat
+  `accepted`, showed no cause, so the App could not say a publish was waiting
+  behind another operation or why a run had ended. `reason` is a free string,
+  documented rather than enumerated; the new terminal values are
+  `DESTINATION_BUSY_TIMEOUT` (held behind another operation past the server's
+  bound, ended without creating a run), `DESTINATION_FENCE_EXPIRED` (the reaper
+  closed a fence whose run settled with no receipt), `CANONICAL_BASE_MISMATCH`
+  and `DOMAIN_NOT_READY`, and they are listed beside the existing values in
+  `HistoryFailure.reasonCode`. `holderPhase` is the holder's state in the
+  transition catalog's capitals (`EXECUTING`), not the lower-case wire `phase`.
+- `SitePublishing.held` (the site read's `publishing` object): the same optional
+  `OperationHeld`. Why: the Home screen shows "held by another publish" with the
+  holder instead of a bare queued state.
+- `operations:cancel`
+  (`postOrganizationsByOrganizationIdOperationsByOperationIdCancel`) is callable
+  with an admin API key: security gains `adminApiKey`, the operation
+  `x-gala-api-key-scope: publish`, and the HTTP catalog row
+  `apiKeyScope: publish`; the reviewed allowlist in
+  `test/t24-api-key-scopes.test.js` grows from 22 to 23 scoped rows. Why: a
+  platform key with the publish scope must be able to release an operation that
+  holds a destination, without a browser session. Its state guard now reads
+  `PublicationOperation:ACCEPTED|EXECUTING|RECONCILING -> CANCELLED_NO_EFFECT`
+  (see Changed).
+- `OperationKind` gains `domain_base_move`, the wire spelling of the API's
+  `DOMAIN_BASE_MOVE` dispatch kind. Why: the system operation that moves a
+  site's canonical base around the CNAME switch creates an operation row, and a
+  strict client would reject an unknown kind. No other publish dispatch kind is
+  enumerated in this contract (`INITIAL_PUBLISH` and the rest live only in the
+  API), so this is the one place the name can be added.
+- Deployment receipt submission (`PostWorkloadsDeploymentReceiptsRequest`):
+  optional `deployFailure` (`ReceiptSubmissionDeployFailure`: `journal`
+  `present|absent`, `failureCode` matching `^[A-Z][A-Z0-9_]{2,63}$`, optional
+  `stage` matching `^[a-z][a-z0-9-]{0,63}$`, optional `toHost` hostname) and
+  optional `verifiedAt` (`ReceiptSubmissionVerifiedAt`: `origin`, an https
+  origin with no path). `kernelJournal` leaves `required` and is governed by the
+  conditional `allOf` this schema already uses elsewhere: it is required unless
+  `deployFailure.journal` is `absent`, and must then be omitted. Why: a deploy
+  that fails before it writes a journal could not be reported, so its fence was
+  never released; and a deploy verified at the github.io project address while
+  the domain switches must say which origin it read. Generated clients now see
+  `kernelJournal` as optional; every 3.16 submission, which always carries it,
+  is unchanged.
+- Domain binding (`DomainBinding`): optional `redirectsFromProjectPath` boolean
+  (GitHub redirects the project path from the moment the Pages CNAME is set
+  until it is removed) and optional `baseMove` (`DomainBaseMove`: `state`
+  `NOT_NEEDED|PENDING|MOVING|FAILED|PROPOSED|PUBLISHED`, optional `reason`,
+  optional `changeId` uuid, optional `operationId` uuid). `DomainNextStep`
+  documents the new code `WAIT_FOR_MOVE`, and the domain reason values
+  `MOVE_FAILED`, `MOVE_STUCK`, `MOVE_ABANDONED` and `AUTHORITY_LAPSED` are
+  documented on `baseMove.reason` and on `SiteAttentionItem.reasonCode` (both
+  free strings, not enumerations). Why: the served base follows the CNAME, not
+  the certificate, and the system now moves the base itself, so the Domain page
+  and the site read can narrate "moving your site to its new address" and say
+  when a move is stuck.
+- Problem members `expectedBase` (https URL), `profileBase` (string),
+  `domainState` (string) and `remedy` (plain text, 1 to 500 graphemes), all
+  optional on the `problem` root and carried by the
+  `409 CANONICAL_BASE_MISMATCH` of `POST .../publishes` and
+  `POST .../changes:publish`; the examples show them. The
+  `409 INVALID_SOURCE_STATE` of both routes documents the new
+  `errors[].code DOMAIN_NOT_READY` (a custom domain part-way through its switch,
+  no address verifiable; resolves on its own). Why: `detail` was the only
+  carrier of the expected address, and a client could not name the two addresses
+  or render the remedy. The members are not restricted to one code by the schema
+  (a conditional on a root every problem shares would change every problem
+  fixture); the descriptions say which problem carries them.
+- `destination.verificationBaseUrl`, optional: on the workload receipt-exchange
+  intent request (`ReceiptExchangeIntentRequestDestination`) and, because the
+  retained record and the capability decision embed the same shape, on
+  `destinationIdentity` in `adapter-capability`, `deployment-intent`,
+  `deployment-observation` and `deployment-receipt`. An https URL with a
+  lowercase exact host and no userinfo, port, query or fragment (a path is
+  allowed), at most 2048 bytes. Why: during the switch neither base answers over
+  HTTPS, so the origin a deploy is verified at is decoupled from the build base
+  `baseUrl`; absent means they are the same, as before. When present it is a
+  member of `destination` like `baseUrl`, so it is inside the capability
+  decision record and `capabilityDecisionDigest` covers it (members are digested
+  in RFC 8785 canonical order, so there is no separate input order to append
+  to); a record without it digests exactly as it did. The four
+  `destinationIdentity` copies stay byte-identical
+  (`schemas:shared-defs:check`).
+
+- `GET .../publications/{publicationId}/policy-settings`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings`)
+  lists a `422` `VALIDATION_FAILED` Problem response, in the usual shape the
+  `PUT` already uses, and its description says when it is answered. Why: the API
+  answers 422 when `gala/publication.json` names a policy file that is missing
+  at the head, and the contract declared no such response, so a generated client
+  had no typed way to tell it from a transport failure. The 3.16.0 mirror test
+  in `test/t07-openapi.test.js` now expects this one status beyond the
+  interaction-settings read's.
+
+### Changed
+
+- The `operation.entered_cancelled_no_effect` transition admits `RECONCILING` as
+  a source: `catalog-sources/internal-event-actions.json` lists `ACCEPTED`,
+  `EXECUTING`, `RECONCILING`, and the generated payload schema's `fromState`
+  enum and the catalog digest move with it. Why: an operation whose deploy
+  failed sits in `RECONCILING` with its fence held, and cancelling it must be a
+  recorded transition. A widening only; a consumer validating with the 3.16
+  catalog would reject the new source, so take 3.17.0 before the API emits it.
+- The receipt-exchange request family pin in `test/t08-schema-2100.test.js`
+  (SCHEMA-2.10.0 LOCAL-63) is re-pinned for 3.17.0 instead of freezing the
+  family: `ReceiptExchangeIntentRequestDestination` gains the optional
+  `verificationBaseUrl` and the `capabilityDecisionDigest` description notes it,
+  so the digest of those four components legitimately moves. The pin existed to
+  keep Spaces `providerBinding` forbidden on the intent request (LOCAL-63d), so
+  a new direct assertion checks that rule against the bundle (any
+  `providerBinding` on a `do-spaces` destination is refused, with or without
+  `verificationBaseUrl`, and `verificationBaseUrl` itself is held to an https
+  address with a lowercase exact host and no userinfo, port, query or fragment).
+  The rule no longer rides on a digest alone.
+- The fixture generator's exact-length string witnesses
+  (`schema-string-boundary` recipes) now keep a pattern a schema declares itself
+  when it also merges a referenced definition through `allOf`. Before, the
+  referenced definition's looser pattern replaced it, so the 2048-byte witness
+  for `destinationIdentity.verificationBaseUrl` was a 2036-character host that
+  its own pattern rejects; the witness is now `https://a/` plus a path. No
+  stored fixture changes (recipes are stored, witnesses are built when tests
+  run); no other schema declares both.
+- Generated artifacts regenerated: the five root schemas above, the fixture
+  corpus and its manifest, the diagnostic map and parity expectations, the
+  precompiled validators and generated TypeScript types, the schema inventory,
+  the OpenAPI bundle and HTTP catalog digests, the event catalog, the
+  compatibility baseline, the license inventory and the SBOM. The pinned schema
+  hashes in `test/t04-fixture-corpus.test.js`, the aggregate fixture digest in
+  `test/s2-fixture-corpus.test.js` and the problem ledger in
+  `test/t04-platform-schemas.test.js` move with them.
+
 ## [3.16.0] - 2026-10-20
 
 ### Added
@@ -3063,7 +3211,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.16.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.17.0...HEAD
+[3.17.0]: https://github.com/rathnasgala2/schema/compare/v3.16.0...v3.17.0
 [3.16.0]: https://github.com/rathnasgala2/schema/compare/v3.15.0...v3.16.0
 [3.15.0]: https://github.com/rathnasgala2/schema/compare/v3.14.1...v3.15.0
 [3.14.1]: https://github.com/rathnasgala2/schema/compare/v3.14.0...v3.14.1

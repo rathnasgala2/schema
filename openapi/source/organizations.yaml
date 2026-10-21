@@ -2539,6 +2539,15 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_PATH
   /v2/organizations/{organizationId}/operations/{operationId}:cancel:
     post:
+      description: |
+        Cancels an operation that has produced no effect. From SCHEMA-3.17.0 an
+        operation that is `executing` or `reconciling` may also be cancelled
+        once its run has settled (a live run cannot be cancelled here), which
+        closes the destination fence the operation holds in the same
+        transaction, so a failed or lost deploy no longer leaves the site's
+        destination held. The response is the operation after the cancel, with
+        its `phase` and `reason` as they now stand. An admin API key with the
+        `publish` scope may call it.
       operationId: postOrganizationsByOrganizationIdOperationsByOperationIdCancel
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -2830,12 +2839,14 @@ paths:
             - VALIDATION_FAILED
       security:
         - browserSession: []
+        - adminApiKey: []
       summary: cancel only before the effect fence
       tags:
         - organizations
       x-gala-activation-gate: MVP
       x-gala-activation-guards:
         - NONE
+      x-gala-api-key-scope: publish
       x-gala-capability-key: organization.publications.admin
       x-gala-capability-resolution: target-operation-current-capability-and-scope
       x-gala-concurrency: operation-version-and-no-effect-proof
@@ -2855,8 +2866,8 @@ paths:
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
-        - PublicationOperation:ACCEPTED|EXECUTING -> CANCELLED_NO_EFFECT with
-          proof no effect crossed
+        - PublicationOperation:ACCEPTED|EXECUTING|RECONCILING ->
+          CANCELLED_NO_EFFECT with proof no effect crossed
       x-gala-success-category: update
       x-gala-tenant-scope: ORGANIZATION_PATH
   /v2/organizations/{organizationId}/owner-transfers:
@@ -8479,6 +8490,20 @@ paths:
         after it was written. The App's remedy for the second cause is
         `POST .../repository-changes/{changeId}:bring-up-to-date` followed
         by review and publish again (journey state U2).
+
+        SCHEMA-3.17.0 adds a third cause: `errors[].code DOMAIN_NOT_READY`,
+        returned while the site's custom domain is part-way
+        through its switch and no address can be verified (after the Pages
+        CNAME is set and before the certificate serves). It is short and
+        resolves on its own, so the author waits; the domain read's `nextStep`
+        says `WAIT_FOR_MOVE` or `WAIT_FOR_CERTIFICATE`.
+
+        `409 CANONICAL_BASE_MISMATCH` carries the optional problem members
+        `expectedBase`, `profileBase`, `domainState` and `remedy`
+        (SCHEMA-3.17.0), so a client can name the two addresses and render the
+        `remedy` without parsing `detail`. The server first tries to fix the
+        mismatch itself by including the pending "Site address" change in the
+        publish; the problem is returned only when it cannot.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -8667,7 +8692,13 @@ paths:
                     code: CANONICAL_BASE_MISMATCH
                     correlationId: 018f0000-0000-7000-8000-000000000001
                     detail: See the operation contract.
+                    domainState: CERTIFICATE_PENDING
                     errors: []
+                    expectedBase: https://blog.example.com/
+                    profileBase: https://example.github.io/blog/
+                    remedy:
+                      Change the site address to https://blog.example.com/ and
+                      publish again.
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0
@@ -13284,6 +13315,21 @@ paths:
         merged head's `gala/publication.json` `canonicalBase` is not the address
         the site is served at (the active custom domain, else the github.io
         address); the problem `detail` names the expected value.
+
+        SCHEMA-3.17.0: that problem also carries the optional members
+        `expectedBase` (the address the site is served at, an https URL),
+        `profileBase` (the base the profile carries now, as written),
+        `domainState` (the custom domain's state that decided the expected
+        base, absent without a domain) and `remedy` (one sentence for the
+        author), so a client names both addresses and renders the `remedy`
+        without parsing `detail`. The server first includes the pending "Site
+        address" change in the publish, or proposes one inside the request, and
+        returns the problem only when it cannot. `409 INVALID_SOURCE_STATE`
+        with `errors[].code DOMAIN_NOT_READY` is returned while
+        a custom domain is part-way through its switch and no address can be
+        verified (after the Pages CNAME is set and before the certificate
+        serves); it resolves on its own, and the domain read's `nextStep` says
+        what is being waited on.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -13473,7 +13519,13 @@ paths:
                     code: CANONICAL_BASE_MISMATCH
                     correlationId: 018f0000-0000-7000-8000-000000000001
                     detail: See the operation contract.
+                    domainState: CERTIFICATE_PENDING
                     errors: []
+                    expectedBase: https://blog.example.com/
+                    profileBase: https://example.github.io/blog/
+                    remedy:
+                      Change the site address to https://blog.example.com/ and
+                      publish again.
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0

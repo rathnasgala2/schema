@@ -35,7 +35,12 @@ const T03_SCHEMA_HASHES = {
     // had, positiveInt64/githubPositiveDecimal gained real upper bounds, and
     // githubRepositoryCoordinate was reconciled to the description-bearing,
     // ASCII-length-checked form -- see schemas:shared-defs:check.
-    '6d722c1cae0a2d90427a9d21b79b9d49014e6b5f507cd70f983055eae12801df',
+    //
+    // 3.17.0: destinationIdentity gains the optional verificationBaseUrl (the
+    // address a deploy is verified at while it differs from the build base;
+    // inside the capability decision record, so inside decisionDigest when
+    // present). Additive; the deployment-* roots move with it.
+    '1960be4e81ce18d0b57ab0ca6e531931fe32ae3d486f9fc2efd86d752981c0e1',
   appearance:
     // 2026-09-25 code-discipline review, SCH-C3: colorMode and
     // semanticTokens reconciled to the build-input root's wording/shape.
@@ -113,16 +118,25 @@ const T03_SCHEMA_HASHES = {
     // reproducibleBuildRecord renamed to recordRenderPolicyIdentity/
     // recordReproducibleBuildRecord to disambiguate from the manifest
     // roots' const-named-policy variants.
-    '78ab41dd7b5020be10b681303038e149289b902981e88809d937c19939e5e478',
+    //
+    // 3.17.0: destinationIdentity gains the optional verificationBaseUrl (see
+    // adapter-capability above). Additive.
+    'ccb0db93e0cd6b643b8b2ebe9deb8e93a56d1e58fd23ffcca7275309390a55fc',
   'deployment-observation':
     // 2026-09-25 code-discipline review, SCH-C3: see deployment-intent above
     // (int64/nonNegativeInt64/positiveInt64/renderPolicyIdentity).
-    '4ea49fda413a1c75fff63e85c6680be50963c03fe7b2e62c10e24ec4e23118b5',
+    //
+    // 3.17.0: destinationIdentity gains the optional verificationBaseUrl (see
+    // adapter-capability above). Additive.
+    'ccc2b9343609bb5fad573e11f7469e90e33049b28deab2c6389f661784610d59',
   'deployment-receipt':
     // 2026-09-25 code-discipline review, SCH-C3: see deployment-intent above
     // (int64/nonNegativeInt64/positiveInt64/renderPolicyIdentity/
     // reproducibleBuildRecord).
-    'ede5860c98c2b701a6a31c51af5d576a0d5857395b0552e812d3fdc4fc9ed076',
+    //
+    // 3.17.0: destinationIdentity gains the optional verificationBaseUrl (see
+    // adapter-capability above). Additive.
+    'ad0cefc1c17eb430df1fe9f12c09936fd35edc9e3a02978a80242ef67f654768',
   lock: 'b594649a9449a01dd30fb48562fae0ac7728d5de78547f5e4ca9516a40626fe7',
   navigation:
     // 2026-09-25 code-discipline review, SCH-C3: navigationItem/

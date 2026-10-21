@@ -126,6 +126,34 @@ export function createPlatformSchemas(language) {
         operationId: ref('stableId'),
         retryable: { type: 'boolean' },
         errors: arrayOf(ref('fieldError'), 0, 100),
+        expectedBase: {
+          allOf: [ref('urlHttps')],
+          maxLength: 2_048,
+          description:
+            'SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the address the site is served from right now and so the canonical base its publication profile must carry (the active custom domain once the domain redirects the project path, otherwise the github.io address).',
+        },
+        profileBase: {
+          type: 'string',
+          maxLength: 2_048,
+          description:
+            'SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the canonical base the publication profile (`gala/publication.json`) carries now, as written. A string rather than an https URL because the mismatch can be a value that is not one (for example an http address).',
+        },
+        domainState: {
+          type: 'string',
+          minLength: 1,
+          maxLength: 80,
+          description:
+            "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the state of the site's custom-domain binding that decided `expectedBase` (a `DomainBindingState` value such as `CERTIFICATE_PENDING` or `ACTIVE`), absent when the site has no custom domain. A client shows a value it does not know as is.",
+        },
+        remedy: graphemeBound(
+          {
+            ...ref('plainText'),
+            description:
+              'SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: one sentence, written for the author, saying what resolves the mismatch. A client may render it verbatim.',
+          },
+          1,
+          500,
+        ),
       },
       [
         'type',

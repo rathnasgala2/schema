@@ -1163,7 +1163,12 @@ paths:
         not carry, and `terms` and `privacy` are omitted. `setUp` matches `GET
         .../repository/setup`'s `state`; `openChange` names an existing
         not-yet-published change of this publication that touches
-        `gala/publication.json` or a policy file, or is null.
+        `gala/publication.json` or a policy file, or is null. SCHEMA-3.17.0 adds
+        `422 VALIDATION_FAILED`, answered when `gala/publication.json` names a
+        policy file that does not exist at the head; the repository is then
+        inconsistent and no page text can be read, so the author fixes the
+        repository (or writes both pages again with `PUT`) before the read
+        answers.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1287,6 +1292,33 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - RESOURCE_NOT_FOUND
+        '422':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
         '429':
           content:
             application/problem+json:

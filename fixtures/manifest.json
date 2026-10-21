@@ -7,8 +7,8 @@
     {
       "contract": "adapter-capability",
       "schemaId": "urn:gala:schema:adapter-capability:2.0.0",
-      "schemaSha256": "6d722c1cae0a2d90427a9d21b79b9d49014e6b5f507cd70f983055eae12801df",
-      "ruleCount": 1217,
+      "schemaSha256": "1960be4e81ce18d0b57ab0ca6e531931fe32ae3d486f9fc2efd86d752981c0e1",
+      "ruleCount": 1220,
       "validExample": "examples/valid/adapter-capability/canonical.json",
       "boundaryFixture": "fixtures/boundary/adapter-capability/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/adapter-capability/root.json"
@@ -79,8 +79,8 @@
     {
       "contract": "deployment-intent",
       "schemaId": "urn:gala:schema:deployment-intent:2.0.0",
-      "schemaSha256": "78ab41dd7b5020be10b681303038e149289b902981e88809d937c19939e5e478",
-      "ruleCount": 1021,
+      "schemaSha256": "ccb0db93e0cd6b643b8b2ebe9deb8e93a56d1e58fd23ffcca7275309390a55fc",
+      "ruleCount": 1024,
       "validExample": "examples/valid/deployment-intent/canonical.json",
       "boundaryFixture": "fixtures/boundary/deployment-intent/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/deployment-intent/root.json"
@@ -88,8 +88,8 @@
     {
       "contract": "deployment-observation",
       "schemaId": "urn:gala:schema:deployment-observation:2.0.0",
-      "schemaSha256": "4ea49fda413a1c75fff63e85c6680be50963c03fe7b2e62c10e24ec4e23118b5",
-      "ruleCount": 785,
+      "schemaSha256": "ccc2b9343609bb5fad573e11f7469e90e33049b28deab2c6389f661784610d59",
+      "ruleCount": 788,
       "validExample": "examples/valid/deployment-observation/canonical.json",
       "boundaryFixture": "fixtures/boundary/deployment-observation/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/deployment-observation/root.json"
@@ -97,8 +97,8 @@
     {
       "contract": "deployment-receipt",
       "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
-      "schemaSha256": "ede5860c98c2b701a6a31c51af5d576a0d5857395b0552e812d3fdc4fc9ed076",
-      "ruleCount": 2690,
+      "schemaSha256": "ad0cefc1c17eb430df1fe9f12c09936fd35edc9e3a02978a80242ef67f654768",
+      "ruleCount": 2693,
       "validExample": "examples/valid/deployment-receipt/canonical.json",
       "boundaryFixture": "fixtures/boundary/deployment-receipt/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/deployment-receipt/root.json"
@@ -142,8 +142,8 @@
     {
       "contract": "problem",
       "schemaId": "urn:gala:schema:problem:2.0.0",
-      "schemaSha256": "0595396f268a16e67b65a9aede276f00b9ef1f8e2699e1be57128703078b21fb",
-      "ruleCount": 113,
+      "schemaSha256": "60d1d34ef306b20e228e3895e2894795f0c35292c0554e77001058d3f62dae30",
+      "ruleCount": 120,
       "validExample": "examples/valid/problem/canonical.json",
       "boundaryFixture": "fixtures/boundary/problem/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/problem/root.json"
@@ -4847,6 +4847,75 @@
         "file": "fixtures/invalid/adapter-capability/SCHEMA_TYPE_INVALID/cases.json",
         "caseId": "adapter-capability-invalid-1800dfd2d3d46df7",
         "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/adapter-capability/rules.json",
+        "caseId": "adapter-capability-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "adapter-capability",
+      "ruleId": "adapter-capability:#/$defs/destinationIdentity/properties/verificationBaseUrl:maxLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/adapter-capability/rules.json",
+        "caseId": "adapter-capability-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/adapter-capability/rules.json",
+        "caseId": "adapter-capability-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/adapter-capability/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "adapter-capability-invalid-db756f3811ab14af",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/adapter-capability/rules.json",
+        "caseId": "adapter-capability-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "adapter-capability",
+      "ruleId": "adapter-capability:#/$defs/destinationIdentity/properties/verificationBaseUrl:pattern",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/adapter-capability/rules.json",
+        "caseId": "adapter-capability-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/adapter-capability/rules.json",
+        "caseId": "adapter-capability-boundary-5c5561aea44e786a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/adapter-capability/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "adapter-capability-invalid-ef5790214ca60c66",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/adapter-capability/rules.json",
+        "caseId": "adapter-capability-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "adapter-capability",
+      "ruleId": "adapter-capability:#/$defs/destinationIdentity/properties/verificationBaseUrl:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/adapter-capability/rules.json",
+        "caseId": "adapter-capability-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/adapter-capability/rules.json",
+        "caseId": "adapter-capability-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/adapter-capability/UTF8_BYTE_LENGTH_INVALID/cases.json",
+        "caseId": "adapter-capability-invalid-9df25c48ee352666",
+        "expectedCode": "UTF8_BYTE_LENGTH_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/adapter-capability/rules.json",
@@ -82778,6 +82847,75 @@
     },
     {
       "contract": "deployment-intent",
+      "ruleId": "deployment-intent:#/$defs/destinationIdentity/properties/verificationBaseUrl:maxLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/deployment-intent/rules.json",
+        "caseId": "deployment-intent-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-intent/rules.json",
+        "caseId": "deployment-intent-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-intent/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "deployment-intent-invalid-0ee01d55f214c985",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-intent/rules.json",
+        "caseId": "deployment-intent-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-intent",
+      "ruleId": "deployment-intent:#/$defs/destinationIdentity/properties/verificationBaseUrl:pattern",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/deployment-intent/rules.json",
+        "caseId": "deployment-intent-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-intent/rules.json",
+        "caseId": "deployment-intent-boundary-5c5561aea44e786a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-intent/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "deployment-intent-invalid-7fc7770caca98dff",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-intent/rules.json",
+        "caseId": "deployment-intent-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-intent",
+      "ruleId": "deployment-intent:#/$defs/destinationIdentity/properties/verificationBaseUrl:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/deployment-intent/rules.json",
+        "caseId": "deployment-intent-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-intent/rules.json",
+        "caseId": "deployment-intent-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-intent/UTF8_BYTE_LENGTH_INVALID/cases.json",
+        "caseId": "deployment-intent-invalid-79c6046eb032421d",
+        "expectedCode": "UTF8_BYTE_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-intent/rules.json",
+        "caseId": "deployment-intent-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-intent",
       "ruleId": "deployment-intent:#/$defs/destinationMutationAuthority:additionalProperties",
       "schemaPointer": "#/$defs/destinationMutationAuthority",
       "keyword": "additionalProperties",
@@ -103094,6 +103232,75 @@
         "file": "fixtures/invalid/deployment-observation/SCHEMA_TYPE_INVALID/cases.json",
         "caseId": "deployment-observation-invalid-88642daff7790c5b",
         "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-observation/rules.json",
+        "caseId": "deployment-observation-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-observation",
+      "ruleId": "deployment-observation:#/$defs/destinationIdentity/properties/verificationBaseUrl:maxLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/deployment-observation/rules.json",
+        "caseId": "deployment-observation-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-observation/rules.json",
+        "caseId": "deployment-observation-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-observation/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "deployment-observation-invalid-9b8ed4ea85ab37fb",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-observation/rules.json",
+        "caseId": "deployment-observation-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-observation",
+      "ruleId": "deployment-observation:#/$defs/destinationIdentity/properties/verificationBaseUrl:pattern",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/deployment-observation/rules.json",
+        "caseId": "deployment-observation-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-observation/rules.json",
+        "caseId": "deployment-observation-boundary-5c5561aea44e786a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-observation/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "deployment-observation-invalid-2752ace48b4c4149",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-observation/rules.json",
+        "caseId": "deployment-observation-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-observation",
+      "ruleId": "deployment-observation:#/$defs/destinationIdentity/properties/verificationBaseUrl:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/deployment-observation/rules.json",
+        "caseId": "deployment-observation-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-observation/rules.json",
+        "caseId": "deployment-observation-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-observation/UTF8_BYTE_LENGTH_INVALID/cases.json",
+        "caseId": "deployment-observation-invalid-9e6cb91335fa8158",
+        "expectedCode": "UTF8_BYTE_LENGTH_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/deployment-observation/rules.json",
@@ -158611,6 +158818,75 @@
     },
     {
       "contract": "deployment-receipt",
+      "ruleId": "deployment-receipt:#/$defs/destinationIdentity/properties/verificationBaseUrl:maxLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-receipt/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "deployment-receipt-invalid-531be9a4505208ef",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-receipt",
+      "ruleId": "deployment-receipt:#/$defs/destinationIdentity/properties/verificationBaseUrl:pattern",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-boundary-5c5561aea44e786a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-receipt/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "deployment-receipt-invalid-20cf5220558948c2",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-receipt",
+      "ruleId": "deployment-receipt:#/$defs/destinationIdentity/properties/verificationBaseUrl:x-gala-utf8ByteLength",
+      "schemaPointer": "#/$defs/destinationIdentity/properties/verificationBaseUrl",
+      "keyword": "x-gala-utf8ByteLength",
+      "valid": {
+        "file": "examples/valid/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-valid-b4426d4f9d585958"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-boundary-6b068503e0628a43"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/deployment-receipt/UTF8_BYTE_LENGTH_INVALID/cases.json",
+        "caseId": "deployment-receipt-invalid-9361a8a7ca8a1b1b",
+        "expectedCode": "UTF8_BYTE_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/deployment-receipt/rules.json",
+        "caseId": "deployment-receipt-unknown-0aafa9c89d373cfe"
+      }
+    },
+    {
+      "contract": "deployment-receipt",
       "ruleId": "deployment-receipt:#/$defs/destinationMutationAuthority:additionalProperties",
       "schemaPointer": "#/$defs/destinationMutationAuthority",
       "keyword": "additionalProperties",
@@ -189194,6 +189470,75 @@
     },
     {
       "contract": "problem",
+      "ruleId": "problem:#/properties/domainState:maxLength",
+      "schemaPointer": "#/properties/domainState",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-16c34770fb3597b3"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-7fe4c9b33a8b7a22"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "problem-invalid-d856580c1bf20c65",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/properties/domainState:minLength",
+      "schemaPointer": "#/properties/domainState",
+      "keyword": "minLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-16c34770fb3597b3"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-8b5905b4744b741f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_STRING_TOO_SHORT/cases.json",
+        "caseId": "problem-invalid-9623aafee692d2a7",
+        "expectedCode": "SCHEMA_STRING_TOO_SHORT"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/properties/domainState:type",
+      "schemaPointer": "#/properties/domainState",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-16c34770fb3597b3"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-590c5f8e53f5796d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "problem-invalid-b9c7dff39539d058",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
       "ruleId": "problem:#/properties/errors:maxItems",
       "schemaPointer": "#/properties/errors",
       "keyword": "maxItems",
@@ -189251,6 +189596,98 @@
         "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
         "caseId": "problem-invalid-796ec151ec3ffeaa",
         "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/properties/expectedBase:maxLength",
+      "schemaPointer": "#/properties/expectedBase",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-1f7d60fbae239651"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-62795fcc837c77f0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "problem-invalid-5a364e171f6cb6a1",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/properties/profileBase:maxLength",
+      "schemaPointer": "#/properties/profileBase",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-bfc2fdc8ff6f88e1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-7244b24655d2ab51"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "problem-invalid-3c0ebad3a61a7589",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/properties/profileBase:type",
+      "schemaPointer": "#/properties/profileBase",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-bfc2fdc8ff6f88e1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-ad88e6663f9346a0"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "problem-invalid-59b628efd9d01db4",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/problem/rules.json",
+        "caseId": "problem-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "problem",
+      "ruleId": "problem:#/properties/remedy:x-gala-graphemeLength",
+      "schemaPointer": "#/properties/remedy",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/problem/rules.json",
+        "caseId": "problem-valid-c8e067441fb91668"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/problem/rules.json",
+        "caseId": "problem-boundary-814e05203b57d284"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/problem/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "problem-invalid-e6cf0e13316aced5",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/problem/rules.json",

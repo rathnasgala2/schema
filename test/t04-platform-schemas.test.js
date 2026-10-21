@@ -41,7 +41,15 @@ const ROOT_LEDGERS = {
       'retryable',
       'errors',
     ],
-    optional: ['instance', 'operationId'],
+    // 3.17.0: the four optional CANONICAL_BASE_MISMATCH extension members.
+    optional: [
+      'instance',
+      'operationId',
+      'expectedBase',
+      'profileBase',
+      'domainState',
+      'remedy',
+    ],
   },
   'event-envelope': {
     required: [

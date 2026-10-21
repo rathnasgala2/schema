@@ -33,6 +33,7 @@ const EXPECTED = Object.freeze({
   getOrganizations: 'read',
   getPlatformDemoSitesByPublicationId: 'demo:setup',
   getPlatformDemoSitesPreflight: 'demo:setup',
+  [`post${O}OperationsByOperationIdCancel`]: 'publish',
   [`post${P}ChangesPublish`]: 'publish',
   [`post${P}ContentChangesPlan`]: 'content:write',
   [`post${P}RepositoryChangesByChangeIdConfirm`]: 'content:write',

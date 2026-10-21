@@ -150,6 +150,7 @@ export type AdapterCapabilityDestinationIdentity = Readonly<{
   readonly environment: 'github-pages' | 'do-spaces' | 'local-directory';
   readonly providerBinding?: AdapterCapabilityDestinationProviderCoordinates;
   readonly targetDigest: AdapterCapabilityDigest;
+  readonly verificationBaseUrl?: AdapterCapabilityUrlHttps;
 }> &
   unknown;
 

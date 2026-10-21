@@ -67,9 +67,13 @@ export type ProblemDocument = Readonly<{
   readonly code: ProblemProblemCode;
   readonly correlationId: ProblemStableId;
   readonly detail: ProblemPlainText;
+  readonly domainState?: string;
   readonly errors: ReadonlyArray<ProblemFieldError>;
+  readonly expectedBase?: ProblemUrlHttps;
   readonly instance?: ProblemCanonicalRoute;
   readonly operationId?: ProblemStableId;
+  readonly profileBase?: string;
+  readonly remedy?: ProblemPlainText;
   readonly retryable: boolean;
   readonly schemaId: 'urn:gala:schema:problem:2.0.0';
   readonly schemaVersion: '2.0.0';

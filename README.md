@@ -322,9 +322,11 @@ the state guard `PublicationDestination:SET|LOCKED` to its existing "admitted
 destination" activation guard. The workload receipt-exchange intent request is
 byte-unchanged from 2.9.0: Spaces `providerBinding` stays forbidden on the
 request because the destination record is now server-owned and the api renders
-the retained `providerBinding` from it; a test pins this byte-for-byte. LOCAL-62
-is resolved: every `$defs.capabilityDecision` member in `adapter-capability` now
-carries `x-gala-decision-phase: issuance|deploy`,
+the retained `providerBinding` from it; a test pins this byte-for-byte (3.17.0
+re-pins that digest for the optional `destination.verificationBaseUrl` and
+asserts the Spaces rule directly, so the rule no longer rides on the digest
+alone). LOCAL-62 is resolved: every `$defs.capabilityDecision` member in
+`adapter-capability` now carries `x-gala-decision-phase: issuance|deploy`,
 `pagesActionsArtifactByteCount`/`pagesActionsArtifactDigest` move out of the
 Pages-conditional `required` set (deploy-phase evidence the artifact-build step
 produces after authorization, not before), and the schema description states

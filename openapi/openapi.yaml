@@ -1923,10 +1923,70 @@ components:
         - provider
         - intents
       type: object
+    DomainBaseMove:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.17.0. Where the system's move of the site's canonical base
+        (`gala/publication.json` `canonicalBase`) stands. Connecting a domain
+        moves the base to the custom address and removing it moves the base
+        back to the github.io address, each as a system operation
+        (`domain_base_move`) that proposes the "Site address" change and
+        publishes it, ordered so no address serves a build made for the other.
+        A person never has to publish for it.
+      properties:
+        changeId:
+          description: |
+            The repository change that carries the base move, once proposed.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        operationId:
+          description: |
+            The `domain_base_move` operation doing the work, once it exists;
+            read it at `/v2/organizations/{organizationId}/operations/{operationId}`.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reason:
+          description: |
+            Why the move is not progressing, when it is not: a stable upper-case
+            code. Known values: `MOVE_FAILED` (an attempt failed; the next check
+            cycle retries), `MOVE_STUCK` (three attempts failed; the author's
+            Check now retries), `MOVE_ABANDONED` (the move back to the github.io
+            address on removal gave up) and `AUTHORITY_LAPSED` (the stored
+            publish authority the move runs under could not be restated from the
+            latest decision). Absent while the move is progressing or not
+            needed. A client shows a generic sentence for a value it does not
+            know.
+          maxLength: 80
+          minLength: 1
+          type: string
+        state:
+          description: |
+            `NOT_NEEDED`: the profile base already is the address the site is
+            served from. `PENDING`: a move is required and has not started.
+            `MOVING`: the move operation is running. `FAILED`: the last attempt
+            failed (`reason` says how; it is retried until `MOVE_STUCK`).
+            `PROPOSED`: the "Site address" change exists (`changeId`) and is not
+            yet published. `PUBLISHED`: the move completed and the base is
+            live.
+          enum:
+            - NOT_NEEDED
+            - PENDING
+            - MOVING
+            - FAILED
+            - PROPOSED
+            - PUBLISHED
+          type: string
+      required:
+        - state
+      type: object
     DomainBinding:
       additionalProperties: false
-      description: A custom domain on GitHub Pages for one publication (SCHEMA-3.3.0). `dns.records` are exactly the records to add at the registrar (a CNAME to `<owner>.github.io` for a subdomain; GitHub's four A and four AAAA records for an apex). Galascribe checks DNS before it sets the Pages custom domain, then waits for GitHub's certificate and routing; `ACTIVE` proposes the change that moves `canonicalBase` to the domain, and the site moves at the next publish. `expiresAt` is set while `OWNERSHIP_PENDING` (7 days).
+      description: A custom domain on GitHub Pages for one publication (SCHEMA-3.3.0). `dns.records` are exactly the records to add at the registrar (a CNAME to `<owner>.github.io` for a subdomain; GitHub's four A and four AAAA records for an apex). Galascribe checks DNS before it sets the Pages custom domain, then waits for GitHub's certificate and routing; `ACTIVE` proposes the change that moves `canonicalBase` to the domain, and the site moves at the next publish. `expiresAt` is set while `OWNERSHIP_PENDING` (7 days). SCHEMA-3.17.0 adds `redirectsFromProjectPath`, which says whether GitHub already redirects the project path to the domain (from the moment the Pages CNAME is set until it is removed) and so decides the address the site is served from and the base it must be built for, and `baseMove`, which says where the system's move of that base stands (the `WAIT_FOR_MOVE` next step is shown while it runs). Both are optional so a 3.16 body still validates.
       properties:
+        baseMove:
+          $ref: "#/components/schemas/DomainBaseMove"
         canonicalBase:
           $ref: "#/components/schemas/DomainCanonicalBase"
         certificate:
@@ -1983,6 +2043,17 @@ components:
             - provider
             - since
           type: object
+        redirectsFromProjectPath:
+          description: |
+            SCHEMA-3.17.0. True while GitHub redirects the repository's
+            github.io project path to this domain, which it does from the moment
+            the Pages CNAME is set until it is removed. While it is true the
+            site is served from the domain, so the canonical base it must carry
+            is the domain's; while it is false the project path serves the site
+            and the base is the github.io address. The server derives it from
+            its own record of when the CNAME was set and removed, so a client
+            reads the flag and does not infer it from `state`.
+          type: boolean
         routing:
           $ref: "#/components/schemas/DomainRouting"
         state:
@@ -2131,7 +2202,7 @@ components:
       type: string
     DomainNextStep:
       additionalProperties: false
-      description: What is being waited on, or what the author should do next. Known codes include `ADD_DNS_RECORDS`, `WAIT_FOR_DNS`, `WAIT_FOR_CERTIFICATE`, `WAIT_FOR_ROUTING`, `PUBLISH_TO_SWITCH`, `FIX_DNS_RECORD`, `REMOVE_DNS_RECORDS`, `TURN_ON_CLOUDFLARE_PROXY` (SCHEMA-3.6.0, the certificate is issued and the author may let Cloudflare proxy the site) and `NONE`; a client shows `detail` for codes it does not know.
+      description: What is being waited on, or what the author should do next. Known codes include `ADD_DNS_RECORDS`, `WAIT_FOR_DNS`, `WAIT_FOR_CERTIFICATE`, `WAIT_FOR_ROUTING`, `PUBLISH_TO_SWITCH`, `FIX_DNS_RECORD`, `REMOVE_DNS_RECORDS`, `TURN_ON_CLOUDFLARE_PROXY` (SCHEMA-3.6.0, the certificate is issued and the author may let Cloudflare proxy the site), `WAIT_FOR_MOVE` (SCHEMA-3.17.0, Galascribe is moving the site's canonical base to or from the domain; `baseMove` says where it is and nothing is asked of the author) and `NONE`; a client shows `detail` for codes it does not know.
       properties:
         code:
           maxLength: 80
@@ -5139,7 +5210,7 @@ components:
       additionalProperties: false
       properties:
         reasonCode:
-          description: "A free string. Known values: RUN_NOT_STARTED, BUILD_FAILED, RUN_CANCELLED, RUN_TIMED_OUT, WORKFLOW_UNAVAILABLE, DEPLOY_FAILED, PAGES_NOT_AVAILABLE, REPORT_FAILED, LIVE_CHECK_FAILED, CHANGE_CLOSED_ON_GITHUB. Clients must tolerate other values."
+          description: "A free string. Known values: RUN_NOT_STARTED, BUILD_FAILED, RUN_CANCELLED, RUN_TIMED_OUT, WORKFLOW_UNAVAILABLE, DEPLOY_FAILED, PAGES_NOT_AVAILABLE, REPORT_FAILED, LIVE_CHECK_FAILED, CHANGE_CLOSED_ON_GITHUB and, new in 3.17.0, DESTINATION_BUSY_TIMEOUT, DESTINATION_FENCE_EXPIRED, CANONICAL_BASE_MISMATCH, DOMAIN_NOT_READY (the same codes as `OperationReason`). Clients must tolerate other values."
           maxLength: 80
           minLength: 1
           type: string
@@ -5900,6 +5971,8 @@ components:
           type: string
         currentAttemptManagedReceipt:
           $ref: "#/components/schemas/PortableDeploymentReceiptDocument"
+        held:
+          $ref: "#/components/schemas/OperationHeld"
         kind:
           $ref: "#/components/schemas/OperationKind"
         managedReceipt:
@@ -5925,6 +5998,8 @@ components:
           type: string
         phase:
           $ref: "#/components/schemas/OperationPhase"
+        reason:
+          $ref: "#/components/schemas/OperationReason"
         recoveryActions:
           items:
             maxLength: 80
@@ -6459,6 +6534,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        held:
+          $ref: "#/components/schemas/OperationHeld"
         kind:
           $ref: "#/components/schemas/OperationKind"
         operationId:
@@ -6474,6 +6551,8 @@ components:
             - failed_no_effect
             - cancelled_no_effect
           type: string
+        reason:
+          $ref: "#/components/schemas/OperationReason"
         recoveryActions:
           items:
             maxLength: 80
@@ -6502,19 +6581,70 @@ components:
         - blockers
         - recoveryActions
       type: object
+    OperationHeld:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.17.0. Present on an operation that is still `accepted` and is
+        not starting because another operation of the same publication holds
+        its destination: the destination fence a deploy opens at intent
+        exchange stays held until that operation ends, and a publish does not
+        dispatch while it is held. It names the holder so a client can say what
+        the operation is waiting for instead of showing a bare `accepted`.
+        Absent when nothing holds the destination and on every operation that
+        has started or ended. A held operation ends with
+        `DESTINATION_BUSY_TIMEOUT` if the holder does not release the fence
+        within the server's bound (see `reason`).
+      properties:
+        byOperationId:
+          description: The operation that holds the destination.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        holderPhase:
+          description: |
+            The holder's lifecycle state now, spelled as the transition
+            catalog spells a `PublicationOperation` state in capitals
+            (`ACCEPTED`, `EXECUTING`, `RECONCILING`, `COMPLETED`,
+            `FAILED_NO_EFFECT`, `CANCELLED_NO_EFFECT`), which is not the
+            lower-case `phase` an operation read carries. A client shows a
+            value it does not know as it is.
+          maxLength: 80
+          minLength: 1
+          type: string
+        holderReason:
+          $ref: "#/components/schemas/OperationReason"
+          description: |
+            Why the holder is in that state, when it is known: its terminal
+            `reason`, or the verdict its run settled with while the fence is
+            still being released. Absent while the holder is simply running.
+        since:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+          description: When this operation was accepted and started waiting for the destination.
+      required:
+        - byOperationId
+        - since
+        - holderPhase
+      type: object
     OperationKind:
       description: |
         What kind of work the operation is, so a client can label it and route
         to the right screen without parsing `statusUrl` or inferring from
         `subject`. The vocabulary is exactly the organization-scoped operations
-        that answer `202 Accepted` and therefore create an operation row; it is
+        that create an operation row (the ones that answer `202 Accepted`, and
+        from 3.17.0 the system-initiated `domain_base_move`); it is
         spelled the way the API's own `operation_type` column is
         (`^[a-z][a-z0-9_]*$`), and `publication_retirement` and
         `repository_change_commit` are already that column's literals. A member
-        is added only by a reviewed contract change.
+        is added only by a reviewed contract change. `domain_base_move`
+        (SCHEMA-3.17.0, the API's `DOMAIN_BASE_MOVE` dispatch kind) is the
+        system-initiated operation that moves a site's canonical base to or
+        from its custom domain around the CNAME switch; nobody requests it, so
+        it is reached through an operation's `held.byOperationId` or a site
+        read rather than a `202`.
       enum:
         - deployment_reconcile
         - deployment_rollback
+        - domain_base_move
         - publication_import
         - publication_retirement
         - publish
@@ -6530,6 +6660,31 @@ components:
         - completed
         - failed_no_effect
         - cancelled_no_effect
+      type: string
+    OperationReason:
+      description: |
+        SCHEMA-3.17.0. A stable upper-case code saying why an operation ended
+        the way it did, or why it is in its phase: set on a `failed_no_effect`
+        or `cancelled_no_effect` operation and on one that is `reconciling`
+        because its deploy failed; absent on a running or successful operation
+        and on operations that ended before 3.17.0. A free string within the
+        pattern, not a closed enumeration, so a client shows a generic sentence
+        for a code it does not know. Known values: `RUN_NOT_STARTED`,
+        `BUILD_FAILED`, `RUN_CANCELLED`, `RUN_TIMED_OUT`,
+        `WORKFLOW_UNAVAILABLE`, `DEPLOY_FAILED`, `PAGES_NOT_AVAILABLE`,
+        `REPORT_FAILED`, `LIVE_CHECK_FAILED`, `CHANGE_CLOSED_ON_GITHUB` (the
+        `reasonCode` values of a history failure) and, new in 3.17.0,
+        `DESTINATION_BUSY_TIMEOUT` (the operation was held behind another that
+        did not release the destination within the server's bound, so it ended
+        without creating a run), `DESTINATION_FENCE_EXPIRED` (the destination
+        fence this operation held was closed by the server's reaper after its
+        run settled with no receipt), `CANONICAL_BASE_MISMATCH` (the site's
+        canonical base was not the address it is served from when the
+        operation was dispatched) and `DOMAIN_NOT_READY` (a custom domain was
+        part-way through its switch and no origin could be verified).
+      maxLength: 64
+      minLength: 3
+      pattern: ^[A-Z][A-Z0-9_]{2,63}$
       type: string
     OperationResponse:
       additionalProperties: false
@@ -8300,6 +8455,14 @@ components:
           $ref: "#/components/schemas/PortableDeploymentIntentDestinationProviderCoordinates"
         targetDigest:
           $ref: "#/components/schemas/PortableDeploymentIntentDigest"
+        verificationBaseUrl:
+          allOf:
+            - $ref: "#/components/schemas/PortableDeploymentIntentUrlHttps"
+          description: "SCHEMA-3.17.0, optional: the address the deploy is verified at when that differs from `baseUrl`, the build base. It is the origin and path that answer over HTTPS right now (the github.io project address before a custom domain is set, the custom base once it serves): a lowercase exact host with no userinfo, port, query or fragment; a path is allowed. Absent means `baseUrl` is both the build base and the verification address, exactly as before 3.17.0. When present it is a member of `destination` like `baseUrl`, so it is inside the capability decision record that `decisionDigest` covers (RFC 8785 canonical member order); a record without it digests exactly as it did before."
+          maxLength: 2048
+          pattern: ^https://[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?(?:/[^?#\s]*)?$
+          x-gala-utf8ByteLength:
+            maximum: 2048
       required:
         - environment
         - adapterId
@@ -11997,6 +12160,14 @@ components:
           $ref: "#/components/schemas/PortableDeploymentReceiptDestinationProviderCoordinates"
         targetDigest:
           $ref: "#/components/schemas/PortableDeploymentReceiptDigest"
+        verificationBaseUrl:
+          allOf:
+            - $ref: "#/components/schemas/PortableDeploymentReceiptUrlHttps"
+          description: "SCHEMA-3.17.0, optional: the address the deploy is verified at when that differs from `baseUrl`, the build base. It is the origin and path that answer over HTTPS right now (the github.io project address before a custom domain is set, the custom base once it serves): a lowercase exact host with no userinfo, port, query or fragment; a path is allowed. Absent means `baseUrl` is both the build base and the verification address, exactly as before 3.17.0. When present it is a member of `destination` like `baseUrl`, so it is inside the capability decision record that `decisionDigest` covers (RFC 8785 canonical member order); a record without it digests exactly as it did before."
+          maxLength: 2048
+          pattern: ^https://[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?(?:/[^?#\s]*)?$
+          x-gala-utf8ByteLength:
+            maximum: 2048
       required:
         - environment
         - adapterId
@@ -13590,16 +13761,36 @@ components:
           x-gala-graphemeLength:
             maximum: 500
             minimum: 0
+        domainState:
+          description: "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the state of the site's custom-domain binding that decided `expectedBase` (a `DomainBindingState` value such as `CERTIFICATE_PENDING` or `ACTIVE`), absent when the site has no custom domain. A client shows a value it does not know as is."
+          maxLength: 80
+          minLength: 1
+          type: string
         errors:
           items:
             $ref: "#/components/schemas/PortableProblemFieldError"
           maxItems: 100
           minItems: 0
           type: array
+        expectedBase:
+          allOf:
+            - $ref: "#/components/schemas/PortableProblemUrlHttps"
+          description: "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the address the site is served from right now and so the canonical base its publication profile must carry (the active custom domain once the domain redirects the project path, otherwise the github.io address)."
+          maxLength: 2048
         instance:
           $ref: "#/components/schemas/PortableProblemCanonicalRoute"
         operationId:
           $ref: "#/components/schemas/PortableProblemStableId"
+        profileBase:
+          description: "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the canonical base the publication profile (`gala/publication.json`) carries now, as written. A string rather than an https URL because the mismatch can be a value that is not one (for example an http address)."
+          maxLength: 2048
+          type: string
+        remedy:
+          $ref: "#/components/schemas/PortableProblemPlainText"
+          description: "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: one sentence, written for the author, saying what resolves the mismatch. A client may render it verbatim."
+          x-gala-graphemeLength:
+            maximum: 500
+            minimum: 1
         retryable:
           type: boolean
         schemaId:
@@ -16519,6 +16710,38 @@ components:
       type: object
     PostWorkloadsDeploymentReceiptsRequest:
       additionalProperties: false
+      allOf:
+        - else:
+            required:
+              - kernelJournal
+          if:
+            properties:
+              deployFailure:
+                properties:
+                  journal:
+                    pattern: ^absent$
+                    type: string
+                    x-gala-const: absent
+                required:
+                  - journal
+            required:
+              - deployFailure
+          then:
+            not:
+              required:
+                - kernelJournal
+      description: |
+        The deployment receipt the workflow reports for one operation.
+        SCHEMA-3.17.0 lets it report a deploy that failed before, or without,
+        a kernel journal. `deployFailure` classifies the failure; when its
+        `journal` is `absent` the deploy wrote no journal and `kernelJournal`
+        must be omitted, and the API accepts the report as terminal evidence
+        that nothing changed once the run has settled as failed. Without
+        `deployFailure`, or with `journal` `present`, `kernelJournal` is
+        required exactly as before. `verifiedAt` records the origin the deploy
+        was verified at, which differs from `publicBaseUrl` while a custom
+        domain is being switched. Both members are optional, so every 3.16
+        submission is still valid.
       properties:
         adapterId:
           maxLength: 80
@@ -16539,6 +16762,8 @@ components:
         artifactManifestDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        deployFailure:
+          $ref: "#/components/schemas/ReceiptSubmissionDeployFailure"
         destinationGenerationId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -16590,6 +16815,8 @@ components:
         sourceCommit:
           pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
           type: string
+        verifiedAt:
+          $ref: "#/components/schemas/ReceiptSubmissionVerifiedAt"
         workflowCompletedAt:
           $ref: "#/components/schemas/PortableDeploymentReceiptRfc3339"
         workflowStartedAt:
@@ -16613,7 +16840,6 @@ components:
         - observedRoutes
         - workflowStartedAt
         - workflowCompletedAt
-        - kernelJournal
       type: object
     PostWorkloadsDeploymentReceiptsResponse:
       allOf:
@@ -17867,7 +18093,10 @@ components:
             LOCAL-60): the decision is server-owned, so the API constructs the
             record, derives this digest and refuses a disagreement with `422
             VALIDATION_FAILED`. Required in 2.8.x; required and server-derived
-            in the retained deployment-intent document.
+            in the retained deployment-intent document. SCHEMA-3.17.0: the
+            record's `destination` carries `verificationBaseUrl` when the
+            request does, so the digest covers it, as a member of `destination`
+            like `baseUrl`; a request without it digests as it did before.
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
         destination:
@@ -18151,6 +18380,26 @@ components:
             provider binding (`GALA-DESTINATION-PROVIDER-BINDING-V2`) and
             refuses a disagreement with `422 VALIDATION_FAILED`. Required in
             the retained document.
+        verificationBaseUrl:
+          allOf:
+            - $ref: "#/components/schemas/PortableDeploymentIntentUrlHttps"
+          description: |
+            Optional (SCHEMA-3.17.0): the address the deploy is verified at
+            when that differs from `baseUrl`, the build base. It is the origin
+            and path that answer over HTTPS right now: the github.io project
+            address before a custom domain's CNAME is set, the custom base once
+            it serves. A lowercase exact host with no userinfo, port, query or
+            fragment; a path is allowed. The API refuses a value it does not
+            consider the serving address with `422 VALIDATION_FAILED`, and
+            retains it in the deployment intent's `destination`. When present it
+            is inside the capability decision record, so `capabilityDecisionDigest`
+            covers it as it covers `baseUrl` (RFC 8785 canonical member order);
+            when absent the digest is exactly what it was before 3.17.0.
+          maxLength: 2048
+          pattern: ^https://[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?(?:/[^?#\s]*)?$
+          type: string
+          x-gala-utf8ByteLength:
+            maximum: 2048
       required:
         - adapterId
         - adapterVersion
@@ -18352,6 +18601,73 @@ components:
         - state
         - operationId
         - statusUrl
+      type: object
+    ReceiptSubmissionDeployFailure:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.17.0. Why a deploy failed, as the workflow classified it, so
+        the API can settle the operation with a named cause even when the
+        deploy wrote no kernel journal.
+      properties:
+        failureCode:
+          description: |
+            A stable upper-case code naming the failure, for example
+            `PAGES_PUBLIC_REDIRECT` (the public read was redirected, `toHost`
+            says where). A free string within the pattern, not a closed
+            enumeration; a client shows a generic sentence for a code it does
+            not know.
+          maxLength: 64
+          minLength: 3
+          pattern: ^[A-Z][A-Z0-9_]{2,63}$
+          type: string
+        journal:
+          description: |
+            `present`: the deploy wrote a kernel journal and the submission
+            carries it as `kernelJournal`. `absent`: the deploy failed before
+            any journal existed; `kernelJournal` must be omitted.
+          enum:
+            - present
+            - absent
+          type: string
+        stage:
+          description: |
+            The deployment stage the failure happened in (for example
+            `preflight`, `staging` or `observation`), when it happened in one.
+            Absent for a failure before any stage ran.
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9-]{0,63}$
+          type: string
+        toHost:
+          description: |
+            For a redirect failure, the lower-case host the public read was
+            redirected to (an IDNA hostname, no scheme, port or path).
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+      required:
+        - journal
+        - failureCode
+      type: object
+    ReceiptSubmissionVerifiedAt:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.17.0. The origin the workflow read the public marker at to
+        verify the deploy. It can differ from `publicBaseUrl`: while a custom
+        domain is being switched the verification origin is the one that
+        answers over HTTPS right now, and the API records which one was read.
+      properties:
+        origin:
+          description: |
+            The https origin: scheme, lower-case host and an optional port,
+            with no userinfo, path, query or fragment (no trailing slash).
+          maxLength: 270
+          minLength: 9
+          pattern: ^https://[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?(?::[0-9]{1,5})?$
+          type: string
+      required:
+        - origin
       type: object
     RecoveryCodeStatus:
       additionalProperties: false
@@ -18748,7 +19064,7 @@ components:
       type: object
     SiteAttentionItem:
       additionalProperties: false
-      description: "Something that needs a person to act. The list is empty when nothing does. SCHEMA-3.3.0: `SCHEDULED_PUBLISH_FAILED` means a scheduled publish could not start at its time; `relatedPublishId` names the schedule and `reasonCode` the first precondition that failed (a client maps the values it knows to a sentence and shows a generic one otherwise); nothing was merged. `DOMAIN_PUBLISH_REQUIRED` means a custom domain is live and the next publish moves the site's address to it. `DOMAIN_DEGRADED` means a live custom domain stopped working; `reasonCode` names why and the domain read carries the next step. SCHEMA-3.9.0: on `REPOSITORY_NEEDS_UPDATE`, `reason` names the cause and `paths` the managed repository files involved, so a client can say what to do and list the files (both are absent from older servers and for other codes; show a generic sentence for a `reason` you do not know). `AUTHOR_EDITED`: a managed file differs from the version Galascribe manages and only the author may resolve it. `BRANCH_PROTECTION`: GitHub refused Galascribe's own repair commit. `REPOSITORY_ARCHIVED`: the repository is archived. `INSTALLATION_SUSPENDED`: the GitHub App installation is suspended. `WORKFLOWS_PERMISSION_MISSING`: the installation has not accepted the workflows permission. `AUTHORIZATION_LOST`: Galascribe lost its GitHub authorization. `FORBIDDEN`: GitHub refused for another permission reason. The same `reason` and `paths` ride on the `REPOSITORY_NEEDS_UPDATE` entry of a publish refusal's `errors`."
+      description: "Something that needs a person to act. The list is empty when nothing does. SCHEMA-3.3.0: `SCHEDULED_PUBLISH_FAILED` means a scheduled publish could not start at its time; `relatedPublishId` names the schedule and `reasonCode` the first precondition that failed (a client maps the values it knows to a sentence and shows a generic one otherwise); nothing was merged. `DOMAIN_PUBLISH_REQUIRED` means a custom domain is live and the next publish moves the site's address to it. `DOMAIN_DEGRADED` means a live custom domain stopped working; `reasonCode` names why and the domain read carries the next step. SCHEMA-3.17.0 adds the domain `reasonCode` values `MOVE_FAILED` (the system move of the site's canonical base to or from the domain failed and will be retried), `MOVE_STUCK` (it failed three times and waits for the author to retry from the domain page), `MOVE_ABANDONED` (the move back to the github.io address on removal gave up) and `AUTHORITY_LAPSED` (the stored publish authority the move runs under could no longer be restated); the domain read's `baseMove` carries the same state. A client shows a generic sentence for a `reasonCode` it does not know. SCHEMA-3.9.0: on `REPOSITORY_NEEDS_UPDATE`, `reason` names the cause and `paths` the managed repository files involved, so a client can say what to do and list the files (both are absent from older servers and for other codes; show a generic sentence for a `reason` you do not know). `AUTHOR_EDITED`: a managed file differs from the version Galascribe manages and only the author may resolve it. `BRANCH_PROTECTION`: GitHub refused Galascribe's own repair commit. `REPOSITORY_ARCHIVED`: the repository is archived. `INSTALLATION_SUSPENDED`: the GitHub App installation is suspended. `WORKFLOWS_PERMISSION_MISSING`: the installation has not accepted the workflows permission. `AUTHORIZATION_LOST`: Galascribe lost its GitHub authorization. `FORBIDDEN`: GitHub refused for another permission reason. The same `reason` and `paths` ride on the `REPOSITORY_NEEDS_UPDATE` entry of a publish refusal's `errors`."
       properties:
         code:
           enum:
@@ -18788,6 +19104,7 @@ components:
             - FORBIDDEN
           type: string
         reasonCode:
+          description: "A free string within the pattern. Known `DOMAIN_DEGRADED` values (SCHEMA-3.17.0): MOVE_FAILED, MOVE_STUCK, MOVE_ABANDONED, AUTHORITY_LAPSED; a client shows a generic sentence for any other."
           maxLength: 80
           minLength: 1
           pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
@@ -18935,7 +19252,14 @@ components:
       type: object
     SitePublishing:
       additionalProperties: false
+      description: |
+        The publish that is in flight. SCHEMA-3.17.0: `held` is present while
+        that publish is `QUEUED` behind another operation that holds the site's
+        destination (the same `OperationHeld` the operation read carries), so
+        the Home screen can say who it is waiting for.
       properties:
+        held:
+          $ref: "#/components/schemas/OperationHeld"
         operationId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -25780,6 +26104,15 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_PATH
   /v2/organizations/{organizationId}/operations/{operationId}:cancel:
     post:
+      description: |
+        Cancels an operation that has produced no effect. From SCHEMA-3.17.0 an
+        operation that is `executing` or `reconciling` may also be cancelled
+        once its run has settled (a live run cannot be cancelled here), which
+        closes the destination fence the operation holds in the same
+        transaction, so a failed or lost deploy no longer leaves the site's
+        destination held. The response is the operation after the cancel, with
+        its `phase` and `reason` as they now stand. An admin API key with the
+        `publish` scope may call it.
       operationId: postOrganizationsByOrganizationIdOperationsByOperationIdCancel
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -26071,12 +26404,14 @@ paths:
             - VALIDATION_FAILED
       security:
         - browserSession: []
+        - adminApiKey: []
       summary: cancel only before the effect fence
       tags:
         - organizations
       x-gala-activation-gate: MVP
       x-gala-activation-guards:
         - NONE
+      x-gala-api-key-scope: publish
       x-gala-capability-key: organization.publications.admin
       x-gala-capability-resolution: target-operation-current-capability-and-scope
       x-gala-concurrency: operation-version-and-no-effect-proof
@@ -26096,7 +26431,7 @@ paths:
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
-        - PublicationOperation:ACCEPTED|EXECUTING -> CANCELLED_NO_EFFECT with proof no effect crossed
+        - PublicationOperation:ACCEPTED|EXECUTING|RECONCILING -> CANCELLED_NO_EFFECT with proof no effect crossed
       x-gala-success-category: update
       x-gala-tenant-scope: ORGANIZATION_PATH
   /v2/organizations/{organizationId}/owner-transfers:
@@ -32710,6 +33045,21 @@ paths:
         merged head's `gala/publication.json` `canonicalBase` is not the address
         the site is served at (the active custom domain, else the github.io
         address); the problem `detail` names the expected value.
+
+        SCHEMA-3.17.0: that problem also carries the optional members
+        `expectedBase` (the address the site is served at, an https URL),
+        `profileBase` (the base the profile carries now, as written),
+        `domainState` (the custom domain's state that decided the expected
+        base, absent without a domain) and `remedy` (one sentence for the
+        author), so a client names both addresses and renders the `remedy`
+        without parsing `detail`. The server first includes the pending "Site
+        address" change in the publish, or proposes one inside the request, and
+        returns the problem only when it cannot. `409 INVALID_SOURCE_STATE`
+        with `errors[].code DOMAIN_NOT_READY` is returned while
+        a custom domain is part-way through its switch and no address can be
+        verified (after the Pages CNAME is set and before the certificate
+        serves); it resolves on its own, and the domain read's `nextStep` says
+        what is being waited on.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -32897,7 +33247,11 @@ paths:
                     code: CANONICAL_BASE_MISMATCH
                     correlationId: 018f0000-0000-7000-8000-000000000001
                     detail: See the operation contract.
+                    domainState: CERTIFICATE_PENDING
                     errors: []
+                    expectedBase: https://blog.example.com/
+                    profileBase: https://example.github.io/blog/
+                    remedy: Change the site address to https://blog.example.com/ and publish again.
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0
@@ -42166,7 +42520,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/policy-settings:
     get:
-      description: Reads the site's Terms and Privacy text at the linked repository's current main branch head, meaning the `policies` member of `gala/publication.json` and the two markdown files it names. `source` is `FILE` when the repository names its own pages, and `terms` and `privacy` then carry each page's title and markdown. `source` is `DEFAULT` when `policies` is absent, and the site then shows the default text of `@rathnasgala2/schemas/site-policy-defaults`, which the API does not carry, and `terms` and `privacy` are omitted. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches `gala/publication.json` or a policy file, or is null.
+      description: Reads the site's Terms and Privacy text at the linked repository's current main branch head, meaning the `policies` member of `gala/publication.json` and the two markdown files it names. `source` is `FILE` when the repository names its own pages, and `terms` and `privacy` then carry each page's title and markdown. `source` is `DEFAULT` when `policies` is absent, and the site then shows the default text of `@rathnasgala2/schemas/site-policy-defaults`, which the API does not carry, and `terms` and `privacy` are omitted. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches `gala/publication.json` or a policy file, or is null. SCHEMA-3.17.0 adds `422 VALIDATION_FAILED`, answered when `gala/publication.json` names a policy file that does not exist at the head; the repository is then inconsistent and no page text can be read, so the author fixes the repository (or writes both pages again with `PUT`) before the read answers.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -42288,6 +42642,33 @@ paths:
               $ref: "#/components/headers/XCorrelationId"
           x-gala-problem-codes:
             - RESOURCE_NOT_FOUND
+        "422":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
         "429":
           content:
             application/problem+json:
@@ -44255,6 +44636,20 @@ paths:
         after it was written. The App's remedy for the second cause is
         `POST .../repository-changes/{changeId}:bring-up-to-date` followed
         by review and publish again (journey state U2).
+
+        SCHEMA-3.17.0 adds a third cause: `errors[].code DOMAIN_NOT_READY`,
+        returned while the site's custom domain is part-way
+        through its switch and no address can be verified (after the Pages
+        CNAME is set and before the certificate serves). It is short and
+        resolves on its own, so the author waits; the domain read's `nextStep`
+        says `WAIT_FOR_MOVE` or `WAIT_FOR_CERTIFICATE`.
+
+        `409 CANONICAL_BASE_MISMATCH` carries the optional problem members
+        `expectedBase`, `profileBase`, `domainState` and `remedy`
+        (SCHEMA-3.17.0), so a client can name the two addresses and render the
+        `remedy` without parsing `detail`. The server first tries to fix the
+        mismatch itself by including the pending "Site address" change in the
+        publish; the problem is returned only when it cannot.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -44442,7 +44837,11 @@ paths:
                     code: CANONICAL_BASE_MISMATCH
                     correlationId: 018f0000-0000-7000-8000-000000000001
                     detail: See the operation contract.
+                    domainState: CERTIFICATE_PENDING
                     errors: []
+                    expectedBase: https://blog.example.com/
+                    profileBase: https://example.github.io/blog/
+                    remedy: Change the site address to https://blog.example.com/ and publish again.
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0

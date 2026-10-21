@@ -2788,14 +2788,26 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
         method === 'get' ? 'publication.view' : 'publication.settings.manage',
         `${slug} ${method} capability`,
       );
+      // 3.17.0: the policy read also lists a 422 VALIDATION_FAILED Problem,
+      // answered when gala/publication.json names a policy file that is
+      // missing at the head (the interaction read has no such file to miss).
+      // It is the same Problem response the interaction write lists.
+      const extraStatuses =
+        slug === 'policy-settings' && method === 'get' ? ['422'] : [];
       assert.deepEqual(
         Object.keys(operation.responses),
-        Object.keys(precedent.responses),
+        [...Object.keys(precedent.responses), ...extraStatuses].sort(),
         `${slug} ${method}`,
       );
       for (const [status, response] of Object.entries(operation.responses)) {
         if (status === '200') continue;
-        assert.deepEqual(response, precedent.responses[status], status);
+        assert.deepEqual(
+          response,
+          extraStatuses.includes(status)
+            ? interaction.put.responses[status]
+            : precedent.responses[status],
+          status,
+        );
       }
       assert.deepEqual(
         operation.parameters,

@@ -681,9 +681,9 @@ function exactBoundaryStringValue(schema, pointer, length) {
  * @returns {string} exact-boundary witness
  */
 function boundaryStringValue(schema, root, pointer, length) {
-  const effectiveSchema = Array.isArray(schema.allOf)
+  const merged = Array.isArray(schema.allOf)
     ? schema.allOf.reduce(
-        (merged, entry) => {
+        (accumulated, entry) => {
           if (
             entry !== null &&
             typeof entry === 'object' &&
@@ -691,20 +691,28 @@ function boundaryStringValue(schema, root, pointer, length) {
             typeof entry.$ref === 'string'
           ) {
             return {
-              ...merged,
+              ...accumulated,
               .../** @type {Record<string, unknown>} */ (
                 resolvePointer(root, entry.$ref)
               ),
             };
           }
           return {
-            ...merged,
+            ...accumulated,
             .../** @type {Record<string, unknown>} */ (entry),
           };
         },
         { ...schema },
       )
     : schema;
+  // A pattern the schema declares itself (3.17.0: verificationBaseUrl, which
+  // narrows urlHttps to a lowercase exact host) must not be replaced by the
+  // referenced definition's looser one, or the witness satisfies the
+  // reference but not the schema it is the boundary of.
+  const effectiveSchema =
+    typeof schema.pattern === 'string' && merged.pattern !== schema.pattern
+      ? { ...merged, pattern: schema.pattern }
+      : merged;
   return exactBoundaryStringValue(effectiveSchema, pointer, length);
 }
 

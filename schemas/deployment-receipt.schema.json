@@ -358,6 +358,13 @@
           "maxLength": 2048,
           "x-gala-utf8ByteLength": { "maximum": 2048 }
         },
+        "verificationBaseUrl": {
+          "allOf": [{ "$ref": "#/$defs/urlHttps" }],
+          "maxLength": 2048,
+          "pattern": "^https://[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?(?:/[^?#\\s]*)?$",
+          "x-gala-utf8ByteLength": { "maximum": 2048 },
+          "description": "SCHEMA-3.17.0, optional: the address the deploy is verified at when that differs from `baseUrl`, the build base. It is the origin and path that answer over HTTPS right now (the github.io project address before a custom domain is set, the custom base once it serves): a lowercase exact host with no userinfo, port, query or fragment; a path is allowed. Absent means `baseUrl` is both the build base and the verification address, exactly as before 3.17.0. When present it is a member of `destination` like `baseUrl`, so it is inside the capability decision record that `decisionDigest` covers (RFC 8785 canonical member order); a record without it digests exactly as it did before."
+        },
         "providerBinding": { "$ref": "#/$defs/destinationProviderCoordinates" }
       },
       "additionalProperties": false,

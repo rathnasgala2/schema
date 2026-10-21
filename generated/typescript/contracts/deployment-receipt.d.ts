@@ -1148,6 +1148,7 @@ export type DeploymentReceiptDestinationIdentity = Readonly<{
   readonly environment: 'github-pages' | 'do-spaces' | 'local-directory';
   readonly providerBinding?: DeploymentReceiptDestinationProviderCoordinates;
   readonly targetDigest: DeploymentReceiptDigest;
+  readonly verificationBaseUrl?: DeploymentReceiptUrlHttps;
 }> &
   unknown;
 

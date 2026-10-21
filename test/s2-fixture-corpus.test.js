@@ -211,8 +211,16 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // 3.12.0 (reviewed 2026-10-13): the optional closed `seo` block on
     // content-frontmatter and build-input regenerated those roots' valid,
     // boundary, unknown-field and invalid fixtures; no file added or removed.
+    //
+    // 3.17.0: the optional `verificationBaseUrl` member of destinationIdentity
+    // (adapter-capability, deployment-intent, deployment-observation and
+    // deployment-receipt) and the problem root's four optional
+    // CANONICAL_BASE_MISMATCH members (expectedBase, profileBase, domainState,
+    // remedy) regenerated those roots' valid, boundary, invalid and
+    // unknown-field fixtures and the fixture manifest; no file added or
+    // removed (903).
     aggregate.digest('hex'),
-    'fb4bb2e37b1b6a757cfcf376a80caafe4df1e41025271af85c7715e3e55c82b7',
+    'dbf9d6408784c0e07cfa1cb49366d91b5916581dc34bad012fd323dddbb19dd1',
   );
 });
 

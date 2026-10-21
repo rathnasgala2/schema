@@ -407,7 +407,7 @@ test('SCHEMA-2.10.0 LOCAL-63: the PUT request forbids providerBinding for github
   }
 });
 
-test('SCHEMA-2.10.0 LOCAL-63: the receipt-exchange request family is byte-unchanged from 2.9.0', async () => {
+test('SCHEMA-2.10.0 LOCAL-63: the receipt-exchange request family matches its pinned digest (2.9.0 bytes, re-pinned for 3.17.0)', async () => {
   const document = await bundle();
   const names = [
     'ReceiptExchangeDeploymentIntentRequest',
@@ -457,7 +457,62 @@ test('SCHEMA-2.10.0 LOCAL-63: the receipt-exchange request family is byte-unchan
     // mirroring deployment-intent's admission of the Editorial package. No
     // member was removed or retyped; the Spaces providerBinding stays
     // forbidden on the request, as the assertion message below says.
-    '45c3237a6a4567a3a0614cc823a8ad8efcc0419c8d3b42b85a2df5bf57ed4ac7',
-    'the receipt-exchange request family moved since SCHEMA-2.9.0; Spaces providerBinding must stay forbidden on the request until a future packet, per LOCAL-63d',
+    //
+    // SCHEMA-3.17.0: ReceiptExchangeIntentRequestDestination gains the
+    // optional `verificationBaseUrl` (the address a deploy is verified at while
+    // it differs from the build base `baseUrl`) and its description, and the
+    // intent request's `capabilityDecisionDigest` description notes that the
+    // digest covers it. The family therefore legitimately moves, so this digest
+    // is re-pinned rather than the family frozen. The intent this pin protects
+    // (LOCAL-63d: Spaces providerBinding stays forbidden on the request) no
+    // longer rides on the digest alone: the next test asserts it directly.
+    '33b0aa3bd58a5ed8796235373828c79cb65abeb5d836e8b0238abba8dcaca986',
+    'the receipt-exchange request family moved since its SCHEMA-3.17.0 pin; re-pin it deliberately, and Spaces providerBinding must stay forbidden on the request until a future packet, per LOCAL-63d (asserted directly in the next test)',
   );
+});
+
+test('SCHEMA-3.17.0 LOCAL-63d: Spaces providerBinding is still forbidden on the receipt-exchange intent request', async () => {
+  const validate = await compileBundleComponent(
+    'ReceiptExchangeIntentRequestDestination',
+  );
+  const base = {
+    adapterId: 'do-spaces',
+    adapterVersion: '2.0.0',
+    baseUrl: 'https://example.com/',
+  };
+  const spacesBinding = {
+    region: 'nyc3',
+    servedBucket: 'gala-served',
+    stagingBucket: 'gala-staging',
+  };
+  const cases = [
+    // The buckets and region are bound to the author destination, never
+    // proposed by a deploy job, so any providerBinding is refused.
+    [{ ...base, providerBinding: spacesBinding }, false],
+    [{ ...base, providerBinding: {} }, false],
+    [{ ...base }, true],
+    // 3.17.0: the verification address rides on the destination without
+    // reopening that rule.
+    [{ ...base, verificationBaseUrl: 'https://o.github.io/r/' }, true],
+    [
+      {
+        ...base,
+        verificationBaseUrl: 'https://o.github.io/r/',
+        providerBinding: spacesBinding,
+      },
+      false,
+    ],
+    [{ ...base, verificationBaseUrl: 'https://o.github.io:8443/r/' }, false],
+    [{ ...base, verificationBaseUrl: 'https://u@o.github.io/r/' }, false],
+    [{ ...base, verificationBaseUrl: 'https://o.github.io/r/?x=1' }, false],
+    [{ ...base, verificationBaseUrl: 'https://o.github.io/r/#x' }, false],
+    [{ ...base, verificationBaseUrl: 'http://o.github.io/r/' }, false],
+  ];
+  for (const [candidate, expected] of cases) {
+    assert.equal(
+      validate(candidate),
+      expected,
+      `${JSON.stringify(candidate)} -> ${JSON.stringify(validate.errors)}`,
+    );
+  }
 });

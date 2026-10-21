@@ -175,6 +175,7 @@ export type DeploymentIntentDestinationIdentity = Readonly<{
   readonly environment: 'github-pages' | 'do-spaces' | 'local-directory';
   readonly providerBinding?: DeploymentIntentDestinationProviderCoordinates;
   readonly targetDigest: DeploymentIntentDigest;
+  readonly verificationBaseUrl?: DeploymentIntentUrlHttps;
 }> &
   unknown;
 

@@ -113,6 +113,7 @@ export type DeploymentObservationDestinationIdentity = Readonly<{
   readonly environment: 'github-pages' | 'do-spaces' | 'local-directory';
   readonly providerBinding?: DeploymentObservationDestinationProviderCoordinates;
   readonly targetDigest: DeploymentObservationDigest;
+  readonly verificationBaseUrl?: DeploymentObservationUrlHttps;
 }> &
   unknown;
 
