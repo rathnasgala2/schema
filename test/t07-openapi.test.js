@@ -499,6 +499,23 @@ test('Gala JSON request bodies are closed and the raw GitHub callback is the sol
     const schema = /** @type {JsonObject} */ (
       bundle.components.schemas[reference.split('/').at(-1)]
     );
+    if (row.path === '/v2/callbacks/stripe') {
+      assert.equal(schema.additionalProperties, true);
+      const headerNames = /** @type {JsonObject[]} */ (operation.parameters)
+        .filter((parameter) => parameter.in === 'header')
+        .map((parameter) => parameter.name)
+        .sort();
+      assert.deepEqual(headerNames, ['Stripe-Signature']);
+      assert.deepEqual(operation.security, [{ stripeWebhookSignature: [] }]);
+      assert.deepEqual(Object.keys(operation.responses).sort(), [
+        '200',
+        '400',
+        '413',
+        '415',
+        '503',
+      ]);
+      continue;
+    }
     if (row.path === '/v2/callbacks/github/app') {
       assert.equal(schema.additionalProperties, true);
       const headerNames = /** @type {JsonObject[]} */ (operation.parameters)
@@ -654,6 +671,7 @@ test('success categories enforce statuses and required response headers', async 
     'receipt-exchange': '200',
     'oauth-callback': '303',
     'provider-callback': '202',
+    'billing-callback': '200',
   });
   for (const row of catalog.operations) {
     const operation = operationAt(bundle, row.method, row.path);

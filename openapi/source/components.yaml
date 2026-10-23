@@ -3694,6 +3694,21 @@ components:
       required:
         - accepted
       type: object
+    PostCallbacksStripeRequest:
+      additionalProperties: true
+      description:
+        Raw Stripe event JSON authenticated over the exact received bytes by the
+        required Stripe-Signature header; the event object is opaque to the
+        contract.
+      type: object
+    PostCallbacksStripeResponse:
+      additionalProperties: false
+      properties:
+        accepted:
+          const: true
+      required:
+        - accepted
+      type: object
     PostGithubInstallationsByInstallationIdRepositoriesRequest:
       additionalProperties: false
       properties:
@@ -13834,3 +13849,7 @@ components:
       type: apiKey
     internalHealth:
       type: mutualTLS
+    stripeWebhookSignature:
+      in: header
+      name: Stripe-Signature
+      type: apiKey

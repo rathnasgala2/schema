@@ -8,6 +8,25 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.18.0] - 2026-10-22
+
+Billing: the Stripe webhook callback joins the API contract. Additive.
+
+### Added
+
+- `POST /v2/callbacks/stripe` (`postCallbacksStripe`), beside
+  `POST /v2/callbacks/github/app`. No session or API key: the request is
+  authenticated by the required `Stripe-Signature` header over the exact
+  received bytes (new `stripeWebhookSignature` security scheme). The body is the
+  raw Stripe event JSON, opaque to the contract (`PostCallbacksStripeRequest`:
+  an object, additional properties allowed). Responses: `200 {"accepted": true}`
+  (accepted, including a duplicate delivery and an ignored event type), `400`
+  VALIDATION_FAILED (malformed body, or a missing, bad or expired signature),
+  `413`, `415`, and `503` DEPENDENCY_UNAVAILABLE (billing not configured). The
+  new success category `billing-callback` maps to `200`; the operation is added
+  to the dependency-unavailable allowlist and to the App's unbound-operations
+  list.
+
 ## [3.17.0] - 2026-10-21
 
 Incident 2026-10-21: a site moved to a custom domain while its repository still
@@ -3211,7 +3230,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.17.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.18.0...HEAD
+[3.18.0]: https://github.com/rathnasgala2/schema/compare/v3.17.0...v3.18.0
 [3.17.0]: https://github.com/rathnasgala2/schema/compare/v3.16.0...v3.17.0
 [3.16.0]: https://github.com/rathnasgala2/schema/compare/v3.15.0...v3.16.0
 [3.15.0]: https://github.com/rathnasgala2/schema/compare/v3.14.1...v3.15.0

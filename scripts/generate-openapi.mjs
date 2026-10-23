@@ -97,6 +97,7 @@ export const CAPABILITY_KEY_PATTERN = /^[a-z]+(?:\.[a-z]+){1,3}$/u;
 const SUCCESS_STATUSES = /** @type {Readonly<Record<string, string>>} */ (
   Object.freeze({
     async: '202',
+    'billing-callback': '200',
     create: '201',
     delete: '204',
     'oauth-callback': '303',
@@ -751,6 +752,9 @@ function validateContractClosure(records, components) {
         'postClaimsByTokenDescriptionCodeCheck',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept',
+        // SCHEMA-3.18.0: the Stripe webhook answers 503 while billing is not
+        // configured on the deployment (no webhook signing secret).
+        'postCallbacksStripe',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
     ) {
