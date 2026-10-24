@@ -14,8 +14,9 @@ Staggered release: an author can date drafts in their own Markdown files and
 have Galascribe publish each one on its date. Additive: every 3.18 document and
 request still validates, a client reading the new members ignores them safely,
 and `npm run compatibility:check` reports no breaking change. The one member a
-server must now emit is `staggeredRelease` on the policy settings `GET` response
-(below). Design: `scrap/20261024_staggered-release-design.md`.
+server must now emit is `staggeredRelease` inside a present `publishingPolicy`
+of the publication read (below). Design:
+`scrap/20261024_staggered-release-design.md`.
 
 ### Added
 
@@ -30,16 +31,21 @@ server must now emit is `staggeredRelease` on the policy settings `GET` response
   the valid, boundary, unknown-field and invalid cases for the new definition,
   and the document `schemaVersion` stays `2.0.0`. The normalized `build-input`
   front matter does not change: a draft is never built.
-- Publication policy settings (`GET` and
-  `PUT /v2/organizations/{organizationId}/publications/{publicationId}/policy-settings`):
-  `staggeredRelease` (`enabled`, `timezone`). The `GET` response always carries
-  it (`StaggeredReleaseSetting`; a publication that never set it reads `enabled`
-  false and `timezone` null). The `PUT` request carries it optionally
-  (`StaggeredReleaseUpdate`; absent means unchanged, and `timezone` is required
+- `PublishingPolicy.staggeredRelease` (`enabled`, `timezone`), the publication's
+  staggered-release setting, beside `requireReview` and `galascribeMerges`. In
+  the publication read (`GET .../publications/{publicationId}` and the `PATCH`
+  response) a present `publishingPolicy` always carries it
+  (`StaggeredReleaseSetting`, so it is required inside `PublishingPolicy`;
+  `timezone` is nullable and never null while `enabled` is true), and a
+  publication that never set it reads `enabled` false and `timezone` null, the
+  same as an absent `publishingPolicy`. In the `PATCH` request
+  `publishingPolicy.staggeredRelease` is optional (an inline object, as the
+  other `PATCH` members are; absent means unchanged, and `timezone` is required
   when `enabled` is true). `timezone` is an IANA zone name
   (`StaggeredReleaseTimezone`, at most 64 characters, shape `Area/Location` or
-  `UTC`). The setting is a platform setting, not a repository file, so it is not
-  part of the `PUT` response's `change`.
+  `UTC`); an unknown name is `422 VALIDATION_FAILED` pointed at
+  `/publishingPolicy/staggeredRelease/timezone`. The policy settings
+  (`.../policy-settings`) operations are unchanged.
 - `ContentInventoryItemSummary.publishAfter`: optional and nullable, the
   header's `publishAfter` date of a draft waiting for release.
 - The site read (`GET .../site`, the Home screen): optional nullable

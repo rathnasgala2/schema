@@ -5903,7 +5903,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     patch:
       description: |
-        Updates publication metadata and state. As of schema 2.22.0 the request may also carry `publishingPolicy` (`requireReview`, `galascribeMerges`), a partial update: an omitted member keeps its value. The publication resource (`GET` and this response) returns `publishingPolicy`; its absence means the defaults, `requireReview` false and `galascribeMerges` true. The policy governs `POST .../changes:publish` and the review of changes.
+        Updates publication metadata and state. As of schema 2.22.0 the request may also carry `publishingPolicy` (`requireReview`, `galascribeMerges`), a partial update: an omitted member keeps its value. The publication resource (`GET` and this response) returns `publishingPolicy`; its absence means the defaults, `requireReview` false and `galascribeMerges` true. The policy governs `POST .../changes:publish` and the review of changes. SCHEMA-3.19.0 adds `publishingPolicy.staggeredRelease` (`enabled`, `timezone`): staggered release publishes each draft whose `publishAfter` front-matter date has arrived, reading the date in `timezone`. A present `publishingPolicy` always carries it (a publication that never set it reads `enabled` false and `timezone` null; the absence of `publishingPolicy` means the same). In the request it is optional, absent means unchanged, `timezone` is required when `enabled` is true and must be an IANA zone name, else `422 VALIDATION_FAILED` pointed at `/publishingPolicy/staggeredRelease/timezone`.
       operationId: patchOrganizationsByOrganizationIdPublicationsByPublicationId
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

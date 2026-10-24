@@ -2911,33 +2911,19 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
 
   const page = { title: 'Terms', markdown: '## About\n\nText.' };
   const policyRead = await check(`Get${prefix}PolicySettingsResponse`);
-  // 3.19.0: the staggered-release setting is always present on the read.
-  const policyEnvelope = {
-    ...envelope,
-    staggeredRelease: { enabled: false, timezone: null },
-  };
-  assert.equal(policyRead({ ...policyEnvelope, source: 'DEFAULT' }), true);
-  assert.equal(policyRead({ ...envelope, source: 'DEFAULT' }), false);
+  assert.equal(policyRead({ ...envelope, source: 'DEFAULT' }), true);
   assert.equal(
-    policyRead({
-      ...policyEnvelope,
-      source: 'FILE',
-      terms: page,
-      privacy: page,
-    }),
+    policyRead({ ...envelope, source: 'FILE', terms: page, privacy: page }),
     true,
   );
   // The pairing of source with the pages is the API's to enforce; the schema
   // stays a plain object so generated clients can bind it.
-  assert.equal(
-    policyRead({ ...policyEnvelope, source: 'FILE', terms: page }),
-    true,
-  );
+  assert.equal(policyRead({ ...envelope, source: 'FILE', terms: page }), true);
   assert.equal(
     bundle.components.schemas[`Get${prefix}PolicySettingsResponse`].allOf,
     undefined,
   );
-  assert.equal(policyRead({ ...policyEnvelope, source: 'OTHER' }), false);
+  assert.equal(policyRead({ ...envelope, source: 'OTHER' }), false);
   assert.equal(policyRead({ source: 'DEFAULT' }), false);
 
   const policyWrite = await check(`Put${prefix}PolicySettingsRequest`);
@@ -3043,47 +3029,124 @@ test('3.19.0 OpenAPI additions: staggered release setting, listing and home memb
     false,
   );
 
-  const update = await check('StaggeredReleaseUpdate');
-  assert.equal(update({ enabled: false }), true);
-  assert.equal(update({ enabled: false, timezone: 'Europe/London' }), true);
-  assert.equal(update({ enabled: true, timezone: 'Europe/London' }), true);
-  assert.equal(update({ enabled: true }), false);
-  assert.equal(update({ enabled: true, timezone: null }), false);
-  assert.equal(update({ enabled: false, timezone: null }), false);
-  assert.equal(update({ timezone: 'UTC' }), false);
-  assert.equal(update({ enabled: true, timezone: 'x'.repeat(65) }), false);
-
-  const policyGet =
-    bundle.components.schemas
-      .GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse;
-  assert.equal(policyGet.required.includes('staggeredRelease'), true);
+  const publishing = await check('PublishingPolicy');
+  const policy = {
+    requireReview: false,
+    galascribeMerges: true,
+    staggeredRelease: { enabled: false, timezone: null },
+  };
+  assert.equal(publishing(policy), true);
   assert.equal(
-    policyGet.properties.staggeredRelease.$ref,
-    '#/components/schemas/StaggeredReleaseSetting',
-  );
-  const policyPut =
-    bundle.components.schemas
-      .PutOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsRequest;
-  assert.equal(policyPut.required.includes('staggeredRelease'), false);
-  assert.equal(
-    policyPut.properties.staggeredRelease.$ref,
-    '#/components/schemas/StaggeredReleaseUpdate',
-  );
-  const putPolicy = await check(
-    'PutOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsRequest',
-  );
-  const page = { title: 'Terms', markdown: 'Text.' };
-  const pages = { terms: page, privacy: { ...page, title: 'Privacy' } };
-  assert.equal(putPolicy(pages), true);
-  assert.equal(
-    putPolicy({
-      ...pages,
+    publishing({
+      ...policy,
       staggeredRelease: { enabled: true, timezone: 'America/Los_Angeles' },
     }),
     true,
   );
   assert.equal(
-    putPolicy({ ...pages, staggeredRelease: { enabled: true } }),
+    publishing({ requireReview: false, galascribeMerges: true }),
+    false,
+  );
+  assert.equal(
+    publishing({
+      ...policy,
+      staggeredRelease: { enabled: true, timezone: null },
+    }),
+    false,
+  );
+  assert.equal(
+    bundle.components.schemas.PublishingPolicy.properties.staggeredRelease.$ref,
+    '#/components/schemas/StaggeredReleaseSetting',
+  );
+  const patchRequest =
+    bundle.components.schemas
+      .PatchOrganizationsByOrganizationIdPublicationsByPublicationIdRequest;
+  // A PATCH request body is compiled on its own, so the update shape is
+  // inline rather than a component; it must not drift from the read shape's
+  // timezone rules.
+  const update =
+    patchRequest.properties.publishingPolicy.properties.staggeredRelease;
+  assert.equal(update.additionalProperties, false);
+  assert.deepEqual(update.required, ['enabled']);
+  assert.equal(
+    update.properties.timezone.pattern,
+    bundle.components.schemas.StaggeredReleaseTimezone.pattern,
+  );
+  assert.equal(
+    update.properties.timezone.maxLength,
+    bundle.components.schemas.StaggeredReleaseTimezone.maxLength,
+  );
+  const patch = await check(
+    'PatchOrganizationsByOrganizationIdPublicationsByPublicationIdRequest',
+  );
+  assert.equal(patch({ publishingPolicy: { requireReview: true } }), true);
+  assert.equal(
+    patch({
+      publishingPolicy: {
+        staggeredRelease: { enabled: true, timezone: 'Europe/London' },
+      },
+    }),
+    true,
+  );
+  assert.equal(
+    patch({ publishingPolicy: { staggeredRelease: { enabled: false } } }),
+    true,
+  );
+  assert.equal(
+    patch({ publishingPolicy: { staggeredRelease: { enabled: true } } }),
+    false,
+  );
+  assert.equal(
+    patch({
+      publishingPolicy: { staggeredRelease: { enabled: true, timezone: null } },
+    }),
+    false,
+  );
+  assert.equal(
+    patch({
+      publishingPolicy: {
+        staggeredRelease: { enabled: false, timezone: 'Europe/London' },
+      },
+    }),
+    true,
+  );
+  assert.equal(patch({ publishingPolicy: { staggeredRelease: {} } }), false);
+  assert.equal(
+    patch({
+      publishingPolicy: {
+        staggeredRelease: { enabled: true, timezone: 'x'.repeat(65) },
+      },
+    }),
+    false,
+  );
+  assert.equal(
+    patch({
+      publishingPolicy: {
+        staggeredRelease: { enabled: true, timezone: 'Los Angeles' },
+      },
+    }),
+    false,
+  );
+  const publicationRead = await check(
+    'GetOrganizationsByOrganizationIdPublicationsByPublicationIdResponse',
+  );
+  const publication = {
+    publicationId: '019c0000-0000-7000-8000-000000000001',
+    version: 1,
+    state: 'ACTIVE',
+    name: 'Site',
+    slug: 'site',
+  };
+  assert.equal(publicationRead(publication), true);
+  assert.equal(
+    publicationRead({ ...publication, publishingPolicy: policy }),
+    true,
+  );
+  assert.equal(
+    publicationRead({
+      ...publication,
+      publishingPolicy: { requireReview: false, galascribeMerges: true },
+    }),
     false,
   );
 

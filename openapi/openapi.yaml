@@ -3476,15 +3476,12 @@ components:
             - FILE
             - DEFAULT
           type: string
-        staggeredRelease:
-          $ref: "#/components/schemas/StaggeredReleaseSetting"
         terms:
           $ref: "#/components/schemas/SitePolicyPage"
       required:
         - source
         - openChange
         - setUp
-        - staggeredRelease
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdResponse:
       allOf:
@@ -6975,6 +6972,34 @@ components:
               type: boolean
             requireReview:
               type: boolean
+            staggeredRelease:
+              additionalProperties: false
+              allOf:
+                - if:
+                    properties:
+                      enabled:
+                        not:
+                          enum:
+                            - false
+                        type: boolean
+                        x-gala-const: true
+                    required:
+                      - enabled
+                  then:
+                    required:
+                      - timezone
+              description: "SCHEMA-3.19.0: a change to the staggered-release setting (the shape of `StaggeredReleaseSetting` as a partial update). An omitted `staggeredRelease` leaves the setting unchanged. `timezone` is required when `enabled` is true. When `enabled` is false it may be omitted (the stored zone is kept) or sent (the zone is stored for the next time the setting is turned on). Turning the setting off never edits a draft: its `publishAfter` stays in the file."
+              properties:
+                enabled:
+                  type: boolean
+                timezone:
+                  description: An IANA time zone name, as `StaggeredReleaseTimezone`. An unknown name is `422 VALIDATION_FAILED` pointed at `/publishingPolicy/staggeredRelease/timezone`.
+                  maxLength: 64
+                  pattern: ^(?:[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+|UTC)$
+                  type: string
+              required:
+                - enabled
+              type: object
           type: object
         slug:
           maxLength: 80
@@ -14883,7 +14908,7 @@ components:
         `ContentChangePublicationProfileEntry`).
         A `PUT` document whose front matter sets or changes `publishAfter`
         (SCHEMA-3.19.0) is refused with `409 STAGGERED_RELEASE_DISABLED` while the
-        publication's staggered release is off (see the policy settings), and
+        publication's staggered release is off (`publishingPolicy.staggeredRelease`), and
         with `422 PUBLISH_AFTER_ON_PUBLISHED_POST` when its `status` is not
         `draft`; `errors[].pointer` is `/documents/<path>`.
         Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
@@ -17536,7 +17561,7 @@ components:
       type: string
     PublishingPolicy:
       additionalProperties: false
-      description: "How this publication publishes. Absence of the member on the publication resource means the defaults: `requireReview` false, `galascribeMerges` true."
+      description: "How this publication publishes. Absence of the member on the publication resource means the defaults: `requireReview` false, `galascribeMerges` true, and `staggeredRelease` off (`enabled` false, `timezone` null). When the member is present it carries all three (SCHEMA-3.19.0 adds `staggeredRelease`)."
       properties:
         galascribeMerges:
           description: Default true. When true Galascribe opens and merges the pull request itself through the GitHub App; when false each change must already be merged on GitHub before it can be published.
@@ -17544,9 +17569,12 @@ components:
         requireReview:
           description: Default false. When true a change needs an approved review before it can be published.
           type: boolean
+        staggeredRelease:
+          $ref: "#/components/schemas/StaggeredReleaseSetting"
       required:
         - requireReview
         - galascribeMerges
+        - staggeredRelease
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettingsRequest:
       additionalProperties: false
@@ -17873,8 +17901,6 @@ components:
       properties:
         privacy:
           $ref: "#/components/schemas/SitePolicyPage"
-        staggeredRelease:
-          $ref: "#/components/schemas/StaggeredReleaseUpdate"
         terms:
           $ref: "#/components/schemas/SitePolicyPage"
       required:
@@ -19403,7 +19429,7 @@ components:
             properties:
               timezone:
                 type: string
-      description: "SCHEMA-3.19.0: the publication's staggered-release setting as stored. When `enabled` is true Galascribe publishes each draft whose `publishAfter` front-matter date has arrived, reading the date in `timezone` and releasing it on the first sweep at or after 00:00 of that date; when false nothing is released by the system and `publishAfter` values are kept untouched. A publication that never set it reads `{enabled: false, timezone: null}`; `timezone` is never null while `enabled` is true."
+      description: "SCHEMA-3.19.0: the publication's staggered-release setting as stored, the `staggeredRelease` member of `PublishingPolicy`. When `enabled` is true Galascribe publishes each draft whose `publishAfter` front-matter date has arrived, reading the date in `timezone` and releasing it on the first sweep at or after 00:00 of that date; when false nothing is released by the system and `publishAfter` values are kept untouched. A publication that never set it reads `{enabled: false, timezone: null}`; `timezone` is never null while `enabled` is true."
       properties:
         enabled:
           type: boolean
@@ -19416,35 +19442,10 @@ components:
         - timezone
       type: object
     StaggeredReleaseTimezone:
-      description: "SCHEMA-3.19.0: an IANA time zone name (`America/Los_Angeles`, `Europe/London`, `UTC`). The API accepts only a name its time-zone database knows; an unknown name is `422 VALIDATION_FAILED` pointed at `/staggeredRelease/timezone`. The pattern only fixes the shape."
+      description: "SCHEMA-3.19.0: an IANA time zone name (`America/Los_Angeles`, `Europe/London`, `UTC`). The API accepts only a name its time-zone database knows; an unknown name is `422 VALIDATION_FAILED` pointed at `/publishingPolicy/staggeredRelease/timezone`. The pattern only fixes the shape."
       maxLength: 64
       pattern: ^(?:[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+|UTC)$
       type: string
-    StaggeredReleaseUpdate:
-      additionalProperties: false
-      allOf:
-        - if:
-            properties:
-              enabled:
-                not:
-                  enum:
-                    - false
-                type: boolean
-                x-gala-const: true
-            required:
-              - enabled
-          then:
-            required:
-              - timezone
-      description: "SCHEMA-3.19.0: a change to the staggered-release setting. `timezone` is required when `enabled` is true. When `enabled` is false it may be omitted (the stored zone is kept) or sent (the zone is stored for the next time the setting is turned on). Turning the setting off never edits a draft: its `publishAfter` stays in the file."
-      properties:
-        enabled:
-          type: boolean
-        timezone:
-          $ref: "#/components/schemas/StaggeredReleaseTimezone"
-      required:
-        - enabled
-      type: object
     VerificationPlanEntry:
       additionalProperties: false
       properties:
@@ -32069,7 +32070,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     patch:
       description: |
-        Updates publication metadata and state. As of schema 2.22.0 the request may also carry `publishingPolicy` (`requireReview`, `galascribeMerges`), a partial update: an omitted member keeps its value. The publication resource (`GET` and this response) returns `publishingPolicy`; its absence means the defaults, `requireReview` false and `galascribeMerges` true. The policy governs `POST .../changes:publish` and the review of changes.
+        Updates publication metadata and state. As of schema 2.22.0 the request may also carry `publishingPolicy` (`requireReview`, `galascribeMerges`), a partial update: an omitted member keeps its value. The publication resource (`GET` and this response) returns `publishingPolicy`; its absence means the defaults, `requireReview` false and `galascribeMerges` true. The policy governs `POST .../changes:publish` and the review of changes. SCHEMA-3.19.0 adds `publishingPolicy.staggeredRelease` (`enabled`, `timezone`): staggered release publishes each draft whose `publishAfter` front-matter date has arrived, reading the date in `timezone`. A present `publishingPolicy` always carries it (a publication that never set it reads `enabled` false and `timezone` null; the absence of `publishingPolicy` means the same). In the request it is optional, absent means unchanged, `timezone` is required when `enabled` is true and must be an IANA zone name, else `422 VALIDATION_FAILED` pointed at `/publishingPolicy/staggeredRelease/timezone`.
       operationId: patchOrganizationsByOrganizationIdPublicationsByPublicationId
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -42769,7 +42770,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/policy-settings:
     get:
-      description: Reads the site's Terms and Privacy text at the linked repository's current main branch head, meaning the `policies` member of `gala/publication.json` and the two markdown files it names. `source` is `FILE` when the repository names its own pages, and `terms` and `privacy` then carry each page's title and markdown. `source` is `DEFAULT` when `policies` is absent, and the site then shows the default text of `@rathnasgala2/schemas/site-policy-defaults`, which the API does not carry, and `terms` and `privacy` are omitted. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches `gala/publication.json` or a policy file, or is null. SCHEMA-3.17.0 adds `422 VALIDATION_FAILED`, answered when `gala/publication.json` names a policy file that does not exist at the head; the repository is then inconsistent and no page text can be read, so the author fixes the repository (or writes both pages again with `PUT`) before the read answers. SCHEMA-3.19.0 adds `staggeredRelease` (`enabled`, `timezone`), the publication's staggered-release setting, which is always present. A publication that never set it reads `enabled` false and `timezone` null. Unlike the pages it is stored by the platform, not in the repository, so it is the same at every head and `openChange` does not describe it.
+      description: Reads the site's Terms and Privacy text at the linked repository's current main branch head, meaning the `policies` member of `gala/publication.json` and the two markdown files it names. `source` is `FILE` when the repository names its own pages, and `terms` and `privacy` then carry each page's title and markdown. `source` is `DEFAULT` when `policies` is absent, and the site then shows the default text of `@rathnasgala2/schemas/site-policy-defaults`, which the API does not carry, and `terms` and `privacy` are omitted. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches `gala/publication.json` or a policy file, or is null. SCHEMA-3.17.0 adds `422 VALIDATION_FAILED`, answered when `gala/publication.json` names a policy file that does not exist at the head; the repository is then inconsistent and no page text can be read, so the author fixes the repository (or writes both pages again with `PUT`) before the read answers.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -42800,9 +42801,6 @@ paths:
                     openChange: null
                     setUp: true
                     source: DEFAULT
-                    staggeredRelease:
-                      enabled: false
-                      timezone: null
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse"
           description: read this publication's Terms and Privacy text at the main branch head succeeded
@@ -43021,7 +43019,7 @@ paths:
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     put:
-      description: The server writes `gala/policies/terms.md`, `gala/policies/privacy.md` and the `policies` member of `gala/publication.json` as one repository change, the way a theme selection writes `gala/appearance.json`. Both pages are always sent. Each page's Markdown is 1 to 131072 UTF-8 bytes as stored in the repository, under the Unicode normalization rules the server applies to other authored text. Publishing the change uses the normal publish flow. `change` has the shape the theme-selection write returns. SCHEMA-3.19.0 adds the optional `staggeredRelease` (`enabled`, `timezone`). When present the server stores it as the publication's staggered-release setting (see the `GET`), and when absent the stored setting is unchanged. It is a platform setting, not a repository file, so it takes effect when this request succeeds and is not part of `change`. `timezone` is required when `enabled` is true and must be an IANA zone name, else `422 VALIDATION_FAILED` pointed at `/staggeredRelease/timezone`.
+      description: The server writes `gala/policies/terms.md`, `gala/policies/privacy.md` and the `policies` member of `gala/publication.json` as one repository change, the way a theme selection writes `gala/appearance.json`. Both pages are always sent. Each page's Markdown is 1 to 131072 UTF-8 bytes as stored in the repository, under the Unicode normalization rules the server applies to other authored text. Publishing the change uses the normal publish flow. `change` has the shape the theme-selection write returns.
       operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
