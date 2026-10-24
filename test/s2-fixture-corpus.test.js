@@ -149,7 +149,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 903);
+  assert.equal(files.length, 904);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -219,8 +219,14 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // remedy) regenerated those roots' valid, boundary, invalid and
     // unknown-field fixtures and the fixture manifest; no file added or
     // removed (903).
+    //
+    // 3.19.0 (reviewed 2026-10-24): content-frontmatter's optional
+    // `publishAfter` member (new $defs/publishAfterDate) regenerated that
+    // root's valid, boundary, unknown-field and invalid fixtures and the
+    // fixture manifest, and added one case file
+    // (content-frontmatter/SCHEMA_PATTERN_INVALID), making 904.
     aggregate.digest('hex'),
-    'dbf9d6408784c0e07cfa1cb49366d91b5916581dc34bad012fd323dddbb19dd1',
+    '244de679985b3d093c46619fc90d2f78a229e5ef4e3487aea7fe02b653e60a82',
   );
 });
 

@@ -2911,19 +2911,33 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
 
   const page = { title: 'Terms', markdown: '## About\n\nText.' };
   const policyRead = await check(`Get${prefix}PolicySettingsResponse`);
-  assert.equal(policyRead({ ...envelope, source: 'DEFAULT' }), true);
+  // 3.19.0: the staggered-release setting is always present on the read.
+  const policyEnvelope = {
+    ...envelope,
+    staggeredRelease: { enabled: false, timezone: null },
+  };
+  assert.equal(policyRead({ ...policyEnvelope, source: 'DEFAULT' }), true);
+  assert.equal(policyRead({ ...envelope, source: 'DEFAULT' }), false);
   assert.equal(
-    policyRead({ ...envelope, source: 'FILE', terms: page, privacy: page }),
+    policyRead({
+      ...policyEnvelope,
+      source: 'FILE',
+      terms: page,
+      privacy: page,
+    }),
     true,
   );
   // The pairing of source with the pages is the API's to enforce; the schema
   // stays a plain object so generated clients can bind it.
-  assert.equal(policyRead({ ...envelope, source: 'FILE', terms: page }), true);
+  assert.equal(
+    policyRead({ ...policyEnvelope, source: 'FILE', terms: page }),
+    true,
+  );
   assert.equal(
     bundle.components.schemas[`Get${prefix}PolicySettingsResponse`].allOf,
     undefined,
   );
-  assert.equal(policyRead({ ...envelope, source: 'OTHER' }), false);
+  assert.equal(policyRead({ ...policyEnvelope, source: 'OTHER' }), false);
   assert.equal(policyRead({ source: 'DEFAULT' }), false);
 
   const policyWrite = await check(`Put${prefix}PolicySettingsRequest`);
@@ -3000,4 +3014,168 @@ test('SCHEMA-3.16.0: the analytics and policy settings operations mirror the int
   assert.equal(policyWrite(withMarkdown(euro.repeat(50_000))), true);
   assert.equal(byteBounded(withMarkdown(euro.repeat(50_000))), false);
   assert.equal(byteBounded(withMarkdown('')), false);
+});
+
+test('3.19.0 OpenAPI additions: staggered release setting, listing and home members, problem codes', async () => {
+  const { bundle } = await readProjections();
+  const check = async (/** @type {string} */ name) =>
+    compileResolvedSchema(bundle, {
+      $ref: `#/components/schemas/${name}`,
+    });
+
+  const read = await check('StaggeredReleaseSetting');
+  assert.equal(read({ enabled: false, timezone: null }), true);
+  assert.equal(read({ enabled: false, timezone: 'America/Los_Angeles' }), true);
+  assert.equal(read({ enabled: true, timezone: 'UTC' }), true);
+  assert.equal(read({ enabled: true, timezone: 'Etc/GMT+5' }), true);
+  assert.equal(
+    read({ enabled: true, timezone: 'America/Argentina/Buenos_Aires' }),
+    true,
+  );
+  assert.equal(read({ enabled: true, timezone: null }), false);
+  assert.equal(read({ enabled: false }), false);
+  assert.equal(read({ timezone: null }), false);
+  assert.equal(read({ enabled: 'yes', timezone: null }), false);
+  assert.equal(read({ enabled: false, timezone: 'Los Angeles' }), false);
+  assert.equal(read({ enabled: false, timezone: 'Pacific' }), false);
+  assert.equal(
+    read({ enabled: false, timezone: null, offsetMinutes: 0 }),
+    false,
+  );
+
+  const update = await check('StaggeredReleaseUpdate');
+  assert.equal(update({ enabled: false }), true);
+  assert.equal(update({ enabled: false, timezone: 'Europe/London' }), true);
+  assert.equal(update({ enabled: true, timezone: 'Europe/London' }), true);
+  assert.equal(update({ enabled: true }), false);
+  assert.equal(update({ enabled: true, timezone: null }), false);
+  assert.equal(update({ enabled: false, timezone: null }), false);
+  assert.equal(update({ timezone: 'UTC' }), false);
+  assert.equal(update({ enabled: true, timezone: 'x'.repeat(65) }), false);
+
+  const policyGet =
+    bundle.components.schemas
+      .GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse;
+  assert.equal(policyGet.required.includes('staggeredRelease'), true);
+  assert.equal(
+    policyGet.properties.staggeredRelease.$ref,
+    '#/components/schemas/StaggeredReleaseSetting',
+  );
+  const policyPut =
+    bundle.components.schemas
+      .PutOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsRequest;
+  assert.equal(policyPut.required.includes('staggeredRelease'), false);
+  assert.equal(
+    policyPut.properties.staggeredRelease.$ref,
+    '#/components/schemas/StaggeredReleaseUpdate',
+  );
+  const putPolicy = await check(
+    'PutOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsRequest',
+  );
+  const page = { title: 'Terms', markdown: 'Text.' };
+  const pages = { terms: page, privacy: { ...page, title: 'Privacy' } };
+  assert.equal(putPolicy(pages), true);
+  assert.equal(
+    putPolicy({
+      ...pages,
+      staggeredRelease: { enabled: true, timezone: 'America/Los_Angeles' },
+    }),
+    true,
+  );
+  assert.equal(
+    putPolicy({ ...pages, staggeredRelease: { enabled: true } }),
+    false,
+  );
+
+  const summary = await check('ContentInventoryItemSummary');
+  const item = {
+    contentId: '019c0000-0000-7000-8000-000000000001',
+    title: 'A draft',
+    slug: 'a-draft',
+    status: 'DRAFT',
+    language: 'en',
+    createdAt: '2026-10-24T12:00:00.000Z',
+  };
+  assert.equal(summary(item), true);
+  assert.equal(summary({ ...item, publishAfter: '2026-11-03' }), true);
+  assert.equal(summary({ ...item, publishAfter: null }), true);
+  assert.equal(summary({ ...item, publishAfter: '2026-11-3' }), false);
+  assert.equal(
+    summary({ ...item, publishAfter: '2026-11-03T00:00:00Z' }),
+    false,
+  );
+  assert.equal(summary({ ...item, publishAfter: 20261103 }), false);
+
+  const site = await check(
+    'GetOrganizationsByOrganizationIdPublicationsByPublicationIdSiteResponse',
+  );
+  const home = {
+    url: null,
+    state: 'NEVER_PUBLISHED',
+    pendingChanges: [],
+    attention: [],
+  };
+  assert.equal(site(home), true);
+  assert.equal(site({ ...home, nextRelease: null }), true);
+  assert.equal(
+    site({
+      ...home,
+      nextRelease: { slug: 'a-draft', publishAfter: '2026-11-03' },
+    }),
+    true,
+  );
+  assert.equal(site({ ...home, nextRelease: { slug: 'a-draft' } }), false);
+  assert.equal(
+    site({
+      ...home,
+      nextRelease: { slug: 'A Draft', publishAfter: '2026-11-03' },
+    }),
+    false,
+  );
+  assert.equal(
+    site({
+      ...home,
+      nextRelease: { slug: 'a-draft', publishAfter: 'tomorrow' },
+    }),
+    false,
+  );
+
+  assert.deepEqual(HTTP_PROBLEM_EXAMPLE_RULES.STAGGERED_RELEASE_DISABLED, {
+    statuses: [409],
+    retryable: false,
+  });
+  assert.deepEqual(HTTP_PROBLEM_EXAMPLE_RULES.PUBLISH_AFTER_ON_PUBLISHED_POST, {
+    statuses: [422],
+    retryable: false,
+  });
+  const plan = operationAt(
+    bundle,
+    'post',
+    '/v2/organizations/{organizationId}/publications/{publicationId}/content-changes:plan',
+  );
+  assert.equal(
+    plan['x-gala-reachable-problems'].includes('STAGGERED_RELEASE_DISABLED'),
+    true,
+  );
+  assert.equal(
+    plan['x-gala-reachable-problems'].includes(
+      'PUBLISH_AFTER_ON_PUBLISHED_POST',
+    ),
+    true,
+  );
+  assert.deepEqual(
+    Object.keys(
+      plan.responses['409'].content['application/problem+json'].examples,
+    ),
+    [
+      'COMMAND_REPLAY_CONFLICT',
+      'INVALID_SOURCE_STATE',
+      'STAGGERED_RELEASE_DISABLED',
+      'TRANSFER_PENDING',
+    ],
+  );
+  assert.deepEqual(plan.responses['422']['x-gala-problem-codes'], [
+    'PUBLISH_AFTER_ON_PUBLISHED_POST',
+    'VALIDATION_FAILED',
+  ]);
 });

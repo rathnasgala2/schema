@@ -110,7 +110,11 @@ const T03_SCHEMA_HASHES = {
     //
     // 3.12.0 (reviewed 2026-10-13): the optional closed seo block (new
     // $defs/contentSeo, shared with build-input). Additive.
-    'f2aeb8c783053868dc26d094efe4020f1ac2394f265c07bdd115e7b3b5d48654',
+    //
+    // 3.19.0 (reviewed 2026-10-24): the optional publishAfter member (new
+    // $defs/publishAfterDate, a YYYY-MM-DD string). Additive; build-input does
+    // not carry it because a draft is never built.
+    '54c2e0e88aad16ecdfcb7b792f00db685317f39d94e08e0d299805bd4894ebbe',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound

@@ -1168,7 +1168,11 @@ paths:
         policy file that does not exist at the head; the repository is then
         inconsistent and no page text can be read, so the author fixes the
         repository (or writes both pages again with `PUT`) before the read
-        answers.
+        answers. SCHEMA-3.19.0 adds `staggeredRelease` (`enabled`, `timezone`),
+        the publication's staggered-release setting, which is always present. A
+        publication that never set it reads `enabled` false and `timezone` null.
+        Unlike the pages it is stored by the platform, not in the repository, so
+        it is the same at every head and `openChange` does not describe it.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1199,6 +1203,9 @@ paths:
                     openChange: null
                     setUp: true
                     source: DEFAULT
+                    staggeredRelease:
+                      enabled: false
+                      timezone: null
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse'
           description:
@@ -1430,7 +1437,14 @@ paths:
         as stored in the repository, under the Unicode normalization rules the
         server applies to other authored text. Publishing the change uses the
         normal publish flow. `change` has the shape the theme-selection write
-        returns.
+        returns. SCHEMA-3.19.0 adds the optional `staggeredRelease` (`enabled`,
+        `timezone`). When present the server stores it as the publication's
+        staggered-release setting (see the `GET`), and when absent the stored
+        setting is unchanged. It is a platform setting, not a repository file,
+        so it takes effect when this request succeeds and is not part of
+        `change`. `timezone` is required when `enabled` is true and must be an
+        IANA zone name, else `422 VALIDATION_FAILED` pointed at
+        `/staggeredRelease/timezone`.
       operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

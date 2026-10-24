@@ -6778,6 +6778,23 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                STAGGERED_RELEASE_DISABLED:
+                  summary: STAGGERED_RELEASE_DISABLED
+                  value:
+                    code: STAGGERED_RELEASE_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      A document carries publishAfter but the publication's
+                      staggered release is off. See the operation contract.
+                    errors:
+                      - code: STAGGERED_RELEASE_DISABLED
+                        pointer: /documents/content~1articles~1example.md
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: STAGGERED_RELEASE_DISABLED
+                    type: urn:gala:problem:staggered-release-disabled
                 TRANSFER_PENDING:
                   summary: TRANSFER_PENDING
                   value:
@@ -6794,7 +6811,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
           description:
-            COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE, TRANSFER_PENDING
+            COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE,
+            STAGGERED_RELEASE_DISABLED, TRANSFER_PENDING
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -6805,11 +6823,29 @@ paths:
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_SOURCE_STATE
+            - STAGGERED_RELEASE_DISABLED
             - TRANSFER_PENDING
         '422':
           content:
             application/problem+json:
               examples:
+                PUBLISH_AFTER_ON_PUBLISHED_POST:
+                  summary: PUBLISH_AFTER_ON_PUBLISHED_POST
+                  value:
+                    code: PUBLISH_AFTER_ON_PUBLISHED_POST
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      A document carries publishAfter but its status is not
+                      draft. See the operation contract.
+                    errors:
+                      - code: PUBLISH_AFTER_ON_PUBLISHED_POST
+                        pointer: /documents/content~1articles~1example.md
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: PUBLISH_AFTER_ON_PUBLISHED_POST
+                    type: urn:gala:problem:publish-after-on-published-post
                 VALIDATION_FAILED:
                   summary: VALIDATION_FAILED
                   value:
@@ -6825,13 +6861,14 @@ paths:
                     type: urn:gala:problem:validation-failed
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: VALIDATION_FAILED
+          description: PUBLISH_AFTER_ON_PUBLISHED_POST, VALIDATION_FAILED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
             X-Correlation-Id:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
+            - PUBLISH_AFTER_ON_PUBLISHED_POST
             - VALIDATION_FAILED
         '503':
           content:
@@ -6887,8 +6924,10 @@ paths:
         - CAPABILITY_UNAVAILABLE
         - COMMAND_REPLAY_CONFLICT
         - INVALID_SOURCE_STATE
+        - PUBLISH_AFTER_ON_PUBLISHED_POST
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
+        - STAGGERED_RELEASE_DISABLED
         - TRANSFER_PENDING
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key

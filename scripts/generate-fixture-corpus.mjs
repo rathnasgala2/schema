@@ -353,6 +353,7 @@ function stringValue(schema, pointer, variant = 0) {
     problemHttpsType: 'https://errors.example.com/problem',
     problemUrn: 'urn:gala:problem:fixture',
     publicRecoveryBase: 'https://recover.example.com/account/recover',
+    publishAfterDate: '2026-09-13',
     repoRelativePath: 'content/fixture.md',
     rfc3339: '2026-09-13T12:00:00.000Z',
     runtimePayloadDigest: `sha256:${'A'.repeat(43)}`,

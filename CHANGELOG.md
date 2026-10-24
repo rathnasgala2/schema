@@ -8,6 +8,52 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.19.0] - 2026-10-24
+
+Staggered release: an author can date drafts in their own Markdown files and
+have Galascribe publish each one on its date. Additive: every 3.18 document and
+request still validates, a client reading the new members ignores them safely,
+and `npm run compatibility:check` reports no breaking change. The one member a
+server must now emit is `staggeredRelease` on the policy settings `GET` response
+(below). Design: `scrap/20261024_staggered-release-design.md`.
+
+### Added
+
+- `content-frontmatter`: optional `publishAfter` (new `$defs/publishAfterDate`,
+  a string matching `^\d{4}-\d{2}-\d{2}$`). It is the calendar date, in the
+  publication's staggered-release timezone and at day precision, on or after
+  which Galascribe publishes this draft. It is meaningful only while `status` is
+  `draft`, and Galascribe removes it when the post is published. The API
+  enforces both rules (`409 STAGGERED_RELEASE_DISABLED` and
+  `422 PUBLISH_AFTER_ON_PUBLISHED_POST`, below); the schema only fixes the shape
+  and keeps `additionalProperties: false`. The generated fixture corpus gains
+  the valid, boundary, unknown-field and invalid cases for the new definition,
+  and the document `schemaVersion` stays `2.0.0`. The normalized `build-input`
+  front matter does not change: a draft is never built.
+- Publication policy settings (`GET` and
+  `PUT /v2/organizations/{organizationId}/publications/{publicationId}/policy-settings`):
+  `staggeredRelease` (`enabled`, `timezone`). The `GET` response always carries
+  it (`StaggeredReleaseSetting`; a publication that never set it reads `enabled`
+  false and `timezone` null). The `PUT` request carries it optionally
+  (`StaggeredReleaseUpdate`; absent means unchanged, and `timezone` is required
+  when `enabled` is true). `timezone` is an IANA zone name
+  (`StaggeredReleaseTimezone`, at most 64 characters, shape `Area/Location` or
+  `UTC`). The setting is a platform setting, not a repository file, so it is not
+  part of the `PUT` response's `change`.
+- `ContentInventoryItemSummary.publishAfter`: optional and nullable, the
+  header's `publishAfter` date of a draft waiting for release.
+- The site read (`GET .../site`, the Home screen): optional nullable
+  `nextRelease` (`SiteNextRelease`: `slug` and `publishAfter`), the scheduled
+  draft that will be released next.
+- Problem codes on `POST .../content-changes:plan`: `STAGGERED_RELEASE_DISABLED`
+  (`409`, a document sets or changes `publishAfter` while the publication's
+  staggered release is off) and `PUBLISH_AFTER_ON_PUBLISHED_POST` (`422`, a
+  document carries `publishAfter` but its `status` is not `draft`). Both point
+  at `/documents/<path>`.
+- The compatibility baseline (`compatibility/baseline-schemas/`) is refreshed;
+  the only difference is the added optional member and the added `$defs` entry
+  on `content-frontmatter`.
+
 ## [3.18.0] - 2026-10-22
 
 Billing: the Stripe webhook callback joins the API contract. Additive.
@@ -3230,7 +3276,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.18.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.19.0...HEAD
+[3.19.0]: https://github.com/rathnasgala2/schema/compare/v3.18.0...v3.19.0
 [3.18.0]: https://github.com/rathnasgala2/schema/compare/v3.17.0...v3.18.0
 [3.17.0]: https://github.com/rathnasgala2/schema/compare/v3.16.0...v3.17.0
 [3.16.0]: https://github.com/rathnasgala2/schema/compare/v3.15.0...v3.16.0

@@ -627,6 +627,7 @@ const schemas = {
       newsletter: { enum: ['ineligible', 'eligible'] },
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),
+      publishAfter: ref('publishAfterDate'),
       extensions: ref('extensionMap'),
     },
     [
@@ -644,6 +645,12 @@ const schemas = {
     ],
     {
       mediaRef,
+      publishAfterDate: {
+        type: 'string',
+        pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+        description:
+          "SCHEMA-3.19.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe publishes this draft. Meaningful only while `status` is `draft`; Galascribe removes it when the post is published. The API enforces both rules; the schema only fixes the shape.",
+      },
       contentEdition: createContentEditionDefinition({ ref, closedObject }),
       contentSeo: createContentSeoDefinition({
         ref,

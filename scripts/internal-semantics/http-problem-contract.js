@@ -114,5 +114,8 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       KEY_AND_SESSION: { statuses: [401], retryable: false },
       SETTING_UNKNOWN: { statuses: [404], retryable: false },
       TRANSFER_NOT_ACCEPTED: { statuses: [409], retryable: false },
+      // SCHEMA-3.19.0: staggered release (publishAfter on drafts).
+      PUBLISH_AFTER_ON_PUBLISHED_POST: { statuses: [422], retryable: false },
+      STAGGERED_RELEASE_DISABLED: { statuses: [409], retryable: false },
     })
   );

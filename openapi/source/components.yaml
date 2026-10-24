@@ -1361,12 +1361,15 @@ components:
             - FILE
             - DEFAULT
           type: string
+        staggeredRelease:
+          $ref: '#/components/schemas/StaggeredReleaseSetting'
         terms:
           $ref: '#/components/schemas/SitePolicyPage'
       required:
         - source
         - openChange
         - setUp
+        - staggeredRelease
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrentResponse:
       additionalProperties: false
@@ -4411,7 +4414,9 @@ components:
       description: |
         The header block's own facts about this item, read at inventory time.
         `contentId` is the header's `id`; `status` is the header's `status`
-        upper-cased to this contract's enum style.
+        upper-cased to this contract's enum style. `publishAfter`
+        (SCHEMA-3.19.0, optional and nullable) is the header's staggered-release
+        date.
       properties:
         contentId:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/stableId
@@ -4419,6 +4424,14 @@ components:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
         language:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/bcp47
+        publishAfter:
+          description:
+            "SCHEMA-3.19.0: the header's `publishAfter` date (`YYYY-MM-DD`) of a
+            draft waiting for staggered release, `null` or absent when the
+            header carries none."
+          oneOf:
+            - $ref: ../schemas/content-frontmatter.schema.json#/$defs/publishAfterDate
+            - type: 'null'
         publishedAt:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
         slug:
@@ -4677,6 +4690,8 @@ components:
       properties:
         privacy:
           $ref: '#/components/schemas/SitePolicyPage'
+        staggeredRelease:
+          $ref: '#/components/schemas/StaggeredReleaseUpdate'
         terms:
           $ref: '#/components/schemas/SitePolicyPage'
       required:
@@ -5011,6 +5026,11 @@ components:
         `appearance`, counting as one of the named members: it edits
         `gala/publication.json` through one planned `PUT` (see
         `ContentChangePublicationProfileEntry`).
+        A `PUT` document whose front matter sets or changes `publishAfter`
+        (SCHEMA-3.19.0) is refused with `409 STAGGERED_RELEASE_DISABLED` while the
+        publication's staggered release is off (see the policy settings), and
+        with `422 PUBLISH_AFTER_ON_PUBLISHED_POST` when its `status` is not
+        `draft`; `errors[].pointer` is `/documents/<path>`.
         Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
         at most 20 per change, each at most 5 MiB and together at most
         20 MiB, measured on the decoded bytes -- `assets[].bytesBase64` is
@@ -7447,6 +7467,74 @@ components:
         - createdAt
         - client
       type: object
+    StaggeredReleaseTimezone:
+      description:
+        'SCHEMA-3.19.0: an IANA time zone name (`America/Los_Angeles`,
+        `Europe/London`, `UTC`). The API accepts only a name its time-zone
+        database knows; an unknown name is `422 VALIDATION_FAILED` pointed at
+        `/staggeredRelease/timezone`. The pattern only fixes the shape.'
+      maxLength: 64
+      pattern: ^(?:[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+|UTC)$
+      type: string
+    StaggeredReleaseSetting:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              enabled:
+                const: true
+            required:
+              - enabled
+          then:
+            properties:
+              timezone:
+                type: string
+      description:
+        "SCHEMA-3.19.0: the publication's staggered-release setting as stored.
+        When `enabled` is true Galascribe publishes each draft whose
+        `publishAfter` front-matter date has arrived, reading the date in
+        `timezone` and releasing it on the first sweep at or after 00:00 of that
+        date; when false nothing is released by the system and `publishAfter`
+        values are kept untouched. A publication that never set it reads
+        `{enabled: false, timezone: null}`; `timezone` is never null while
+        `enabled` is true."
+      properties:
+        enabled:
+          type: boolean
+        timezone:
+          oneOf:
+            - $ref: '#/components/schemas/StaggeredReleaseTimezone'
+            - type: 'null'
+      required:
+        - enabled
+        - timezone
+      type: object
+    StaggeredReleaseUpdate:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              enabled:
+                const: true
+            required:
+              - enabled
+          then:
+            required:
+              - timezone
+      description:
+        'SCHEMA-3.19.0: a change to the staggered-release setting. `timezone` is
+        required when `enabled` is true. When `enabled` is false it may be
+        omitted (the stored zone is kept) or sent (the zone is stored for the
+        next time the setting is turned on). Turning the setting off never edits
+        a draft: its `publishAfter` stays in the file.'
+      properties:
+        enabled:
+          type: boolean
+        timezone:
+          $ref: '#/components/schemas/StaggeredReleaseTimezone'
+      required:
+        - enabled
+      type: object
     SitePolicyPage:
       additionalProperties: false
       description:
@@ -7893,7 +7981,10 @@ components:
         exactly while `state` is `PUBLISHING`. `schedule` (SCHEMA-3.3.0,
         optional) is present while a scheduled publish is pending; a pending
         schedule never makes `state` `PUBLISHING` -- the site reads as it would
-        without it until the schedule starts.
+        without it until the schedule starts. `nextRelease` (SCHEMA-3.19.0,
+        optional and nullable) is the scheduled draft that the staggered release
+        will publish next, the one with the earliest `publishAfter` date; `null`
+        or absent when there is none.
       properties:
         attention:
           items:
@@ -7902,6 +7993,10 @@ components:
           type: array
         lastPublished:
           $ref: '#/components/schemas/SiteLastPublished'
+        nextRelease:
+          oneOf:
+            - $ref: '#/components/schemas/SiteNextRelease'
+            - type: 'null'
         pendingChanges:
           items:
             $ref: '#/components/schemas/SitePendingChange'
@@ -9180,6 +9275,21 @@ components:
         - SINGLE
         - COLLABORATIVE
       type: string
+    SiteNextRelease:
+      additionalProperties: false
+      description:
+        "The next draft the staggered release will publish (SCHEMA-3.19.0):
+        `slug` is the draft's slug and `publishAfter` its `YYYY-MM-DD` date,
+        read in the publication's staggered-release timezone."
+      properties:
+        publishAfter:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/publishAfterDate
+        slug:
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/slug
+      required:
+        - slug
+        - publishAfter
+      type: object
     SiteSchedule:
       additionalProperties: false
       description:

@@ -53,6 +53,8 @@ export type ContentFrontmatterPlainLabel = string;
 
 export type ContentFrontmatterPlainText = string;
 
+export type ContentFrontmatterPublishAfterDate = string;
+
 export type ContentFrontmatterRepoRelativePath = string;
 
 export type ContentFrontmatterRfc3339 = string;
@@ -80,6 +82,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly kind: 'article' | 'page' | 'edition';
   readonly language: ContentFrontmatterBcp47;
   readonly newsletter?: 'ineligible' | 'eligible';
+  readonly publishAfter?: ContentFrontmatterPublishAfterDate;
   readonly publishedAt?: ContentFrontmatterRfc3339;
   readonly redirects: ReadonlyArray<ContentFrontmatterCanonicalRoute>;
   readonly route?: ContentFrontmatterCanonicalRoute;

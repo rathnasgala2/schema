@@ -137,6 +137,8 @@ const ROOT_LEDGERS = {
       'edition',
       // SCHEMA-3.12.0: the optional closed per-document search block.
       'seo',
+      // SCHEMA-3.19.0: the optional staggered-release date of a draft.
+      'publishAfter',
     ],
   },
 };

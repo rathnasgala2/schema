@@ -82,6 +82,42 @@ test('content frontmatter admits the closed optional seo block', async () => {
   assert.equal(valid({ robots: 'noindex' }), false);
 });
 
+test('content frontmatter admits publishAfter as a day-precision date and nothing else', async () => {
+  const base = await readJson(
+    'examples/valid/content-frontmatter/canonical.json',
+  );
+  const draft = { ...base, status: 'draft' };
+  const valid = (/** @type {unknown} */ publishAfter) =>
+    validateGalaDocument(base.schemaId, { ...draft, publishAfter }).valid;
+  assert.equal(validateGalaDocument(base.schemaId, draft).valid, true);
+  assert.equal(valid('2026-11-03'), true);
+  assert.equal(valid('2026-12-31'), true);
+  assert.equal(valid('2026-11-3'), false);
+  assert.equal(valid('26-11-03'), false);
+  assert.equal(valid('2026/11/03'), false);
+  assert.equal(valid('2026-11-03T00:00:00Z'), false);
+  assert.equal(valid('2026-11-03 '), false);
+  assert.equal(valid(''), false);
+  assert.equal(valid(20261103), false);
+  assert.equal(valid(null), false);
+  // The schema fixes the shape only; draft-only is the API's rule, so a
+  // published document that carries the member still validates here.
+  assert.equal(
+    validateGalaDocument(base.schemaId, {
+      ...base,
+      status: 'published',
+      publishedAt: '2026-09-13T12:00:00.000Z',
+      publishAfter: '2026-11-03',
+    }).valid,
+    true,
+  );
+  assert.equal(
+    validateGalaDocument(base.schemaId, { ...draft, publishAfterDate: 'x' })
+      .valid,
+    false,
+  );
+});
+
 test('build input admits Editorial and rejects an unknown theme package', async () => {
   const editorial = await readJson('examples/valid/build-input/canonical.json');
   editorial.packages.theme.package = '@rathnasgala2/theme-editorial';
