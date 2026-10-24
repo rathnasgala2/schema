@@ -148,11 +148,13 @@ test('package exports the generated API and machine catalogs explicitly', async 
   );
 });
 
-test('release workflow validates the gate, refuses version reuse and publishes with provenance', async () => {
+test('release workflow refuses version reuse before the gate, publishes with provenance and checks the registry copy', async () => {
   // Reviewed 2026-10-12: generation 4 had turned the release into a
   // source-only artifact upload; the registry is the only supply chain the
   // consumers (api, app, template, publish) pin against, so the release must
-  // publish, and only after the complete gate and the version-reuse refusal.
+  // publish, and only after the version-on-npm check (a version that is not
+  // new fails the run; nothing is skipped) and the complete gate. After
+  // publishing, the registry tarball is compared with the reviewed pack.
   const source = await readFile('.github/workflows/release.yaml', 'utf8');
   const workflow = /** @type {{
     on: {push: {branches: string[], paths: string[]}, workflow_dispatch: unknown},
@@ -160,7 +162,7 @@ test('release workflow validates the gate, refuses version reuse and publishes w
     jobs: {publish: {
       environment: string,
       permissions: Record<string, string>,
-      steps: Array<{name: string, run?: string, uses?: string, if?: string}>
+      steps: Array<{name: string, id?: string, run?: string, uses?: string, if?: string}>
     }}
   }} */ (parseYaml(source));
   assert.deepEqual(workflow.on.push.branches, ['main']);
@@ -178,18 +180,31 @@ test('release workflow validates the gate, refuses version reuse and publishes w
     'id-token': 'write',
   });
   const names = publish.steps.map(({ name }) => name);
+  const reuseIndex = names.indexOf('Fail unless this version is new on npm');
+  const installIndex = names.indexOf('Install locked dependencies');
   const gateIndex = names.indexOf('Run the complete release gate');
-  const reuseIndex = names.indexOf('Reject version reuse');
   const publishIndex = names.indexOf('Publish with trusted provenance');
+  const digestIndex = names.indexOf('Record the registry digest');
   const tagIndex = names.indexOf('Tag the release');
-  assert.ok(gateIndex >= 0 && reuseIndex > gateIndex);
-  assert.ok(publishIndex > reuseIndex && tagIndex > publishIndex);
+  assert.ok(reuseIndex >= 0 && installIndex > reuseIndex);
+  assert.ok(gateIndex > installIndex && publishIndex > gateIndex);
+  assert.ok(digestIndex > publishIndex && tagIndex > digestIndex);
+  assert.match(
+    publish.steps[installIndex]?.run ?? '',
+    /npm ci --ignore-scripts/u,
+  );
   assert.match(
     publish.steps[publishIndex]?.run ?? '',
-    /npm publish --access public --provenance/u,
+    /npm publish --access public --provenance --ignore-scripts/u,
   );
-  for (const index of [publishIndex, tagIndex]) {
-    assert.match(publish.steps[index]?.if ?? '', /should_publish == 'true'/u);
+  // The tag step consumes the version check's outputs; no other step is
+  // conditional, so a version that is not new can only fail the run.
+  assert.equal(publish.steps[reuseIndex]?.id, 'version-check');
+  assert.match(publish.steps[tagIndex]?.if ?? '', /should_publish == 'true'/u);
+  for (const step of publish.steps) {
+    if (step.name !== 'Tag the release') {
+      assert.equal(step.if, undefined, `${step.name} must not be skipped`);
+    }
   }
-  assert.equal(/NODE_AUTH_TOKEN/u.test(source), false);
+  assert.equal(/NODE_AUTH_TOKEN|::notice::/u.test(source), false);
 });

@@ -1,27 +1,49 @@
 name: Release
 
+# The only workflow in this repository that publishes to npm. It uses npm
+# trusted publishing: `environment: npm`, `id-token: write`, provenance, and
+# no long-lived npm secret.
+#
+# A release is: bump package.json's version, add the CHANGELOG.md heading for
+# it, push to main. A push that changes a packed path (see the filter below) of
+# a package whose declared version is already on npm FAILS; it never skips
+# silently, and it publishes nothing from that push. A version that is not
+# newer than the newest one on npm is refused too. Before anything is published
+# the complete repository gate must pass once. A manual run (workflow_dispatch)
+# retries a version that is not on npm yet, e.g. after the trusted publisher
+# was registered late; dispatching a version that is already published fails.
+#
+# One-time owner setup on npmjs.com, per package (Settings > Trusted publishing
+# > GitHub Actions): owner rathnasgala2, repository schema, workflow filename
+# release.yaml, environment npm.
+
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
     paths:
+      - LICENSE
+      - NOTICE
+      - README.md
+      - THIRD_PARTY_LICENSES.json
+      - catalog-sources/internal-event-actions.json
       - diagnostics/diagnostic-map.json
-      - docs/catalogs/schema-inventory.json
+      - diagnostics/diagnostic-map.public-runtime-origins.json
+      - docs/catalogs/**
       - examples/**
       - fixtures/**
       - generated/**
-      - LICENSE
-      - NOTICE
-      - openapi/**
-      - package-lock.json
+      - openapi/http-catalog.json
+      - openapi/openapi.yaml
       - package.json
-      - README.md
+      - parity/digest-record-vectors.json
+      - parity/palette/**
       - sbom.cdx.json
       - schemas/**
+      - site-policy-defaults.json
       - src/**
-      - THIRD_PARTY_LICENSES.json
       - types/**
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -41,13 +63,13 @@ jobs:
       id-token: write
     steps:
       - name: Check out the complete history
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Install the pinned Node.js distribution
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: .node-version
           cache: npm
@@ -62,45 +84,226 @@ jobs:
       - name: Verify toolchain pins
         shell: bash
         run: |
+          set -euo pipefail
           test "$(node --version)" = "v24.18.0"
           test "$(npm --version)" = "11.16.0"
 
+      - name: Read the declared package identity
+        id: identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_name="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).name")"
+          package_version="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
+          echo "name=${package_name}" >> "${GITHUB_OUTPUT}"
+          echo "version=${package_version}" >> "${GITHUB_OUTPUT}"
+
+      # Runs before anything is installed and before the gate. Fails the run
+      # when the declared version is already on npm, or is not newer than the
+      # newest plain x.y.z version on npm. The registry is read with
+      # `npm view <name> versions --json`, stdout and stderr kept apart: only
+      # an E404 document means "never published"; any other failure stops the
+      # run instead of reading as "new". Runs after any wait behind an earlier
+      # run (the concurrency group above), so it sees what that run published.
+      # The tag step at the end consumes this step's two outputs. `should_publish`
+      # is always `true` once this step has passed: a version that is not new
+      # fails the run instead of being skipped.
+      - name: Fail unless this version is new on npm
+        id: version-check
+        shell: bash
+        env:
+          PACKAGE_NAME: ${{ steps.identity.outputs.name }}
+          PACKAGE_VERSION: ${{ steps.identity.outputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          PACKED_PATHS:
+            LICENSE, NOTICE, README.md, THIRD_PARTY_LICENSES.json,
+            catalog-sources/internal-event-actions.json,
+            diagnostics/diagnostic-map.json,
+            diagnostics/diagnostic-map.public-runtime-origins.json,
+            docs/catalogs/, examples/, fixtures/, generated/,
+            openapi/http-catalog.json, openapi/openapi.yaml, package.json,
+            parity/digest-record-vectors.json, parity/palette/, sbom.cdx.json,
+            schemas/, site-policy-defaults.json, src/ or types/
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "::error::Releases run from main only; this run is on ${GITHUB_REF}." >&2
+            exit 1
+          fi
+          node --input-type=module - <<'NODE'
+          import { spawnSync } from 'node:child_process';
+
+          const {
+            PACKAGE_NAME: name,
+            PACKAGE_VERSION: version,
+            EVENT_NAME: event,
+            PACKED_PATHS: packed,
+          } = process.env;
+          const fail = (message) => {
+            console.log(
+              `::error::${message.replaceAll('%', '%25').replaceAll('\n', '%0A')}`,
+            );
+            process.exit(1);
+          };
+          const triple = (text) =>
+            /^(\d+)\.(\d+)\.(\d+)$/u.exec(text)?.slice(1).map(Number) ?? null;
+          const compare = (left, right) =>
+            left[0] - right[0] || left[1] - right[1] || left[2] - right[2];
+          const declared = triple(version);
+          if (declared === null) {
+            fail(
+              `${name} declares version ${JSON.stringify(version)}, which is not a plain x.y.z version.`,
+            );
+          }
+          const view = spawnSync('npm', ['view', name, 'versions', '--json'], {
+            encoding: 'utf8',
+            maxBuffer: 64 * 1024 * 1024,
+          });
+          let answer;
+          try {
+            answer = JSON.parse(view.stdout);
+          } catch {
+            fail(
+              `npm view exited ${view.status} without a JSON answer: ${view.stderr.trim() || view.stdout.trim() || 'no output'}`,
+            );
+          }
+          let listed;
+          if (view.status === 0) {
+            listed = typeof answer === 'string' ? [answer] : answer;
+            if (
+              !Array.isArray(listed) ||
+              !listed.every((entry) => typeof entry === 'string')
+            ) {
+              fail('npm view returned something other than a version list.');
+            }
+          } else if (answer?.error?.code === 'E404') {
+            listed = [];
+          } else {
+            fail(
+              `npm view failed with ${answer?.error?.code ?? `exit ${view.status}`}: ${view.stderr.trim() || JSON.stringify(answer)}`,
+            );
+          }
+          const bumpWhat =
+            "package.json's version (and add a dated CHANGELOG.md heading)";
+          if (listed.includes(version)) {
+            fail(
+              event === 'push'
+                ? `${name}@${version} is already published, but this run was triggered by a push that touched a packed path (${packed}). Bump ${bumpWhat} before pushing a change to a packed path.`
+                : `${name}@${version} is already published, so a manual run has nothing to release. Dispatch this workflow only to retry a version that is not on npm yet; to release new content, bump ${bumpWhat} and push to main.`,
+            );
+          }
+          let newest = null;
+          for (const text of listed) {
+            const candidate = triple(text);
+            if (
+              candidate !== null &&
+              (newest === null || compare(candidate, newest.triple) > 0)
+            ) {
+              newest = { text, triple: candidate };
+            }
+          }
+          if (newest !== null && compare(declared, newest.triple) <= 0) {
+            fail(
+              `${name}@${version} is not newer than the newest published version ${newest.text}. Bump ${bumpWhat} past it.`,
+            );
+          }
+          console.log(
+            `${name}@${version} is not on npm yet${newest === null ? '' : ` and is newer than the newest published version ${newest.text}`}.`,
+          );
+          NODE
+          echo "package_version=${PACKAGE_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "should_publish=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Check the CHANGELOG has an entry for this version
+        shell: bash
+        env:
+          PACKAGE_VERSION: ${{ steps.identity.outputs.version }}
+        run: |
+          set -euo pipefail
+          if ! grep -qE "^## \[${PACKAGE_VERSION//./\\.}\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [${PACKAGE_VERSION}]' section; add one before publishing." >&2
+            exit 1
+          fi
+
       - name: Install locked dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run the complete release gate
         run: npm run verify
 
       - name: Verify the package payload
-        run: npm pack --dry-run
+        run: npm pack --dry-run --ignore-scripts
 
-      - name: Reject version reuse
-        id: version-check
+      # The digest of the reviewed bytes, compared with the registry's copy
+      # after publishing.
+      - name: Pack the reviewed bytes
+        id: pack
         shell: bash
         run: |
-          package_name="$(node --input-type=module -e "import definition from './package.json' with {type: 'json'}; process.stdout.write(definition.name)")"
-          package_version="$(node --input-type=module -e "import definition from './package.json' with {type: 'json'}; process.stdout.write(definition.version)")"
-          echo "package_version=${package_version}" >> "$GITHUB_OUTPUT"
-          if npm view "${package_name}@${package_version}" version >/dev/null 2>&1; then
-            echo "::notice::${package_name}@${package_version} is already published; skipping publish (bump package.json's version to release new content)."
-            echo "should_publish=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
-          fi
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/pack"
+          tarball="$(npm pack --pack-destination "${RUNNER_TEMP}/pack" --ignore-scripts --silent | tail -n 1)"
+          pack_sha256="$(sha256sum "${RUNNER_TEMP}/pack/${tarball}" | cut -d ' ' -f 1)"
+          echo "sha256=${pack_sha256}" >> "${GITHUB_OUTPUT}"
 
-      - name: Check the CHANGELOG has an entry for this version
-        if: steps.version-check.outputs.should_publish == 'true'
+      # The first publish of a package needs the owner's npm trusted-publisher
+      # registration. Without it this step must fail loudly, never skip.
+      - name: Publish with trusted provenance
         shell: bash
+        env:
+          PACKAGE_NAME: ${{ steps.identity.outputs.name }}
+          PACKAGE_VERSION: ${{ steps.identity.outputs.version }}
         run: |
-          version="${{ steps.version-check.outputs.package_version }}"
-          if ! grep -qE "^## \[${version}\]" CHANGELOG.md; then
-            echo "::error::CHANGELOG.md has no '## [${version}]' section; add one before publishing." >&2
+          set -euo pipefail
+          if ! npm publish --access public --provenance --ignore-scripts; then
+            echo "::error::npm publish failed for ${PACKAGE_NAME}@${PACKAGE_VERSION}. If ${PACKAGE_NAME} has no npm trusted publisher yet, the owner must register it on npmjs.com (Settings > Trusted publishing > GitHub Actions): owner rathnasgala2, repository ${GITHUB_REPOSITORY#*/}, workflow filename release.yaml, environment npm, Allow npm publish. Then dispatch this workflow." >&2
             exit 1
           fi
 
-      - name: Publish with trusted provenance
-        if: steps.version-check.outputs.should_publish == 'true'
-        run: npm publish --access public --provenance
+      - name: Wait until the registry lists the version
+        shell: bash
+        env:
+          PACKAGE_NAME: ${{ steps.identity.outputs.name }}
+          PACKAGE_VERSION: ${{ steps.identity.outputs.version }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 20); do
+            if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+              echo "${PACKAGE_NAME}@${PACKAGE_VERSION} is listed."
+              exit 0
+            fi
+            echo "Waiting for the registry to list ${PACKAGE_NAME}@${PACKAGE_VERSION} (attempt ${attempt} of 20)."
+            if [ "${attempt}" -lt 20 ]; then
+              sleep 30
+            fi
+          done
+          echo "::error::${PACKAGE_NAME}@${PACKAGE_VERSION} was published but is still not listed after 10 minutes. Check npmjs.com; do not publish it again." >&2
+          exit 1
+
+      # Print the registry's digest and refuse a mismatch with the reviewed
+      # bytes.
+      - name: Record the registry digest
+        shell: bash
+        env:
+          PACKAGE_NAME: ${{ steps.identity.outputs.name }}
+          PACKAGE_VERSION: ${{ steps.identity.outputs.version }}
+          LOCAL_SHA256: ${{ steps.pack.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          url="$(npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" dist.tarball)"
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --retry 3 \
+            --output "${RUNNER_TEMP}/registry.tgz" "${url}"
+          registry_sha256="$(sha256sum "${RUNNER_TEMP}/registry.tgz" | cut -d ' ' -f 1)"
+          {
+            echo "### ${PACKAGE_NAME}@${PACKAGE_VERSION} published"
+            echo
+            echo "Registry tarball sha256: \`${registry_sha256}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+          if [ "${registry_sha256}" != "${LOCAL_SHA256}" ]; then
+            echo "::error::The registry tarball for ${PACKAGE_NAME}@${PACKAGE_VERSION} has sha256 ${registry_sha256}, but the reviewed pack was ${LOCAL_SHA256}. Do not pin this release until the difference is understood." >&2
+            exit 1
+          fi
+          echo "Registry digest equals the reviewed pack: ${registry_sha256}"
 
       - name: Tag the release
         if: steps.version-check.outputs.should_publish == 'true'
