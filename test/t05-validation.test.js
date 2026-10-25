@@ -176,7 +176,7 @@ test('the immutable roots admit complete generation-4 Editorial contracts', asyn
 
 test('publication admits the optional closed policies member', async () => {
   const base = await readJson('examples/valid/publication/canonical.json');
-  const page = { title: 'Terms', body: 'gala/policies/terms.md' };
+  const page = { title: 'Terms', body: 'gala/theme-pages/terms.md' };
   const withPolicies = (/** @type {unknown} */ policies) => ({
     ...base,
     policies,
@@ -187,7 +187,7 @@ test('publication admits the optional closed policies member', async () => {
   assert.equal(
     valid({
       terms: page,
-      privacy: { title: 'Privacy', body: 'gala/policies/privacy.md' },
+      privacy: { title: 'Privacy', body: 'gala/theme-pages/privacy.md' },
     }),
     true,
   );
@@ -219,11 +219,11 @@ test('publication admits the optional closed policies member', async () => {
     true,
   );
   for (const body of [
-    'gala/policies/privacy.txt',
-    'gala/policies/privacy',
-    'gala/policies/privacy.MD',
-    'gala/policies/privacy.md/',
-    'gala/policies/privacy.md.txt',
+    'gala/theme-pages/privacy.txt',
+    'gala/theme-pages/privacy',
+    'gala/theme-pages/privacy.MD',
+    'gala/theme-pages/privacy.md/',
+    'gala/theme-pages/privacy.md.txt',
     '.md',
   ]) {
     assert.equal(
@@ -263,7 +263,7 @@ test('build input admits the optional normalized policies member', async () => {
   assert.equal(
     valid({
       terms: { title: 'Terms', body },
-      privacy: { title: 'Privacy', body: 'gala/policies/privacy.md' },
+      privacy: { title: 'Privacy', body: 'gala/theme-pages/privacy.md' },
     }),
     false,
   );

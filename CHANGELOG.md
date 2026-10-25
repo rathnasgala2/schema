@@ -8,6 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.19.1] - 2026-10-25
+
+Text and fixtures only; no schema, member, pattern or id changes, and
+`npm run compatibility:check` reports no change. The toolchain and the API now
+read a site's mandatory pages (Terms, Privacy and About) from
+`gala/theme-pages/` instead of `gala/policies/`, so the fixture corpus, the
+validation tests and the `policy-settings` operation description name
+`gala/theme-pages/terms.md` and `gala/theme-pages/privacy.md`. The earlier
+entries below keep the folder name they shipped with.
+
 ## [3.19.0] - 2026-10-24
 
 Staggered release: an author can date drafts in their own Markdown files and
@@ -3282,7 +3292,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.19.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.19.1...HEAD
+[3.19.1]: https://github.com/rathnasgala2/schema/compare/v3.19.0...v3.19.1
 [3.19.0]: https://github.com/rathnasgala2/schema/compare/v3.18.0...v3.19.0
 [3.18.0]: https://github.com/rathnasgala2/schema/compare/v3.17.0...v3.18.0
 [3.17.0]: https://github.com/rathnasgala2/schema/compare/v3.16.0...v3.17.0

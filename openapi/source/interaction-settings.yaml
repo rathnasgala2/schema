@@ -1423,14 +1423,14 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     put:
       description:
-        The server writes `gala/policies/terms.md`, `gala/policies/privacy.md`
-        and the `policies` member of `gala/publication.json` as one repository
-        change, the way a theme selection writes `gala/appearance.json`. Both
-        pages are always sent. Each page's Markdown is 1 to 131072 UTF-8 bytes
-        as stored in the repository, under the Unicode normalization rules the
-        server applies to other authored text. Publishing the change uses the
-        normal publish flow. `change` has the shape the theme-selection write
-        returns.
+        The server writes `gala/theme-pages/terms.md`,
+        `gala/theme-pages/privacy.md` and the `policies` member of
+        `gala/publication.json` as one repository change, the way a theme
+        selection writes `gala/appearance.json`. Both pages are always sent.
+        Each page's Markdown is 1 to 131072 UTF-8 bytes as stored in the
+        repository, under the Unicode normalization rules the server applies to
+        other authored text. Publishing the change uses the normal publish flow.
+        `change` has the shape the theme-selection write returns.
       operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

@@ -636,7 +636,7 @@ function makeFixture({ policies: withPolicies = false } = {}) {
     return {
       title,
       body: {
-        sourcePath: `gala/policies/${page}.md`,
+        sourcePath: `gala/theme-pages/${page}.md`,
         sourceDigest: sha256Tagged(source),
         bodyMediaType: 'text/html',
         body: rendered,
@@ -658,8 +658,8 @@ function makeFixture({ policies: withPolicies = false } = {}) {
     treeEntry('publication.json', sourceBytes.publication),
     ...(withPolicies
       ? [
-          treeEntry('gala/policies/terms.md', sourceBytes.terms),
-          treeEntry('gala/policies/privacy.md', sourceBytes.privacy),
+          treeEntry('gala/theme-pages/terms.md', sourceBytes.terms),
+          treeEntry('gala/theme-pages/privacy.md', sourceBytes.privacy),
         ]
       : []),
   ];
@@ -1887,8 +1887,8 @@ test('accepts the site policy pages as renderable bodies of the source closure',
   assert.deepEqual(included.map(({ path }) => path).sort(), [
     'authors/example.json',
     'content/fixture.md',
-    'gala/policies/privacy.md',
-    'gala/policies/terms.md',
+    'gala/theme-pages/privacy.md',
+    'gala/theme-pages/terms.md',
     'publication.json',
   ]);
 });
@@ -1928,7 +1928,7 @@ test('rejects a policy page whose rendered body, source or render policy is subs
     {
       code: 'BUILD_SOURCE_REFERENCE_INVALID',
       mutate: (body) => {
-        body.sourcePath = 'gala/policies/missing.md';
+        body.sourcePath = 'gala/theme-pages/missing.md';
       },
     },
   ])) {
