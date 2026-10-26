@@ -8,6 +8,17 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.20.0] - 2026-10-26
+
+Content document paths admit the theme-pages folder. The `path` query of
+`GET .../content/documents`, the `path` of a `ContentChangeDocumentEntry`, of a
+`ContentInventoryItem` and of the content document read response accept
+`gala/theme-pages/<file>` (one flat file name, no dot segments) beside the
+author's content paths; every other `gala/` path and `gala.lock.json` stay
+refused, and asset and Prism paths are unchanged. The site's About page is the
+content document `gala/theme-pages/about.md` since 3.19.1, and without this the
+API refused to read or save it at request validation.
+
 ## [3.19.1] - 2026-10-25
 
 Text and fixtures only; no schema, member, pattern or id changes, and
@@ -3292,7 +3303,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.19.1...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.20.0...HEAD
+[3.20.0]: https://github.com/rathnasgala2/schema/compare/v3.19.1...v3.20.0
 [3.19.1]: https://github.com/rathnasgala2/schema/compare/v3.19.0...v3.19.1
 [3.19.0]: https://github.com/rathnasgala2/schema/compare/v3.18.0...v3.19.0
 [3.18.0]: https://github.com/rathnasgala2/schema/compare/v3.17.0...v3.18.0
