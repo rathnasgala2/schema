@@ -166,6 +166,7 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly status: 'published' | 'unlisted';
   readonly tags: ReadonlyArray<BuildInputPlainLabel>;
   readonly title: BuildInputPlainText;
+  readonly translationOf?: BuildInputSlug;
   readonly updatedAt?: BuildInputRfc3339;
 }> &
   unknown;

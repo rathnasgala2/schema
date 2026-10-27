@@ -118,6 +118,69 @@ test('content frontmatter admits publishAfter as a day-precision date and nothin
   );
 });
 
+test('content frontmatter admits translationOf only on an article and never with edition', async () => {
+  // One bilingual pair: an en-US primary and a `ta` document naming it.
+  const pair = {
+    primary: {
+      schemaId: 'urn:gala:schema:content-frontmatter:2.0.0',
+      schemaVersion: '2.0.0',
+      kind: 'article',
+      authors: ['019c0000-0000-7000-8000-000000000001'],
+      status: 'draft',
+      createdAt: '2026-09-13T12:00:00.000Z',
+      redirects: [],
+      extensions: {},
+      id: '019c0000-0000-7000-8000-000000000011',
+      title: 'Index funds explained',
+      language: 'en-US',
+      tags: ['index-funds'],
+      slug: 'index-funds-explained',
+    },
+    translation: {
+      schemaId: 'urn:gala:schema:content-frontmatter:2.0.0',
+      schemaVersion: '2.0.0',
+      kind: 'article',
+      authors: ['019c0000-0000-7000-8000-000000000001'],
+      status: 'draft',
+      createdAt: '2026-09-13T12:00:00.000Z',
+      redirects: [],
+      extensions: {},
+      id: '019c0000-0000-7000-8000-000000000012',
+      title: 'இன்டெக்ஸ் ஃபண்டுகள் விளக்கம்',
+      language: 'ta',
+      tags: ['index-funds'],
+      slug: 'index-funds-explained-ta',
+      translationOf: 'index-funds-explained',
+    },
+  };
+  const primary = pair.primary;
+  const ta = pair.translation;
+  const id = primary.schemaId;
+  assert.equal(validateGalaDocument(id, primary).valid, true);
+  assert.equal(validateGalaDocument(id, ta).valid, true);
+  assert.equal(ta.translationOf, primary.slug);
+  const withKey = (/** @type {unknown} */ translationOf) =>
+    validateGalaDocument(id, { ...ta, translationOf }).valid;
+  assert.equal(withKey('Not A Slug'), false);
+  assert.equal(withKey(''), false);
+  assert.equal(withKey(7), false);
+  assert.equal(validateGalaDocument(id, { ...ta, kind: 'page' }).valid, false);
+  assert.equal(
+    validateGalaDocument(id, {
+      ...ta,
+      kind: 'edition',
+      edition: {
+        of: primary.slug,
+        kind: 'prism-edition',
+        sourceDigest: `sha256:${'A'.repeat(43)}`,
+        generation: 1,
+        approvedAt: '2026-09-13T12:00:00.000Z',
+      },
+    }).valid,
+    false,
+  );
+});
+
 test('build input admits Editorial and rejects an unknown theme package', async () => {
   const editorial = await readJson('examples/valid/build-input/canonical.json');
   editorial.packages.theme.package = '@rathnasgala2/theme-editorial';

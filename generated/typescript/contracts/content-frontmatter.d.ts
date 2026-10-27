@@ -96,6 +96,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly status: 'draft' | 'published' | 'unlisted' | 'archived';
   readonly tags: ReadonlyArray<ContentFrontmatterPlainLabel>;
   readonly title: ContentFrontmatterPlainText;
+  readonly translationOf?: ContentFrontmatterSlug;
   readonly updatedAt?: ContentFrontmatterRfc3339;
 }> &
   unknown;

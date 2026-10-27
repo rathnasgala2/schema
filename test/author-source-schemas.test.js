@@ -139,6 +139,8 @@ const ROOT_LEDGERS = {
       'seo',
       // SCHEMA-3.19.0: the optional staggered-release date of a draft.
       'publishAfter',
+      // SCHEMA-3.21.0: the slug of the article a document translates.
+      'translationOf',
     ],
   },
 };

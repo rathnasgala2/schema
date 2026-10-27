@@ -66,6 +66,10 @@
     "edition": { "$ref": "#/$defs/contentEdition" },
     "seo": { "$ref": "#/$defs/contentSeo" },
     "publishAfter": { "$ref": "#/$defs/publishAfterDate" },
+    "translationOf": {
+      "$ref": "#/$defs/slug",
+      "description": "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`."
+    },
     "extensions": { "$ref": "#/$defs/extensionMap" }
   },
   "additionalProperties": false,
@@ -291,6 +295,14 @@
       },
       "then": { "required": ["edition"] },
       "else": { "not": { "required": ["edition"] } }
+    },
+    {
+      "if": { "required": ["translationOf"] },
+      "then": {
+        "properties": { "kind": { "const": "article" } },
+        "required": ["kind"],
+        "not": { "required": ["edition"] }
+      }
     }
   ],
   "$comment": "The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks."

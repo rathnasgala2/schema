@@ -309,6 +309,26 @@ export function editionKindRule() {
   };
 }
 
+/** SCHEMA-3.21.0 `translationOf` description shared by every frontmatter schema. */
+export const TRANSLATION_OF_DESCRIPTION =
+  "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`.";
+
+/**
+ * Create the `translationOf` shape rule.
+ *
+ * @returns {Record<string, unknown>} one `allOf` member
+ */
+export function translationOfRule() {
+  return {
+    if: { required: ['translationOf'] },
+    then: {
+      properties: { kind: { const: 'article' } },
+      required: ['kind'],
+      not: { required: ['edition'] },
+    },
+  };
+}
+
 /**
  * Create the S0-T03 composition and build schemas, including the additive
  * Editorial composition and theme-contract branches.
@@ -1026,6 +1046,10 @@ export function createCompositionBuildSchemas(language) {
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),
+      translationOf: {
+        ...ref('slug'),
+        description: TRANSLATION_OF_DESCRIPTION,
+      },
     },
     [
       'id',
@@ -1042,7 +1066,7 @@ export function createCompositionBuildSchemas(language) {
     ],
     {
       dependentRequired: { seriesOrder: ['series'] },
-      allOf: [editionKindRule()],
+      allOf: [editionKindRule(), translationOfRule()],
       $comment:
         'Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically.',
     },

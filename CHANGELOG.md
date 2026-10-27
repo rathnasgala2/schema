@@ -8,6 +8,27 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.21.0] - 2026-10-27
+
+Language variants: a document can declare that it translates an article.
+Additive: every 3.20 document and request still validates, and
+`npm run compatibility:check` reports no breaking change (the compatibility
+baseline is unchanged, as for 3.19.0). Contract versions are unchanged.
+
+- `content-frontmatter` gains the optional `translationOf` (a `slug`), and the
+  normalized `content[].frontmatter` of `build-input` gains the same optional
+  `translationOf` (a `slug`) beside `edition` and `seo`.
+- Shape rules in both: `translationOf` is allowed only when `kind` is `article`
+  and never together with `edition`.
+- The group is the article (the primary, in the publication's default language)
+  plus every document naming it. The API, not the schema, enforces that the
+  target exists in the same content root, is an article, carries a different
+  `language` and does not itself carry `translationOf`, and that a group has at
+  most one document per language. A translation's default route is
+  `/<language lowercased>/<primary slug>/` unless `route` is set.
+- Test: `test/t05-validation.test.js` validates a bilingual pair, an en-US
+  primary and a `ta` document whose `translationOf` names it.
+
 ## [3.20.0] - 2026-10-26
 
 Content document paths admit the theme-pages folder. The `path` query of
@@ -3303,7 +3324,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.20.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.21.0...HEAD
+[3.21.0]: https://github.com/rathnasgala2/schema/compare/v3.20.0...v3.21.0
 [3.20.0]: https://github.com/rathnasgala2/schema/compare/v3.19.1...v3.20.0
 [3.19.1]: https://github.com/rathnasgala2/schema/compare/v3.19.0...v3.19.1
 [3.19.0]: https://github.com/rathnasgala2/schema/compare/v3.18.0...v3.19.0

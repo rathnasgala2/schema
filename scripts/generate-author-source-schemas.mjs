@@ -12,6 +12,8 @@ import {
   createContentSeoDefinition,
   createSemanticTokensDefinition,
   editionKindRule,
+  TRANSLATION_OF_DESCRIPTION,
+  translationOfRule,
 } from './s0-t03-composition-build-schemas.mjs';
 import { createDeploymentSchemas } from './s0-t03-deployment-schemas.mjs';
 import { createAnalyticsConfigSchema } from './s0-analytics-config-schema.mjs';
@@ -628,6 +630,10 @@ const schemas = {
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),
       publishAfter: ref('publishAfterDate'),
+      translationOf: {
+        ...ref('slug'),
+        description: TRANSLATION_OF_DESCRIPTION,
+      },
       extensions: ref('extensionMap'),
     },
     [
@@ -681,6 +687,7 @@ const schemas = {
           },
         },
         editionKindRule(),
+        translationOfRule(),
       ],
       $comment:
         'The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks.',

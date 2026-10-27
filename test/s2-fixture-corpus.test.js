@@ -225,8 +225,13 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // root's valid, boundary, unknown-field and invalid fixtures and the
     // fixture manifest, and added one case file
     // (content-frontmatter/SCHEMA_PATTERN_INVALID), making 904.
+    //
+    // 3.21.0 (reviewed 2026-10-27): the optional `translationOf` member and its
+    // kind rule regenerated the content-frontmatter and build-input valid,
+    // boundary, unknown-field and invalid fixtures and the fixture manifest; no
+    // file added or removed (904).
     aggregate.digest('hex'),
-    '244de679985b3d093c46619fc90d2f78a229e5ef4e3487aea7fe02b653e60a82',
+    'ce7b552700de69fe5990f5c6ddb90b079b544177d0275f9db9e3b770442327f5',
   );
 });
 

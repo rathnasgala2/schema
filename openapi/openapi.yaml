@@ -1334,6 +1334,11 @@ components:
           x-gala-graphemeLength:
             maximum: 200
             minimum: 1
+        translationOf:
+          description: "SCHEMA-3.21.0: the slug of the primary article this document translates; null on a primary."
+          oneOf:
+            - $ref: "#/components/schemas/PortableContentFrontmatterSlug"
+            - type: "null"
         updatedAt:
           $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
       required:
@@ -8166,6 +8171,20 @@ components:
           then:
             required:
               - edition
+        - if:
+            required:
+              - translationOf
+          then:
+            not:
+              required:
+                - edition
+            properties:
+              kind:
+                pattern: ^article$
+                type: string
+                x-gala-const: article
+            required:
+              - kind
       dependentRequired:
         seriesOrder:
           - series
@@ -8253,6 +8272,9 @@ components:
           x-gala-graphemeLength:
             maximum: 200
             minimum: 1
+        translationOf:
+          $ref: "#/components/schemas/PortableContentFrontmatterSlug"
+          description: "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`."
         updatedAt:
           $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
       required:

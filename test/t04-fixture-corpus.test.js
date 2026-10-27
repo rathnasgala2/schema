@@ -102,7 +102,10 @@ const T03_SCHEMA_HASHES = {
     // 3.16.0: the analytics module (see schema CHANGELOG) and the optional
     // closed policies member (new $defs/policiesNormalized and
     // policyPageNormalized: a title and a renderableBody per page). Additive.
-    'c0a1bac1e88ca42a5d40afd4be293b34ed959164783d8da163ce4693c8014ff6',
+    //
+    // 3.21.0 (reviewed 2026-10-27): the normalized frontmatter gains the
+    // optional translationOf slug and its article-only rule. Additive.
+    '8164871d1ddaebe13c62a5bcd1009fd42fc7fb1c4949b4274ea24d3b4cb989a6',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -114,7 +117,10 @@ const T03_SCHEMA_HASHES = {
     // 3.19.0 (reviewed 2026-10-24): the optional publishAfter member (new
     // $defs/publishAfterDate, a YYYY-MM-DD string). Additive; build-input does
     // not carry it because a draft is never built.
-    '54c2e0e88aad16ecdfcb7b792f00db685317f39d94e08e0d299805bd4894ebbe',
+    //
+    // 3.21.0 (reviewed 2026-10-27): the optional translationOf slug and its
+    // article-only, never-with-edition rule. Additive.
+    '3104073a542e77794a3fa114ec910350e927881c7d2ab9ac6c9d7cd4455d74bd',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
