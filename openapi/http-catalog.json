@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:b59bad6220108e1f7faf30187025310f7ad796a5278910beb016db0cdfd2e1b5",
+  "openApiDigest": "sha256:5a700a612c1a4485020eb596356f7fe368d4f7a3b9b9b8ad822c404c3c43efc9",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1272,6 +1272,84 @@
       "sourceFragment": "moderation"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssues",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-issues",
+      "purpose": "list a site's newsletter send log",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-settings",
+      "purpose": "read this publication's newsletter settings at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "read",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-settings",
+      "purpose": "save this publication's newsletter settings as a repository change",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "content:write",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribers",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers",
+      "purpose": "list a site's newsletter subscribers",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:export",
+      "purpose": "export a site's newsletter subscribers as CSV",
+      "capabilityKey": "publication.audience.export",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersBySubscriberId",
+      "method": "DELETE",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers/{subscriberId}",
+      "purpose": "remove one newsletter subscriber",
+      "capabilityKey": "publication.audience.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/policy-settings",
@@ -2205,6 +2283,71 @@
       "sourceFragment": "public-interactions"
     },
     {
+      "operationId": "getPublicNewsletterConfirmationsByToken",
+      "method": "GET",
+      "path": "/v2/public/newsletter-confirmations/{token}",
+      "purpose": "read one newsletter confirmation token",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postPublicNewsletterConfirmationsByTokenConfirm",
+      "method": "POST",
+      "path": "/v2/public/newsletter-confirmations/{token}:confirm",
+      "purpose": "confirm one newsletter subscription request",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getPublicNewsletterSubscriptionsByToken",
+      "method": "GET",
+      "path": "/v2/public/newsletter-subscriptions/{token}",
+      "purpose": "read one newsletter subscription by its manage token",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postPublicNewsletterSubscriptionsByTokenResubscribe",
+      "method": "POST",
+      "path": "/v2/public/newsletter-subscriptions/{token}:resubscribe",
+      "purpose": "resubscribe one newsletter subscription by its manage token",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postPublicNewsletterSubscriptionsByTokenUnsubscribe",
+      "method": "POST",
+      "path": "/v2/public/newsletter-subscriptions/{token}:unsubscribe",
+      "purpose": "unsubscribe one newsletter subscription by its manage token",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
       "operationId": "postPublicNotificationUnsubscribesByToken",
       "method": "POST",
       "path": "/v2/public/notification-unsubscribes/{token}",
@@ -2333,6 +2476,19 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "postPublicPublicationsByPublicationIdNewsletterSubscriptions",
+      "method": "POST",
+      "path": "/v2/public/publications/{publicationId}/newsletter-subscriptions",
+      "purpose": "ask to subscribe an address to a site newsletter",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
     },
     {
       "operationId": "postReaderAuthorizations",
@@ -2907,5 +3063,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:c34dcef5f68e9a44b2cb54fec4b0812f08ee5c9b6f8c4c20e34cbc1c29d21111"
+  "digest": "sha256:be50eb4a40c510b10257d552e9c026b1cf0cbf9275cb8f11a9f96939db7f8c18"
 }

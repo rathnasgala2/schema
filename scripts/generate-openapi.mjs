@@ -46,6 +46,9 @@ export const BINARY_RESPONSE_CONTENT_TYPES =
       getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets:
         BINARY_ASSET_CONTENT_TYPES,
       getSelfExportsByExportIdArchive: Object.freeze(['application/zip']),
+      // SCHEMA-3.23.0: audience exports are CSV downloads.
+      postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport:
+        Object.freeze(['text/csv']),
     })
   );
 export const BINARY_RESPONSE_OPERATIONS = Object.freeze(
@@ -734,6 +737,7 @@ function validateContractClosure(records, components) {
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup',
         'postGithubInstallationsByInstallationIdRepositories',
