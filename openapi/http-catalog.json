@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:53f6ea6ced19088d63d60d509431cb330c85172ebe4f1890b4db7cc51d70f78f",
+  "openApiDigest": "sha256:b59bad6220108e1f7faf30187025310f7ad796a5278910beb016db0cdfd2e1b5",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1088,6 +1088,19 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "domains"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdFollowers",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/followers",
+      "purpose": "list the followers of a site's authors",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
     },
     {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
@@ -2218,6 +2231,45 @@
       "sourceFragment": "public-interactions"
     },
     {
+      "operationId": "deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow",
+      "method": "DELETE",
+      "path": "/v2/public/publications/{publicationId}/authors/{authorId}/follow",
+      "purpose": "unfollow one author of a site as the signed-in reader",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow",
+      "method": "GET",
+      "path": "/v2/public/publications/{publicationId}/authors/{authorId}/follow",
+      "purpose": "read whether the reader follows one author of a site",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow",
+      "method": "PUT",
+      "path": "/v2/public/publications/{publicationId}/authors/{authorId}/follow",
+      "purpose": "follow one author of a site as the signed-in reader",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
       "operationId": "getPublicPublicationsByPublicationIdContentsByContentIdComments",
       "method": "GET",
       "path": "/v2/public/publications/{publicationId}/contents/{contentId}/comments",
@@ -2476,6 +2528,45 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "self"
+    },
+    {
+      "operationId": "getSelfFollowingFeed",
+      "method": "GET",
+      "path": "/v2/self/following-feed",
+      "purpose": "list the announced posts of the authors the signed-in person follows",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getSelfFollows",
+      "method": "GET",
+      "path": "/v2/self/follows",
+      "purpose": "list the authors the signed-in person follows",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "deleteSelfFollowsByPublicationIdByAuthorId",
+      "method": "DELETE",
+      "path": "/v2/self/follows/{publicationId}/{authorId}",
+      "purpose": "unfollow one author from the App",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
     },
     {
       "operationId": "postSelfIdentityLinks",
@@ -2816,5 +2907,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:fc56b66e2c867d41043b2c8f9a56aec8b6ee7cab7be98d507e8247b45f8bc9f7"
+  "digest": "sha256:c34dcef5f68e9a44b2cb54fec4b0812f08ee5c9b6f8c4c20e34cbc1c29d21111"
 }

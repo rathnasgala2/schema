@@ -117,5 +117,9 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       // SCHEMA-3.19.0: staggered release (publishAfter on drafts).
       PUBLISH_AFTER_ON_PUBLISHED_POST: { statuses: [422], retryable: false },
       STAGGERED_RELEASE_DISABLED: { statuses: [409], retryable: false },
+      // SCHEMA-3.23.0: audience features (follows, newsletter, contact form,
+      // postal address, plans).
+      AUTHOR_NOT_FOUND: { statuses: [404], retryable: false },
+      FOLLOWS_DISABLED: { statuses: [409], retryable: false },
     })
   );

@@ -13946,6 +13946,241 @@ components:
       minLength: 24
       pattern: ^UC[A-Za-z0-9_-]{22}$
       type: string
+    AudienceAuthor:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: an author of a site as the site names it in
+        `gala/publication.json`. `id` is the author's stable id; follows are
+        keyed by (publication, author id)."
+      properties:
+        displayName:
+          maxLength: 200
+          minLength: 1
+          type: string
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - displayName
+      type: object
+    AudiencePublication:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: a site named in an audience row: its id, title and
+        public address.'
+      properties:
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+        url:
+          $ref: '#/components/schemas/AudienceUrl'
+      required:
+        - id
+        - title
+        - url
+      type: object
+    AudienceUrl:
+      description:
+        'SCHEMA-3.23.0: an absolute address of a site, a post or an image:
+        `https`, or `http` on localhost for a local stack. No credentials, at
+        most 2048 characters.'
+      maxLength: 2048
+      minLength: 1
+      pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
+      type: string
+    DeletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
+      $ref: '#/components/schemas/FollowState'
+    FollowFeedItem:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: one announced post by a followed author. A post is
+        announced once, when the deployment that first carries it is certified
+        live (the announcement ledger); republishing, editing, rolling back and
+        restoring announce nothing.'
+      properties:
+        announcedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        author:
+          $ref: '#/components/schemas/AudienceAuthor'
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        description:
+          maxLength: 300
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        imageUrl:
+          oneOf:
+            - $ref: '#/components/schemas/AudienceUrl'
+            - type: 'null'
+        publication:
+          $ref: '#/components/schemas/AudiencePublication'
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+        url:
+          $ref: '#/components/schemas/AudienceUrl'
+      required:
+        - id
+        - publication
+        - author
+        - contentId
+        - title
+        - description
+        - url
+        - imageUrl
+        - announcedAt
+      type: object
+    FollowState:
+      additionalProperties: false
+      properties:
+        following:
+          type: boolean
+      required:
+        - following
+      type: object
+    FollowedAuthor:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: one author a person follows, with the site the author
+        writes for.'
+      properties:
+        author:
+          $ref: '#/components/schemas/AudienceAuthor'
+        followedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        publication:
+          $ref: '#/components/schemas/AudiencePublication'
+      required:
+        - publication
+        - author
+        - followedAt
+      type: object
+    FollowerAuthorCount:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: how many readers follow one author of the site.'
+      properties:
+        authorId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        displayName:
+          maxLength: 200
+          minLength: 1
+          type: string
+        followers:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - authorId
+        - displayName
+        - followers
+      type: object
+    FollowerRow:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: one follower as the site owner sees them: the reader's
+        display name only, never an email address or a person id (a follower
+        list shows names, not accounts). `id` identifies the follow, not the
+        person."
+      properties:
+        authorId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        displayName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        followedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - authorId
+        - displayName
+        - followedAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdFollowersResponse:
+      additionalProperties: false
+      properties:
+        authors:
+          items:
+            $ref: '#/components/schemas/FollowerAuthorCount'
+          maxItems: 100
+          type: array
+        items:
+          items:
+            $ref: '#/components/schemas/FollowerRow'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        total:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - authors
+        - items
+        - nextCursor
+        - total
+      type: object
+    GetPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
+      $ref: '#/components/schemas/FollowState'
+    GetSelfFollowingFeedResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/FollowFeedItem'
+          maxItems: 50
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+      type: object
+    GetSelfFollowsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/FollowedAuthor'
+          maxItems: 500
+          type: array
+      required:
+        - items
+      type: object
     GetSelfNotificationPreferencesResponse:
       $ref: '#/components/schemas/NotificationPreferences'
     GetSelfNotificationsResponse:
@@ -14269,6 +14504,8 @@ components:
       minLength: 1
       pattern: ^[^\r\n]+(?:\n[^\r\n]+){0,4}$
       type: string
+    PutPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
+      $ref: '#/components/schemas/FollowState'
     PutSelfNotificationPreferencesRequest:
       additionalProperties: false
       properties:
