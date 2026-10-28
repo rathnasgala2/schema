@@ -330,6 +330,28 @@
       ]
     },
     {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/audience",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Audience; See who follows this site, who subscribes to its newsletter and what readers wrote to you, and export the lists.",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId",
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersBySubscriberId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessages",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdFollowers",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssues",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribers",
+        "patchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport"
+      ]
+    },
+    {
       "pathTemplate": "/sites/{organizationId}/{publicationId}/domain",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
@@ -374,6 +396,7 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdDestination",
@@ -381,10 +404,12 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrent",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish",
@@ -400,8 +425,11 @@
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdCancel",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersPreview",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
-        "putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings"
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings"
       ]
     },
     {
@@ -473,6 +501,7 @@
       "apiOperationIds": [
         "deleteSelfIdentityLinksByIdentityLinkId",
         "deleteSelfPasskeysByPasskeyId",
+        "deleteSelfPostalAddress",
         "deleteSelfReaderConnectionsByPublicationId",
         "deleteSelfSessionsBySessionFamilyId",
         "deleteSession",
@@ -482,6 +511,8 @@
         "getSelfAuthenticators",
         "getSelfClosure",
         "getSelfExports",
+        "getSelfNotificationPreferences",
+        "getSelfPostalAddress",
         "getSelfReaderConnections",
         "getSelfSessions",
         "getSession",
@@ -497,7 +528,35 @@
         "postSelfPasskeyRegistrationOptions",
         "postSelfPasskeys",
         "postSelfRecoveryCodeSets",
-        "postSelfSessionsRevokeOthers"
+        "postSelfSessionsRevokeOthers",
+        "putSelfNotificationPreferences",
+        "putSelfPostalAddress"
+      ]
+    },
+    {
+      "pathTemplate": "/notifications",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Notifications; See what happened on your sites and to your comments, open it and mark it read.",
+      "apiOperationIds": [
+        "getSelfNotifications",
+        "getSelfNotificationsUnreadCount",
+        "postSelfNotificationsMarkRead"
+      ]
+    },
+    {
+      "pathTemplate": "/following",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Following; See the authors you follow and their newest posts, and stop following one.",
+      "apiOperationIds": [
+        "deleteSelfFollowsByPublicationIdByAuthorId",
+        "getSelfFollowingFeed",
+        "getSelfFollows"
       ]
     },
     {
@@ -617,6 +676,43 @@
         "postClaimsByTokenDescriptionCode",
         "postClaimsByTokenDescriptionCodeCheck",
         "postClaimsByTokenGoogleStart"
+      ]
+    },
+    {
+      "pathTemplate": "/t/newsletter/request/{publicationId}",
+      "originClass": "APP",
+      "authenticationClass": "PUBLIC",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Subscribe to a newsletter; Ask for a site's newsletter by email from a page that needs no script.",
+      "apiOperationIds": [
+        "getPublicPublicationsByPublicationId",
+        "postPublicPublicationsByPublicationIdNewsletterSubscriptions"
+      ]
+    },
+    {
+      "pathTemplate": "/t/newsletter/confirm/{token}",
+      "originClass": "APP",
+      "authenticationClass": "ACCOUNTLESS_CAPABILITY",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Confirm your subscription; Confirm that you want a site's newsletter with one explicit button.",
+      "apiOperationIds": [
+        "getPublicNewsletterConfirmationsByToken",
+        "postPublicNewsletterConfirmationsByTokenConfirm"
+      ]
+    },
+    {
+      "pathTemplate": "/t/newsletter/manage/{token}",
+      "originClass": "APP",
+      "authenticationClass": "ACCOUNTLESS_CAPABILITY",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Your newsletter subscription; Unsubscribe from a site's newsletter, or subscribe again.",
+      "apiOperationIds": [
+        "getPublicNewsletterSubscriptionsByToken",
+        "postPublicNewsletterSubscriptionsByTokenResubscribe",
+        "postPublicNewsletterSubscriptionsByTokenUnsubscribe"
       ]
     },
     {
