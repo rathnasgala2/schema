@@ -14147,6 +14147,25 @@ components:
         - createdAt
         - handledAt
       type: object
+    ContactMessageCounts:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.1: how many contact-form messages the site holds in each
+        state, for every message of the site whatever the `state` filter of the
+        list that carries it.'
+      properties:
+        handled:
+          format: int64
+          minimum: 0
+          type: integer
+        new:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - new
+        - handled
+      type: object
     ContactMessageState:
       description:
         'SCHEMA-3.23.0: `new` until the site owner marks the message `handled`.'
@@ -14285,6 +14304,8 @@ components:
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse:
       additionalProperties: false
       properties:
+        counts:
+          $ref: '#/components/schemas/ContactMessageCounts'
         items:
           items:
             $ref: '#/components/schemas/ContactMessage'
@@ -14297,6 +14318,7 @@ components:
             - string
             - 'null'
       required:
+        - counts
         - items
         - nextCursor
       type: object
@@ -14936,11 +14958,10 @@ components:
     NotificationTarget:
       additionalProperties: false
       description:
-        'SCHEMA-3.23.0: where a notification leads. `kind` names the kind of
-        place in words a client may switch on and ignore when unknown (for
-        example `comments`, `messages`, `publishing`, `audience`, `post`,
-        `following`); `url` is an App route path (never an absolute address)
-        that the row links to.'
+        "`url` is an App route path, except for kind `site`, whose `url` is the
+        absolute https address of a page on the published site (a post's live
+        address, a comment's anchor on it). A client opens a `site` target as an
+        external link."
       properties:
         kind:
           maxLength: 64
@@ -14950,7 +14971,7 @@ components:
         url:
           maxLength: 512
           minLength: 1
-          pattern: ^/(?!/)[^\s]*$
+          pattern: ^(?:/(?!/)[^\s]*|https://[^\s/?#]+[^\s]*)$
           type: string
       required:
         - kind

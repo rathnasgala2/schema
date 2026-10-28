@@ -2,9 +2,10 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/contact-messages:
     get:
       description:
-        Needs `publication.audience.read`. Newest first, one keyset page at a
-        time; `state` keeps only `new` or only `handled` messages (all when
-        absent).
+        Needs `publication.audience.read`. `counts` covers every message of the
+        site whatever the `state` filter; `items` are the messages of the
+        filtered state (all states when absent), newest first, one keyset page
+        at a time.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessages
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -39,6 +40,9 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
+                    counts:
+                      handled: 0
+                      new: 1
                     items:
                       - createdAt: '2026-10-27T12:00:00.000Z'
                         email: reader@example.com

@@ -4126,3 +4126,88 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.deepEqual(request.properties.contactForm.type, 'boolean');
   assert.equal(request.properties.newsletterSubscriberLimit.minimum, 0);
 });
+
+test('SCHEMA-3.23.1: a notification target is an App path or, for kind site, an https address', async () => {
+  const { bundle } = await readProjections();
+  const target = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/NotificationTarget',
+  });
+  assert.equal(target({ kind: 'comments', url: '/sites/abc/comments' }), true);
+  assert.equal(
+    target({ kind: 'site', url: 'https://blog.example.com/hello/' }),
+    true,
+  );
+  assert.equal(
+    target({
+      kind: 'site',
+      url: 'https://blog.example.com/hello/#comment-3',
+    }),
+    true,
+  );
+  assert.equal(target({ kind: 'site', url: 'https://blog.example.com' }), true);
+  assert.equal(
+    target({ kind: 'site', url: '//blog.example.com/hello/' }),
+    false,
+  );
+  assert.equal(
+    target({ kind: 'site', url: 'http://blog.example.com/' }),
+    false,
+  );
+  assert.equal(target({ kind: 'site', url: 'https:///hello/' }), false);
+  assert.equal(target({ kind: 'site', url: 'https://' }), false);
+  assert.equal(target({ kind: 'site', url: 'javascript:alert(1)' }), false);
+  assert.equal(
+    target({ kind: 'site', url: 'https://blog.example.com/a b' }),
+    false,
+  );
+  assert.match(
+    bundle.components.schemas.NotificationTarget.description,
+    /except for kind `site`/u,
+  );
+  const rows = operationAt(bundle, 'get', '/v2/self/notifications').responses[
+    '200'
+  ].content['application/json'].examples.nominal.value.items;
+  assert.ok(
+    rows.some(
+      (/** @type {JsonObject} */ row) =>
+        row.target.kind === 'site' && row.target.url.startsWith('https://'),
+    ),
+  );
+});
+
+test('SCHEMA-3.23.1: the contact-messages list carries the site-wide counts', async () => {
+  const { bundle } = await readProjections();
+  const schemas = bundle.components.schemas;
+  const response =
+    schemas.GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse;
+  assert.ok(response.required.includes('counts'));
+  assert.equal(
+    response.properties.counts.$ref,
+    '#/components/schemas/ContactMessageCounts',
+  );
+  const counts = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/ContactMessageCounts',
+  });
+  assert.equal(counts({ handled: 0, new: 0 }), true);
+  assert.equal(counts({ handled: 12, new: 3 }), true);
+  assert.equal(counts({ new: 3 }), false);
+  assert.equal(counts({ handled: 1 }), false);
+  assert.equal(counts({ handled: -1, new: 0 }), false);
+  assert.equal(counts({ handled: 1.5, new: 0 }), false);
+  assert.equal(counts({ handled: 1, new: 0, total: 1 }), false);
+  const list = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse',
+  });
+  assert.equal(list({ items: [], nextCursor: null }), false);
+  assert.equal(
+    list({ counts: { handled: 0, new: 0 }, items: [], nextCursor: null }),
+    true,
+  );
+  const example = operationAt(
+    bundle,
+    'get',
+    '/v2/organizations/{organizationId}/publications/{publicationId}/contact-messages',
+  ).responses['200'].content['application/json'].examples.nominal.value;
+  assert.deepEqual(example.counts, { handled: 0, new: 1 });
+  assert.equal(list(example), true);
+});

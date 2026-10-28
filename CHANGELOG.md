@@ -8,6 +8,34 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.23.1] - 2026-10-28
+
+Two additive fixes to the 3.23.0 audience HTTP contract, found while building
+its first clients. Every 3.23.0 request and response still validates except that
+a server must now emit `counts` on the contact-messages list, and a client that
+read `NotificationTarget.url` as always a path must open a `site` target as an
+external link. No JSON Schema root changes here, so
+`npm run compatibility:check` is unaffected.
+
+### Changed
+
+- `NotificationTarget`: `url` is still an App route path, except for kind
+  `site`, whose `url` is the absolute https address of a page on the published
+  site (a post's live address, a comment's anchor on it). The `url` pattern
+  widens from `^/(?!/)[^\s]*$` to `^(?:/(?!/)[^\s]*|https://[^\s/?#]+[^\s]*)$`,
+  so a path still validates and an `https://` address with a host now does too;
+  a protocol-relative `//` path, an `http://` address and any other scheme stay
+  refused. A client opens a `site` target as an external link. The notifications
+  list example gains a row whose target kind is `site`.
+
+### Added
+
+- `GET .../contact-messages` returns a required `counts` object,
+  `ContactMessageCounts` (`new` and `handled`, each an integer of at least 0),
+  covering every message of the site whatever the `state` filter, as `counts`
+  does on the newsletter-subscribers list. `items` stay the messages of the
+  filtered state. The operation description and example show it.
+
 ## [3.23.0] - 2026-10-27
 
 Audience features: notifications, follows, the Galascribe newsletter, the
@@ -3560,7 +3588,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.23.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.23.1...HEAD
+[3.23.1]: https://github.com/rathnasgala2/schema/compare/v3.23.0...v3.23.1
 [3.23.0]: https://github.com/rathnasgala2/schema/compare/v3.22.0...v3.23.0
 [3.22.0]: https://github.com/rathnasgala2/schema/compare/v3.21.0...v3.22.0
 [3.21.0]: https://github.com/rathnasgala2/schema/compare/v3.20.0...v3.21.0

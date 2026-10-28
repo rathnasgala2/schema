@@ -1210,6 +1210,22 @@ components:
         - createdAt
         - handledAt
       type: object
+    ContactMessageCounts:
+      additionalProperties: false
+      description: "SCHEMA-3.23.1: how many contact-form messages the site holds in each state, for every message of the site whatever the `state` filter of the list that carries it."
+      properties:
+        handled:
+          format: int64
+          minimum: 0
+          type: integer
+        new:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - new
+        - handled
+      type: object
     ContactMessageState:
       description: "SCHEMA-3.23.0: `new` until the site owner marks the message `handled`."
       enum:
@@ -3145,6 +3161,8 @@ components:
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse:
       additionalProperties: false
       properties:
+        counts:
+          $ref: "#/components/schemas/ContactMessageCounts"
         items:
           items:
             $ref: "#/components/schemas/ContactMessage"
@@ -3157,6 +3175,7 @@ components:
             - string
             - "null"
       required:
+        - counts
         - items
         - nextCursor
       type: object
@@ -7327,7 +7346,7 @@ components:
       type: object
     NotificationTarget:
       additionalProperties: false
-      description: "SCHEMA-3.23.0: where a notification leads. `kind` names the kind of place in words a client may switch on and ignore when unknown (for example `comments`, `messages`, `publishing`, `audience`, `post`, `following`); `url` is an App route path (never an absolute address) that the row links to."
+      description: "`url` is an App route path, except for kind `site`, whose `url` is the absolute https address of a page on the published site (a post's live address, a comment's anchor on it). A client opens a `site` target as an external link."
       properties:
         kind:
           maxLength: 64
@@ -7337,7 +7356,7 @@ components:
         url:
           maxLength: 512
           minLength: 1
-          pattern: ^/(?!/)[^\s]*$
+          pattern: ^(?:/(?!/)[^\s]*|https://[^\s/?#]+[^\s]*)$
           type: string
       required:
         - kind
@@ -35697,7 +35716,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/contact-messages:
     get:
-      description: Needs `publication.audience.read`. Newest first, one keyset page at a time; `state` keeps only `new` or only `handled` messages (all when absent).
+      description: Needs `publication.audience.read`. `counts` covers every message of the site whatever the `state` filter; `items` are the messages of the filtered state (all states when absent), newest first, one keyset page at a time.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessages
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -35732,6 +35751,9 @@ paths:
                 nominal:
                   summary: Nominal successful response
                   value:
+                    counts:
+                      handled: 0
+                      new: 1
                     items:
                       - createdAt: "2026-10-27T12:00:00.000Z"
                         email: reader@example.com
@@ -67249,8 +67271,21 @@ paths:
                           kind: comments
                           url: /sites/018f0000-0000-7000-8000-000000000001/018f0000-0000-7000-8000-000000000001/comments
                         title: New comment on Hello world
+                      - category: following
+                        createdAt: "2026-10-27T12:00:00.000Z"
+                        excerpt: null
+                        id: 018f0000-0000-7000-8000-000000000002
+                        kind: following-post
+                        publication:
+                          id: 018f0000-0000-7000-8000-000000000001
+                          title: Example Blog
+                        readAt: null
+                        target:
+                          kind: site
+                          url: https://blog.example.com/hello-world/
+                        title: New post - Hello world
                     nextCursor: null
-                    unreadCount: 1
+                    unreadCount: 2
               schema:
                 $ref: "#/components/schemas/GetSelfNotificationsResponse"
           description: list the signed-in person's notifications succeeded
