@@ -103,8 +103,9 @@ test('reviewed source ledgers validate without invented entries', async () => {
   const { componentSourceValue, routeSourceValue } = await loadFixtures();
   // 3.15.0: the catalogs describe only the current UI. One component survives
   // (ValidationSummary) and 44 routes, one for every address the App mounts.
+  // 3.23.0 adds the six audience addresses (50 routes).
   assert.equal(validateAppComponentSource(componentSourceValue).length, 1);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 44);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 50);
   const paths = new Set(
     /** @type {JsonObject[]} */ (
       /** @type {JsonObject} */ (routeSourceValue).routes
@@ -140,6 +141,12 @@ test('reviewed source ledgers validate without invented entries', async () => {
     '/invitations/accept',
     '/claim',
     '/claim/{token}',
+    '/notifications',
+    '/following',
+    '/sites/{organizationId}/{publicationId}/audience',
+    '/t/newsletter/request/{publicationId}',
+    '/t/newsletter/confirm/{token}',
+    '/t/newsletter/manage/{token}',
     '/platform',
     '/platform/users',
     '/platform/abuse',
@@ -158,7 +165,7 @@ test('reviewed source ledgers validate without invented entries', async () => {
   ]) {
     assert.ok(paths.has(path), path);
   }
-  assert.equal(paths.size, 44);
+  assert.equal(paths.size, 50);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -189,7 +196,8 @@ test('generated catalogs match the committed projection', async () => {
   // routes (571 to 629).
   // 3.15.0 (reviewed 2026-10-18): the catalog is the current UI's 44 routes
   // alone (629 to 580).
-  assert.equal(authoredMessageCount, 580);
+  // 3.23.0 (reviewed 2026-10-27): the six audience routes (580 to 667).
+  assert.equal(authoredMessageCount, 667);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
@@ -262,7 +270,13 @@ test('the catalog describes only the current UI: every route is an APP route and
     assert.equal(route.originClass, 'APP', route.routeId);
     assert.ok(!route.pathTemplate.startsWith('/v1/'), route.routeId);
     assert.ok(!route.pathTemplate.startsWith('/organizations'), route.routeId);
-    assert.ok(!route.pathTemplate.startsWith('/t/'), route.routeId);
+    // 3.23.0: the only `/t/` addresses are the three accountless newsletter
+    // pages the App serves (request, confirm and manage).
+    assert.ok(
+      !route.pathTemplate.startsWith('/t/') ||
+        route.pathTemplate.startsWith('/t/newsletter/'),
+      route.routeId,
+    );
     assert.ok(!route.pathTemplate.startsWith('/account/'), route.routeId);
   }
   const routeIds = new Set(routes.map((route) => route.routeId));
@@ -278,11 +292,21 @@ test('the catalog describes only the current UI: every route is an APP route and
   ]) {
     assert.ok(!routeIds.has(retired), retired);
   }
-  // The only token-bearing route is the claim link.
+  // The token-bearing routes are the claim link and, since 3.23.0, the two
+  // accountless newsletter pages whose token is the capability.
   assert.deepEqual(
     routes.filter((route) => route.tokenBearing).map((route) => route.routeId),
-    ['claim.by-token-id'],
+    [
+      'claim.by-token-id',
+      't.newsletter.confirm.by-token-id',
+      't.newsletter.manage.by-token-id',
+    ],
   );
+  for (const route of routes.filter((candidate) =>
+    candidate.pathTemplate.startsWith('/t/newsletter/'),
+  )) {
+    assert.equal(route.originClass, 'APP', route.routeId);
+  }
 });
 
 test('the one registered component, ValidationSummary, is named by exactly the routes that change something', async () => {
@@ -405,9 +429,12 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // client management, the deployment, domain, repository-change, import and
   // publication-transfer reads it paged through, starting a publish by its own
   // operation, changing the deployment destination and planning a configuration
-  // change.
+  // change. Since 3.23.0 also the audience operations a published site's own
+  // script calls (the Follow button, the batched counts, the contact form) and
+  // the one-click notification unsubscribe a mail provider posts.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
+    'deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
     'deleteReaderTokensCurrent',
     'getInternalHealth',
@@ -420,8 +447,10 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getPlatformDemoSitesByPublicationId',
     'getPlatformDemoSitesPreflight',
     'getPlatformOauthClients',
+    'getPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'getPublicPublicationsByPublicationIdContentsByContentIdComments',
     'getPublicPublicationsByPublicationIdContentsByContentIdInteractions',
+    'getPublicPublicationsByPublicationIdInteractionCounts',
     'getSelfExportsByExportId',
     'getSelfExportsByExportIdArchive',
     'postAuthenticationPasskeyAssertionOptions',
@@ -438,6 +467,8 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postPublicCommentsByCommentIdAppeals',
     'postPublicCommentsByCommentIdReports',
     'postPublicCommentsByCommentIdRevisions',
+    'postPublicNotificationUnsubscribesByToken',
+    'postPublicPublicationsByPublicationIdContactMessages',
     'postPublicPublicationsByPublicationIdContentsByContentIdComments',
     'postReaderTokens',
     'postSelfIdentityLinks',
@@ -445,6 +476,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postWorkloadsDeploymentReceipts',
     'postWorkloadsGithubReceiptExchanges',
     'putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination',
+    'putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'putPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
   ]);
 });

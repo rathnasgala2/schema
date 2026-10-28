@@ -1,0 +1,2860 @@
+paths:
+  /v2/organizations/{organizationId}/publications/{publicationId}/contact-messages:
+    get:
+      description:
+        Needs `publication.audience.read`. Newest first, one keyset page at a
+        time; `state` keeps only `new` or only `handled` messages (all when
+        absent).
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessages
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - example: new
+          in: query
+          name: state
+          required: false
+          schema:
+            $ref: '#/components/schemas/ContactMessageState'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - createdAt: '2026-10-27T12:00:00.000Z'
+                        email: reader@example.com
+                        handledAt: null
+                        id: 018f0000-0000-7000-8000-000000000001
+                        message:
+                          Loved the last post. Could you write about deploys?
+                        name: Ada Reader
+                        phone: null
+                        state: new
+                        website: null
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse'
+          description: list a site's contact-form messages succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: list a site's contact-form messages
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list a site's contact-form messages
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/contact-messages/{messageId}:
+    delete:
+      description:
+        Needs `publication.audience.manage`. Deleting a message that is already
+        gone answers 204 as well.
+      operationId: deleteOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: messageId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: delete one contact-form message succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: delete one contact-form message
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: delete one contact-form message
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    patch:
+      description:
+        Needs `publication.audience.manage`. Setting the state a message already
+        has changes nothing.
+      operationId: patchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: messageId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  state: handled
+            schema:
+              $ref: '#/components/schemas/PatchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageIdRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: '2026-10-27T12:00:00.000Z'
+                    email: reader@example.com
+                    handledAt: '2026-10-27T12:00:00.000Z'
+                    id: 018f0000-0000-7000-8000-000000000001
+                    message: Loved the last post. Could you write about deploys?
+                    name: Ada Reader
+                    phone: null
+                    state: handled
+                    website: null
+              schema:
+                $ref: '#/components/schemas/PatchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageIdResponse'
+          description: mark one contact-form message handled or new succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: mark one contact-form message handled or new
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mark one contact-form message handled or new
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/contact-messages:export:
+    post:
+      description:
+        Needs `publication.audience.export` and recent authentication (`401
+        REAUTH_REQUIRED` when the session is stale). The answer is a UTF-8 CSV
+        file with a header row
+        (`id,name,email,website,phone,message,state,createdAt,handledAt`) that
+        the App saves as a download. A cell that starts with `=`, `+`, `-`, `@`,
+        a tab or a carriage return is prefixed with an apostrophe so a
+        spreadsheet does not run it as a formula.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                format: binary
+                type: string
+          description: export a site's contact-form messages as CSV succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Content-Disposition:
+              $ref: '#/components/headers/ContentDispositionAttachment'
+            X-Content-Type-Options:
+              $ref: '#/components/headers/XContentTypeOptionsNosniff'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: export a site's contact-form messages as CSV
+      tags:
+        - audience
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: RECENT_AUTHENTICATION
+      x-gala-capability-key: publication.audience.export
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: export a site's contact-form messages as CSV
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/followers:
+    get:
+      description:
+        Needs `publication.audience.read`. `total` is every follow of the site,
+        `authors` the count per author, and `items` the followers newest first
+        as display names, one keyset page at a time. There is no public follower
+        count; this list is for the site's owners and admins.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdFollowers
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    authors:
+                      - authorId: 018f0000-0000-7000-8000-000000000002
+                        displayName: Ada Writer
+                        followers: 1
+                    items:
+                      - authorId: 018f0000-0000-7000-8000-000000000002
+                        displayName: Ada Reader
+                        followedAt: '2026-10-27T12:00:00.000Z'
+                        id: 018f0000-0000-7000-8000-000000000001
+                    nextCursor: null
+                    total: 1
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdFollowersResponse'
+          description: list the followers of a site's authors succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: list the followers of a site's authors
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the followers of a site's authors
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-issues:
+    get:
+      description:
+        Needs `publication.audience.read`. One row per post that was emailed,
+        newest first, one keyset page at a time.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssues
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - contentId: 018f0000-0000-7000-8000-000000000002
+                        deferred: 0
+                        failed: 0
+                        id: 018f0000-0000-7000-8000-000000000001
+                        recipients: 1
+                        sent: 1
+                        sentAt: '2026-10-27T12:00:00.000Z'
+                        title: Hello world
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssuesResponse'
+          description: list a site's newsletter send log succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: list a site's newsletter send log
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list a site's newsletter send log
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:
+    get:
+      description:
+        Needs `publication.audience.read`. `counts` covers every subscriber of
+        the site whatever the `state` filter; `items` are the rows of the
+        filtered state (all states when absent), newest first, one keyset page
+        at a time.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribers
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - example: confirmed
+          in: query
+          name: state
+          required: false
+          schema:
+            $ref: '#/components/schemas/NewsletterSubscriberState'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    counts:
+                      confirmed: 1
+                      pending: 0
+                      unsubscribed: 0
+                    items:
+                      - confirmedAt: '2026-10-27T12:00:00.000Z'
+                        createdAt: '2026-10-27T12:00:00.000Z'
+                        email: reader@example.com
+                        id: 018f0000-0000-7000-8000-000000000001
+                        state: confirmed
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersResponse'
+          description: list a site's newsletter subscribers succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: list a site's newsletter subscribers
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list a site's newsletter subscribers
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers/{subscriberId}:
+    delete:
+      description:
+        Needs `publication.audience.manage`. The address leaves the list at once
+        and receives nothing further; removing is not an unsubscribe the reader
+        chose, so the reader may ask to subscribe again.
+      operationId: deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersBySubscriberId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: subscriberId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: remove one newsletter subscriber succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: remove one newsletter subscriber
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: remove one newsletter subscriber
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:export:
+    post:
+      description:
+        Needs `publication.audience.export` and recent authentication (`401
+        REAUTH_REQUIRED` when the session is stale). The answer is a UTF-8 CSV
+        file with a header row (`id,email,state,createdAt,confirmedAt`;
+        unsubscribed rows have an empty `email`) that the App saves as a
+        download. A cell that starts with `=`, `+`, `-`, `@`, a tab or a
+        carriage return is prefixed with an apostrophe so a spreadsheet does not
+        run it as a formula.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                format: binary
+                type: string
+          description: export a site's newsletter subscribers as CSV succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Content-Disposition:
+              $ref: '#/components/headers/ContentDispositionAttachment'
+            X-Content-Type-Options:
+              $ref: '#/components/headers/XContentTypeOptionsNosniff'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: export a site's newsletter subscribers as CSV
+      tags:
+        - audience
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: RECENT_AUTHENTICATION
+      x-gala-capability-key: publication.audience.export
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: export a site's newsletter subscribers as CSV
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/public/newsletter-confirmations/{token}:
+    get:
+      description:
+        The token from the confirmation email is the capability; no session is
+        needed. The read never confirms anything, so a link scanner that fetches
+        the page cannot subscribe the address. An unknown token is `404
+        RESOURCE_NOT_FOUND`.
+      operationId: getPublicNewsletterConfirmationsByToken
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    publication:
+                      id: 018f0000-0000-7000-8000-000000000001
+                      title: Example Blog
+                      url: https://blog.example.com
+                    state: pending
+              schema:
+                $ref: '#/components/schemas/GetPublicNewsletterConfirmationsByTokenResponse'
+          description: read one newsletter confirmation token succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: read one newsletter confirmation token
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read one newsletter confirmation token
+      x-gala-reachable-problems:
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/public/newsletter-confirmations/{token}:confirm:
+    post:
+      description:
+        The explicit Confirm button of the confirmation page. Confirming twice
+        is the same as confirming once. `410 TOKEN_EXPIRED` for a request
+        unconfirmed after 7 days; `409 NEWSLETTER_FULL` when the organization's
+        allowance was used up in the meantime; `409 NEWSLETTER_UNAVAILABLE` when
+        the site no longer runs a Galascribe newsletter.
+      operationId: postPublicNewsletterConfirmationsByTokenConfirm
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    publication:
+                      id: 018f0000-0000-7000-8000-000000000001
+                      title: Example Blog
+                      url: https://blog.example.com
+                    state: confirmed
+              schema:
+                $ref: '#/components/schemas/PostPublicNewsletterConfirmationsByTokenConfirmResponse'
+          description: confirm one newsletter subscription request succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_FULL:
+                  summary: NEWSLETTER_FULL
+                  value:
+                    code: NEWSLETTER_FULL
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_FULL
+                    type: urn:gala:problem:newsletter-full
+                NEWSLETTER_UNAVAILABLE:
+                  summary: NEWSLETTER_UNAVAILABLE
+                  value:
+                    code: NEWSLETTER_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_UNAVAILABLE
+                    type: urn:gala:problem:newsletter-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: NEWSLETTER_FULL, NEWSLETTER_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - NEWSLETTER_FULL
+            - NEWSLETTER_UNAVAILABLE
+        '410':
+          content:
+            application/problem+json:
+              examples:
+                TOKEN_EXPIRED:
+                  summary: TOKEN_EXPIRED
+                  value:
+                    code: TOKEN_EXPIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 410
+                    title: TOKEN_EXPIRED
+                    type: urn:gala:problem:token-expired
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TOKEN_EXPIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - TOKEN_EXPIRED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: confirm one newsletter subscription request
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: confirm one newsletter subscription request
+      x-gala-reachable-problems:
+        - NEWSLETTER_FULL
+        - NEWSLETTER_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - TOKEN_EXPIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/public/newsletter-subscriptions/{token}:
+    get:
+      description:
+        The long-lived token carried by every newsletter email (footer link and
+        `List-Unsubscribe`) is the capability. The answer names the site, a
+        masked address and whether the address is subscribed.
+      operationId: getPublicNewsletterSubscriptionsByToken
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    maskedEmail: r…r@example.com
+                    publication:
+                      id: 018f0000-0000-7000-8000-000000000001
+                      title: Example Blog
+                      url: https://blog.example.com
+                    state: subscribed
+              schema:
+                $ref: '#/components/schemas/GetPublicNewsletterSubscriptionsByTokenResponse'
+          description:
+            read one newsletter subscription by its manage token succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: read one newsletter subscription by its manage token
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read one newsletter subscription by its manage token
+      x-gala-reachable-problems:
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/public/newsletter-subscriptions/{token}:resubscribe:
+    post:
+      description:
+        'Undoes an unsubscribe without a new confirmation email: the person
+        proved the address when first confirming. `409 NEWSLETTER_FULL` when the
+        organization has no free subscriber place; `409 NEWSLETTER_UNAVAILABLE`
+        when the site no longer runs a Galascribe newsletter.'
+      operationId: postPublicNewsletterSubscriptionsByTokenResubscribe
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    maskedEmail: r…r@example.com
+                    publication:
+                      id: 018f0000-0000-7000-8000-000000000001
+                      title: Example Blog
+                      url: https://blog.example.com
+                    state: subscribed
+              schema:
+                $ref: '#/components/schemas/PostPublicNewsletterSubscriptionsByTokenResubscribeResponse'
+          description:
+            resubscribe one newsletter subscription by its manage token
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_FULL:
+                  summary: NEWSLETTER_FULL
+                  value:
+                    code: NEWSLETTER_FULL
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_FULL
+                    type: urn:gala:problem:newsletter-full
+                NEWSLETTER_UNAVAILABLE:
+                  summary: NEWSLETTER_UNAVAILABLE
+                  value:
+                    code: NEWSLETTER_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_UNAVAILABLE
+                    type: urn:gala:problem:newsletter-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: NEWSLETTER_FULL, NEWSLETTER_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - NEWSLETTER_FULL
+            - NEWSLETTER_UNAVAILABLE
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: resubscribe one newsletter subscription by its manage token
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        resubscribe one newsletter subscription by its manage token
+      x-gala-reachable-problems:
+        - NEWSLETTER_FULL
+        - NEWSLETTER_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/public/newsletter-subscriptions/{token}:unsubscribe:
+    post:
+      description:
+        "Also the RFC 8058 one-click endpoint named by the `List-Unsubscribe`
+        header: a mail provider's POST arrives with an
+        `application/x-www-form-urlencoded` body `List-Unsubscribe=One-Click`,
+        which is ignored, so no content type is declared. Unsubscribing twice is
+        the same as once. The address is kept only as a suppression digest
+        afterwards."
+      operationId: postPublicNewsletterSubscriptionsByTokenUnsubscribe
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    maskedEmail: r…r@example.com
+                    publication:
+                      id: 018f0000-0000-7000-8000-000000000001
+                      title: Example Blog
+                      url: https://blog.example.com
+                    state: unsubscribed
+              schema:
+                $ref: '#/components/schemas/PostPublicNewsletterSubscriptionsByTokenUnsubscribeResponse'
+          description:
+            unsubscribe one newsletter subscription by its manage token
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: unsubscribe one newsletter subscription by its manage token
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        unsubscribe one newsletter subscription by its manage token
+      x-gala-reachable-problems:
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/authors/{authorId}/follow:
+    delete:
+      description:
+        Idempotent, and allowed whether or not the site still has follows turned
+        on or is live, so a reader can always leave. `404 AUTHOR_NOT_FOUND` only
+        when the site names no such author and the reader holds no follow of
+        that id.
+      operationId: deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: authorId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    following: false
+              schema:
+                $ref: '#/components/schemas/DeletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse'
+          description:
+            unfollow one author of a site as the signed-in reader succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - READER_TOKEN_SCOPE
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                AUTHOR_NOT_FOUND:
+                  summary: AUTHOR_NOT_FOUND
+                  value:
+                    code: AUTHOR_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: AUTHOR_NOT_FOUND
+                    type: urn:gala:problem:author-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHOR_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHOR_NOT_FOUND
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: unfollow one author of a site as the signed-in reader
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: unfollow one author of a site as the signed-in reader
+      x-gala-reachable-problems:
+        - AUTHOR_NOT_FOUND
+        - RATE_LIMITED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+    get:
+      description:
+        Public read with an optional reader bearer token. With a token,
+        `following` says whether that reader follows the author; without one it
+        is false. The site's Follow button decides whether to show itself from
+        the `follows.enabled` setting it was built with, not from this read.
+      operationId: getPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: authorId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    following: false
+              schema:
+                $ref: '#/components/schemas/GetPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse'
+          description:
+            read whether the reader follows one author of a site succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                AUTHOR_NOT_FOUND:
+                  summary: AUTHOR_NOT_FOUND
+                  value:
+                    code: AUTHOR_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: AUTHOR_NOT_FOUND
+                    type: urn:gala:problem:author-not-found
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHOR_NOT_FOUND, PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHOR_NOT_FOUND
+            - PUBLICATION_NOT_LIVE
+      security:
+        - {}
+        - readerBearer: []
+      summary: read whether the reader follows one author of a site
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read whether the reader follows one author of a site
+      x-gala-reachable-problems:
+        - AUTHOR_NOT_FOUND
+        - PUBLICATION_NOT_LIVE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    put:
+      description:
+        "Idempotent: following twice is the same as following once. A follow is
+        a reader's own business: only that reader sees it, the site owner sees a
+        display name in the follower list and there is no public follower count.
+        `409 FOLLOWS_DISABLED` while the author has the Follow button off. `404
+        AUTHOR_NOT_FOUND` when the site names no such author."
+      operationId: putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: authorId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    following: true
+              schema:
+                $ref: '#/components/schemas/PutPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse'
+          description:
+            follow one author of a site as the signed-in reader succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_TOKEN_SCOPE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - READER_TOKEN_SCOPE
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                AUTHOR_NOT_FOUND:
+                  summary: AUTHOR_NOT_FOUND
+                  value:
+                    code: AUTHOR_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: AUTHOR_NOT_FOUND
+                    type: urn:gala:problem:author-not-found
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHOR_NOT_FOUND, PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHOR_NOT_FOUND
+            - PUBLICATION_NOT_LIVE
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                FOLLOWS_DISABLED:
+                  summary: FOLLOWS_DISABLED
+                  value:
+                    code: FOLLOWS_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: FOLLOWS_DISABLED
+                    type: urn:gala:problem:follows-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: FOLLOWS_DISABLED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - FOLLOWS_DISABLED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: follow one author of a site as the signed-in reader
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: follow one author of a site as the signed-in reader
+      x-gala-reachable-problems:
+        - AUTHOR_NOT_FOUND
+        - FOLLOWS_DISABLED
+        - PUBLICATION_NOT_LIVE
+        - RATE_LIMITED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_TOKEN_SCOPE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/contact-messages:
+    post:
+      description:
+        "Public, from the contact form on the site. `trap` is a honeypot and
+        `elapsedMs` the time the form was open: a non-empty `trap`, or fewer
+        than 3 seconds, is answered with the same `202` and the message is
+        dropped. More than 2 links in the message is `400 VALIDATION_FAILED`
+        pointed at `/message`; `website` and `phone` are accepted only while the
+        form asks for them. `409 CONTACT_FORM_UNAVAILABLE` when the site has no
+        contact form on. The sender's address is stored sealed; the owners are
+        notified in the `messages` category and reply by email."
+      operationId: postPublicPublicationsByPublicationIdContactMessages
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  elapsedMs: 18000
+                  email: reader@example.com
+                  message: Loved the last post. Could you write about deploys?
+                  name: Ada Reader
+                  trap: ''
+            schema:
+              $ref: '#/components/schemas/PostPublicPublicationsByPublicationIdContactMessagesRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    status: RECEIVED
+              schema:
+                $ref: '#/components/schemas/PostPublicPublicationsByPublicationIdContactMessagesResponse'
+          description:
+            send a message to a site's owners from its contact form succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - PUBLICATION_NOT_LIVE
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                CONTACT_FORM_UNAVAILABLE:
+                  summary: CONTACT_FORM_UNAVAILABLE
+                  value:
+                    code: CONTACT_FORM_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CONTACT_FORM_UNAVAILABLE
+                    type: urn:gala:problem:contact-form-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: CONTACT_FORM_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - CONTACT_FORM_UNAVAILABLE
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: send a message to a site's owners from its contact form
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: send a message to a site's owners from its contact form
+      x-gala-reachable-problems:
+        - CONTACT_FORM_UNAVAILABLE
+        - PUBLICATION_NOT_LIVE
+        - RATE_LIMITED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/interaction-counts:
+    get:
+      description:
+        Public, one batched read per listing page. `contentIds` is a
+        comma-separated list of 1 to 50 post ids. A count is the same
+        lower-bound bucket the article page shows and is null when the author
+        turned that public count off. An id that is not a live post of the site
+        is left out of `items`, not an error. `404 INTERACTIONS_DISABLED` when
+        the site has reader interactions off.
+      operationId: getPublicPublicationsByPublicationIdInteractionCounts
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example:
+            - 018f0000-0000-7000-8000-000000000001
+          explode: false
+          in: query
+          name: contentIds
+          required: true
+          schema:
+            items:
+              format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            maxItems: 50
+            minItems: 1
+            type: array
+            uniqueItems: true
+          style: form
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - comments:
+                          display: '3'
+                          label: At least 3 comments
+                          lowerBound: 3
+                        contentId: 018f0000-0000-7000-8000-000000000001
+                        reactions:
+                          display: 50+
+                          label: At least 50 likes
+                          lowerBound: 50
+              schema:
+                $ref: '#/components/schemas/GetPublicPublicationsByPublicationIdInteractionCountsResponse'
+          description:
+            read the public reaction and comment counts of several posts
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                INTERACTIONS_DISABLED:
+                  summary: INTERACTIONS_DISABLED
+                  value:
+                    code: INTERACTIONS_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: INTERACTIONS_DISABLED
+                    type: urn:gala:problem:interactions-disabled
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: INTERACTIONS_DISABLED, PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - INTERACTIONS_DISABLED
+            - PUBLICATION_NOT_LIVE
+      security: []
+      summary: read the public reaction and comment counts of several posts
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        read the public reaction and comment counts of several posts
+      x-gala-reachable-problems:
+        - INTERACTIONS_DISABLED
+        - PUBLICATION_NOT_LIVE
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/public/publications/{publicationId}/newsletter-subscriptions:
+    post:
+      description:
+        'Public, from the signup form on the site. The answer is always the same
+        `202` whether or not the address is already known, so the form cannot be
+        used to find out who subscribes. A confirmation email follows (double
+        opt-in; unconfirmed requests expire after 7 days; at most 3 confirmation
+        emails per address per day). `trap` is a honeypot: a person leaves it
+        empty, and a non-empty value is answered with the same `202` and nothing
+        is sent. `409 NEWSLETTER_UNAVAILABLE` when the site is not in Galascribe
+        newsletter mode or sends are paused; `409 NEWSLETTER_FULL` when the
+        organization has no free subscriber place.'
+      operationId: postPublicPublicationsByPublicationIdNewsletterSubscriptions
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  email: reader@example.com
+                  trap: ''
+            schema:
+              $ref: '#/components/schemas/PostPublicPublicationsByPublicationIdNewsletterSubscriptionsRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    status: CHECK_YOUR_INBOX
+              schema:
+                $ref: '#/components/schemas/PostPublicPublicationsByPublicationIdNewsletterSubscriptionsResponse'
+          description:
+            ask to subscribe an address to a site newsletter succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                PUBLICATION_NOT_LIVE:
+                  summary: PUBLICATION_NOT_LIVE
+                  value:
+                    code: PUBLICATION_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: PUBLICATION_NOT_LIVE
+                    type: urn:gala:problem:publication-not-live
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: PUBLICATION_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - PUBLICATION_NOT_LIVE
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_FULL:
+                  summary: NEWSLETTER_FULL
+                  value:
+                    code: NEWSLETTER_FULL
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_FULL
+                    type: urn:gala:problem:newsletter-full
+                NEWSLETTER_UNAVAILABLE:
+                  summary: NEWSLETTER_UNAVAILABLE
+                  value:
+                    code: NEWSLETTER_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_UNAVAILABLE
+                    type: urn:gala:problem:newsletter-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: NEWSLETTER_FULL, NEWSLETTER_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - NEWSLETTER_FULL
+            - NEWSLETTER_UNAVAILABLE
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: ask to subscribe an address to a site newsletter
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: ask to subscribe an address to a site newsletter
+      x-gala-reachable-problems:
+        - NEWSLETTER_FULL
+        - NEWSLETTER_UNAVAILABLE
+        - PUBLICATION_NOT_LIVE
+        - RATE_LIMITED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/following-feed:
+    get:
+      description: Newest announcement first, one keyset page at a time.
+      operationId: getSelfFollowingFeed
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - announcedAt: '2026-10-27T12:00:00.000Z'
+                        author:
+                          displayName: Ada Writer
+                          id: 018f0000-0000-7000-8000-000000000002
+                        contentId: 018f0000-0000-7000-8000-000000000001
+                        description: A short description of the post.
+                        id: 018f0000-0000-7000-8000-000000000001
+                        imageUrl: null
+                        publication:
+                          id: 018f0000-0000-7000-8000-000000000001
+                          title: Example Blog
+                          url: https://blog.example.com
+                        title: Hello world
+                        url: https://blog.example.com/hello-world/
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetSelfFollowingFeedResponse'
+          description:
+            list the announced posts of the authors the signed-in person follows
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary:
+        list the announced posts of the authors the signed-in person follows
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        list the announced posts of the authors the signed-in person follows
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/follows:
+    get:
+      description:
+        'Every author the person follows, newest follow first, with the site
+        each writes for. Not paginated: a person follows at most 500 authors.'
+      operationId: getSelfFollows
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - author:
+                          displayName: Ada Writer
+                          id: 018f0000-0000-7000-8000-000000000002
+                        followedAt: '2026-10-27T12:00:00.000Z'
+                        publication:
+                          id: 018f0000-0000-7000-8000-000000000001
+                          title: Example Blog
+                          url: https://blog.example.com
+              schema:
+                $ref: '#/components/schemas/GetSelfFollowsResponse'
+          description: list the authors the signed-in person follows succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list the authors the signed-in person follows
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the authors the signed-in person follows
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/follows/{publicationId}/{authorId}:
+    delete:
+      description:
+        'Idempotent: unfollowing an author the person does not follow answers
+        204 as well.'
+      operationId: deleteSelfFollowsByPublicationIdByAuthorId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: authorId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: unfollow one author from the App succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: unfollow one author from the App
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: unfollow one author from the App
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE

@@ -8,6 +8,131 @@ and this project adheres to
 
 ## [Unreleased]
 
+Audience features: notifications, follows, the Galascribe newsletter, the
+contact form, share buttons and public counts, as one HTTP contract (design:
+`scrap/20261027_audience-features-design.md`, section 4.2). Additive: no
+existing operation, member or problem code changes meaning, and every 3.21
+request and response still validates. The JSON-schema shapes the new settings
+write into the site's repository (`sharing`, the `newsletter` union,
+`contactForm`, `interactions-config` `follows`) are a separate release; the
+operations below name their members the same way and carry them as OpenAPI
+components so this contract does not depend on that release. No JSON Schema root
+changes here, so `npm run compatibility:check` is unaffected.
+
+### Added
+
+- Notifications (new `notifications` tag, session unless noted):
+  `GET /v2/self/notifications` (`getSelfNotifications`: keyset page of `items`,
+  `nextCursor` and the total `unreadCount`; query `cursor`, `limit`,
+  `unreadOnly`), `GET /v2/self/notifications/unread-count`
+  (`getSelfNotificationsUnreadCount`), `POST /v2/self/notifications:mark-read`
+  (`postSelfNotificationsMarkRead`: exactly one of `ids` or `all: true`; the
+  answer is the new `unreadCount`), `GET` and
+  `PUT /v2/self/notification-preferences` (`getSelfNotificationPreferences`,
+  `putSelfNotificationPreferences`: `emailAvailable` read-only, `timeZone`, one
+  `{category, cadence}` entry per category) and the public RFC 8058 one-click
+  `POST /v2/public/notification-unsubscribes/{token}`
+  (`postPublicNotificationUnsubscribesByToken`: no request body is declared
+  because a mail provider posts `List-Unsubscribe=One-Click` form-encoded and
+  the body is ignored; the answer names the category turned off).
+- `NotificationCategory`, the closed catalog `comments`, `messages`,
+  `publishing`, `audience`, `replies`, `following`, shared by inbox rows
+  (`NotificationItem.category`) and preferences
+  (`NotificationPreference.category`), with the email default per category in
+  its description, and `NotificationCadence` (`instant`, `daily`, `off`).
+  `NotificationItem.kind` and `NotificationTarget.kind` are lowercase slugs a
+  client may switch on and ignore when unknown.
+- Account postal address (`self` tag): `GET`, `PUT` and `DELETE`
+  `/v2/self/postal-address` (`getSelfPostalAddress`, `putSelfPostalAddress`,
+  `deleteSelfPostalAddress`): `PostalAddress`, plain text, one to five lines, at
+  most 300 characters. Removing it is always allowed; a site whose owner has
+  none reads `ownerPostalAddressSet` false and `paused` true on its newsletter
+  settings.
+- Follows (new `audience` tag). A reader follows an author of a site, keyed by
+  (publication, author stable id): `GET`, `PUT` and `DELETE`
+  `/v2/public/publications/{publicationId}/authors/{authorId}/follow` (reader
+  bearer; the `GET` accepts one optionally and answers `following` false
+  without), `GET /v2/self/follows`,
+  `DELETE /v2/self/follows/{publicationId}/{authorId}` (`204`),
+  `GET /v2/self/following-feed` (announced posts, keyset page) and
+  `GET .../publications/{publicationId}/followers` (needs
+  `publication.audience.read`: `total`, per-author counts and follower display
+  names only). `PUT` is `409 FOLLOWS_DISABLED` while the author has the Follow
+  button off; `DELETE` is never refused for that reason, so a reader can always
+  leave.
+- Newsletter: public
+  `POST .../publications/{publicationId}/newsletter-subscriptions`
+  (`{email, trap}`, always the same `202` body), token pages
+  `GET /v2/public/newsletter-confirmations/{token}` and
+  `POST .../{token}:confirm`, and
+  `GET /v2/public/newsletter-subscriptions/{token}` with `POST ...:unsubscribe`
+  (also the RFC 8058 one-click endpoint, body ignored) and `:resubscribe`; site
+  side `GET` and `PUT .../newsletter-settings`,
+  `GET .../newsletter-subscribers`,
+  `DELETE .../newsletter-subscribers/{subscriberId}`,
+  `POST .../newsletter-subscribers:export` and `GET .../newsletter-issues`.
+- Contact form: public `POST .../publications/{publicationId}/contact-messages`
+  (`{name, email, message, website?, phone?, trap, elapsedMs}`, `202`), `GET`
+  and `PUT .../contact-form-settings`, `GET .../contact-messages`, `PATCH` and
+  `DELETE .../contact-messages/{messageId}` and
+  `POST .../contact-messages:export`.
+- Sharing and counts: `GET` and `PUT .../sharing-settings` (`SharingTargets`, 0
+  to 11 distinct members of `SharingTarget`, the 4.1 vocabulary) and the public
+  `GET .../publications/{publicationId}/interaction-counts?contentIds=` (1 to 50
+  comma-separated post ids; `{items: [{contentId, reactions, comments}]}` with
+  `PublicCount` or null, an unknown id left out).
+- The three settings pairs (`newsletter-settings`, `contact-form-settings`,
+  `sharing-settings`) follow the `interaction-settings` pattern exactly (tag
+  `interaction-settings`; `Idempotency-Key` and CSRF on the write; the write is
+  planned as a repository change and answers the same `change`; the read is a
+  live read of the main branch head with `openChange` and `setUp`; the reads are
+  added to the dependency-unavailable allowlist). Unlike the three existing
+  pairs they are session-only: no admin API key reaches them, so the reviewed
+  key allowlist (`test/t24-api-key-scopes.test.js`) is unchanged. The reads need
+  `publication.view`, the writes `publication.settings.manage`.
+  `NewsletterSettings` adds the read-only `ownerPostalAddressSet`, `capacity`
+  (`{limit, used}`) and `paused`; `ContactFormSettings` adds the read-only
+  `planAllows`. `interaction-settings` gains no operation: `follows` arrives
+  through its portable schema, and the two descriptions say so.
+- Capabilities `publication.audience.read` (followers, subscribers, send log,
+  contact messages), `publication.audience.manage` (remove a subscriber, change
+  or delete a message) and `publication.audience.export` (the two CSV exports,
+  which are also `RECENT_AUTHENTICATION` step-ups with action grant `none`). The
+  default owner and admin roles hold all three; that grant lives in the API's
+  role catalog, not in this repository, which names a capability only on the
+  operations that need it.
+- Problem codes (all added to the example rules): `FOLLOWS_DISABLED` `409`,
+  `AUTHOR_NOT_FOUND` `404`, `NEWSLETTER_UNAVAILABLE` `409`, `NEWSLETTER_FULL`
+  `409`, `TOKEN_EXPIRED` `410`, `POSTAL_ADDRESS_REQUIRED` `422` (pointed at
+  `/mode`), `CONTACT_FORM_UNAVAILABLE` `409` and `PLAN_REQUIRED` `409` (pointed
+  at `/enabled`). Public writes also declare `429 RATE_LIMITED`.
+- `PlatformPlan` gains `newsletterSubscriberLimit` (integer, at least 0) and
+  `contactForm` (boolean), both required in a plan the server returns, with the
+  defaults documented on the members and shown in the examples: FREE 50 and no
+  contact form, PRO 500 and a contact form, BUSINESS 2000 and a contact form.
+  `PUT /v2/platform/plans/{planKey}` accepts both as optional members (absent
+  keeps the plan's value); the `FREE <= PRO <= BUSINESS` invariant stays on
+  `publicationLimit` only.
+- App routes: `/notifications`, `/following`,
+  `/sites/{organizationId}/{publicationId}/audience` and the accountless
+  newsletter pages `/t/newsletter/request/{publicationId}`,
+  `/t/newsletter/confirm/{token}` and `/t/newsletter/manage/{token}`, all `APP`
+  routes (the App serves them); the two token routes are
+  `ACCOUNTLESS_CAPABILITY` and `tokenBearing`. `/account` is bound to the
+  preferences and postal-address operations and the Settings route to the three
+  settings pairs (50 routes). The six public operations a site's own script or a
+  mail provider calls stay unbound, as the reader interaction operations do.
+
+### Changed
+
+- `scripts/generate-openapi.mjs`: the two CSV exports join the operations whose
+  success response is bytes (`text/csv`, `format: binary`, with
+  `Content-Disposition` and `X-Content-Type-Options`), and the three settings
+  reads join the dependency-unavailable allowlist.
+- `test/t07-openapi.test.js` and `test/t09-app-catalogs.test.js` pin the new
+  operations, problem codes, closed enums and routes; the catalog test now
+  admits the three `/t/newsletter/` addresses and their token-bearing routes.
+
 ## [3.22.0] - 2026-10-27
 
 Audience features, repository side: share buttons, a Galascribe-managed

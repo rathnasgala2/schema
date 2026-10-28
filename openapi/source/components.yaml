@@ -12655,6 +12655,24 @@ components:
     PlatformPlan:
       additionalProperties: false
       properties:
+        contactForm:
+          description:
+            'SCHEMA-3.23.0, whether sites on this plan may turn on the contact
+            form. A site on a plan without it sees the form locked, and enabling
+            it is `409 PLAN_REQUIRED`. Defaults of the first release: FREE 50
+            and no contact form, PRO 500 and a contact form, BUSINESS 2000 and a
+            contact form.'
+          type: boolean
+        newsletterSubscriberLimit:
+          description:
+            'SCHEMA-3.23.0, the confirmed newsletter subscribers one
+            organization on this plan may hold across its sites; a confirmation
+            past it is `409 NEWSLETTER_FULL`. 0 admits none. Defaults of the
+            first release: FREE 50 and no contact form, PRO 500 and a contact
+            form, BUSINESS 2000 and a contact form.'
+          format: int64
+          minimum: 0
+          type: integer
         planKey:
           $ref: '#/components/schemas/PlatformPlanKey'
         publicationLimit:
@@ -12664,6 +12682,8 @@ components:
       required:
         - planKey
         - publicationLimit
+        - newsletterSubscriberLimit
+        - contactForm
       type: object
     PlatformPlanCapacityRelease:
       additionalProperties: false
@@ -12730,6 +12750,16 @@ components:
     PutPlatformPlansByPlanKeyRequest:
       additionalProperties: false
       properties:
+        contactForm:
+          description:
+            "SCHEMA-3.23.0, optional; absent keeps the plan's current value."
+          type: boolean
+        newsletterSubscriberLimit:
+          description:
+            "SCHEMA-3.23.0, optional; absent keeps the plan's current value."
+          format: int64
+          minimum: 0
+          type: integer
         publicationLimit:
           format: int64
           minimum: 1
@@ -13946,6 +13976,1334 @@ components:
       minLength: 24
       pattern: ^UC[A-Za-z0-9_-]{22}$
       type: string
+    AudienceAuthor:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: an author of a site as the site names it in
+        `gala/publication.json`. `id` is the author's stable id; follows are
+        keyed by (publication, author id)."
+      properties:
+        displayName:
+          maxLength: 200
+          minLength: 1
+          type: string
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - displayName
+      type: object
+    AudienceEmail:
+      description:
+        'SCHEMA-3.23.0: an email address, at most 320 characters. The server
+        trims and lower-cases it; anything that is not an address is `400
+        VALIDATION_FAILED`.'
+      format: email
+      maxLength: 320
+      minLength: 3
+      type: string
+    AudiencePublication:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: a site named in an audience row: its id, title and
+        public address.'
+      properties:
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+        url:
+          $ref: '#/components/schemas/AudienceUrl'
+      required:
+        - id
+        - title
+        - url
+      type: object
+    AudienceUrl:
+      description:
+        'SCHEMA-3.23.0: an absolute address of a site, a post or an image:
+        `https`, or `http` on localhost for a local stack. No credentials, at
+        most 2048 characters.'
+      maxLength: 2048
+      minLength: 1
+      pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
+      type: string
+    ContactFormFields:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the optional fields of the contact form besides the
+        always-present name, email and message.'
+      properties:
+        phone:
+          type: boolean
+        website:
+          type: boolean
+      required:
+        - website
+        - phone
+      type: object
+    ContactFormIntro:
+      description:
+        'SCHEMA-3.23.0: the introduction above the contact form, in Markdown, 1
+        to 2000 characters. It is stored as `gala/theme-pages/contact.md`;
+        without that file the template shows its own default introduction.'
+      maxLength: 2000
+      minLength: 1
+      type: string
+    ContactFormSettings:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: the contact form configuration of a site at the linked
+        repository's main branch head: the `contactForm` member of
+        `gala/publication.json` (`enabled`, `fields`) and the introduction in
+        `gala/theme-pages/contact.md` (`intro`, null when the file is absent).
+        `planAllows` is read-only: false while the site's plan does not include
+        the contact form (the Free plan by default), in which case `enabled`
+        cannot be turned on. `openChange` names an existing not-yet-published
+        change of this publication that touches either file, or is null. `setUp`
+        matches `GET .../repository/setup` `state`."
+      properties:
+        enabled:
+          type: boolean
+        fields:
+          $ref: '#/components/schemas/ContactFormFields'
+        intro:
+          oneOf:
+            - $ref: '#/components/schemas/ContactFormIntro'
+            - type: 'null'
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        planAllows:
+          type: boolean
+        setUp:
+          type: boolean
+      required:
+        - enabled
+        - fields
+        - intro
+        - planAllows
+        - openChange
+        - setUp
+      type: object
+    ContactMessage:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: one contact-form message with the sender's details, for
+        the site's owners and admins. `website` and `phone` are null when the
+        form did not ask for them or the sender left them empty. `handledAt` is
+        null while `state` is `new`. A message is deleted 180 days after it
+        arrived."
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        email:
+          $ref: '#/components/schemas/AudienceEmail'
+        handledAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        message:
+          maxLength: 5000
+          minLength: 1
+          type: string
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        phone:
+          maxLength: 40
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        state:
+          $ref: '#/components/schemas/ContactMessageState'
+        website:
+          maxLength: 300
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - id
+        - name
+        - email
+        - website
+        - phone
+        - message
+        - state
+        - createdAt
+        - handledAt
+      type: object
+    ContactMessageState:
+      description:
+        'SCHEMA-3.23.0: `new` until the site owner marks the message `handled`.'
+      enum:
+        - new
+        - handled
+      type: string
+    DeletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
+      $ref: '#/components/schemas/FollowState'
+    FollowFeedItem:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: one announced post by a followed author. A post is
+        announced once, when the deployment that first carries it is certified
+        live (the announcement ledger); republishing, editing, rolling back and
+        restoring announce nothing.'
+      properties:
+        announcedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        author:
+          $ref: '#/components/schemas/AudienceAuthor'
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        description:
+          maxLength: 300
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        imageUrl:
+          oneOf:
+            - $ref: '#/components/schemas/AudienceUrl'
+            - type: 'null'
+        publication:
+          $ref: '#/components/schemas/AudiencePublication'
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+        url:
+          $ref: '#/components/schemas/AudienceUrl'
+      required:
+        - id
+        - publication
+        - author
+        - contentId
+        - title
+        - description
+        - url
+        - imageUrl
+        - announcedAt
+      type: object
+    FollowState:
+      additionalProperties: false
+      properties:
+        following:
+          type: boolean
+      required:
+        - following
+      type: object
+    FollowedAuthor:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: one author a person follows, with the site the author
+        writes for.'
+      properties:
+        author:
+          $ref: '#/components/schemas/AudienceAuthor'
+        followedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        publication:
+          $ref: '#/components/schemas/AudiencePublication'
+      required:
+        - publication
+        - author
+        - followedAt
+      type: object
+    FollowerAuthorCount:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: how many readers follow one author of the site.'
+      properties:
+        authorId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        displayName:
+          maxLength: 200
+          minLength: 1
+          type: string
+        followers:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - authorId
+        - displayName
+        - followers
+      type: object
+    FollowerRow:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: one follower as the site owner sees them: the reader's
+        display name only, never an email address or a person id (a follower
+        list shows names, not accounts). `id` identifies the follow, not the
+        person."
+      properties:
+        authorId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        displayName:
+          maxLength: 80
+          minLength: 1
+          type: string
+        followedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - authorId
+        - displayName
+        - followedAt
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsResponse:
+      $ref: '#/components/schemas/ContactFormSettings'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ContactMessage'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdFollowersResponse:
+      additionalProperties: false
+      properties:
+        authors:
+          items:
+            $ref: '#/components/schemas/FollowerAuthorCount'
+          maxItems: 100
+          type: array
+        items:
+          items:
+            $ref: '#/components/schemas/FollowerRow'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        total:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - authors
+        - items
+        - nextCursor
+        - total
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssuesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NewsletterIssue'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsResponse:
+      $ref: '#/components/schemas/NewsletterSettings'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersResponse:
+      additionalProperties: false
+      properties:
+        counts:
+          $ref: '#/components/schemas/NewsletterSubscriberCounts'
+        items:
+          items:
+            $ref: '#/components/schemas/NewsletterSubscriberRow'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - counts
+        - items
+        - nextCursor
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsResponse:
+      $ref: '#/components/schemas/SharingSettings'
+    GetPublicNewsletterConfirmationsByTokenResponse:
+      $ref: '#/components/schemas/NewsletterConfirmation'
+    GetPublicNewsletterSubscriptionsByTokenResponse:
+      $ref: '#/components/schemas/NewsletterSubscription'
+    GetPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
+      $ref: '#/components/schemas/FollowState'
+    GetPublicPublicationsByPublicationIdInteractionCountsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PublicCountsItem'
+          maxItems: 50
+          type: array
+      required:
+        - items
+      type: object
+    GetSelfFollowingFeedResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/FollowFeedItem'
+          maxItems: 50
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+      type: object
+    GetSelfFollowsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/FollowedAuthor'
+          maxItems: 500
+          type: array
+      required:
+        - items
+      type: object
+    GetSelfNotificationPreferencesResponse:
+      $ref: '#/components/schemas/NotificationPreferences'
+    GetSelfNotificationsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/NotificationItem'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        unreadCount:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - items
+        - nextCursor
+        - unreadCount
+      type: object
+    GetSelfNotificationsUnreadCountResponse:
+      additionalProperties: false
+      properties:
+        unreadCount:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - unreadCount
+      type: object
+    GetSelfPostalAddressResponse:
+      additionalProperties: false
+      properties:
+        address:
+          oneOf:
+            - $ref: '#/components/schemas/PostalAddress'
+            - type: 'null'
+      required:
+        - address
+      type: object
+    NewsletterCapacity:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: the confirmed-subscriber allowance of the site's
+        organization. `used` counts confirmed subscribers across every site of
+        the organization and `limit` is the plan's `newsletterSubscriberLimit`.
+        A confirmation past the limit is `409 NEWSLETTER_FULL`."
+      properties:
+        limit:
+          format: int64
+          minimum: 0
+          type: integer
+        used:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - limit
+        - used
+      type: object
+    NewsletterConfirmation:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: what the confirmation page shows for one confirmation
+        token.'
+      properties:
+        publication:
+          $ref: '#/components/schemas/AudiencePublication'
+        state:
+          $ref: '#/components/schemas/NewsletterConfirmationState'
+      required:
+        - publication
+        - state
+      type: object
+    NewsletterConfirmationState:
+      description:
+        'SCHEMA-3.23.0: `pending` (not yet confirmed and not expired),
+        `confirmed`, or `expired` (a request unconfirmed after 7 days).'
+      enum:
+        - pending
+        - confirmed
+        - expired
+      type: string
+    NewsletterEmailContent:
+      description:
+        'SCHEMA-3.23.0: what a newsletter email carries. `card` is the site
+        name, post title, description, hero image and a Read the post button;
+        `full` is the whole post as an email-safe fragment built with the site.'
+      enum:
+        - card
+        - full
+      type: string
+    NewsletterIssue:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the send log of one post: when it went out and how many
+        addresses it reached. `recipients` is the confirmed subscribers at send
+        time; `sent`, `failed` and `deferred` (held back by a daily ceiling,
+        retried later) account for them.'
+      properties:
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        deferred:
+          format: int64
+          minimum: 0
+          type: integer
+        failed:
+          format: int64
+          minimum: 0
+          type: integer
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        recipients:
+          format: int64
+          minimum: 0
+          type: integer
+        sent:
+          format: int64
+          minimum: 0
+          type: integer
+        sentAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - id
+        - contentId
+        - title
+        - sentAt
+        - recipients
+        - sent
+        - failed
+        - deferred
+      type: object
+    NewsletterMode:
+      description:
+        "SCHEMA-3.23.0: how a site offers a newsletter. `off` removes the
+        `newsletter` member of `gala/publication.json`; `link` is the link-out
+        panel to the author's own newsletter (`url`, `title`, `text`);
+        `galascribe` is the Galascribe newsletter (a signup form on the site,
+        double opt-in and one email per new post)."
+      enum:
+        - 'off'
+        - link
+        - galascribe
+      type: string
+    NewsletterSettings:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: the newsletter configuration of a site at the linked
+        repository's main branch head, as `gala/publication.json` carries it,
+        plus read-only status. `url` is set in `link` mode only; `emailContent`
+        and `replyToOwner` in `galascribe` mode only; `title` and `text` in both
+        modes; every one is null otherwise. `ownerPostalAddressSet` says whether
+        the site owner has saved a postal address (`GET
+        /v2/self/postal-address`); the Galascribe newsletter cannot be turned on
+        without one. `paused` is true while sends are stopped for the site: the
+        platform newsletter kill switch is on, or the owner has no postal
+        address. `capacity` is the organization's subscriber allowance.
+        `openChange` names an existing not-yet-published change of this
+        publication that touches the file, or is null. `setUp` matches `GET
+        .../repository/setup` `state`."
+      properties:
+        capacity:
+          $ref: '#/components/schemas/NewsletterCapacity'
+        emailContent:
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterEmailContent'
+            - type: 'null'
+        mode:
+          $ref: '#/components/schemas/NewsletterMode'
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        ownerPostalAddressSet:
+          type: boolean
+        paused:
+          type: boolean
+        replyToOwner:
+          type:
+            - boolean
+            - 'null'
+        setUp:
+          type: boolean
+        text:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/plainText
+              x-gala-graphemeLength:
+                maximum: 300
+                minimum: 1
+            - type: 'null'
+        title:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/plainLabel
+            - type: 'null'
+        url:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+            - type: 'null'
+      required:
+        - mode
+        - url
+        - title
+        - text
+        - emailContent
+        - replyToOwner
+        - ownerPostalAddressSet
+        - capacity
+        - paused
+        - openChange
+        - setUp
+      type: object
+    NewsletterSubscriberCounts:
+      additionalProperties: false
+      properties:
+        confirmed:
+          format: int64
+          minimum: 0
+          type: integer
+        pending:
+          format: int64
+          minimum: 0
+          type: integer
+        unsubscribed:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - pending
+        - confirmed
+        - unsubscribed
+      type: object
+    NewsletterSubscriberRow:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: one subscriber as the site owner sees them. `email` is
+        the full address for `pending` and `confirmed` rows and null for
+        `unsubscribed`; `confirmedAt` is null until confirmed.'
+      properties:
+        confirmedAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        email:
+          maxLength: 320
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/NewsletterSubscriberState'
+      required:
+        - id
+        - email
+        - state
+        - createdAt
+        - confirmedAt
+      type: object
+    NewsletterSubscriberState:
+      description:
+        'SCHEMA-3.23.0: `pending` (asked, not yet confirmed), `confirmed`, or
+        `unsubscribed` (the address is kept only as a suppression digest, so its
+        row has no `email`).'
+      enum:
+        - pending
+        - confirmed
+        - unsubscribed
+      type: string
+    NewsletterSubscription:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: what the manage page shows for one subscription token:
+        the site, a masked address such as `a…d@example.com` (never the full
+        address) and the state.'
+      properties:
+        maskedEmail:
+          maxLength: 320
+          minLength: 1
+          type: string
+        publication:
+          $ref: '#/components/schemas/AudiencePublication'
+        state:
+          $ref: '#/components/schemas/NewsletterSubscriptionState'
+      required:
+        - publication
+        - maskedEmail
+        - state
+      type: object
+    NewsletterSubscriptionState:
+      description:
+        'SCHEMA-3.23.0: `subscribed` receives new posts; `unsubscribed` does
+        not.'
+      enum:
+        - subscribed
+        - unsubscribed
+      type: string
+    NotificationCadence:
+      description:
+        'SCHEMA-3.23.0: how often a category is emailed. `instant` sends one
+        email per notification, `daily` one digest per day, `off` none. The
+        inbox row exists whatever the cadence.'
+      enum:
+        - instant
+        - daily
+        - 'off'
+      type: string
+    NotificationCategory:
+      description:
+        'SCHEMA-3.23.0: the closed catalog of notification categories, shared by
+        inbox rows and email preferences. `comments` (site members who can
+        moderate: new comment, comment held for review, report filed),
+        `messages` (site owners and admins: new contact-form message),
+        `publishing` (site members: publish failed, a scheduled or staggered
+        release went live, review requested or approved), `audience` (site
+        owners and admins: new followers and subscribers, summarised), `replies`
+        (any person: someone replied to your comment) and `following` (any
+        person: a new post from an author you follow). The email default per
+        category is `comments` daily, `messages` instant, `publishing` instant,
+        `audience` daily, `replies` instant, `following` daily.'
+      enum:
+        - comments
+        - messages
+        - publishing
+        - audience
+        - replies
+        - following
+      type: string
+    NotificationItem:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: one inbox row. It carries a minimal display payload
+        only: no email address and no comment body beyond a 140-character
+        `excerpt`. `kind` is the specific event (for example `comment-created`,
+        `comment-held`, `report-filed`, `contact-message-received`,
+        `publish-failed`, `release-live`, `review-requested`, `review-approved`,
+        `audience-summary`, `following-post`) as a lowercase slug; a client
+        treats a `kind` it does not know as its `category`. `publication` is
+        null for a row that belongs to no site (a reply to a comment on a
+        deleted site, for instance).'
+      properties:
+        category:
+          $ref: '#/components/schemas/NotificationCategory'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        excerpt:
+          maxLength: 140
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          maxLength: 64
+          minLength: 2
+          pattern: ^[a-z][a-z0-9-]{1,63}$
+          type: string
+        publication:
+          oneOf:
+            - $ref: '#/components/schemas/NotificationPublication'
+            - type: 'null'
+        readAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        target:
+          $ref: '#/components/schemas/NotificationTarget'
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - id
+        - category
+        - kind
+        - publication
+        - title
+        - excerpt
+        - target
+        - createdAt
+        - readAt
+      type: object
+    NotificationPreference:
+      additionalProperties: false
+      properties:
+        cadence:
+          $ref: '#/components/schemas/NotificationCadence'
+        category:
+          $ref: '#/components/schemas/NotificationCategory'
+      required:
+        - category
+        - cadence
+      type: object
+    NotificationPreferenceList:
+      allOf:
+        - contains:
+            properties:
+              category:
+                const: comments
+            required:
+              - category
+            type: object
+          maxContains: 1
+          minContains: 1
+        - contains:
+            properties:
+              category:
+                const: messages
+            required:
+              - category
+            type: object
+          maxContains: 1
+          minContains: 1
+        - contains:
+            properties:
+              category:
+                const: publishing
+            required:
+              - category
+            type: object
+          maxContains: 1
+          minContains: 1
+        - contains:
+            properties:
+              category:
+                const: audience
+            required:
+              - category
+            type: object
+          maxContains: 1
+          minContains: 1
+        - contains:
+            properties:
+              category:
+                const: replies
+            required:
+              - category
+            type: object
+          maxContains: 1
+          minContains: 1
+        - contains:
+            properties:
+              category:
+                const: following
+            required:
+              - category
+            type: object
+          maxContains: 1
+          minContains: 1
+      description:
+        'SCHEMA-3.23.0: exactly one entry per category, in any order. A write
+        that omits or repeats a category is `422 VALIDATION_FAILED`.'
+      items:
+        $ref: '#/components/schemas/NotificationPreference'
+      maxItems: 6
+      minItems: 6
+      type: array
+    NotificationPreferences:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: a person's email choices per notification category.
+        `emailAvailable` is read-only: true only while the person has a
+        consented contact email on file (`contactEmail.state` `ON_FILE`);
+        without one the inbox still works and no category is emailed. `timeZone`
+        is where the daily digest goes out at 08:00, or null for UTC. A write
+        replaces every category and the time zone."
+      properties:
+        categories:
+          $ref: '#/components/schemas/NotificationPreferenceList'
+        emailAvailable:
+          type: boolean
+        timeZone:
+          oneOf:
+            - $ref: '#/components/schemas/NotificationTimeZone'
+            - type: 'null'
+      required:
+        - emailAvailable
+        - timeZone
+        - categories
+      type: object
+    NotificationPublication:
+      additionalProperties: false
+      properties:
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - id
+        - title
+      type: object
+    NotificationTarget:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: where a notification leads. `kind` names the kind of
+        place in words a client may switch on and ignore when unknown (for
+        example `comments`, `messages`, `publishing`, `audience`, `post`,
+        `following`); `url` is an App route path (never an absolute address)
+        that the row links to.'
+      properties:
+        kind:
+          maxLength: 64
+          minLength: 2
+          pattern: ^[a-z][a-z0-9-]{1,63}$
+          type: string
+        url:
+          maxLength: 512
+          minLength: 1
+          pattern: ^/(?!/)[^\s]*$
+          type: string
+      required:
+        - kind
+        - url
+      type: object
+    NotificationTimeZone:
+      description:
+        'SCHEMA-3.23.0: an IANA time zone name (`America/Los_Angeles`,
+        `Europe/London`, `UTC`) in which a person receives the daily digest at
+        08:00. The API accepts only a name its time-zone database knows; an
+        unknown name is `422 VALIDATION_FAILED` pointed at `/timeZone`. The
+        pattern only fixes the shape.'
+      maxLength: 64
+      pattern: ^(?:[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+|UTC)$
+      type: string
+    PatchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageIdRequest:
+      additionalProperties: false
+      properties:
+        state:
+          $ref: '#/components/schemas/ContactMessageState'
+      required:
+        - state
+      type: object
+    PatchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageIdResponse:
+      $ref: '#/components/schemas/ContactMessage'
+    PostPublicNewsletterConfirmationsByTokenConfirmResponse:
+      $ref: '#/components/schemas/NewsletterConfirmation'
+    PostPublicNewsletterSubscriptionsByTokenResubscribeResponse:
+      $ref: '#/components/schemas/NewsletterSubscription'
+    PostPublicNewsletterSubscriptionsByTokenUnsubscribeResponse:
+      $ref: '#/components/schemas/NewsletterSubscription'
+    PostPublicNotificationUnsubscribesByTokenResponse:
+      additionalProperties: false
+      properties:
+        category:
+          $ref: '#/components/schemas/NotificationCategory'
+      required:
+        - category
+      type: object
+    PostPublicPublicationsByPublicationIdContactMessagesRequest:
+      additionalProperties: false
+      properties:
+        elapsedMs:
+          format: int64
+          maximum: 86400000
+          minimum: 0
+          type: integer
+        email:
+          $ref: '#/components/schemas/AudienceEmail'
+        message:
+          maxLength: 5000
+          minLength: 1
+          type: string
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        phone:
+          maxLength: 40
+          minLength: 1
+          type: string
+        trap:
+          maxLength: 200
+          type: string
+        website:
+          maxLength: 300
+          minLength: 1
+          type: string
+      required:
+        - name
+        - email
+        - message
+        - trap
+        - elapsedMs
+      type: object
+    PostPublicPublicationsByPublicationIdContactMessagesResponse:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - RECEIVED
+          type: string
+      required:
+        - status
+      type: object
+    PostPublicPublicationsByPublicationIdNewsletterSubscriptionsRequest:
+      additionalProperties: false
+      properties:
+        email:
+          $ref: '#/components/schemas/AudienceEmail'
+        trap:
+          maxLength: 200
+          type: string
+      required:
+        - email
+        - trap
+      type: object
+    PostPublicPublicationsByPublicationIdNewsletterSubscriptionsResponse:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - CHECK_YOUR_INBOX
+          type: string
+      required:
+        - status
+      type: object
+    PostSelfNotificationsMarkReadRequest:
+      additionalProperties: false
+      maxProperties: 1
+      minProperties: 1
+      properties:
+        all:
+          const: true
+        ids:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 100
+          minItems: 1
+          type: array
+          uniqueItems: true
+      type: object
+    PostSelfNotificationsMarkReadResponse:
+      additionalProperties: false
+      properties:
+        unreadCount:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - unreadCount
+      type: object
+    PostalAddress:
+      description:
+        "SCHEMA-3.23.0: a person's postal address as plain text, one to five
+        lines separated by a line feed, at most 300 characters in all. It is the
+        footer address of the newsletter emails of every site the person owns."
+      maxLength: 300
+      minLength: 1
+      pattern: ^[^\r\n]+(?:\n[^\r\n]+){0,4}$
+      type: string
+    PublicCountsItem:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the public counts of one post. `reactions` is the
+        lower-bound bucket of all reactions on the post and `comments` that of
+        its visible comments, each the same `PublicCount` the article page
+        shows. A count is null when the author turned that public count off
+        (`publicCounts` of the interaction settings) or the feature is off for
+        the site.'
+      properties:
+        comments:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reactions:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+      required:
+        - contentId
+        - reactions
+        - comments
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsRequest:
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        fields:
+          $ref: '#/components/schemas/ContactFormFields'
+        intro:
+          oneOf:
+            - $ref: '#/components/schemas/ContactFormIntro'
+            - type: 'null'
+      required:
+        - enabled
+        - fields
+        - intro
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              mode:
+                const: link
+            required:
+              - mode
+          then:
+            required:
+              - url
+              - title
+              - text
+        - if:
+            properties:
+              mode:
+                const: galascribe
+            required:
+              - mode
+          then:
+            required:
+              - title
+              - text
+              - emailContent
+              - replyToOwner
+      description:
+        'Members by mode: `off` takes none besides `mode`; `link` takes `url`,
+        `title` and `text` (all required); `galascribe` takes `title`, `text`,
+        `emailContent` and `replyToOwner` (all required). A member that does not
+        belong to the chosen mode is `422 VALIDATION_FAILED` pointed at that
+        member.'
+      properties:
+        emailContent:
+          $ref: '#/components/schemas/NewsletterEmailContent'
+        mode:
+          $ref: '#/components/schemas/NewsletterMode'
+        replyToOwner:
+          type: boolean
+        text:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 300
+            minimum: 1
+        title:
+          $ref: ../schemas/publication.schema.json#/$defs/plainLabel
+        url:
+          $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+      required:
+        - mode
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsRequest:
+      additionalProperties: false
+      properties:
+        targets:
+          $ref: '#/components/schemas/SharingTargets'
+      required:
+        - targets
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
+    PutPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
+      $ref: '#/components/schemas/FollowState'
+    PutSelfNotificationPreferencesRequest:
+      additionalProperties: false
+      properties:
+        categories:
+          $ref: '#/components/schemas/NotificationPreferenceList'
+        timeZone:
+          oneOf:
+            - $ref: '#/components/schemas/NotificationTimeZone'
+            - type: 'null'
+      required:
+        - categories
+        - timeZone
+      type: object
+    PutSelfNotificationPreferencesResponse:
+      $ref: '#/components/schemas/NotificationPreferences'
+    PutSelfPostalAddressRequest:
+      additionalProperties: false
+      properties:
+        address:
+          $ref: '#/components/schemas/PostalAddress'
+      required:
+        - address
+      type: object
+    PutSelfPostalAddressResponse:
+      additionalProperties: false
+      properties:
+        address:
+          $ref: '#/components/schemas/PostalAddress'
+      required:
+        - address
+      type: object
+    SharingSettings:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the `sharing` member of `gala/publication.json` at the
+        linked repository''s main branch head. A publication that never chose
+        reads the default, `["copy-link"]`. `openChange` names an existing
+        not-yet-published change of this publication that touches the file, or
+        is null. `setUp` matches `GET .../repository/setup` `state`.'
+      properties:
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        setUp:
+          type: boolean
+        targets:
+          $ref: '#/components/schemas/SharingTargets'
+      required:
+        - targets
+        - openChange
+        - setUp
+      type: object
+    SharingTarget:
+      description:
+        "SCHEMA-3.23.0: one share button. `copy-link` copies the post address,
+        `native` opens the browser's share sheet (shown only where the browser
+        has one), the rest open the network's documented share address with the
+        post title and canonical address. Mastodon is not a target: sharing
+        there needs the reader's own server."
+      enum:
+        - copy-link
+        - native
+        - x
+        - bluesky
+        - linkedin
+        - facebook
+        - hacker-news
+        - whatsapp
+        - telegram
+        - reddit
+        - email
+      type: string
+    SharingTargets:
+      description:
+        'SCHEMA-3.23.0: the ordered share buttons, 0 to 11 distinct targets. An
+        empty list shows no share buttons.'
+      items:
+        $ref: '#/components/schemas/SharingTarget'
+      maxItems: 11
+      type: array
+      uniqueItems: true
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)

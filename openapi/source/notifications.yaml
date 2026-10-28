@@ -1,0 +1,579 @@
+paths:
+  /v2/public/notification-unsubscribes/{token}:
+    post:
+      description:
+        RFC 8058 one-click unsubscribe. The `token` is the capability carried in
+        the `List-Unsubscribe` header of one notification email; it names one
+        person and one category and needs no session. The call turns that
+        category's email off (cadence `off`) and answers the category. A mail
+        provider's one-click POST arrives with an
+        `application/x-www-form-urlencoded` body `List-Unsubscribe=One-Click`;
+        the body is ignored, so no content type is declared. Repeating the call
+        changes nothing. An unknown or revoked token is `404
+        RESOURCE_NOT_FOUND`.
+      operationId: postPublicNotificationUnsubscribesByToken
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: examplexxxxxxxxxxxxxxxxxxxxxxxxx
+          in: path
+          name: token
+          required: true
+          schema:
+            maxLength: 256
+            minLength: 32
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    category: following
+              schema:
+                $ref: '#/components/schemas/PostPublicNotificationUnsubscribesByTokenResponse'
+          description:
+            turn one notification category off by its email unsubscribe link
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security: []
+      summary: turn one notification category off by its email unsubscribe link
+      tags:
+        - notifications
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        turn one notification category off by its email unsubscribe link
+      x-gala-reachable-problems:
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/self/notification-preferences:
+    get:
+      description:
+        Always lists all six categories. A category the person never chose reads
+        with its default cadence (see `NotificationCategory`).
+      operationId: getSelfNotificationPreferences
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    categories:
+                      - cadence: daily
+                        category: comments
+                      - cadence: instant
+                        category: messages
+                      - cadence: instant
+                        category: publishing
+                      - cadence: daily
+                        category: audience
+                      - cadence: instant
+                        category: replies
+                      - cadence: daily
+                        category: following
+                    emailAvailable: true
+                    timeZone: Europe/London
+              schema:
+                $ref: '#/components/schemas/GetSelfNotificationPreferencesResponse'
+          description:
+            read the signed-in person's notification email preferences succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: read the signed-in person's notification email preferences
+      tags:
+        - notifications
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the signed-in person's notification email preferences
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    put:
+      description:
+        "Replaces every category's cadence and the digest time zone. Every
+        notification email carries an RFC 8058 one-click unsubscribe link that
+        turns one category off through `POST
+        /v2/public/notification-unsubscribes/{token}`; this write is how the
+        person turns it back on. Saving a cadence other than `off` while
+        `emailAvailable` is false is accepted and takes effect once a contact
+        email is on file. `emailAvailable` is read-only and is not a request
+        member: send only `timeZone` and `categories`."
+      operationId: putSelfNotificationPreferences
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  categories:
+                    - cadence: daily
+                      category: comments
+                    - cadence: instant
+                      category: messages
+                    - cadence: instant
+                      category: publishing
+                    - cadence: daily
+                      category: audience
+                    - cadence: instant
+                      category: replies
+                    - cadence: daily
+                      category: following
+                  timeZone: Europe/London
+            schema:
+              $ref: '#/components/schemas/PutSelfNotificationPreferencesRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    categories:
+                      - cadence: daily
+                        category: comments
+                      - cadence: instant
+                        category: messages
+                      - cadence: instant
+                        category: publishing
+                      - cadence: daily
+                        category: audience
+                      - cadence: instant
+                        category: replies
+                      - cadence: daily
+                        category: following
+                    emailAvailable: true
+                    timeZone: Europe/London
+              schema:
+                $ref: '#/components/schemas/PutSelfNotificationPreferencesResponse'
+          description:
+            replace the signed-in person's notification email preferences
+            succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: replace the signed-in person's notification email preferences
+      tags:
+        - notifications
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose:
+        replace the signed-in person's notification email preferences
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/self/notifications:
+    get:
+      description:
+        The inbox, newest first, one keyset page at a time. `unreadOnly` keeps
+        only rows whose `readAt` is null. `unreadCount` is the total number of
+        unread rows, not the number on the page. Rows are kept 90 days.
+      operationId: getSelfNotifications
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - example: false
+          in: query
+          name: unreadOnly
+          required: false
+          schema:
+            default: false
+            type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - category: comments
+                        createdAt: '2026-10-27T12:00:00.000Z'
+                        excerpt: Great article.
+                        id: 018f0000-0000-7000-8000-000000000001
+                        kind: comment-created
+                        publication:
+                          id: 018f0000-0000-7000-8000-000000000001
+                          title: Example Blog
+                        readAt: null
+                        target:
+                          kind: comments
+                          url: /sites/018f0000-0000-7000-8000-000000000001/018f0000-0000-7000-8000-000000000001/comments
+                        title: New comment on Hello world
+                    nextCursor: null
+                    unreadCount: 1
+              schema:
+                $ref: '#/components/schemas/GetSelfNotificationsResponse'
+          description: list the signed-in person's notifications succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list the signed-in person's notifications
+      tags:
+        - notifications
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the signed-in person's notifications
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/notifications/unread-count:
+    get:
+      description:
+        The number the top-bar bell shows. It is the same figure as
+        `unreadCount` on the inbox list.
+      operationId: getSelfNotificationsUnreadCount
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    unreadCount: 3
+              schema:
+                $ref: '#/components/schemas/GetSelfNotificationsUnreadCountResponse'
+          description:
+            read the signed-in person's unread notification count succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: read the signed-in person's unread notification count
+      tags:
+        - notifications
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the signed-in person's unread notification count
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/notifications:mark-read:
+    post:
+      description:
+        "Send exactly one of `ids` (up to 100 notification ids) or `all: true`.
+        An id that is not one of the caller's own rows is ignored without an
+        error, so the call cannot be used to probe other people's rows. Marking
+        an already-read row changes nothing. The answer carries the unread count
+        after the change."
+      operationId: postSelfNotificationsMarkRead
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  ids:
+                    - 018f0000-0000-7000-8000-000000000001
+            schema:
+              $ref: '#/components/schemas/PostSelfNotificationsMarkReadRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    unreadCount: 0
+              schema:
+                $ref: '#/components/schemas/PostSelfNotificationsMarkReadResponse'
+          description: mark notifications as read succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: mark notifications as read
+      tags:
+        - notifications
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mark notifications as read
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE

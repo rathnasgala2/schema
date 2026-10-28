@@ -3242,3 +3242,879 @@ test('3.19.0 OpenAPI additions: staggered release setting, listing and home memb
     'VALIDATION_FAILED',
   ]);
 });
+
+test('SCHEMA-3.23.0: the audience operations, their authentication, capabilities and success statuses', async () => {
+  const { bundle } = await readProjections();
+  const orgPub =
+    '/v2/organizations/{organizationId}/publications/{publicationId}';
+  /** @type {Array<[string, string, string, string, string | null, string | null, string | null]>} */
+  const table = [
+    [
+      'get',
+      `${orgPub}/contact-form-settings`,
+      'browserSession',
+      '200',
+      'publication.view',
+      null,
+      null,
+    ],
+    [
+      'put',
+      `${orgPub}/contact-form-settings`,
+      'browserSession',
+      '200',
+      'publication.settings.manage',
+      null,
+      null,
+    ],
+    [
+      'get',
+      `${orgPub}/contact-messages`,
+      'browserSession',
+      '200',
+      'publication.audience.read',
+      null,
+      null,
+    ],
+    [
+      'post',
+      `${orgPub}/contact-messages:export`,
+      'browserSession',
+      '200',
+      'publication.audience.export',
+      null,
+      'RECENT_AUTHENTICATION',
+    ],
+    [
+      'delete',
+      `${orgPub}/contact-messages/{messageId}`,
+      'browserSession',
+      '204',
+      'publication.audience.manage',
+      null,
+      null,
+    ],
+    [
+      'patch',
+      `${orgPub}/contact-messages/{messageId}`,
+      'browserSession',
+      '200',
+      'publication.audience.manage',
+      null,
+      null,
+    ],
+    [
+      'get',
+      `${orgPub}/followers`,
+      'browserSession',
+      '200',
+      'publication.audience.read',
+      null,
+      null,
+    ],
+    [
+      'get',
+      `${orgPub}/newsletter-issues`,
+      'browserSession',
+      '200',
+      'publication.audience.read',
+      null,
+      null,
+    ],
+    [
+      'get',
+      `${orgPub}/newsletter-settings`,
+      'browserSession',
+      '200',
+      'publication.view',
+      null,
+      null,
+    ],
+    [
+      'put',
+      `${orgPub}/newsletter-settings`,
+      'browserSession',
+      '200',
+      'publication.settings.manage',
+      null,
+      null,
+    ],
+    [
+      'get',
+      `${orgPub}/newsletter-subscribers`,
+      'browserSession',
+      '200',
+      'publication.audience.read',
+      null,
+      null,
+    ],
+    [
+      'post',
+      `${orgPub}/newsletter-subscribers:export`,
+      'browserSession',
+      '200',
+      'publication.audience.export',
+      null,
+      'RECENT_AUTHENTICATION',
+    ],
+    [
+      'delete',
+      `${orgPub}/newsletter-subscribers/{subscriberId}`,
+      'browserSession',
+      '204',
+      'publication.audience.manage',
+      null,
+      null,
+    ],
+    [
+      'get',
+      `${orgPub}/sharing-settings`,
+      'browserSession',
+      '200',
+      'publication.view',
+      null,
+      null,
+    ],
+    [
+      'put',
+      `${orgPub}/sharing-settings`,
+      'browserSession',
+      '200',
+      'publication.settings.manage',
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/public/newsletter-confirmations/{token}',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/public/newsletter-confirmations/{token}:confirm',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/public/newsletter-subscriptions/{token}',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/public/newsletter-subscriptions/{token}:resubscribe',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/public/newsletter-subscriptions/{token}:unsubscribe',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/public/notification-unsubscribes/{token}',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'delete',
+      '/v2/public/publications/{publicationId}/authors/{authorId}/follow',
+      'readerBearer',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/public/publications/{publicationId}/authors/{authorId}/follow',
+      'none+readerBearer',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'put',
+      '/v2/public/publications/{publicationId}/authors/{authorId}/follow',
+      'readerBearer',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/contact-messages',
+      'public',
+      '202',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/public/publications/{publicationId}/interaction-counts',
+      'public',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/newsletter-subscriptions',
+      'public',
+      '202',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/self/following-feed',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    ['get', '/v2/self/follows', 'browserSession', '200', null, null, null],
+    [
+      'delete',
+      '/v2/self/follows/{publicationId}/{authorId}',
+      'browserSession',
+      '204',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/self/notification-preferences',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'put',
+      '/v2/self/notification-preferences',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/self/notifications',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'post',
+      '/v2/self/notifications:mark-read',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/self/notifications/unread-count',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'delete',
+      '/v2/self/postal-address',
+      'browserSession',
+      '204',
+      null,
+      null,
+      null,
+    ],
+    [
+      'get',
+      '/v2/self/postal-address',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+    [
+      'put',
+      '/v2/self/postal-address',
+      'browserSession',
+      '200',
+      null,
+      null,
+      null,
+    ],
+  ];
+  assert.equal(table.length, 38);
+  for (const [
+    method,
+    route,
+    security,
+    status,
+    capabilityKey,
+    keyScope,
+    assurance,
+  ] of table) {
+    const operation = operationAt(bundle, method, route);
+    const label = `${method} ${route}`;
+    const kinds =
+      /** @type {JsonObject[]} */ (operation.security)
+        .map((requirement) => Object.keys(requirement)[0] ?? 'none')
+        .join('+') || 'public';
+    assert.equal(kinds, security, label);
+    assert.ok(operation.responses[status], label);
+    assert.equal(operation['x-gala-capability-key'], capabilityKey, label);
+    assert.equal(operation['x-gala-api-key-scope'] ?? null, keyScope, label);
+    assert.equal(operation['x-gala-assurance-class'] ?? null, assurance, label);
+    const references = /** @type {JsonObject[]} */ (operation.parameters).map(
+      (parameter) => parameter.$ref,
+    );
+    // A session write carries the CSRF token; a reader, token or public call
+    // does not. Only the repository-writing settings carry an Idempotency-Key.
+    const sessionWrite =
+      security.startsWith('browserSession') && method !== 'get';
+    assert.equal(
+      references.includes('#/components/parameters/XCsrfToken'),
+      sessionWrite,
+      label,
+    );
+    assert.equal(
+      references.includes('#/components/parameters/IdempotencyKey'),
+      method === 'put' && route.endsWith('-settings'),
+      label,
+    );
+    assert.equal(
+      references.includes('#/components/parameters/IfMatch'),
+      false,
+      label,
+    );
+  }
+  // The three audience capabilities exist and are used by exactly the list,
+  // manage and export operations.
+  const byCapability = (/** @type {string} */ key) =>
+    table
+      .filter((row) => row[4] === key)
+      .map((row) => `${row[0]} ${row[1].replace(orgPub, '')}`);
+  assert.equal(byCapability('publication.audience.read').length, 4);
+  assert.equal(byCapability('publication.audience.manage').length, 3);
+  assert.equal(byCapability('publication.audience.export').length, 2);
+  // An export is a UTF-8 CSV download and a recent-authentication step-up.
+  for (const route of [
+    `${orgPub}/contact-messages:export`,
+    `${orgPub}/newsletter-subscribers:export`,
+  ]) {
+    const operation = operationAt(bundle, 'post', route);
+    const ok = operation.responses['200'];
+    assert.deepEqual(Object.keys(ok.content), ['text/csv']);
+    assert.equal(ok.content['text/csv'].schema.format, 'binary');
+    assert.equal(
+      ok.headers['Content-Disposition'].$ref,
+      '#/components/headers/ContentDispositionAttachment',
+    );
+    assert.equal(operation['x-gala-action-grant'], 'none');
+    assert.deepEqual(
+      operation['x-gala-reachable-problems'].includes('REAUTH_REQUIRED'),
+      true,
+    );
+    assert.equal(operation.requestBody, undefined);
+  }
+  // A writer of the repository follows the interaction-settings pattern.
+  for (const segment of [
+    'contact-form-settings',
+    'newsletter-settings',
+    'sharing-settings',
+  ]) {
+    const read = operationAt(bundle, 'get', `${orgPub}/${segment}`);
+    const write = operationAt(bundle, 'put', `${orgPub}/${segment}`);
+    assert.equal(read.tags[0], 'interaction-settings');
+    assert.equal(write.tags[0], 'interaction-settings');
+    assert.equal(
+      read['x-gala-reachable-problems'].includes('DEPENDENCY_UNAVAILABLE'),
+      true,
+    );
+    assert.deepEqual(write['x-gala-state-guards'], [
+      'Publication:ACTIVE',
+      'RepositoryBinding:ACTIVE',
+      'RepositoryChange:REQUESTED -> PLANNED',
+    ]);
+    assert.equal(
+      write['x-gala-concurrency'],
+      'expected-git-head-and-binding-epoch',
+    );
+    assert.equal(
+      write.responses['200'].content['application/json'].schema.$ref,
+      `#/components/schemas/Put${read.operationId.slice(3)}Response`,
+    );
+    const response =
+      bundle.components.schemas[`Put${read.operationId.slice(3)}Response`];
+    assert.equal(
+      response.properties.change.$ref,
+      '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse',
+    );
+  }
+});
+
+test('SCHEMA-3.23.0: the new problem codes are declared with their statuses', async () => {
+  const { bundle } = await readProjections();
+  const orgPub =
+    '/v2/organizations/{organizationId}/publications/{publicationId}';
+  const follow =
+    '/v2/public/publications/{publicationId}/authors/{authorId}/follow';
+  /** @type {Array<[string, string, string, string]>} */
+  const expected = [
+    ['put', follow, '409', 'FOLLOWS_DISABLED'],
+    ['put', follow, '404', 'AUTHOR_NOT_FOUND'],
+    ['delete', follow, '404', 'AUTHOR_NOT_FOUND'],
+    ['get', follow, '404', 'AUTHOR_NOT_FOUND'],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/newsletter-subscriptions',
+      '409',
+      'NEWSLETTER_UNAVAILABLE',
+    ],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/newsletter-subscriptions',
+      '409',
+      'NEWSLETTER_FULL',
+    ],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/newsletter-subscriptions',
+      '429',
+      'RATE_LIMITED',
+    ],
+    [
+      'post',
+      '/v2/public/newsletter-confirmations/{token}:confirm',
+      '410',
+      'TOKEN_EXPIRED',
+    ],
+    [
+      'post',
+      '/v2/public/newsletter-confirmations/{token}:confirm',
+      '409',
+      'NEWSLETTER_FULL',
+    ],
+    [
+      'post',
+      '/v2/public/newsletter-subscriptions/{token}:resubscribe',
+      '409',
+      'NEWSLETTER_FULL',
+    ],
+    ['put', `${orgPub}/newsletter-settings`, '422', 'POSTAL_ADDRESS_REQUIRED'],
+    ['put', `${orgPub}/newsletter-settings`, '422', 'VALIDATION_FAILED'],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/contact-messages',
+      '409',
+      'CONTACT_FORM_UNAVAILABLE',
+    ],
+    [
+      'post',
+      '/v2/public/publications/{publicationId}/contact-messages',
+      '429',
+      'RATE_LIMITED',
+    ],
+    ['put', `${orgPub}/contact-form-settings`, '409', 'PLAN_REQUIRED'],
+  ];
+  for (const [method, route, status, code] of expected) {
+    const operation = operationAt(bundle, method, route);
+    const response = operation.responses[status];
+    assert.ok(response, `${method} ${route} ${status}`);
+    assert.ok(
+      response['x-gala-problem-codes'].includes(code),
+      `${method} ${route} ${code}`,
+    );
+    assert.ok(operation['x-gala-reachable-problems'].includes(code));
+    const example =
+      response.content['application/problem+json'].examples[code].value;
+    assert.equal(example.status, Number(status));
+    assert.equal(
+      example.type,
+      `urn:gala:problem:${code.toLowerCase().replaceAll('_', '-')}`,
+    );
+    assert.ok(
+      HTTP_PROBLEM_EXAMPLE_RULES[code]?.statuses.includes(Number(status)),
+    );
+  }
+  // The postal-address and plan refusals point at the member that caused them.
+  const postal = operationAt(bundle, 'put', `${orgPub}/newsletter-settings`)
+    .responses['422'];
+  assert.deepEqual(
+    postal.content['application/problem+json'].examples.POSTAL_ADDRESS_REQUIRED
+      .value.errors,
+    [{ code: 'POSTAL_ADDRESS_REQUIRED', pointer: '/mode' }],
+  );
+  const plan = operationAt(bundle, 'put', `${orgPub}/contact-form-settings`)
+    .responses['409'];
+  assert.deepEqual(
+    plan.content['application/problem+json'].examples.PLAN_REQUIRED.value
+      .errors,
+    [{ code: 'PLAN_REQUIRED', pointer: '/enabled' }],
+  );
+});
+
+test('SCHEMA-3.23.0: notification categories are one closed enum shared by inbox rows and preferences', async () => {
+  const { bundle } = await readProjections();
+  const schemas = bundle.components.schemas;
+  const categories = [
+    'comments',
+    'messages',
+    'publishing',
+    'audience',
+    'replies',
+    'following',
+  ];
+  assert.deepEqual(schemas.NotificationCategory.enum, categories);
+  assert.deepEqual(schemas.NotificationCadence.enum, [
+    'instant',
+    'daily',
+    'off',
+  ]);
+  for (const name of ['NotificationItem', 'NotificationPreference']) {
+    assert.equal(
+      schemas[name].properties.category.$ref,
+      '#/components/schemas/NotificationCategory',
+      name,
+    );
+  }
+  const list = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/NotificationPreferenceList',
+  });
+  const all = categories.map((category) => ({ cadence: 'daily', category }));
+  assert.equal(list(all), true);
+  assert.equal(list([...all].reverse()), true);
+  assert.equal(list(all.slice(1)), false);
+  assert.equal(list([...all.slice(1), all[1]]), false);
+  assert.equal(list(all.map((row) => ({ ...row, cadence: 'weekly' }))), false);
+  assert.equal(
+    list(
+      all.map((row, i) => (i === 0 ? { ...row, category: 'billing' } : row)),
+    ),
+    false,
+  );
+  const preferences = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PutSelfNotificationPreferencesRequest',
+  });
+  assert.equal(preferences({ categories: all, timeZone: null }), true);
+  assert.equal(
+    preferences({ categories: all, timeZone: 'Europe/London' }),
+    true,
+  );
+  assert.equal(preferences({ categories: all, timeZone: 'London' }), false);
+  assert.equal(preferences({ categories: all }), false);
+  assert.equal(
+    preferences({ categories: all, timeZone: null, emailAvailable: true }),
+    false,
+  );
+
+  const markRead = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PostSelfNotificationsMarkReadRequest',
+  });
+  const id = '018f0000-0000-7000-8000-000000000001';
+  assert.equal(markRead({ ids: [id] }), true);
+  assert.equal(markRead({ all: true }), true);
+  assert.equal(markRead({}), false);
+  assert.equal(markRead({ ids: [] }), false);
+  assert.equal(markRead({ all: false }), false);
+  assert.equal(markRead({ ids: [id], all: true }), false);
+  assert.equal(markRead({ ids: [id, id] }), false);
+  assert.equal(
+    markRead({
+      ids: Array.from(
+        { length: 101 },
+        (_, i) => `018f0000-0000-7000-8000-${String(i).padStart(12, '0')}`,
+      ),
+    }),
+    false,
+  );
+
+  const address = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PostalAddress',
+  });
+  assert.equal(address('Rathnas LLC'), true);
+  assert.equal(address('A\nB\nC\nD\nE'), true);
+  assert.equal(address('A\nB\nC\nD\nE\nF'), false);
+  assert.equal(address(''), false);
+  assert.equal(address('A\n\nB'), false);
+  assert.equal(address('x'.repeat(301)), false);
+});
+
+test('SCHEMA-3.23.0: newsletter, contact, sharing and count shapes are closed and mode-aware', async () => {
+  const { bundle } = await readProjections();
+  const orgPubStem = 'OrganizationsByOrganizationIdPublicationsByPublicationId';
+  const compile = (/** @type {string} */ name) =>
+    compileResolvedSchema(bundle, { $ref: `#/components/schemas/${name}` });
+
+  const newsletter = await compile(
+    `PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsRequest`,
+  );
+  const card = {
+    emailContent: 'card',
+    mode: 'galascribe',
+    replyToOwner: false,
+    text: 'New posts by email.',
+    title: 'Subscribe',
+  };
+  assert.equal(newsletter({ mode: 'off' }), true);
+  assert.equal(
+    newsletter({
+      mode: 'link',
+      text: 'Read more',
+      title: 'Newsletter',
+      url: 'https://news.example.com/',
+    }),
+    true,
+  );
+  assert.equal(newsletter(card), true);
+  assert.equal(
+    newsletter({
+      mode: 'galascribe',
+      emailContent: 'full',
+      replyToOwner: true,
+      text: 'x',
+      title: 'y',
+    }),
+    true,
+  );
+  assert.equal(
+    newsletter({ mode: 'link', title: 'Newsletter', text: 'Read more' }),
+    false,
+  );
+  assert.equal(newsletter({ ...card, emailContent: undefined }), false);
+  assert.equal(newsletter({ ...card, replyToOwner: undefined }), false);
+  assert.equal(newsletter({ ...card, emailContent: 'html' }), false);
+  assert.equal(newsletter({ ...card, mode: 'rss' }), false);
+  assert.equal(newsletter({ ...card, extra: 1 }), false);
+  assert.equal(newsletter({}), false);
+
+  const sharing = await compile('SharingTargets');
+  const all = [
+    'copy-link',
+    'native',
+    'x',
+    'bluesky',
+    'linkedin',
+    'facebook',
+    'hacker-news',
+    'whatsapp',
+    'telegram',
+    'reddit',
+    'email',
+  ];
+  assert.equal(sharing([]), true);
+  assert.equal(sharing(['copy-link']), true);
+  assert.equal(sharing(all), true);
+  assert.equal(sharing([...all, 'x']), false);
+  assert.equal(sharing(['x', 'x']), false);
+  assert.equal(sharing(['mastodon']), false);
+
+  const contact = await compile(
+    'PostPublicPublicationsByPublicationIdContactMessagesRequest',
+  );
+  const message = {
+    elapsedMs: 18000,
+    email: 'reader@example.com',
+    message: 'Hello',
+    name: 'Ada',
+    trap: '',
+  };
+  assert.equal(contact(message), true);
+  assert.equal(
+    contact({ ...message, phone: '+1 555 0100', website: 'example.com' }),
+    true,
+  );
+  assert.equal(contact({ ...message, trap: undefined }), false);
+  assert.equal(contact({ ...message, elapsedMs: undefined }), false);
+  assert.equal(contact({ ...message, elapsedMs: -1 }), false);
+  assert.equal(contact({ ...message, message: '' }), false);
+  assert.equal(contact({ ...message, message: 'x'.repeat(5001) }), false);
+  assert.equal(contact({ ...message, extra: 1 }), false);
+
+  const subscribe = await compile(
+    'PostPublicPublicationsByPublicationIdNewsletterSubscriptionsRequest',
+  );
+  assert.equal(subscribe({ email: 'reader@example.com', trap: '' }), true);
+  assert.equal(subscribe({ email: 'reader@example.com' }), false);
+  assert.equal(
+    subscribe({ email: 'reader@example.com', trap: '', extra: 1 }),
+    false,
+  );
+
+  const contentIds = /** @type {JsonObject[]} */ (
+    operationAt(
+      bundle,
+      'get',
+      '/v2/public/publications/{publicationId}/interaction-counts',
+    ).parameters
+  ).find((parameter) => parameter.name === 'contentIds');
+  assert.ok(contentIds);
+  assert.equal(contentIds.in, 'query');
+  assert.equal(contentIds.required, true);
+  assert.equal(contentIds.style, 'form');
+  assert.equal(contentIds.explode, false);
+  assert.equal(contentIds.schema.minItems, 1);
+  assert.equal(contentIds.schema.maxItems, 50);
+  const counts = await compile('PublicCountsItem');
+  const some = { display: '3', label: 'At least 3 comments', lowerBound: 3 };
+  assert.equal(
+    counts({
+      comments: some,
+      contentId: '018f0000-0000-7000-8000-000000000001',
+      reactions: null,
+    }),
+    true,
+  );
+  assert.equal(
+    counts({
+      comments: null,
+      contentId: '018f0000-0000-7000-8000-000000000001',
+    }),
+    false,
+  );
+
+  // Lists use the interaction family's keyset page: `nextCursor` is string or null.
+  for (const name of [
+    'GetSelfNotificationsResponse',
+    'GetSelfFollowingFeedResponse',
+    `GetOrganizationsByOrganizationIdPublicationsByPublicationIdFollowersResponse`,
+    `GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersResponse`,
+    `GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssuesResponse`,
+    `GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse`,
+  ]) {
+    const schema = bundle.components.schemas[name];
+    assert.deepEqual(
+      [...schema.properties.nextCursor.type].sort(),
+      ['null', 'string'],
+      name,
+    );
+    assert.ok(schema.required.includes('nextCursor'), name);
+    assert.ok(schema.required.includes('items'), name);
+    assert.equal(schema.additionalProperties, false, name);
+  }
+  assert.ok(orgPubStem.length > 0);
+});
+
+test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form switch', async () => {
+  const { bundle } = await readProjections();
+  const schemas = bundle.components.schemas;
+  const plan = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PlatformPlan',
+  });
+  assert.equal(
+    plan({
+      contactForm: false,
+      newsletterSubscriberLimit: 50,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
+    true,
+  );
+  assert.equal(
+    plan({
+      contactForm: true,
+      newsletterSubscriberLimit: 0,
+      planKey: 'PRO',
+      publicationLimit: 10,
+    }),
+    true,
+  );
+  assert.equal(
+    plan({
+      newsletterSubscriberLimit: 50,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
+    false,
+  );
+  assert.equal(
+    plan({ contactForm: false, planKey: 'FREE', publicationLimit: 1 }),
+    false,
+  );
+  assert.equal(
+    plan({
+      contactForm: false,
+      newsletterSubscriberLimit: -1,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
+    false,
+  );
+  assert.equal(
+    plan({
+      contactForm: 'no',
+      newsletterSubscriberLimit: 50,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
+    false,
+  );
+  // The defaults are documented on the members and shown in the examples.
+  for (const member of ['contactForm', 'newsletterSubscriberLimit']) {
+    assert.match(
+      schemas.PlatformPlan.properties[member].description,
+      /FREE 50 and no contact form, PRO 500 and a contact form, BUSINESS 2000 and a contact form/u,
+    );
+  }
+  const listing = operationAt(bundle, 'get', '/v2/platform/plans').responses[
+    '200'
+  ].content['application/json'].examples.nominal.value.items;
+  assert.deepEqual(
+    listing.map((/** @type {JsonObject} */ item) => [
+      item.planKey,
+      item.newsletterSubscriberLimit,
+      item.contactForm,
+    ]),
+    [
+      ['FREE', 50, false],
+      ['PRO', 500, true],
+      ['BUSINESS', 2000, true],
+    ],
+  );
+  // A write may leave either new member out (it keeps its value), but the
+  // existing required members stay required.
+  const request = schemas.PutPlatformPlansByPlanKeyRequest;
+  assert.deepEqual(request.required, ['publicationLimit', 'reason']);
+  assert.deepEqual(request.properties.contactForm.type, 'boolean');
+  assert.equal(request.properties.newsletterSubscriberLimit.minimum, 0);
+});
