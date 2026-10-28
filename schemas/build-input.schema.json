@@ -514,10 +514,22 @@
           "properties": { "ai": { "enum": ["allow", "block"] } },
           "additionalProperties": false
         },
-        "newsletter": {
+        "newsletter": { "$ref": "#/$defs/newsletter" },
+        "sharing": { "$ref": "#/$defs/sharing" },
+        "contactForm": { "$ref": "#/$defs/contactFormNormalized" },
+        "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
+        "sourceDigest": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false
+    },
+    "newsletter": {
+      "description": "SCHEMA-3.22.0: the newsletter panel. Link mode (`mode` absent or `link`) sends readers to the author's own newsletter at `url`; Galascribe mode (`mode: \"galascribe\"`) collects and mails subscribers itself. An absent `newsletter` member means the panel is off.",
+      "oneOf": [
+        {
           "type": "object",
           "required": ["url", "title", "text"],
           "properties": {
+            "mode": { "const": "link" },
             "url": { "$ref": "#/$defs/urlHttps" },
             "title": { "$ref": "#/$defs/plainLabel" },
             "text": {
@@ -525,12 +537,80 @@
               "x-gala-graphemeLength": { "minimum": 1, "maximum": 300 }
             }
           },
+          "additionalProperties": false,
+          "description": "Link mode: the panel links to an external newsletter. `mode` is optional and `link` when present, so a 3.21 publication still validates."
+        },
+        {
+          "type": "object",
+          "required": ["mode", "title", "text", "emailContent", "replyToOwner"],
+          "properties": {
+            "mode": { "const": "galascribe" },
+            "title": { "$ref": "#/$defs/plainLabel" },
+            "text": {
+              "$ref": "#/$defs/plainText",
+              "x-gala-graphemeLength": { "minimum": 1, "maximum": 300 }
+            },
+            "emailContent": {
+              "enum": ["card", "full"],
+              "description": "`card` mails the post title, description, image and a Read the post button; `full` mails the whole post as the email-safe fragment the template renders at `/_gala/email/<content id>.html`."
+            },
+            "replyToOwner": {
+              "type": "boolean",
+              "description": "When true, subscribers' replies go to the site owner's contact email; when false the emails carry no Reply-To."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Galascribe mode: the panel is an email field and a Subscribe button. `title` and `text` are the panel heading and sentence; there is no `url`. The API refuses to turn this mode on until the site owner has a postal address in their Account."
+        }
+      ]
+    },
+    "sharing": {
+      "type": "object",
+      "required": ["targets"],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "copy-link",
+              "native",
+              "x",
+              "bluesky",
+              "linkedin",
+              "facebook",
+              "hacker-news",
+              "whatsapp",
+              "telegram",
+              "reddit",
+              "email"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 11,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 11 unique members of the closed target set. An absent `sharing` member means `[\"copy-link\"]` (the Copy link button only); an empty `targets` array means no share buttons. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service's documented share URL. Bookmark is not a share target and is unaffected."
+    },
+    "contactFormNormalized": {
+      "type": "object",
+      "required": ["enabled", "fields"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "fields": {
+          "type": "object",
+          "required": ["website", "phone"],
+          "properties": {
+            "website": { "type": "boolean" },
+            "phone": { "type": "boolean" }
+          },
           "additionalProperties": false
         },
-        "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
-        "sourceDigest": { "$ref": "#/$defs/digest" }
+        "intro": { "$ref": "#/$defs/renderableBody" }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "SCHEMA-3.22.0: the normalized contact form. `intro` is the rendered body of the optional `gala/theme-pages/contact.md`, absent when the file is absent (the template then shows its default intro). The template renders the `/contact/` page only when `enabled` is true."
     },
     "policyPageNormalized": {
       "type": "object",
@@ -1127,6 +1207,13 @@
             "comments": { "type": "boolean" }
           },
           "additionalProperties": false
+        },
+        "follows": {
+          "type": "object",
+          "required": ["enabled"],
+          "properties": { "enabled": { "type": "boolean" } },
+          "additionalProperties": false,
+          "description": "SCHEMA-3.22.0: reader follows. `enabled: true` shows the Follow control, with which a signed-in reader follows an author of the site; an absent `follows` member means off. The user template seeds it on for new sites."
         }
       },
       "additionalProperties": false,

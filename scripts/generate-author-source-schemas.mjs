@@ -9,8 +9,11 @@ import {
   createAttributionDefinition,
   createCompositionBuildSchemas,
   createContentEditionDefinition,
+  createContactFormDefinition,
   createContentSeoDefinition,
+  createNewsletterDefinition,
   createSemanticTokensDefinition,
+  createSharingDefinition,
   editionKindRule,
   TRANSLATION_OF_DESCRIPTION,
   translationOfRule,
@@ -300,15 +303,6 @@ const footerCard = closedObject(
   ['enabled', 'heading', 'body', 'authorIds'],
 );
 
-const newsletter = closedObject(
-  {
-    url: ref('urlHttps'),
-    title: ref('plainLabel'),
-    text: graphemeBound(ref('plainText'), 1, 300),
-  },
-  ['url', 'title', 'text'],
-);
-
 const crawlers = closedObject({ ai: { enum: ['allow', 'block'] } }, ['ai']);
 
 const localizedAuthor = closedObject(
@@ -496,6 +490,8 @@ const schemas = {
       policies: ref('publicationPolicies'),
       footerCard: ref('footerCard'),
       newsletter: ref('newsletter'),
+      sharing: ref('sharing'),
+      contactForm: ref('contactForm'),
       crawlers: ref('crawlers'),
       extensions: ref('extensionMap'),
     },
@@ -516,7 +512,13 @@ const schemas = {
       policyPage,
       publicationPolicies,
       footerCard,
-      newsletter,
+      newsletter: createNewsletterDefinition({
+        ref,
+        closedObject,
+        graphemeBound,
+      }),
+      sharing: createSharingDefinition({ arrayOf, closedObject }),
+      contactForm: createContactFormDefinition({ closedObject }),
       crawlers,
       extensionMap,
     },

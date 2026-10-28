@@ -292,6 +292,137 @@ export function createContentSeoDefinition({
   );
 }
 
+/** SCHEMA-3.22.0: the closed set of share targets, in the order the Settings checklist lists them. */
+export const SHARE_TARGETS = Object.freeze([
+  'copy-link',
+  'native',
+  'x',
+  'bluesky',
+  'linkedin',
+  'facebook',
+  'hacker-news',
+  'whatsapp',
+  'telegram',
+  'reddit',
+  'email',
+]);
+
+/**
+ * SCHEMA-3.22.0: the share buttons an article shows, shared byte-for-byte by
+ * the `publication` author-source root and the normalized `build-input`
+ * publication (one `$defs/sharing` body, so the shared-definition gate holds).
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.arrayOf bounded-array constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed sharing object schema
+ */
+export function createSharingDefinition({ arrayOf, closedObject }) {
+  return closedObject(
+    {
+      targets: arrayOf({ enum: [...SHARE_TARGETS] }, 0, 11, true),
+    },
+    ['targets'],
+    {
+      description:
+        'SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 11 unique members of the closed target set. An absent `sharing` member means `["copy-link"]` (the Copy link button only); an empty `targets` array means no share buttons. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service\'s documented share URL. Bookmark is not a share target and is unaffected.',
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.22.0: the newsletter panel, a union of today's link-out shape and
+ * the Galascribe-managed shape, shared byte-for-byte by the `publication`
+ * author-source root and the normalized `build-input` publication (one
+ * `$defs/newsletter` body, so the shared-definition gate holds). The link
+ * branch keeps its 3.21 shape (`mode` is optional there, so every existing
+ * file stays valid); the Galascribe branch requires `mode: "galascribe"` and
+ * carries no `url`. A member naming both modes, or neither, matches no branch.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @param {Function} language.graphemeBound grapheme-bound constructor
+ * @returns {Record<string, unknown>} newsletter union schema
+ */
+export function createNewsletterDefinition({
+  ref,
+  closedObject,
+  graphemeBound,
+}) {
+  return {
+    description:
+      'SCHEMA-3.22.0: the newsletter panel. Link mode (`mode` absent or `link`) sends readers to the author\'s own newsletter at `url`; Galascribe mode (`mode: "galascribe"`) collects and mails subscribers itself. An absent `newsletter` member means the panel is off.',
+    oneOf: [
+      closedObject(
+        {
+          mode: { const: 'link' },
+          url: ref('urlHttps'),
+          title: ref('plainLabel'),
+          text: graphemeBound(ref('plainText'), 1, 300),
+        },
+        ['url', 'title', 'text'],
+        {
+          description:
+            'Link mode: the panel links to an external newsletter. `mode` is optional and `link` when present, so a 3.21 publication still validates.',
+        },
+      ),
+      closedObject(
+        {
+          mode: { const: 'galascribe' },
+          title: ref('plainLabel'),
+          text: graphemeBound(ref('plainText'), 1, 300),
+          emailContent: {
+            enum: ['card', 'full'],
+            description:
+              '`card` mails the post title, description, image and a Read the post button; `full` mails the whole post as the email-safe fragment the template renders at `/_gala/email/<content id>.html`.',
+          },
+          replyToOwner: {
+            type: 'boolean',
+            description:
+              'When true, subscribers\' replies go to the site owner\'s contact email; when false the emails carry no Reply-To.',
+          },
+        },
+        ['mode', 'title', 'text', 'emailContent', 'replyToOwner'],
+        {
+          description:
+            'Galascribe mode: the panel is an email field and a Subscribe button. `title` and `text` are the panel heading and sentence; there is no `url`. The API refuses to turn this mode on until the site owner has a postal address in their Account.',
+        },
+      ),
+    ],
+  };
+}
+
+/**
+ * SCHEMA-3.22.0: the contact form. The author-source `publication.contactForm`
+ * carries the switches only; the normalized `build-input` copy adds the
+ * optional rendered intro (`gala/theme-pages/contact.md`) the way `footerCard`
+ * carries its rendered body.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @param {Record<string, unknown>} [intro] the normalized `intro` member schema, omitted for the author-source form
+ * @returns {Record<string, unknown>} closed contact-form object schema
+ */
+export function createContactFormDefinition({ closedObject }, intro) {
+  return closedObject(
+    {
+      enabled: { type: 'boolean' },
+      fields: closedObject(
+        { website: { type: 'boolean' }, phone: { type: 'boolean' } },
+        ['website', 'phone'],
+      ),
+      ...(intro ? { intro } : {}),
+    },
+    ['enabled', 'fields'],
+    {
+      description: intro
+        ? 'SCHEMA-3.22.0: the normalized contact form. `intro` is the rendered body of the optional `gala/theme-pages/contact.md`, absent when the file is absent (the template then shows its default intro). The template renders the `/contact/` page only when `enabled` is true.'
+        : 'SCHEMA-3.22.0: the site\'s contact form. `enabled` turns the form and the `/contact/` page on. `fields.website` and `fields.phone` add the optional Website and Phone inputs; name, email and message are always present. The intro text is not a member: it is the optional document `gala/theme-pages/contact.md`, and the template shows a default intro when it is absent. An absent `contactForm` means no form. The API, not the schema, limits the form to the Pro and Business plans.',
+    },
+  );
+}
+
 /**
  * The `kind`/`edition` agreement every front matter shape carries: an
  * `edition` block is required exactly when `kind` is `edition`.
@@ -922,14 +1053,9 @@ export function createCompositionBuildSchemas(language) {
         ['enabled', 'heading', 'body', 'authorIds'],
       ),
       crawlers: closedObject({ ai: { enum: ['allow', 'block'] } }, ['ai']),
-      newsletter: closedObject(
-        {
-          url: ref('urlHttps'),
-          title: ref('plainLabel'),
-          text: graphemeBound(ref('plainText'), 1, 300),
-        },
-        ['url', 'title', 'text'],
-      ),
+      newsletter: ref('newsletter'),
+      sharing: ref('sharing'),
+      contactForm: ref('contactFormNormalized'),
       sourcePath: ref('repoRelativePath'),
       sourceDigest: ref('digest'),
     },
@@ -2163,6 +2289,12 @@ export function createCompositionBuildSchemas(language) {
         socialLink,
         localizedAuthor,
         publicationNormalized,
+        newsletter: createNewsletterDefinition(language),
+        sharing: createSharingDefinition(language),
+        contactFormNormalized: createContactFormDefinition(
+          language,
+          ref('renderableBody'),
+        ),
         policyPageNormalized,
         policiesNormalized,
         authorNormalized,

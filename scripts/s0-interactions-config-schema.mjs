@@ -108,6 +108,10 @@ export function interactionsConfigParts(language) {
         { reactions: { type: 'boolean' }, comments: { type: 'boolean' } },
         ['reactions', 'comments'],
       ),
+      follows: closedObject({ enabled: { type: 'boolean' } }, ['enabled'], {
+        description:
+          'SCHEMA-3.22.0: reader follows. `enabled: true` shows the Follow control, with which a signed-in reader follows an author of the site; an absent `follows` member means off. The user template seeds it on for new sites.',
+      }),
     },
     required: ['reactions', 'comments', 'publicCounts'],
     definitions: { reactionKey, reactionVisual, reactionDefinition },
