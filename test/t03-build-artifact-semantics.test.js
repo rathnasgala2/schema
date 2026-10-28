@@ -360,12 +360,17 @@ function spdxPackage(row, SPDXID) {
 /**
  * Build one complete, independently projected accepted fixture.
  *
- * @param {{policies?: boolean}} [options] `policies` adds the site's own Terms
- *   and Privacy pages: two Markdown sources, their rendered bodies in the build
- *   input and their rows in the source inventory
+ * @param {{policies?: boolean, contactIntro?: boolean}} [options] `policies`
+ *   adds the site's own Terms and Privacy pages: two Markdown sources, their
+ *   rendered bodies in the build input and their rows in the source inventory;
+ *   `contactIntro` adds the contact form's intro the same way (one Markdown
+ *   source, `publication.contactForm.intro`, one inventory row)
  * @returns {{records: UnknownRecord, context: UnknownRecord}}
  */
-function makeFixture({ policies: withPolicies = false } = {}) {
+function makeFixture({
+  policies: withPolicies = false,
+  contactIntro: withContactIntro = false,
+} = {}) {
   const packageNames = [
     '@rathnasgala2/schemas',
     '@rathnasgala2/template',
@@ -513,6 +518,7 @@ function makeFixture({ policies: withPolicies = false } = {}) {
     content: Buffer.from('# Source content\n'),
     terms: Buffer.from('## Terms\n'),
     privacy: Buffer.from('## Privacy\n'),
+    contact: Buffer.from('## Contact\n'),
     caller: Buffer.from(
       `name: Gala caller\njobs:\n  build:\n    steps:\n      - run: |\n          printf '%s\\n' 'uses: ignored/example@${'5'.repeat(40)}'\n      - uses: ${rootAction.use}\n`,
     ),
@@ -651,6 +657,19 @@ function makeFixture({ policies: withPolicies = false } = {}) {
         privacy: policyPage('privacy', 'Privacy', sourceBytes.privacy),
       }
     : undefined;
+  const contactPage = withContactIntro
+    ? policyPage('contact', 'Contact', sourceBytes.contact)
+    : undefined;
+  const publicationRecord = contactPage
+    ? {
+        ...publication,
+        contactForm: {
+          enabled: true,
+          fields: { website: false, phone: true },
+          intro: contactPage.body,
+        },
+      }
+    : publication;
   const treeEntries = [
     treeEntry('authors/example.json', sourceBytes.author),
     treeEntry('content/fixture.md', sourceBytes.content),
@@ -661,6 +680,9 @@ function makeFixture({ policies: withPolicies = false } = {}) {
           treeEntry('gala/theme-pages/terms.md', sourceBytes.terms),
           treeEntry('gala/theme-pages/privacy.md', sourceBytes.privacy),
         ]
+      : []),
+    ...(contactPage
+      ? [treeEntry('gala/theme-pages/contact.md', sourceBytes.contact)]
       : []),
   ];
   const repositoryRootEntries = treeEntries
@@ -705,7 +727,7 @@ function makeFixture({ policies: withPolicies = false } = {}) {
       publisher: publishers.map(identity),
       dependencies: [],
     },
-    publication,
+    publication: publicationRecord,
     authors,
     content,
     navigation,
@@ -999,14 +1021,15 @@ function makeFixture({ policies: withPolicies = false } = {}) {
         sourceRevision: SOURCE_COMMIT,
         role: 'content',
       },
-      ...(policyPages
-        ? [policyPages.terms, policyPages.privacy].map(({ body }) => ({
-            path: body.sourcePath,
-            sha256: body.sourceDigest,
-            sourceRevision: SOURCE_COMMIT,
-            role: 'content',
-          }))
-        : []),
+      ...[
+        ...(policyPages ? [policyPages.terms, policyPages.privacy] : []),
+        ...(contactPage ? [contactPage] : []),
+      ].map(({ body }) => ({
+        path: body.sourcePath,
+        sha256: body.sourceDigest,
+        sourceRevision: SOURCE_COMMIT,
+        role: 'content',
+      })),
     ])
   );
   const excludedInputs = /** @type {UnknownRecord[]} */ (
@@ -1334,7 +1357,7 @@ function makeFixture({ policies: withPolicies = false } = {}) {
     adapterCapability,
     repository,
     normalizedSource: {
-      publication,
+      publication: publicationRecord,
       authors,
       content,
       navigation,
@@ -1945,6 +1968,78 @@ test('rejects a policy page whose rendered body, source or render policy is subs
         code,
       );
     }
+  }
+});
+
+test('accepts the contact intro as a renderable body of the source closure', () => {
+  const fixture = makeFixture({ contactIntro: true });
+  const result = validateBuildArtifactSemantics(
+    fixture.records,
+    fixture.context,
+  );
+  const buildInput = /** @type {UnknownRecord} */ (fixture.records.buildInput);
+  assert.equal(result.buildInputDigest, buildInput.inputDigest);
+  const manifest = /** @type {UnknownRecord} */ (
+    fixture.records.artifactManifest
+  );
+  const included = /** @type {UnknownRecord[]} */ (manifest.includedSources);
+  assert.deepEqual(included.map(({ path }) => path).sort(), [
+    'authors/example.json',
+    'content/fixture.md',
+    'gala/theme-pages/contact.md',
+    'publication.json',
+  ]);
+});
+
+test('rejects a contact intro whose rendered body or source is substituted, or that nothing names', () => {
+  for (const {
+    code,
+    mutate,
+  } of /** @type {{code: string, mutate: (body: UnknownRecord) => void}[]} */ ([
+    {
+      code: 'BUILD_RENDER_POLICY_INVALID',
+      mutate: (body) => {
+        body.body = '<h2>substituted</h2>\n';
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (body) => {
+        body.sourceDigest = tagged('substituted-contact-source');
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (body) => {
+        body.sourcePath = 'gala/theme-pages/missing.md';
+      },
+    },
+  ])) {
+    const fixture = makeFixture({ contactIntro: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    const publication = /** @type {UnknownRecord} */ (buildInput.publication);
+    const contact = /** @type {UnknownRecord} */ (publication.contactForm);
+    mutate(/** @type {UnknownRecord} */ (contact.intro));
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      code,
+    );
+  }
+  {
+    // The Markdown file is in the tree, but the contact form no longer names
+    // it, so the source partition is no longer complete.
+    const fixture = makeFixture({ contactIntro: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    const publication = /** @type {UnknownRecord} */ (buildInput.publication);
+    delete (/** @type {UnknownRecord} */ (publication.contactForm).intro);
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      'ARTIFACT_SOURCE_PARTITION_INVALID',
+    );
   }
 });
 

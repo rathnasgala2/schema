@@ -5,6 +5,14 @@ export type PublicationBcp47 = string;
 
 export type PublicationCanonicalRoute = string;
 
+export type PublicationContactForm = Readonly<{
+  readonly enabled: boolean;
+  readonly fields: Readonly<{
+    readonly phone: boolean;
+    readonly website: boolean;
+  }>;
+}>;
+
 export type PublicationCrawlers = Readonly<{
   readonly ai: 'allow' | 'block';
 }>;
@@ -28,11 +36,20 @@ export type PublicationGlob = string;
 
 export type PublicationIsoCountry = string;
 
-export type PublicationNewsletter = Readonly<{
-  readonly text: PublicationPlainText;
-  readonly title: PublicationPlainLabel;
-  readonly url: PublicationUrlHttps;
-}>;
+export type PublicationNewsletter =
+  | Readonly<{
+      readonly emailContent: 'card' | 'full';
+      readonly mode: 'galascribe';
+      readonly replyToOwner: boolean;
+      readonly text: PublicationPlainText;
+      readonly title: PublicationPlainLabel;
+    }>
+  | Readonly<{
+      readonly mode?: 'link';
+      readonly text: PublicationPlainText;
+      readonly title: PublicationPlainLabel;
+      readonly url: PublicationUrlHttps;
+    }>;
 
 export type PublicationPackageExact = string;
 
@@ -67,6 +84,22 @@ export type PublicationSemver = string;
 
 export type PublicationSemverRange = string;
 
+export type PublicationSharing = Readonly<{
+  readonly targets: ReadonlyArray<
+    | 'copy-link'
+    | 'native'
+    | 'x'
+    | 'bluesky'
+    | 'linkedin'
+    | 'facebook'
+    | 'hacker-news'
+    | 'whatsapp'
+    | 'telegram'
+    | 'reddit'
+    | 'email'
+  >;
+}>;
+
 export type PublicationSlug = string;
 
 export type PublicationSocialLink = Readonly<{
@@ -94,6 +127,7 @@ export type PublicationUrn = string;
 export type PublicationDocument = Readonly<{
   readonly authors: ReadonlyArray<PublicationRepoRelativePath>;
   readonly canonicalBase: PublicationUrlHttps;
+  readonly contactForm?: PublicationContactForm;
   readonly contactRef?: PublicationRepoRelativePath;
   readonly crawlers?: PublicationCrawlers;
   readonly defaultImageRef?: PublicationRepoRelativePath;
@@ -107,6 +141,7 @@ export type PublicationDocument = Readonly<{
   readonly profile?: PublicationPublicationProfile;
   readonly schemaId: 'urn:gala:schema:publication:2.0.0';
   readonly schemaVersion: '2.0.0';
+  readonly sharing?: PublicationSharing;
   readonly slug: PublicationSlug;
   readonly socialLinks: ReadonlyArray<PublicationSocialLink>;
   readonly title: PublicationPlainText;

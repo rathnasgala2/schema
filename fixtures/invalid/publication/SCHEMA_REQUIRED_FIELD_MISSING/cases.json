@@ -62,6 +62,30 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "publication-invalid-0dd547fcdb6534a6",
+    "coveredRuleIds": ["publication:#/$defs/newsletter/oneOf/0:required:title"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/0",
+    "keyword": "required",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "text": "fixture-1"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-10048334fb02a54b",
+    "coveredRuleIds": ["publication:#/$defs/newsletter/oneOf/0:required:text"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/0",
+    "keyword": "required",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "title": "fixture-1"
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "publication-invalid-1882209b7bdbde62",
     "coveredRuleIds": ["publication:#/$defs/footerCard:required:heading"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
@@ -75,12 +99,14 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
-    "caseId": "publication-invalid-29a76059791fbcbf",
-    "coveredRuleIds": ["publication:#/$defs/newsletter:required:url"],
+    "caseId": "publication-invalid-1ada2549ed17e6d2",
+    "coveredRuleIds": [
+      "publication:#/$defs/contactForm/properties/fields:required:website"
+    ],
     "schemaId": "urn:gala:schema:publication:2.0.0",
-    "schemaPointer": "#/$defs/newsletter",
+    "schemaPointer": "#/$defs/contactForm/properties/fields",
     "keyword": "required",
-    "instance": { "title": "fixture-1", "text": "fixture-1" },
+    "instance": { "phone": false },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
@@ -103,6 +129,15 @@
       ],
       "extensions": {}
     },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-3f10a392fd4f453c",
+    "coveredRuleIds": ["publication:#/$defs/newsletter/oneOf/0:required:url"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/0",
+    "keyword": "required",
+    "instance": { "title": "fixture-1", "text": "fixture-1" },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
@@ -167,14 +202,50 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
-    "caseId": "publication-invalid-69a94bbdee4a7dd9",
-    "coveredRuleIds": ["publication:#/$defs/newsletter:required:text"],
+    "caseId": "publication-invalid-5f15f63910b892ec",
+    "coveredRuleIds": ["publication:#/$defs/sharing:required:targets"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
-    "schemaPointer": "#/$defs/newsletter",
+    "schemaPointer": "#/$defs/sharing",
+    "keyword": "required",
+    "instance": {},
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-650aba85b8def74c",
+    "coveredRuleIds": ["publication:#/$defs/newsletter/oneOf/1:required:title"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
     "keyword": "required",
     "instance": {
-      "url": "https://fixture-1.example.com/",
-      "title": "fixture-1"
+      "mode": "galascribe",
+      "text": "fixture-1",
+      "emailContent": "card",
+      "replyToOwner": false
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-72414940f06185f9",
+    "coveredRuleIds": ["publication:#/$defs/contactForm:required:fields"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm",
+    "keyword": "required",
+    "instance": { "enabled": false },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-73b2ad06dcb1bb99",
+    "coveredRuleIds": [
+      "publication:#/$defs/newsletter/oneOf/1:required:replyToOwner"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
+    "keyword": "required",
+    "instance": {
+      "mode": "galascribe",
+      "title": "fixture-1",
+      "text": "fixture-1",
+      "emailContent": "card"
     },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
@@ -223,6 +294,31 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "publication-invalid-7cd1fdd2be411775",
+    "coveredRuleIds": ["publication:#/$defs/contactForm:required:enabled"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm",
+    "keyword": "required",
+    "instance": { "fields": { "website": false, "phone": false } },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-80d179608136e1e8",
+    "coveredRuleIds": [
+      "publication:#/$defs/newsletter/oneOf/1:required:emailContent"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
+    "keyword": "required",
+    "instance": {
+      "mode": "galascribe",
+      "title": "fixture-1",
+      "text": "fixture-1",
+      "replyToOwner": false
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "publication-invalid-84887f44baf043ce",
     "coveredRuleIds": ["publication:#/$defs/policyPage:required:title"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
@@ -254,24 +350,26 @@
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
+    "caseId": "publication-invalid-9dc1fedd91c240c4",
+    "coveredRuleIds": ["publication:#/$defs/newsletter/oneOf/1:required:text"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
+    "keyword": "required",
+    "instance": {
+      "mode": "galascribe",
+      "title": "fixture-1",
+      "emailContent": "card",
+      "replyToOwner": false
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
     "caseId": "publication-invalid-a25411ee83d83079",
     "coveredRuleIds": ["publication:#/$defs/crawlers:required:ai"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
     "schemaPointer": "#/$defs/crawlers",
     "keyword": "required",
     "instance": {},
-    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
-  },
-  {
-    "caseId": "publication-invalid-a8e4a3a227002a14",
-    "coveredRuleIds": ["publication:#/$defs/newsletter:required:title"],
-    "schemaId": "urn:gala:schema:publication:2.0.0",
-    "schemaPointer": "#/$defs/newsletter",
-    "keyword": "required",
-    "instance": {
-      "url": "https://fixture-1.example.com/",
-      "text": "fixture-1"
-    },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {
@@ -328,6 +426,20 @@
         { "type": "website", "uri": "https://fixture-1.example.com/" }
       ],
       "extensions": {}
+    },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-b9745c61580e6d74",
+    "coveredRuleIds": ["publication:#/$defs/newsletter/oneOf/1:required:mode"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
+    "keyword": "required",
+    "instance": {
+      "title": "fixture-1",
+      "text": "fixture-1",
+      "emailContent": "card",
+      "replyToOwner": false
     },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
@@ -393,6 +505,17 @@
     "schemaPointer": "#/$defs/socialLink",
     "keyword": "required",
     "instance": { "type": "website" },
+    "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
+  },
+  {
+    "caseId": "publication-invalid-e8b55cdd98b91383",
+    "coveredRuleIds": [
+      "publication:#/$defs/contactForm/properties/fields:required:phone"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm/properties/fields",
+    "keyword": "required",
+    "instance": { "website": false },
     "expectedCodes": ["SCHEMA_REQUIRED_FIELD_MISSING"]
   },
   {

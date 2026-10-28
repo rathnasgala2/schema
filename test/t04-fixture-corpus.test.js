@@ -105,7 +105,14 @@ const T03_SCHEMA_HASHES = {
     //
     // 3.21.0 (reviewed 2026-10-27): the normalized frontmatter gains the
     // optional translationOf slug and its article-only rule. Additive.
-    '8164871d1ddaebe13c62a5bcd1009fd42fc7fb1c4949b4274ea24d3b4cb989a6',
+    //
+    // 3.22.0 (reviewed 2026-10-27): the normalized publication gains the
+    // optional sharing and contactForm members (new $defs/sharing and
+    // $defs/contactFormNormalized, the latter carrying the optional rendered
+    // intro), its newsletter becomes the shared link-or-Galascribe union
+    // (new $defs/newsletter), and the embedded interactions config gains the
+    // optional follows member. Additive.
+    'a8d2fa809e095291522fac0bb98d84011585bf0d3e52b72d764b2b5434c91e1b',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -160,7 +167,14 @@ const T03_SCHEMA_HASHES = {
     // 3.16.0: the optional closed policies member (new $defs/policyPage and
     // publicationPolicies: a title and a repo-relative Markdown body per
     // page, the body a path ending in .md). Additive.
-    'de6a002710dd4ae0a8ea75f8c58f0cd3b287647405052d56da81a0149a4fa623',
+    //
+    // 3.22.0 (reviewed 2026-10-27): the optional closed sharing member (new
+    // $defs/sharing), the optional closed contactForm member (new
+    // $defs/contactForm) and `newsletter` becoming a union of the unchanged
+    // link shape (now with an optional `mode: "link"`) and the Galascribe
+    // shape (new `oneOf` in $defs/newsletter). Additive: every 3.21 file
+    // still validates.
+    '29900a3c4a2309bc6738debb97b1caee5baec47a2c65057b51e7d069b03466c8',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

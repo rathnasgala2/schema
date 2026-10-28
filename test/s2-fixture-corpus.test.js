@@ -22,6 +22,10 @@ const S2_FAMILIES = [
       'build-input-valid-interactions-module',
       'build-input-valid-analytics-module',
       'build-input-valid-policies',
+      'build-input-valid-follows-module',
+      'build-input-rejects-follows-unknown-member',
+      'build-input-rejects-follows-without-enabled',
+      'build-input-rejects-follows-enabled-not-boolean',
       'build-input-rejects-nonempty-placements',
     ],
   },
@@ -30,6 +34,14 @@ const S2_FAMILIES = [
     caseIds: [
       'normalized-build-input-valid',
       'normalized-publication-missing-source-digest-invalid',
+      'normalized-publication-audience-valid',
+      'normalized-publication-newsletter-link-without-mode-valid',
+      'normalized-publication-sharing-empty-valid',
+      'normalized-publication-newsletter-both-modes-invalid',
+      'normalized-publication-newsletter-mode-missing-invalid',
+      'normalized-publication-sharing-unknown-target-invalid',
+      'normalized-publication-sharing-duplicate-target-invalid',
+      'normalized-publication-contact-form-fields-missing-invalid',
     ],
   },
   {
@@ -149,7 +161,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 904);
+  assert.equal(files.length, 906);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -230,8 +242,18 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // kind rule regenerated the content-frontmatter and build-input valid,
     // boundary, unknown-field and invalid fixtures and the fixture manifest; no
     // file added or removed (904).
+    //
+    // 3.22.0 (reviewed 2026-10-27): publication gained the optional `sharing`
+    // and `contactForm` members and its `newsletter` became a link-or-Galascribe
+    // union (the shared $defs/sharing and $defs/newsletter, plus build-input's
+    // $defs/contactFormNormalized), and the interactions config gained the
+    // optional `follows` member. That regenerated the publication, build-input
+    // and interactions-config valid, boundary, unknown-field and invalid
+    // fixtures and the fixture manifest, and added two case files
+    // (publication/SCHEMA_ARRAY_DUPLICATE and publication/SCHEMA_UNION_INVALID),
+    // making 906.
     aggregate.digest('hex'),
-    'ce7b552700de69fe5990f5c6ddb90b079b544177d0275f9db9e3b770442327f5',
+    '95ff25d7587afff2483be25a876353c4354d117c28639efdbaf4d811d33eeff5',
   );
 });
 

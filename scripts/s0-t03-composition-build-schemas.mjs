@@ -375,12 +375,12 @@ export function createNewsletterDefinition({
           emailContent: {
             enum: ['card', 'full'],
             description:
-              '`card` mails the post title, description, image and a Read the post button; `full` mails the whole post as the email-safe fragment the template renders at `/_gala/email/<content id>.html`.',
+              "`card` mails the post title, description, image and a Read the post button; the template renders no email fragment. `full` mails the whole post: for each published post the template renders an email-safe HTML fragment at `/_gala/email/<content id>.html` (`<content id>` is the post's front-matter `id`; absolute URLs and inline-safe markup only; `noindex`; absent from the sitemap, the feeds, the search index and the llms files), which the API fetches after the generation is certified live.",
           },
           replyToOwner: {
             type: 'boolean',
             description:
-              'When true, subscribers\' replies go to the site owner\'s contact email; when false the emails carry no Reply-To.',
+              "When true, subscribers' replies go to the site owner's contact email; when false the emails carry no Reply-To.",
           },
         },
         ['mode', 'title', 'text', 'emailContent', 'replyToOwner'],
@@ -418,7 +418,7 @@ export function createContactFormDefinition({ closedObject }, intro) {
     {
       description: intro
         ? 'SCHEMA-3.22.0: the normalized contact form. `intro` is the rendered body of the optional `gala/theme-pages/contact.md`, absent when the file is absent (the template then shows its default intro). The template renders the `/contact/` page only when `enabled` is true.'
-        : 'SCHEMA-3.22.0: the site\'s contact form. `enabled` turns the form and the `/contact/` page on. `fields.website` and `fields.phone` add the optional Website and Phone inputs; name, email and message are always present. The intro text is not a member: it is the optional document `gala/theme-pages/contact.md`, and the template shows a default intro when it is absent. An absent `contactForm` means no form. The API, not the schema, limits the form to the Pro and Business plans.',
+        : "SCHEMA-3.22.0: the site's contact form. `enabled` turns the form on, and the template renders the `/contact/` page only when it is true. `fields.website` and `fields.phone` add the optional Website and Phone inputs; name, email and message are always present. The intro text is not a member: it is the optional document `gala/theme-pages/contact.md`, and the template shows a default intro when it is absent. An absent `contactForm` means no form. The API, not the schema, limits the form to the Pro and Business plans.",
     },
   );
 }

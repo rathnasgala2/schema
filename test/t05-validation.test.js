@@ -181,6 +181,205 @@ test('content frontmatter admits translationOf only on an article and never with
   );
 });
 
+test('publication admits the closed optional sharing member', async () => {
+  const base = await readJson('examples/valid/publication/canonical.json');
+  const valid = (/** @type {unknown} */ sharing) =>
+    validateGalaDocument(base.schemaId, { ...base, sharing }).valid;
+  const all = [
+    'copy-link',
+    'native',
+    'x',
+    'bluesky',
+    'linkedin',
+    'facebook',
+    'hacker-news',
+    'whatsapp',
+    'telegram',
+    'reddit',
+    'email',
+  ];
+  assert.equal(validateGalaDocument(base.schemaId, base).valid, true);
+  assert.equal(valid({ targets: ['copy-link'] }), true);
+  assert.equal(valid({ targets: ['x', 'copy-link', 'email'] }), true);
+  // An empty list means no share buttons; the full set is the 11-item maximum.
+  assert.equal(valid({ targets: [] }), true);
+  assert.equal(valid({ targets: all }), true);
+  assert.equal(valid({ targets: [...all, 'x'] }), false);
+  assert.equal(valid({ targets: ['x', 'x'] }), false);
+  assert.equal(valid({ targets: ['mastodon'] }), false);
+  assert.equal(valid({ targets: ['Copy-Link'] }), false);
+  assert.equal(valid({ targets: [7] }), false);
+  assert.equal(valid({ targets: 'x' }), false);
+  assert.equal(valid({}), false);
+  assert.equal(valid({ targets: ['x'], extra: true }), false);
+  assert.equal(valid(['x']), false);
+  assert.equal(valid(null), false);
+});
+
+test('publication newsletter is a link-or-Galascribe union that keeps 3.21 files valid', async () => {
+  const base = await readJson('examples/valid/publication/canonical.json');
+  const valid = (/** @type {unknown} */ newsletter) =>
+    validateGalaDocument(base.schemaId, { ...base, newsletter }).valid;
+  const link = {
+    url: 'https://news.example.com/',
+    title: 'Subscribe',
+    text: 'New posts by email.',
+  };
+  const galascribe = {
+    mode: 'galascribe',
+    title: 'Subscribe',
+    text: 'New posts by email.',
+    emailContent: 'card',
+    replyToOwner: false,
+  };
+  // Link mode: exactly the 3.21 shape, with or without the new `mode` key.
+  assert.equal(valid(link), true);
+  assert.equal(valid({ ...link, mode: 'link' }), true);
+  assert.equal(valid({ ...link, mode: 'galascribe' }), false);
+  assert.equal(valid({ ...link, mode: 'other' }), false);
+  assert.equal(valid({ ...link, url: 'http://news.example.com/' }), false);
+  assert.equal(valid({ ...link, text: 'x'.repeat(301) }), false);
+  assert.equal(valid({ title: link.title, text: link.text }), false);
+  assert.equal(valid({ ...link, emailContent: 'card' }), false);
+  // Galascribe mode: every member required, closed, and no `url`.
+  assert.equal(valid(galascribe), true);
+  assert.equal(valid({ ...galascribe, emailContent: 'full' }), true);
+  assert.equal(valid({ ...galascribe, replyToOwner: true }), true);
+  assert.equal(valid({ ...galascribe, url: link.url }), false);
+  assert.equal(valid({ ...galascribe, emailContent: 'html' }), false);
+  assert.equal(valid({ ...galascribe, replyToOwner: 'yes' }), false);
+  assert.equal(valid({ ...galascribe, text: '' }), false);
+  assert.equal(valid({ ...galascribe, extra: 1 }), false);
+  for (const member of Object.keys(galascribe)) {
+    const missing = { ...galascribe };
+    delete (/** @type {Record<string, unknown>} */ (missing)[member]);
+    assert.equal(valid(missing), false, `${member} is required`);
+  }
+  assert.equal(valid({}), false);
+  assert.equal(valid(null), false);
+});
+
+test('publication admits the closed optional contactForm member', async () => {
+  const base = await readJson('examples/valid/publication/canonical.json');
+  const valid = (/** @type {unknown} */ contactForm) =>
+    validateGalaDocument(base.schemaId, { ...base, contactForm }).valid;
+  const form = { enabled: true, fields: { website: false, phone: true } };
+  assert.equal(valid(form), true);
+  assert.equal(valid({ ...form, enabled: false }), true);
+  assert.equal(valid({ enabled: true }), false);
+  assert.equal(valid({ fields: form.fields }), false);
+  assert.equal(valid({ ...form, enabled: 'yes' }), false);
+  assert.equal(valid({ ...form, intro: 'Write to us.' }), false);
+  assert.equal(valid({ ...form, extra: 1 }), false);
+  assert.equal(valid({ ...form, fields: { website: true } }), false);
+  assert.equal(valid({ ...form, fields: { phone: true } }), false);
+  assert.equal(
+    valid({ ...form, fields: { website: true, phone: true, message: true } }),
+    false,
+  );
+  assert.equal(valid({ ...form, fields: { website: 1, phone: true } }), false);
+  assert.equal(valid({ ...form, fields: [] }), false);
+  assert.equal(valid(null), false);
+});
+
+test('interactions config admits the closed optional follows member', async () => {
+  const base = await readJson(
+    'examples/valid/interactions-config/canonical.json',
+  );
+  const valid = (/** @type {unknown} */ follows) =>
+    validateGalaDocument(base.schemaId, { ...base, follows }).valid;
+  assert.equal(validateGalaDocument(base.schemaId, base).valid, true);
+  assert.equal(valid({ enabled: true }), true);
+  assert.equal(valid({ enabled: false }), true);
+  assert.equal(valid({}), false);
+  assert.equal(valid({ enabled: 1 }), false);
+  assert.equal(valid({ enabled: true, extra: true }), false);
+  assert.equal(valid(true), false);
+  assert.equal(valid(null), false);
+});
+
+test('build input carries sharing, the newsletter union, the contact form and follows', async () => {
+  const base = await readJson('examples/valid/build-input/canonical.json');
+  const body = {
+    sourcePath: 'gala/theme-pages/contact.md',
+    sourceDigest: base.content[0].sourceDigest,
+    bodyMediaType: base.content[0].bodyMediaType,
+    body: base.content[0].body,
+    bodyDigest: base.content[0].bodyDigest,
+    renderPolicy: base.content[0].renderPolicy,
+  };
+  const withPublication = (/** @type {Record<string, unknown>} */ change) => ({
+    ...base,
+    publication: { ...base.publication, ...change },
+  });
+  const valid = (/** @type {Record<string, unknown>} */ change) =>
+    validateGalaDocument(base.schemaId, withPublication(change)).valid;
+  assert.equal(validateGalaDocument(base.schemaId, base).valid, true);
+  assert.equal(valid({ sharing: { targets: ['x', 'bluesky'] } }), true);
+  assert.equal(valid({ sharing: { targets: ['mastodon'] } }), false);
+  assert.equal(
+    valid({
+      newsletter: { url: 'https://news.example.com/', title: 'Hi', text: 'Hi' },
+    }),
+    true,
+  );
+  assert.equal(
+    valid({
+      newsletter: {
+        mode: 'galascribe',
+        title: 'Hi',
+        text: 'Hi',
+        emailContent: 'full',
+        replyToOwner: true,
+      },
+    }),
+    true,
+  );
+  assert.equal(
+    valid({ newsletter: { mode: 'galascribe', title: 'Hi' } }),
+    false,
+  );
+  const contactForm = {
+    enabled: true,
+    fields: { website: true, phone: false },
+  };
+  assert.equal(valid({ contactForm }), true);
+  assert.equal(valid({ contactForm: { ...contactForm, intro: body } }), true);
+  assert.equal(
+    valid({ contactForm: { ...contactForm, intro: 'Write to us.' } }),
+    false,
+  );
+  assert.equal(
+    valid({ contactForm: { ...contactForm, intro: { ...body, body: 7 } } }),
+    false,
+  );
+  const withFollows = (/** @type {unknown} */ follows) => ({
+    ...base,
+    modules: {
+      interactions: {
+        config: {
+          schemaId: 'urn:gala:schema:interactions-config:2.0.0',
+          schemaVersion: '2.0.0',
+          reactions: { enabled: false, definitions: [] },
+          comments: { enabled: false, allowReplies: false, maxDepth: 1 },
+          publicCounts: { reactions: false, comments: false },
+          follows,
+        },
+        apiOrigin: 'https://api.galascribe.com',
+        appOrigin: 'http://localhost:5173',
+      },
+    },
+  });
+  assert.equal(
+    validateGalaDocument(base.schemaId, withFollows({ enabled: true })).valid,
+    true,
+  );
+  assert.equal(
+    validateGalaDocument(base.schemaId, withFollows({})).valid,
+    false,
+  );
+});
+
 test('build input admits Editorial and rejects an unknown theme package', async () => {
   const editorial = await readJson('examples/valid/build-input/canonical.json');
   editorial.packages.theme.package = '@rathnasgala2/theme-editorial';

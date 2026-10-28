@@ -8,6 +8,104 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.22.0] - 2026-10-27
+
+Audience features, repository side: share buttons, a Galascribe-managed
+newsletter, a contact form and reader follows. Additive: every 3.21 document
+still validates, a consumer that ignores the new members is unaffected, and
+`npm run compatibility:check` reports no breaking change (the compatibility
+baseline is unchanged, as for 3.19.0). Contract versions and every
+`schemaVersion` are unchanged. This release carries only the shapes the template
+and the toolchain read; the HTTP contract (`openapi/`) follows in 3.23.0.
+Design: `scrap/20261027_audience-features-design.md`, section 4.1.
+
+### Added
+
+- `publication.sharing` (new `$defs/sharing`, shared byte for byte with
+  `build-input`): the closed object `{ "targets": [...] }`, `targets` required.
+  `targets` is ordered and unique, 0 to 11 items from `copy-link`, `native`,
+  `x`, `bluesky`, `linkedin`, `facebook`, `hacker-news`, `whatsapp`, `telegram`,
+  `reddit`, `email`; the order is the display order. An absent `sharing` means
+  `["copy-link"]` (today's Copy link button only); an empty `targets` array
+  means no share buttons. Bookmark is not a target and is unaffected. `native`
+  is shown only where the browser offers the system share sheet; every other
+  target is a plain link to that service's documented share URL.
+- `publication.newsletter` is now a union (`$defs/newsletter`, shared byte for
+  byte with `build-input`; each branch is a closed object, `title` is a
+  `plainLabel`, `text` a `plainText` of 1 to 300 graphemes, as before):
+  - link mode, today's shape: `{ "url", "title", "text" }` with an optional
+    `"mode": "link"`. A file written before 3.22.0 has no `mode` and still
+    validates.
+  - Galascribe mode:
+    `{ "mode": "galascribe", "title", "text", "emailContent": "card" | "full", "replyToOwner": boolean }`,
+    every member required and no `url`. `emailContent` chooses what a
+    subscriber's email carries: `card` is the post title, description, image and
+    a Read the post button; `full` is the whole post (see the email fragment
+    below). `replyToOwner` makes the email's Reply-To the site owner's contact
+    email.
+  - A member that names both modes (for example `mode: "galascribe"` with a
+    `url`) or neither (no `mode` and no `url`) matches no branch and fails with
+    `SCHEMA_UNION_INVALID` at the `newsletter` pointer. An absent `newsletter`
+    means the panel is off. Whether the owner may turn Galascribe mode on (a
+    postal address in their Account, the plan's subscriber capacity) is the
+    API's rule, not the schema's.
+- `publication.contactForm` (new `$defs/contactForm`): the closed object
+  `{ "enabled": boolean, "fields": { "website": boolean, "phone": boolean } }`,
+  every member required. Name, email and message are always present; `fields`
+  adds the optional Website and Phone inputs. The intro text is not a member: it
+  is the optional document `gala/theme-pages/contact.md`, and the template shows
+  a default intro when the file is absent. An absent `contactForm` means no
+  form. The Pro and Business plan limit is enforced by the API, not the schema.
+- `interactions-config.follows`: the optional closed object
+  `{ "enabled": boolean }`; absent means off. The user template seeds it on for
+  new sites. A reader follows an author of the site. Because `build-input`
+  embeds a copy of the interactions config at `modules.interactions.config`, the
+  member reaches the template there, the way `publicCounts` does.
+- Theme pages: `contact.md` joins `about.md`, `terms.md` and `privacy.md` as an
+  admitted file in `gala/theme-pages/`, and it is optional. Content document
+  paths have accepted any single file name in `gala/theme-pages/` since 3.20.0,
+  so no HTTP path pattern changes.
+- `build-input`: the normalized `publication` gains the optional `sharing`, the
+  `newsletter` union and `contactForm` (new `$defs/contactFormNormalized`:
+  `enabled`, `fields` and an optional `intro`, the rendered body of
+  `gala/theme-pages/contact.md` as a `renderableBody`, the way `footerCard`
+  carries its body; absent when the file is absent). The embedded interactions
+  config gains `follows`. The semantic validator adds the intro's Markdown file
+  to the source closure, so a toolchain that renders `contact.md` must put it in
+  the build input.
+
+### Template outputs other repositories rely on
+
+These are implemented by the template, not by this package; this entry records
+the contract so the API and the toolchain can depend on it.
+
+- `/contact/`: the page exists only when `contactForm.enabled` is true. It shows
+  the intro (`contactForm.intro`, or the template's default intro) and the form
+  with the fields `contactForm.fields` selects.
+- `/_gala/email/<content id>.html`: for each published post, and only when
+  `newsletter.mode` is `galascribe` with `emailContent: "full"`, an email-safe
+  HTML fragment of the post (`<content id>` is the post's front-matter `id`).
+  Links and images are absolute URLs; the markup is inline-safe (no scripts, no
+  external stylesheets); the file is `noindex` and appears in no sitemap, feed,
+  search index or llms file. The API fetches it after the generation is
+  certified live. With `emailContent: "card"`, or any other newsletter mode, the
+  template renders no fragment.
+
+### Generated and tested
+
+- The generated validators, TypeScript declarations (`PublicationSharing`,
+  `PublicationContactForm`, a union `PublicationNewsletter`, and the
+  `BuildInput` counterparts), schema inventory, diagnostic map, parity
+  expectations and fixture corpus are regenerated. The corpus gains
+  `publication/SCHEMA_UNION_INVALID` and `publication/SCHEMA_ARRAY_DUPLICATE`,
+  and the S2 families gain build-input cases for the follows module and for the
+  normalized publication (a valid audience publication, a link newsletter
+  without `mode`, an empty `targets`, and the union, enum, duplicate and
+  missing-`fields` rejections).
+- Tests: `test/t05-validation.test.js` covers each new member;
+  `test/t03-build-artifact-semantics.test.js` covers the contact intro in the
+  source closure.
+
 ## [3.21.0] - 2026-10-27
 
 Language variants: a document can declare that it translates an article.
@@ -3324,7 +3422,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.21.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.22.0...HEAD
+[3.22.0]: https://github.com/rathnasgala2/schema/compare/v3.21.0...v3.22.0
 [3.21.0]: https://github.com/rathnasgala2/schema/compare/v3.20.0...v3.21.0
 [3.20.0]: https://github.com/rathnasgala2/schema/compare/v3.19.1...v3.20.0
 [3.19.1]: https://github.com/rathnasgala2/schema/compare/v3.19.0...v3.19.1

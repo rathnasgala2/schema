@@ -20,6 +20,40 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "publication-unknown-06acbe3309736419",
+    "coveredRuleIds": [
+      "publication:#/$defs/contactForm/properties/fields/properties/phone:type",
+      "publication:#/$defs/contactForm/properties/fields/properties/website:type",
+      "publication:#/$defs/contactForm/properties/fields:additionalProperties",
+      "publication:#/$defs/contactForm/properties/fields:required:phone",
+      "publication:#/$defs/contactForm/properties/fields:required:website",
+      "publication:#/$defs/contactForm/properties/fields:type"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm/properties/fields",
+    "keyword": "additionalProperties",
+    "instance": { "website": false, "phone": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "publication-unknown-0a66bda8af19368b",
+    "coveredRuleIds": [
+      "publication:#/$defs/sharing/properties/targets/items:enum",
+      "publication:#/$defs/sharing/properties/targets:maxItems",
+      "publication:#/$defs/sharing/properties/targets:minItems",
+      "publication:#/$defs/sharing/properties/targets:type",
+      "publication:#/$defs/sharing/properties/targets:uniqueItems",
+      "publication:#/$defs/sharing:additionalProperties",
+      "publication:#/$defs/sharing:required:targets",
+      "publication:#/$defs/sharing:type"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/sharing",
+    "keyword": "additionalProperties",
+    "instance": { "targets": ["copy-link"], "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "publication-unknown-334359b90efed75d",
     "coveredRuleIds": [
       "publication:#/$defs/bcp47:format",
@@ -50,6 +84,7 @@
       "publication:#/$defs/isoCountry:format",
       "publication:#/$defs/isoCountry:pattern",
       "publication:#/$defs/isoCountry:type",
+      "publication:#/$defs/newsletter:oneOf",
       "publication:#/$defs/packageExact:format",
       "publication:#/$defs/packageExact:minLength",
       "publication:#/$defs/packageExact:pattern",
@@ -157,6 +192,25 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "publication-unknown-8655743ad54d8257",
+    "coveredRuleIds": [
+      "publication:#/$defs/contactForm/properties/enabled:type",
+      "publication:#/$defs/contactForm:additionalProperties",
+      "publication:#/$defs/contactForm:required:enabled",
+      "publication:#/$defs/contactForm:required:fields",
+      "publication:#/$defs/contactForm:type"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm",
+    "keyword": "additionalProperties",
+    "instance": {
+      "enabled": false,
+      "fields": { "website": false, "phone": false },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "publication-unknown-9d11886d61734683",
     "coveredRuleIds": [
       "publication:#/$defs/socialLink/allOf/0/if/properties/type:const",
@@ -179,6 +233,28 @@
     "instance": {
       "type": "website",
       "uri": "https://fixture-1.example.com/",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "publication-unknown-9f327a48acb777fa",
+    "coveredRuleIds": [
+      "publication:#/$defs/newsletter/oneOf/0/properties/mode:const",
+      "publication:#/$defs/newsletter/oneOf/0/properties/text:x-gala-graphemeLength",
+      "publication:#/$defs/newsletter/oneOf/0:additionalProperties",
+      "publication:#/$defs/newsletter/oneOf/0:required:text",
+      "publication:#/$defs/newsletter/oneOf/0:required:title",
+      "publication:#/$defs/newsletter/oneOf/0:required:url",
+      "publication:#/$defs/newsletter/oneOf/0:type"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/0",
+    "keyword": "additionalProperties",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "title": "fixture-1",
+      "text": "fixture-1",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
@@ -243,22 +319,29 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
-    "caseId": "publication-unknown-e1bd8415f65d2e3c",
+    "caseId": "publication-unknown-cda512885ea6ac7a",
     "coveredRuleIds": [
-      "publication:#/$defs/newsletter/properties/text:x-gala-graphemeLength",
-      "publication:#/$defs/newsletter:additionalProperties",
-      "publication:#/$defs/newsletter:required:text",
-      "publication:#/$defs/newsletter:required:title",
-      "publication:#/$defs/newsletter:required:url",
-      "publication:#/$defs/newsletter:type"
+      "publication:#/$defs/newsletter/oneOf/1/properties/emailContent:enum",
+      "publication:#/$defs/newsletter/oneOf/1/properties/mode:const",
+      "publication:#/$defs/newsletter/oneOf/1/properties/replyToOwner:type",
+      "publication:#/$defs/newsletter/oneOf/1/properties/text:x-gala-graphemeLength",
+      "publication:#/$defs/newsletter/oneOf/1:additionalProperties",
+      "publication:#/$defs/newsletter/oneOf/1:required:emailContent",
+      "publication:#/$defs/newsletter/oneOf/1:required:mode",
+      "publication:#/$defs/newsletter/oneOf/1:required:replyToOwner",
+      "publication:#/$defs/newsletter/oneOf/1:required:text",
+      "publication:#/$defs/newsletter/oneOf/1:required:title",
+      "publication:#/$defs/newsletter/oneOf/1:type"
     ],
     "schemaId": "urn:gala:schema:publication:2.0.0",
-    "schemaPointer": "#/$defs/newsletter",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
     "keyword": "additionalProperties",
     "instance": {
-      "url": "https://fixture-1.example.com/",
+      "mode": "galascribe",
       "title": "fixture-1",
       "text": "fixture-1",
+      "emailContent": "card",
+      "replyToOwner": false,
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

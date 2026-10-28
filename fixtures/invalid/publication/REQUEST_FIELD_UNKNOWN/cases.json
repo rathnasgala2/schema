@@ -1,5 +1,18 @@
 [
   {
+    "caseId": "publication-invalid-2cd0d09ddc5c97a4",
+    "coveredRuleIds": ["publication:#/$defs/contactForm:additionalProperties"],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm",
+    "keyword": "additionalProperties",
+    "instance": {
+      "enabled": false,
+      "fields": { "website": false, "phone": false },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "publication-invalid-30b8b611b230d115",
     "coveredRuleIds": ["publication:#/$defs/footerCard:additionalProperties"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
@@ -52,17 +65,12 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
-    "caseId": "publication-invalid-4f13d3c552728e29",
-    "coveredRuleIds": ["publication:#/$defs/newsletter:additionalProperties"],
+    "caseId": "publication-invalid-72f108be659b9bcd",
+    "coveredRuleIds": ["publication:#/$defs/sharing:additionalProperties"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
-    "schemaPointer": "#/$defs/newsletter",
+    "schemaPointer": "#/$defs/sharing",
     "keyword": "additionalProperties",
-    "instance": {
-      "url": "https://fixture-1.example.com/",
-      "title": "fixture-1",
-      "text": "fixture-1",
-      "unexpected": true
-    },
+    "instance": { "targets": ["copy-link"], "unexpected": true },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
@@ -105,6 +113,17 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "publication-invalid-a80eafe180882636",
+    "coveredRuleIds": [
+      "publication:#/$defs/contactForm/properties/fields:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/contactForm/properties/fields",
+    "keyword": "additionalProperties",
+    "instance": { "website": false, "phone": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "publication-invalid-b3ae5d04b3447efc",
     "coveredRuleIds": ["publication:#/$defs/socialLink:additionalProperties"],
     "schemaId": "urn:gala:schema:publication:2.0.0",
@@ -113,6 +132,40 @@
     "instance": {
       "type": "website",
       "uri": "https://fixture-1.example.com/",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "publication-invalid-bd3134805c971a3f",
+    "coveredRuleIds": [
+      "publication:#/$defs/newsletter/oneOf/1:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
+    "keyword": "additionalProperties",
+    "instance": {
+      "mode": "galascribe",
+      "title": "fixture-1",
+      "text": "fixture-1",
+      "emailContent": "card",
+      "replyToOwner": false,
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "publication-invalid-c886c3a79d33ff4b",
+    "coveredRuleIds": [
+      "publication:#/$defs/newsletter/oneOf/0:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/0",
+    "keyword": "additionalProperties",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "title": "fixture-1",
+      "text": "fixture-1",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

@@ -67,6 +67,9 @@ const ROOT_LEDGERS = {
       'policies',
       'footerCard',
       'newsletter',
+      // SCHEMA-3.22.0: the share buttons and the contact form.
+      'sharing',
+      'contactForm',
       'crawlers',
     ],
   },

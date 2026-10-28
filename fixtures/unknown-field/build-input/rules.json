@@ -215,6 +215,24 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-0a66bda8af19368b",
+    "coveredRuleIds": [
+      "build-input:#/$defs/sharing/properties/targets/items:enum",
+      "build-input:#/$defs/sharing/properties/targets:maxItems",
+      "build-input:#/$defs/sharing/properties/targets:minItems",
+      "build-input:#/$defs/sharing/properties/targets:type",
+      "build-input:#/$defs/sharing/properties/targets:uniqueItems",
+      "build-input:#/$defs/sharing:additionalProperties",
+      "build-input:#/$defs/sharing:required:targets",
+      "build-input:#/$defs/sharing:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/sharing",
+    "keyword": "additionalProperties",
+    "instance": { "targets": ["copy-link"], "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-0ac82bcd811aa1d8",
     "coveredRuleIds": [
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/allowReplies:type",
@@ -499,6 +517,7 @@
       "build-input:#/$defs/isoCountry:format",
       "build-input:#/$defs/isoCountry:pattern",
       "build-input:#/$defs/isoCountry:type",
+      "build-input:#/$defs/newsletter:oneOf",
       "build-input:#/$defs/normalizedSource:oneOf",
       "build-input:#/$defs/npmPackageName:maxLength",
       "build-input:#/$defs/npmPackageName:minLength",
@@ -955,6 +974,22 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-48c0805a4cb9bbc9",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contactFormNormalized/properties/fields/properties/phone:type",
+      "build-input:#/$defs/contactFormNormalized/properties/fields/properties/website:type",
+      "build-input:#/$defs/contactFormNormalized/properties/fields:additionalProperties",
+      "build-input:#/$defs/contactFormNormalized/properties/fields:required:phone",
+      "build-input:#/$defs/contactFormNormalized/properties/fields:required:website",
+      "build-input:#/$defs/contactFormNormalized/properties/fields:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contactFormNormalized/properties/fields",
+    "keyword": "additionalProperties",
+    "instance": { "website": false, "phone": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-4a804fdcaeda93f9",
     "coveredRuleIds": [
       "build-input:#/$defs/packageIdentity:additionalProperties",
@@ -1036,27 +1071,6 @@
         }
       ],
       "route": "/fixture-1",
-      "unexpected": true
-    },
-    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
-  },
-  {
-    "caseId": "build-input-unknown-527b14b2a55202e0",
-    "coveredRuleIds": [
-      "build-input:#/$defs/publicationNormalized/properties/newsletter/properties/text:x-gala-graphemeLength",
-      "build-input:#/$defs/publicationNormalized/properties/newsletter:additionalProperties",
-      "build-input:#/$defs/publicationNormalized/properties/newsletter:required:text",
-      "build-input:#/$defs/publicationNormalized/properties/newsletter:required:title",
-      "build-input:#/$defs/publicationNormalized/properties/newsletter:required:url",
-      "build-input:#/$defs/publicationNormalized/properties/newsletter:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/publicationNormalized/properties/newsletter",
-    "keyword": "additionalProperties",
-    "instance": {
-      "url": "https://fixture-1.example.com/",
-      "title": "fixture-1",
-      "text": "fixture-1",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
@@ -1182,6 +1196,25 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-95d6953c0a598e34",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contactFormNormalized/properties/enabled:type",
+      "build-input:#/$defs/contactFormNormalized:additionalProperties",
+      "build-input:#/$defs/contactFormNormalized:required:enabled",
+      "build-input:#/$defs/contactFormNormalized:required:fields",
+      "build-input:#/$defs/contactFormNormalized:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contactFormNormalized",
+    "keyword": "additionalProperties",
+    "instance": {
+      "enabled": false,
+      "fields": { "website": false, "phone": false },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-9c1128252c60c49e",
     "coveredRuleIds": [
       "build-input:#/$defs/publicationNormalized/properties/footerCard/properties/authorIds:maxItems",
@@ -1242,6 +1275,28 @@
     "instance": {
       "type": "website",
       "uri": "https://fixture-1.example.com/",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-9f327a48acb777fa",
+    "coveredRuleIds": [
+      "build-input:#/$defs/newsletter/oneOf/0/properties/mode:const",
+      "build-input:#/$defs/newsletter/oneOf/0/properties/text:x-gala-graphemeLength",
+      "build-input:#/$defs/newsletter/oneOf/0:additionalProperties",
+      "build-input:#/$defs/newsletter/oneOf/0:required:text",
+      "build-input:#/$defs/newsletter/oneOf/0:required:title",
+      "build-input:#/$defs/newsletter/oneOf/0:required:url",
+      "build-input:#/$defs/newsletter/oneOf/0:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/0",
+    "keyword": "additionalProperties",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "title": "fixture-1",
+      "text": "fixture-1",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
@@ -1361,6 +1416,34 @@
           }
         }
       },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-cda512885ea6ac7a",
+    "coveredRuleIds": [
+      "build-input:#/$defs/newsletter/oneOf/1/properties/emailContent:enum",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/mode:const",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/replyToOwner:type",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/text:x-gala-graphemeLength",
+      "build-input:#/$defs/newsletter/oneOf/1:additionalProperties",
+      "build-input:#/$defs/newsletter/oneOf/1:required:emailContent",
+      "build-input:#/$defs/newsletter/oneOf/1:required:mode",
+      "build-input:#/$defs/newsletter/oneOf/1:required:replyToOwner",
+      "build-input:#/$defs/newsletter/oneOf/1:required:text",
+      "build-input:#/$defs/newsletter/oneOf/1:required:title",
+      "build-input:#/$defs/newsletter/oneOf/1:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1",
+    "keyword": "additionalProperties",
+    "instance": {
+      "mode": "galascribe",
+      "title": "fixture-1",
+      "text": "fixture-1",
+      "emailContent": "card",
+      "replyToOwner": false,
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
@@ -1764,6 +1847,20 @@
       ],
       "unexpected": true
     },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-fef1c1ff053fc217",
+    "coveredRuleIds": [
+      "build-input:#/$defs/interactionsConfig/properties/follows/properties/enabled:type",
+      "build-input:#/$defs/interactionsConfig/properties/follows:additionalProperties",
+      "build-input:#/$defs/interactionsConfig/properties/follows:required:enabled",
+      "build-input:#/$defs/interactionsConfig/properties/follows:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/interactionsConfig/properties/follows",
+    "keyword": "additionalProperties",
+    "instance": { "enabled": false, "unexpected": true },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   }
 ]

@@ -78,6 +78,9 @@ export type InteractionsConfigDocument = Readonly<{
     readonly enabled: boolean;
     readonly maxDepth: number;
   }>;
+  readonly follows?: Readonly<{
+    readonly enabled: boolean;
+  }>;
   readonly publicCounts: Readonly<{
     readonly comments: boolean;
     readonly reactions: boolean;

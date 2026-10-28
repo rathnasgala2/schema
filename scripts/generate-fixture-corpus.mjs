@@ -2591,6 +2591,23 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       appOrigin: 'http://localhost:5173',
     },
   };
+  /**
+   * SCHEMA-3.22.0: the interactions module with one `follows` value.
+   *
+   * @type {(follows: unknown) => Record<string, unknown>}
+   */
+  const followsModule = (follows) => {
+    const input = clone(interactionsModules);
+    const interactions = requireS2Record(
+      requireS2Record(input.modules, 'S2_BUILD_MODULES_ABSENT').interactions,
+      'S2_BUILD_INTERACTIONS_ABSENT',
+    );
+    requireS2Record(
+      interactions.config,
+      'S2_BUILD_INTERACTIONS_CONFIG_ABSENT',
+    ).follows = follows;
+    return input;
+  };
   const analyticsModules = canonical('build-input');
   analyticsModules.modules = {
     analytics: {
@@ -2638,6 +2655,36 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
     s2Case('build-input-valid-interactions-module', interactionsModules),
     s2Case('build-input-valid-analytics-module', analyticsModules),
     s2Case('build-input-valid-policies', policiesBuildInput),
+    s2Case(
+      'build-input-valid-follows-module',
+      followsModule({ enabled: true }),
+    ),
+    s2Case(
+      'build-input-rejects-follows-unknown-member',
+      followsModule({ enabled: true, digest: true }),
+      [
+        {
+          code: 'REQUEST_FIELD_UNKNOWN',
+          instancePointer: '/modules/interactions/config/follows/digest',
+        },
+      ],
+    ),
+    s2Case('build-input-rejects-follows-without-enabled', followsModule({}), [
+      {
+        code: 'SCHEMA_REQUIRED_FIELD_MISSING',
+        instancePointer: '/modules/interactions/config/follows/enabled',
+      },
+    ]),
+    s2Case(
+      'build-input-rejects-follows-enabled-not-boolean',
+      followsModule({ enabled: 1 }),
+      [
+        {
+          code: 'SCHEMA_TYPE_INVALID',
+          instancePointer: '/modules/interactions/config/follows/enabled',
+        },
+      ],
+    ),
     s2Case('build-input-rejects-nonempty-placements', nonemptyPlacements, [
       { code: 'SCHEMA_CONSTANT_INVALID', instancePointer: '/placements' },
     ]),
@@ -2649,6 +2696,24 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
     missingNormalizedSourceDigest.publication
   );
   delete normalizedPublication.sourceDigest;
+  /**
+   * SCHEMA-3.22.0: the canonical build input with one change to its normalized
+   * publication.
+   *
+   * @type {(change: (publication: Record<string, unknown>) => void) => Record<string, unknown>}
+   */
+  const withPublication = (change) => {
+    const input = canonical('build-input');
+    change(requireS2Record(input.publication, 'S2_BUILD_PUBLICATION_ABSENT'));
+    return input;
+  };
+  const galascribeNewsletter = {
+    mode: 'galascribe',
+    title: 'Subscribe',
+    text: 'New posts by email.',
+    emailContent: 'full',
+    replyToOwner: true,
+  };
   families.set('normalized-inputs', [
     s2Case('normalized-build-input-valid', normalizedInput),
     s2Case(
@@ -2658,6 +2723,101 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
         {
           code: 'SCHEMA_REQUIRED_FIELD_MISSING',
           instancePointer: '/publication/sourceDigest',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-audience-valid',
+      withPublication((publication) => {
+        publication.sharing = { targets: ['x', 'copy-link', 'email'] };
+        publication.newsletter = galascribeNewsletter;
+        publication.contactForm = {
+          enabled: true,
+          fields: { website: true, phone: false },
+          intro: { ...policyBody, sourcePath: 'gala/theme-pages/contact.md' },
+        };
+      }),
+    ),
+    s2Case(
+      'normalized-publication-newsletter-link-without-mode-valid',
+      withPublication((publication) => {
+        publication.newsletter = {
+          url: 'https://news.example.com/',
+          title: 'Subscribe',
+          text: 'New posts by email.',
+        };
+      }),
+    ),
+    s2Case(
+      'normalized-publication-sharing-empty-valid',
+      withPublication((publication) => {
+        publication.sharing = { targets: [] };
+      }),
+    ),
+    s2Case(
+      'normalized-publication-newsletter-both-modes-invalid',
+      withPublication((publication) => {
+        publication.newsletter = {
+          ...galascribeNewsletter,
+          url: 'https://news.example.com/',
+        };
+      }),
+      [
+        {
+          code: 'SCHEMA_UNION_INVALID',
+          instancePointer: '/publication/newsletter',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-newsletter-mode-missing-invalid',
+      withPublication((publication) => {
+        publication.newsletter = Object.fromEntries(
+          Object.entries(galascribeNewsletter).filter(
+            ([key]) => key !== 'mode',
+          ),
+        );
+      }),
+      [
+        {
+          code: 'SCHEMA_UNION_INVALID',
+          instancePointer: '/publication/newsletter',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-sharing-unknown-target-invalid',
+      withPublication((publication) => {
+        publication.sharing = { targets: ['mastodon'] };
+      }),
+      [
+        {
+          code: 'SCHEMA_ENUM_INVALID',
+          instancePointer: '/publication/sharing/targets/0',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-sharing-duplicate-target-invalid',
+      withPublication((publication) => {
+        publication.sharing = { targets: ['x', 'x'] };
+      }),
+      [
+        {
+          code: 'SCHEMA_ARRAY_DUPLICATE',
+          instancePointer: '/publication/sharing/targets',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-contact-form-fields-missing-invalid',
+      withPublication((publication) => {
+        publication.contactForm = { enabled: true };
+      }),
+      [
+        {
+          code: 'SCHEMA_REQUIRED_FIELD_MISSING',
+          instancePointer: '/publication/contactForm/fields',
         },
       ],
     ),

@@ -1719,6 +1719,19 @@ function validateBuildInput(lock, buildInput, context) {
       addSource,
     );
   }
+  if (Object.hasOwn(publication, 'contactForm')) {
+    // The optional contact intro (`gala/theme-pages/contact.md`) is rendered
+    // like the footer card body, and its Markdown file belongs to the closure.
+    const contact = asObject(publication.contactForm, code);
+    if (Object.hasOwn(contact, 'intro')) {
+      validateRenderableBody(
+        asObject(contact.intro, code),
+        renderPolicy,
+        treeFiles,
+        addSource,
+      );
+    }
+  }
   if (Object.hasOwn(buildInput, 'policies')) {
     // The site's own Terms and Privacy pages are rendered like the profile and
     // footer bodies, and their Markdown files belong to the source closure.

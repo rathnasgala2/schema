@@ -102,6 +102,15 @@ export type BuildInputColorMode = Readonly<{
 }> &
   unknown;
 
+export type BuildInputContactFormNormalized = Readonly<{
+  readonly enabled: boolean;
+  readonly fields: Readonly<{
+    readonly phone: boolean;
+    readonly website: boolean;
+  }>;
+  readonly intro?: BuildInputRenderableBody;
+}>;
+
 export type BuildInputContentBuildMediaFile = Readonly<{
   readonly byteLength: number;
   readonly mediaType:
@@ -200,6 +209,9 @@ export type BuildInputInteractionsConfig = Readonly<{
     readonly enabled: boolean;
     readonly maxDepth: number;
   }>;
+  readonly follows?: Readonly<{
+    readonly enabled: boolean;
+  }>;
   readonly publicCounts: Readonly<{
     readonly comments: boolean;
     readonly reactions: boolean;
@@ -263,6 +275,21 @@ export type BuildInputNavigationNormalized = Readonly<{
   readonly source: BuildInputNormalizedSource;
 }>;
 
+export type BuildInputNewsletter =
+  | Readonly<{
+      readonly emailContent: 'card' | 'full';
+      readonly mode: 'galascribe';
+      readonly replyToOwner: boolean;
+      readonly text: BuildInputPlainText;
+      readonly title: BuildInputPlainLabel;
+    }>
+  | Readonly<{
+      readonly mode?: 'link';
+      readonly text: BuildInputPlainText;
+      readonly title: BuildInputPlainLabel;
+      readonly url: BuildInputUrlHttps;
+    }>;
+
 export type BuildInputNormalizedSource =
   | Readonly<{
       readonly defaultDigest: BuildInputDigest;
@@ -308,6 +335,7 @@ export type BuildInputPublicationNormalized = Readonly<{
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly canonicalBase: BuildInputUrlHttps;
   readonly contactAuthorId?: BuildInputStableId;
+  readonly contactForm?: BuildInputContactFormNormalized;
   readonly crawlers?: Readonly<{
     readonly ai: 'allow' | 'block';
   }>;
@@ -321,15 +349,12 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly heading: BuildInputPlainText;
   }>;
   readonly id: BuildInputStableId;
-  readonly newsletter?: Readonly<{
-    readonly text: BuildInputPlainText;
-    readonly title: BuildInputPlainLabel;
-    readonly url: BuildInputUrlHttps;
-  }>;
+  readonly newsletter?: BuildInputNewsletter;
   readonly profile?: Readonly<{
     readonly body: BuildInputRenderableBody;
     readonly route: BuildInputCanonicalRoute;
   }>;
+  readonly sharing?: BuildInputSharing;
   readonly slug: BuildInputSlug;
   readonly socialLinks: ReadonlyArray<BuildInputSocialLink>;
   readonly sourceDigest: BuildInputDigest;
@@ -418,6 +443,22 @@ export type BuildInputSemanticTokens = Readonly<{
 export type BuildInputSemver = string;
 
 export type BuildInputSemverRange = string;
+
+export type BuildInputSharing = Readonly<{
+  readonly targets: ReadonlyArray<
+    | 'copy-link'
+    | 'native'
+    | 'x'
+    | 'bluesky'
+    | 'linkedin'
+    | 'facebook'
+    | 'hacker-news'
+    | 'whatsapp'
+    | 'telegram'
+    | 'reddit'
+    | 'email'
+  >;
+}>;
 
 export type BuildInputSlug = string;
 
