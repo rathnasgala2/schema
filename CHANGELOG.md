@@ -102,6 +102,11 @@ the contract so the API and the toolchain can depend on it.
   normalized publication (a valid audience publication, a link newsletter
   without `mode`, an empty `targets`, and the union, enum, duplicate and
   missing-`fields` rejections).
+- The generated OpenAPI bundle (`openapi/openapi.yaml`,
+  `openapi/http-catalog.json` digests) inlines
+  `interactions-config.schema.json`, so its `InteractionsConfig` component gains
+  the optional `follows` member; no OpenAPI source file and no operation changed
+  (the HTTP contract is 3.23.0).
 - Tests: `test/t05-validation.test.js` covers each new member;
   `test/t03-build-artifact-semantics.test.js` covers the contact intro in the
   source closure.
