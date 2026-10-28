@@ -120,9 +120,11 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       // SCHEMA-3.23.0: audience features (follows, newsletter, contact form,
       // postal address, plans).
       AUTHOR_NOT_FOUND: { statuses: [404], retryable: false },
+      CONTACT_FORM_UNAVAILABLE: { statuses: [409], retryable: false },
       FOLLOWS_DISABLED: { statuses: [409], retryable: false },
       NEWSLETTER_FULL: { statuses: [409], retryable: false },
       NEWSLETTER_UNAVAILABLE: { statuses: [409], retryable: false },
+      PLAN_REQUIRED: { statuses: [409], retryable: false },
       POSTAL_ADDRESS_REQUIRED: { statuses: [422], retryable: false },
       TOKEN_EXPIRED: { statuses: [410], retryable: false },
     })

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:5a700a612c1a4485020eb596356f7fe368d4f7a3b9b9b8ad822c404c3c43efc9",
+  "openApiDigest": "sha256:fc02440d3183027484533fa4a66e1d3c6e0d7c975c3b6f63b757ece75713e613",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -841,6 +841,84 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/contact-form-settings",
+      "purpose": "read this publication's contact form settings at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "read",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/contact-form-settings",
+      "purpose": "save this publication's contact form settings as a repository change",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "content:write",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessages",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/contact-messages",
+      "purpose": "list a site's contact-form messages",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/contact-messages:export",
+      "purpose": "export a site's contact-form messages as CSV",
+      "capabilityKey": "publication.audience.export",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId",
+      "method": "DELETE",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/contact-messages/{messageId}",
+      "purpose": "delete one contact-form message",
+      "capabilityKey": "publication.audience.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "patchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId",
+      "method": "PATCH",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/contact-messages/{messageId}",
+      "purpose": "mark one contact-form message handled or new",
+      "capabilityKey": "publication.audience.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
     },
     {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContent",
@@ -1711,6 +1789,32 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/sharing-settings",
+      "purpose": "read this publication's share buttons at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "read",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/sharing-settings",
+      "purpose": "save this publication's share buttons as a repository change",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": "content:write",
+      "sourceFragment": "interaction-settings"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSite",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/site",
@@ -2413,6 +2517,19 @@
       "sourceFragment": "audience"
     },
     {
+      "operationId": "postPublicPublicationsByPublicationIdContactMessages",
+      "method": "POST",
+      "path": "/v2/public/publications/{publicationId}/contact-messages",
+      "purpose": "send a message to a site's owners from its contact form",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
       "operationId": "getPublicPublicationsByPublicationIdContentsByContentIdComments",
       "method": "GET",
       "path": "/v2/public/publications/{publicationId}/contents/{contentId}/comments",
@@ -2476,6 +2593,19 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "getPublicPublicationsByPublicationIdInteractionCounts",
+      "method": "GET",
+      "path": "/v2/public/publications/{publicationId}/interaction-counts",
+      "purpose": "read the public reaction and comment counts of several posts",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
     },
     {
       "operationId": "postPublicPublicationsByPublicationIdNewsletterSubscriptions",
@@ -3063,5 +3193,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:be50eb4a40c510b10257d552e9c026b1cf0cbf9275cb8f11a9f96939db7f8c18"
+  "digest": "sha256:7f12770475430a5c03e0bb1e6bf3a6647453ad7ce1ec7d25b4f9fbd9d8f50fd4"
 }

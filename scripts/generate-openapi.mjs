@@ -49,6 +49,8 @@ export const BINARY_RESPONSE_CONTENT_TYPES =
       // SCHEMA-3.23.0: audience exports are CSV downloads.
       postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport:
         Object.freeze(['text/csv']),
+      postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport:
+        Object.freeze(['text/csv']),
     })
   );
 export const BINARY_RESPONSE_OPERATIONS = Object.freeze(
@@ -733,6 +735,7 @@ function validateContractClosure(records, components) {
         'getCallbacksGithubOauth',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdAppearance',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContent',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
@@ -740,6 +743,7 @@ function validateContractClosure(records, components) {
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings',
         'postGithubInstallationsByInstallationIdRepositories',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublish',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdUpdateDefaultBranch',

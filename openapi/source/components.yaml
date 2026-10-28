@@ -12655,6 +12655,24 @@ components:
     PlatformPlan:
       additionalProperties: false
       properties:
+        contactForm:
+          description:
+            'SCHEMA-3.23.0, whether sites on this plan may turn on the contact
+            form. A site on a plan without it sees the form locked, and enabling
+            it is `409 PLAN_REQUIRED`. Defaults of the first release: FREE 50
+            and no contact form, PRO 500 and a contact form, BUSINESS 2000 and a
+            contact form.'
+          type: boolean
+        newsletterSubscriberLimit:
+          description:
+            'SCHEMA-3.23.0, the confirmed newsletter subscribers one
+            organization on this plan may hold across its sites; a confirmation
+            past it is `409 NEWSLETTER_FULL`. 0 admits none. Defaults of the
+            first release: FREE 50 and no contact form, PRO 500 and a contact
+            form, BUSINESS 2000 and a contact form.'
+          format: int64
+          minimum: 0
+          type: integer
         planKey:
           $ref: '#/components/schemas/PlatformPlanKey'
         publicationLimit:
@@ -12664,6 +12682,8 @@ components:
       required:
         - planKey
         - publicationLimit
+        - newsletterSubscriberLimit
+        - contactForm
       type: object
     PlatformPlanCapacityRelease:
       additionalProperties: false
@@ -12730,6 +12750,16 @@ components:
     PutPlatformPlansByPlanKeyRequest:
       additionalProperties: false
       properties:
+        contactForm:
+          description:
+            "SCHEMA-3.23.0, optional; absent keeps the plan's current value."
+          type: boolean
+        newsletterSubscriberLimit:
+          description:
+            "SCHEMA-3.23.0, optional; absent keeps the plan's current value."
+          format: int64
+          minimum: 0
+          type: integer
         publicationLimit:
           format: int64
           minimum: 1
@@ -14004,6 +14034,126 @@ components:
       minLength: 1
       pattern: ^(?:https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]{1,5})?(?:/[^\s]*)?)$
       type: string
+    ContactFormFields:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the optional fields of the contact form besides the
+        always-present name, email and message.'
+      properties:
+        phone:
+          type: boolean
+        website:
+          type: boolean
+      required:
+        - website
+        - phone
+      type: object
+    ContactFormIntro:
+      description:
+        'SCHEMA-3.23.0: the introduction above the contact form, in Markdown, 1
+        to 2000 characters. It is stored as `gala/theme-pages/contact.md`;
+        without that file the template shows its own default introduction.'
+      maxLength: 2000
+      minLength: 1
+      type: string
+    ContactFormSettings:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: the contact form configuration of a site at the linked
+        repository's main branch head: the `contactForm` member of
+        `gala/publication.json` (`enabled`, `fields`) and the introduction in
+        `gala/theme-pages/contact.md` (`intro`, null when the file is absent).
+        `planAllows` is read-only: false while the site's plan does not include
+        the contact form (the Free plan by default), in which case `enabled`
+        cannot be turned on. `openChange` names an existing not-yet-published
+        change of this publication that touches either file, or is null. `setUp`
+        matches `GET .../repository/setup` `state`."
+      properties:
+        enabled:
+          type: boolean
+        fields:
+          $ref: '#/components/schemas/ContactFormFields'
+        intro:
+          oneOf:
+            - $ref: '#/components/schemas/ContactFormIntro'
+            - type: 'null'
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        planAllows:
+          type: boolean
+        setUp:
+          type: boolean
+      required:
+        - enabled
+        - fields
+        - intro
+        - planAllows
+        - openChange
+        - setUp
+      type: object
+    ContactMessage:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.23.0: one contact-form message with the sender's details, for
+        the site's owners and admins. `website` and `phone` are null when the
+        form did not ask for them or the sender left them empty. `handledAt` is
+        null while `state` is `new`. A message is deleted 180 days after it
+        arrived."
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        email:
+          $ref: '#/components/schemas/AudienceEmail'
+        handledAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        message:
+          maxLength: 5000
+          minLength: 1
+          type: string
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        phone:
+          maxLength: 40
+          minLength: 1
+          type:
+            - string
+            - 'null'
+        state:
+          $ref: '#/components/schemas/ContactMessageState'
+        website:
+          maxLength: 300
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - id
+        - name
+        - email
+        - website
+        - phone
+        - message
+        - state
+        - createdAt
+        - handledAt
+      type: object
+    ContactMessageState:
+      description:
+        'SCHEMA-3.23.0: `new` until the site owner marks the message `handled`.'
+      enum:
+        - new
+        - handled
+      type: string
     DeletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
       $ref: '#/components/schemas/FollowState'
     FollowFeedItem:
@@ -14130,6 +14280,26 @@ components:
         - displayName
         - followedAt
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsResponse:
+      $ref: '#/components/schemas/ContactFormSettings'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ContactMessage'
+          maxItems: 100
+          type: array
+        nextCursor:
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - nextCursor
+      type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdFollowersResponse:
       additionalProperties: false
       properties:
@@ -14200,12 +14370,25 @@ components:
         - items
         - nextCursor
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsResponse:
+      $ref: '#/components/schemas/SharingSettings'
     GetPublicNewsletterConfirmationsByTokenResponse:
       $ref: '#/components/schemas/NewsletterConfirmation'
     GetPublicNewsletterSubscriptionsByTokenResponse:
       $ref: '#/components/schemas/NewsletterSubscription'
     GetPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
       $ref: '#/components/schemas/FollowState'
+    GetPublicPublicationsByPublicationIdInteractionCountsResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PublicCountsItem'
+          maxItems: 50
+          type: array
+      required:
+        - items
+      type: object
     GetSelfFollowingFeedResponse:
       additionalProperties: false
       properties:
@@ -14419,9 +14602,7 @@ components:
           $ref: '#/components/schemas/NewsletterMode'
         openChange:
           oneOf:
-            - format: uuid
-              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-              type: string
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
             - type: 'null'
         ownerPostalAddressSet:
           type: boolean
@@ -14785,6 +14966,16 @@ components:
       maxLength: 64
       pattern: ^(?:[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+|UTC)$
       type: string
+    PatchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageIdRequest:
+      additionalProperties: false
+      properties:
+        state:
+          $ref: '#/components/schemas/ContactMessageState'
+      required:
+        - state
+      type: object
+    PatchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageIdResponse:
+      $ref: '#/components/schemas/ContactMessage'
     PostPublicNewsletterConfirmationsByTokenConfirmResponse:
       $ref: '#/components/schemas/NewsletterConfirmation'
     PostPublicNewsletterSubscriptionsByTokenResubscribeResponse:
@@ -14798,6 +14989,52 @@ components:
           $ref: '#/components/schemas/NotificationCategory'
       required:
         - category
+      type: object
+    PostPublicPublicationsByPublicationIdContactMessagesRequest:
+      additionalProperties: false
+      properties:
+        elapsedMs:
+          format: int64
+          maximum: 86400000
+          minimum: 0
+          type: integer
+        email:
+          $ref: '#/components/schemas/AudienceEmail'
+        message:
+          maxLength: 5000
+          minLength: 1
+          type: string
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        phone:
+          maxLength: 40
+          minLength: 1
+          type: string
+        trap:
+          maxLength: 200
+          type: string
+        website:
+          maxLength: 300
+          minLength: 1
+          type: string
+      required:
+        - name
+        - email
+        - message
+        - trap
+        - elapsedMs
+      type: object
+    PostPublicPublicationsByPublicationIdContactMessagesResponse:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+            - RECEIVED
+          type: string
+      required:
+        - status
       type: object
     PostPublicPublicationsByPublicationIdNewsletterSubscriptionsRequest:
       additionalProperties: false
@@ -14857,6 +15094,57 @@ components:
       minLength: 1
       pattern: ^[^\r\n]+(?:\n[^\r\n]+){0,4}$
       type: string
+    PublicCountsItem:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the public counts of one post. `reactions` is the
+        lower-bound bucket of all reactions on the post and `comments` that of
+        its visible comments, each the same `PublicCount` the article page
+        shows. A count is null when the author turned that public count off
+        (`publicCounts` of the interaction settings) or the feature is off for
+        the site.'
+      properties:
+        comments:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        reactions:
+          oneOf:
+            - $ref: '#/components/schemas/PublicCount'
+            - type: 'null'
+      required:
+        - contentId
+        - reactions
+        - comments
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsRequest:
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        fields:
+          $ref: '#/components/schemas/ContactFormFields'
+        intro:
+          oneOf:
+            - $ref: '#/components/schemas/ContactFormIntro'
+            - type: 'null'
+      required:
+        - enabled
+        - fields
+        - intro
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsRequest:
       additionalProperties: false
       allOf:
@@ -14916,6 +15204,22 @@ components:
       required:
         - change
       type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsRequest:
+      additionalProperties: false
+      properties:
+        targets:
+          $ref: '#/components/schemas/SharingTargets'
+      required:
+        - targets
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
     PutPublicPublicationsByPublicationIdAuthorsByAuthorIdFollowResponse:
       $ref: '#/components/schemas/FollowState'
     PutSelfNotificationPreferencesRequest:
@@ -14949,6 +15253,57 @@ components:
       required:
         - address
       type: object
+    SharingSettings:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.23.0: the `sharing` member of `gala/publication.json` at the
+        linked repository''s main branch head. A publication that never chose
+        reads the default, `["copy-link"]`. `openChange` names an existing
+        not-yet-published change of this publication that touches the file, or
+        is null. `setUp` matches `GET .../repository/setup` `state`.'
+      properties:
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        setUp:
+          type: boolean
+        targets:
+          $ref: '#/components/schemas/SharingTargets'
+      required:
+        - targets
+        - openChange
+        - setUp
+      type: object
+    SharingTarget:
+      description:
+        "SCHEMA-3.23.0: one share button. `copy-link` copies the post address,
+        `native` opens the browser's share sheet (shown only where the browser
+        has one), the rest open the network's documented share address with the
+        post title and canonical address. Mastodon is not a target: sharing
+        there needs the reader's own server."
+      enum:
+        - copy-link
+        - native
+        - x
+        - bluesky
+        - linkedin
+        - facebook
+        - hacker-news
+        - whatsapp
+        - telegram
+        - reddit
+        - email
+      type: string
+    SharingTargets:
+      description:
+        'SCHEMA-3.23.0: the ordered share buttons, 0 to 11 distinct targets. An
+        empty list shows no share buttons.'
+      items:
+        $ref: '#/components/schemas/SharingTarget'
+      maxItems: 11
+      type: array
+      uniqueItems: true
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)
