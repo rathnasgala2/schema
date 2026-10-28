@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:f015c933c536a3a0030eeb06986d014debd8c929b968c82df9817976492fd6d3",
+  "openApiDigest": "sha256:53f6ea6ced19088d63d60d509431cb330c85172ebe4f1890b4db7cc51d70f78f",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -2192,6 +2192,19 @@
       "sourceFragment": "public-interactions"
     },
     {
+      "operationId": "postPublicNotificationUnsubscribesByToken",
+      "method": "POST",
+      "path": "/v2/public/notification-unsubscribes/{token}",
+      "purpose": "turn one notification category off by its email unsubscribe link",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "notifications"
+    },
+    {
       "operationId": "getPublicPublicationsByPublicationId",
       "method": "GET",
       "path": "/v2/public/publications/{publicationId}",
@@ -2491,6 +2504,71 @@
       "sourceFragment": "self"
     },
     {
+      "operationId": "getSelfNotificationPreferences",
+      "method": "GET",
+      "path": "/v2/self/notification-preferences",
+      "purpose": "read the signed-in person's notification email preferences",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "notifications"
+    },
+    {
+      "operationId": "putSelfNotificationPreferences",
+      "method": "PUT",
+      "path": "/v2/self/notification-preferences",
+      "purpose": "replace the signed-in person's notification email preferences",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "notifications"
+    },
+    {
+      "operationId": "getSelfNotifications",
+      "method": "GET",
+      "path": "/v2/self/notifications",
+      "purpose": "list the signed-in person's notifications",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "notifications"
+    },
+    {
+      "operationId": "postSelfNotificationsMarkRead",
+      "method": "POST",
+      "path": "/v2/self/notifications:mark-read",
+      "purpose": "mark notifications as read",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "notifications"
+    },
+    {
+      "operationId": "getSelfNotificationsUnreadCount",
+      "method": "GET",
+      "path": "/v2/self/notifications/unread-count",
+      "purpose": "read the signed-in person's unread notification count",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "notifications"
+    },
+    {
       "operationId": "getSelfOwnerTransfers",
       "method": "GET",
       "path": "/v2/self/owner-transfers",
@@ -2547,6 +2625,45 @@
       "method": "PATCH",
       "path": "/v2/self/passkeys/{passkeyId}",
       "purpose": "rename passkey",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "self"
+    },
+    {
+      "operationId": "deleteSelfPostalAddress",
+      "method": "DELETE",
+      "path": "/v2/self/postal-address",
+      "purpose": "remove the signed-in person's postal address",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "self"
+    },
+    {
+      "operationId": "getSelfPostalAddress",
+      "method": "GET",
+      "path": "/v2/self/postal-address",
+      "purpose": "read the signed-in person's postal address",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "self"
+    },
+    {
+      "operationId": "putSelfPostalAddress",
+      "method": "PUT",
+      "path": "/v2/self/postal-address",
+      "purpose": "save the signed-in person's postal address",
       "capabilityKey": null,
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -2699,5 +2816,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:02efa2a51a27ec6907da974e1d7b4b6baaf18efe8783dcdf8f432c8e91f2efea"
+  "digest": "sha256:fc56b66e2c867d41043b2c8f9a56aec8b6ee7cab7be98d507e8247b45f8bc9f7"
 }
