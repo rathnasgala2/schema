@@ -8,13 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.23.0] - 2026-10-27
+
 Audience features: notifications, follows, the Galascribe newsletter, the
 contact form, share buttons and public counts, as one HTTP contract (design:
 `scrap/20261027_audience-features-design.md`, section 4.2). Additive: no
 existing operation, member or problem code changes meaning, and every 3.21
 request and response still validates. The JSON-schema shapes the new settings
 write into the site's repository (`sharing`, the `newsletter` union,
-`contactForm`, `interactions-config` `follows`) are a separate release; the
+`contactForm`, `interactions-config` `follows`) are the 3.22.0 release; the
 operations below name their members the same way and carry them as OpenAPI
 components so this contract does not depend on that release. No JSON Schema root
 changes here, so `npm run compatibility:check` is unaffected.
@@ -104,8 +106,14 @@ changes here, so `npm run compatibility:check` is unaffected.
 - Problem codes (all added to the example rules): `FOLLOWS_DISABLED` `409`,
   `AUTHOR_NOT_FOUND` `404`, `NEWSLETTER_UNAVAILABLE` `409`, `NEWSLETTER_FULL`
   `409`, `TOKEN_EXPIRED` `410`, `POSTAL_ADDRESS_REQUIRED` `422` (pointed at
-  `/mode`), `CONTACT_FORM_UNAVAILABLE` `409` and `PLAN_REQUIRED` `409` (pointed
-  at `/enabled`). Public writes also declare `429 RATE_LIMITED`.
+  `/mode`), `CONTACT_FORM_UNAVAILABLE` `409`, `PLAN_REQUIRED` `409` (pointed at
+  `/enabled`) and `CONTACT_ROUTE_IN_USE` `409` (pointed at `/enabled`). Public
+  writes also declare `429 RATE_LIMITED`.
+- `PUT .../contact-form-settings` is also `409 CONTACT_ROUTE_IN_USE` when
+  `enabled` is turned on while one of the site's own content documents already
+  routes to `/contact/`; the form never takes over a page the author wrote, and
+  the author moves or renames that document first. Saving the form off, or
+  unchanged, is always allowed.
 - `PlatformPlan` gains `newsletterSubscriberLimit` (integer, at least 0) and
   `contactForm` (boolean), both required in a plan the server returns, with the
   defaults documented on the members and shown in the examples: FREE 50 and no
@@ -3552,7 +3560,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.22.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.23.0...HEAD
+[3.23.0]: https://github.com/rathnasgala2/schema/compare/v3.22.0...v3.23.0
 [3.22.0]: https://github.com/rathnasgala2/schema/compare/v3.21.0...v3.22.0
 [3.21.0]: https://github.com/rathnasgala2/schema/compare/v3.20.0...v3.21.0
 [3.20.0]: https://github.com/rathnasgala2/schema/compare/v3.19.1...v3.20.0

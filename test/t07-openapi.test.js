@@ -3756,6 +3756,7 @@ test('SCHEMA-3.23.0: the new problem codes are declared with their statuses', as
       'RATE_LIMITED',
     ],
     ['put', `${orgPub}/contact-form-settings`, '409', 'PLAN_REQUIRED'],
+    ['put', `${orgPub}/contact-form-settings`, '409', 'CONTACT_ROUTE_IN_USE'],
   ];
   for (const [method, route, status, code] of expected) {
     const operation = operationAt(bundle, method, route);
@@ -3791,6 +3792,13 @@ test('SCHEMA-3.23.0: the new problem codes are declared with their statuses', as
     plan.content['application/problem+json'].examples.PLAN_REQUIRED.value
       .errors,
     [{ code: 'PLAN_REQUIRED', pointer: '/enabled' }],
+  );
+  // The route refusal points at `enabled` too: turning the form on is what
+  // would take over a page the author already wrote at /contact/.
+  assert.deepEqual(
+    plan.content['application/problem+json'].examples.CONTACT_ROUTE_IN_USE.value
+      .errors,
+    [{ code: 'CONTACT_ROUTE_IN_USE', pointer: '/enabled' }],
   );
 });
 

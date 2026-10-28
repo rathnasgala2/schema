@@ -1964,7 +1964,11 @@ paths:
         change uses the normal publish flow. `change` has the shape the
         theme-selection write returns. Turning `enabled` on while the plan does
         not include the contact form is `409 PLAN_REQUIRED` pointed at
-        `/enabled`; saving it off, or unchanged, is always allowed.
+        `/enabled`. Turning `enabled` on while one of the site's own content
+        documents already routes to `/contact/` is `409 CONTACT_ROUTE_IN_USE`
+        pointed at `/enabled`, so the form never takes over a page the author
+        wrote; the author moves or renames that document first. Saving it off,
+        or unchanged, is always allowed.
       operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -2075,6 +2079,23 @@ paths:
                     status: 409
                     title: COMMAND_REPLAY_CONFLICT
                     type: urn:gala:problem:command-replay-conflict
+                CONTACT_ROUTE_IN_USE:
+                  summary: CONTACT_ROUTE_IN_USE
+                  value:
+                    code: CONTACT_ROUTE_IN_USE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      One of the site's own content documents already routes to
+                      /contact/. See the operation contract.
+                    errors:
+                      - code: CONTACT_ROUTE_IN_USE
+                        pointer: /enabled
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: CONTACT_ROUTE_IN_USE
+                    type: urn:gala:problem:contact-route-in-use
                 INVALID_SOURCE_STATE:
                   summary: INVALID_SOURCE_STATE
                   value:
@@ -2121,8 +2142,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
           description:
-            COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE, PLAN_REQUIRED,
-            TRANSFER_PENDING
+            COMMAND_REPLAY_CONFLICT, CONTACT_ROUTE_IN_USE, INVALID_SOURCE_STATE,
+            PLAN_REQUIRED, TRANSFER_PENDING
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -2130,6 +2151,7 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
+            - CONTACT_ROUTE_IN_USE
             - INVALID_SOURCE_STATE
             - PLAN_REQUIRED
             - TRANSFER_PENDING
@@ -2209,6 +2231,7 @@ paths:
         - AUTHORIZATION_DENIED
         - CAPABILITY_UNAVAILABLE
         - COMMAND_REPLAY_CONFLICT
+        - CONTACT_ROUTE_IN_USE
         - INVALID_SOURCE_STATE
         - PLAN_REQUIRED
         - REQUEST_FIELD_UNKNOWN
