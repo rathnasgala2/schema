@@ -3177,6 +3177,16 @@ test('3.19.0 OpenAPI additions: staggered release setting, listing and home memb
     state: 'NEVER_PUBLISHED',
     pendingChanges: [],
     attention: [],
+    // SCHEMA-3.24.0: required on every site read.
+    liveUpdate: {
+      state: 'UNKNOWN',
+      servedCommit: null,
+      headCommit: null,
+      waiting: { authorCommits: 0, galascribeCommits: 0, truncated: false },
+      unreviewed: false,
+      restored: false,
+      publishing: false,
+    },
   };
   assert.equal(site(home), true);
   assert.equal(site({ ...home, nextRelease: null }), true);
@@ -4210,4 +4220,226 @@ test('SCHEMA-3.23.1: the contact-messages list carries the site-wide counts', as
   ).responses['200'].content['application/json'].examples.nominal.value;
   assert.deepEqual(example.counts, { handled: 0, new: 1 });
   assert.equal(list(example), true);
+});
+
+test('SCHEMA-3.24.0: the site read carries a required liveUpdate', async () => {
+  const { bundle } = await readProjections();
+  const schemas = bundle.components.schemas;
+  const response =
+    schemas.GetOrganizationsByOrganizationIdPublicationsByPublicationIdSiteResponse;
+  assert.ok(response.required.includes('liveUpdate'));
+  assert.equal(
+    response.properties.liveUpdate.$ref,
+    '#/components/schemas/SiteLiveUpdate',
+  );
+  const liveUpdate = schemas.SiteLiveUpdate;
+  assert.deepEqual(liveUpdate.required, [
+    'state',
+    'servedCommit',
+    'headCommit',
+    'waiting',
+    'unreviewed',
+    'restored',
+    'publishing',
+  ]);
+  assert.deepEqual(liveUpdate.properties.state.enum, [
+    'CURRENT',
+    'BEHIND',
+    'UNKNOWN',
+  ]);
+  const validate = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/SiteLiveUpdate',
+  });
+  const sha1 = `sha1:${'a'.repeat(40)}`;
+  const sha256 = `sha256:${'b'.repeat(64)}`;
+  const valid = {
+    state: 'BEHIND',
+    servedCommit: sha1,
+    headCommit: sha256,
+    waiting: { authorCommits: 2, galascribeCommits: 0, truncated: false },
+    unreviewed: true,
+    restored: false,
+    publishing: false,
+  };
+  assert.equal(validate(valid), true);
+  assert.equal(
+    validate({
+      ...valid,
+      state: 'UNKNOWN',
+      servedCommit: null,
+      headCommit: null,
+      waiting: { authorCommits: 0, galascribeCommits: 0, truncated: false },
+      unreviewed: false,
+    }),
+    true,
+  );
+  assert.equal(validate({ ...valid, state: 'STALE' }), false);
+  assert.equal(validate({ ...valid, headCommit: 'a'.repeat(40) }), false);
+  assert.equal(validate({ ...valid, servedCommit: 'sha1:abc' }), false);
+  assert.equal(
+    validate({
+      ...valid,
+      waiting: { authorCommits: -1, galascribeCommits: 0, truncated: false },
+    }),
+    false,
+  );
+  assert.equal(
+    validate({
+      ...valid,
+      waiting: { authorCommits: 1.5, galascribeCommits: 0, truncated: false },
+    }),
+    false,
+  );
+  assert.equal(
+    validate({ ...valid, waiting: { authorCommits: 1, galascribeCommits: 0 } }),
+    false,
+  );
+  assert.equal(validate({ ...valid, extra: true }), false);
+  for (const member of Object.keys(valid)) {
+    const rest = /** @type {JsonObject} */ ({ ...valid });
+    delete rest[member];
+    assert.equal(validate(rest), false, member);
+  }
+  const route =
+    '/v2/organizations/{organizationId}/publications/{publicationId}/site';
+  const read = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdSiteResponse',
+  });
+  const example = operationAt(bundle, 'get', route).responses['200'].content[
+    'application/json'
+  ].examples.nominal.value;
+  assert.equal(example.liveUpdate.state, 'BEHIND');
+  assert.equal(read(example), true);
+  const withoutLiveUpdate = { ...example };
+  delete withoutLiveUpdate.liveUpdate;
+  assert.equal(read(withoutLiveUpdate), false);
+  // The commit members reuse the deployment intent's prefixed object id.
+  const commitSchema = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PortableDeploymentIntentGitObjectId',
+  });
+  assert.equal(commitSchema(sha1), true);
+  assert.equal(commitSchema('a'.repeat(40)), false);
+  assert.equal(
+    liveUpdate.properties.headCommit.oneOf[0].$ref,
+    '#/components/schemas/PortableDeploymentIntentGitObjectId',
+  );
+  assert.equal(
+    liveUpdate.properties.servedCommit.oneOf[0].$ref,
+    '#/components/schemas/PortableDeploymentIntentGitObjectId',
+  );
+});
+
+test('SCHEMA-3.24.0: site:publish-update publishes the head as a person press', async () => {
+  const { bundle, catalog } = await readProjections();
+  const route =
+    '/v2/organizations/{organizationId}/publications/{publicationId}/site:publish-update';
+  const operation = operationAt(bundle, 'post', route);
+  assert.equal(
+    operation.operationId,
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdate',
+  );
+  const refs = operation.parameters
+    .map((/** @type {JsonObject} */ parameter) => parameter.$ref)
+    .filter(Boolean);
+  assert.ok(refs.includes('#/components/parameters/IdempotencyKey'));
+  assert.ok(refs.includes('#/components/parameters/XCsrfToken'));
+  assert.deepEqual(operation.security, [{ browserSession: [] }]);
+  assert.equal(operation['x-gala-api-key-scope'], undefined);
+  assert.equal(operation['x-gala-capability-key'], 'publication.publish');
+  assert.equal(operation['x-gala-assurance-class'], 'RECENT_AUTHENTICATION');
+  assert.equal(operation['x-gala-action-grant'], 'none');
+  assert.equal(operation['x-gala-replay-identity'], 'idempotency-key');
+  assert.equal(operation['x-gala-success-category'], 'async');
+  const row = /** @type {JsonObject | undefined} */ (
+    catalog.operations.find(
+      (/** @type {JsonObject} */ candidate) =>
+        candidate.operationId === operation.operationId,
+    )
+  );
+  assert.ok(row);
+  assert.equal(row.capabilityKey, 'publication.publish');
+  assert.equal(row.assuranceClass, 'RECENT_AUTHENTICATION');
+  // The request body is the head the person confirmed.
+  const request = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateRequest',
+  });
+  assert.equal(request({ headCommit: `sha1:${'c'.repeat(40)}` }), true);
+  assert.equal(request({}), false);
+  assert.equal(request({ headCommit: 'c'.repeat(40) }), false);
+  assert.equal(
+    request({ headCommit: `sha1:${'c'.repeat(40)}`, changeIds: [] }),
+    false,
+  );
+  assert.equal(
+    operation.requestBody.content['application/json'].schema.$ref,
+    '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateRequest',
+  );
+  assert.equal(
+    request(
+      operation.requestBody.content['application/json'].examples.nominal.value,
+    ),
+    true,
+  );
+  // 202 is the accepted-operation shape changes:publish returns.
+  const accepted =
+    bundle.components.schemas[
+      'PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateResponse'
+    ];
+  const changes =
+    bundle.components.schemas
+      .PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishResponse;
+  assert.deepEqual(accepted, changes);
+  assert.equal(
+    operation.responses['202'].content['application/json'].schema.$ref,
+    '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateResponse',
+  );
+  const response = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateResponse',
+  });
+  assert.equal(
+    response(
+      operation.responses['202'].content['application/json'].examples.nominal
+        .value,
+    ),
+    true,
+  );
+  // Problems.
+  const codes = (/** @type {string} */ status) =>
+    resolveLocalComponent(bundle, operation.responses[status], 'responses')[
+      'x-gala-problem-codes'
+    ];
+  assert.deepEqual(codes('401'), [
+    'AUTHENTICATION_REQUIRED',
+    'REAUTH_REQUIRED',
+  ]);
+  assert.deepEqual(codes('403'), ['AUTHORIZATION_DENIED']);
+  assert.deepEqual(codes('409'), [
+    'ALREADY_LIVE',
+    'COMMAND_REPLAY_CONFLICT',
+    'HEAD_MOVED',
+    'NOT_SET_UP',
+    'PUBLISH_IN_PROGRESS',
+  ]);
+  for (const code of [
+    'ALREADY_LIVE',
+    'HEAD_MOVED',
+    'NOT_SET_UP',
+    'PUBLISH_IN_PROGRESS',
+  ]) {
+    assert.ok(operation['x-gala-reachable-problems'].includes(code), code);
+    const example =
+      operation.responses['409'].content['application/problem+json'].examples[
+        code
+      ].value;
+    assert.equal(example.status, 409);
+    assert.equal(example.code, code);
+    assert.equal(
+      example.type,
+      `urn:gala:problem:${code.toLowerCase().replaceAll('_', '-')}`,
+    );
+  }
+  // The description states the approval and the restore consequences.
+  assert.match(operation.description, /counts as approval/u);
+  assert.match(operation.description, /liveUpdate\.unreviewed/u);
+  assert.match(operation.description, /replaces a restored version/u);
 });

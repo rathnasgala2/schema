@@ -7938,6 +7938,85 @@ components:
         - at
         - actor
       type: object
+    SiteLiveUpdateWaiting:
+      additionalProperties: false
+      description: |
+        What the repository's default branch holds that the live version does
+        not: the commits on the head that are not in the live version, split by
+        who made them. `authorCommits` are commits a person made outside
+        Galascribe (a push, the GitHub web editor); `galascribeCommits` are
+        Galascribe's own system commits (set-up, Update now and toolchain
+        updates). Both are 0 when the state is `CURRENT` or `UNKNOWN`.
+        `truncated` is true when the comparison was cut short, in which case
+        the counts are lower bounds.
+      properties:
+        authorCommits:
+          minimum: 0
+          type: integer
+        galascribeCommits:
+          minimum: 0
+          type: integer
+        truncated:
+          type: boolean
+      required:
+        - authorCommits
+        - galascribeCommits
+        - truncated
+      type: object
+    SiteLiveUpdate:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.24.0. Whether the live version has fallen behind the
+        repository's default branch, and what publishing the update would put
+        live. `state` is `CURRENT` when the live version is the head, `BEHIND`
+        when the head holds commits the live version lacks, and `UNKNOWN` when
+        nothing has been published yet, the site has no repository binding, or
+        GitHub could not be reached; a client shows nothing extra for `UNKNOWN`.
+        `servedCommit` is the source commit of the live version and
+        `headCommit` is the head the server compared it against, both `null`
+        when they are not known. A client sends `headCommit` back as the body of
+        `POST .../site:publish-update`. `waiting` counts the commits on the head
+        that are not in the live version. `unreviewed` is true when the site
+        requires review and `waiting.authorCommits` is above 0 or
+        `waiting.truncated` is true (a cut-short comparison cannot rule out such
+        commits): those commits never went through a Galascribe review, and a
+        person's press of the publish action counts as their approval. `restored` is true when the
+        live version is a restore of an older version rather than the newest
+        publish; publishing the update replaces it. `publishing` is true while a
+        publish of any kind is already in flight for the site, so a client shows
+        its progress instead of the action.
+      properties:
+        headCommit:
+          oneOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/gitObjectId
+            - type: 'null'
+        publishing:
+          type: boolean
+        restored:
+          type: boolean
+        servedCommit:
+          oneOf:
+            - $ref: ../schemas/deployment-intent.schema.json#/$defs/gitObjectId
+            - type: 'null'
+        state:
+          enum:
+            - CURRENT
+            - BEHIND
+            - UNKNOWN
+          type: string
+        unreviewed:
+          type: boolean
+        waiting:
+          $ref: '#/components/schemas/SiteLiveUpdateWaiting'
+      required:
+        - state
+        - servedCommit
+        - headCommit
+        - waiting
+        - unreviewed
+        - restored
+        - publishing
+      type: object
     SitePublishing:
       additionalProperties: false
       description: |
@@ -8001,7 +8080,10 @@ components:
         without it until the schedule starts. `nextRelease` (SCHEMA-3.19.0,
         optional and nullable) is the scheduled draft that the staggered release
         will publish next, the one with the earliest `publishAfter` date; `null`
-        or absent when there is none.
+        or absent when there is none. `liveUpdate` (SCHEMA-3.24.0, required)
+        says whether the live version has fallen behind the repository's default
+        branch and what publishing the update would put live; see
+        `SiteLiveUpdate` and `POST .../site:publish-update`.
       properties:
         attention:
           items:
@@ -8010,6 +8092,8 @@ components:
           type: array
         lastPublished:
           $ref: '#/components/schemas/SiteLastPublished'
+        liveUpdate:
+          $ref: '#/components/schemas/SiteLiveUpdate'
         nextRelease:
           oneOf:
             - $ref: '#/components/schemas/SiteNextRelease'
@@ -8043,6 +8127,7 @@ components:
         - state
         - pendingChanges
         - attention
+        - liveUpdate
       type: object
     HistoryChange:
       additionalProperties: false
@@ -8268,6 +8353,21 @@ components:
         - changeIds
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishResponse:
+      allOf:
+        - $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesResponse'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateRequest:
+      additionalProperties: false
+      description: |
+        `headCommit` is the `liveUpdate.headCommit` the client read and the
+        person confirmed. The server publishes that head only while it is still
+        the repository's head.
+      properties:
+        headCommit:
+          $ref: ../schemas/deployment-intent.schema.json#/$defs/gitObjectId
+      required:
+        - headCommit
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdateResponse:
       allOf:
         - $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesResponse'
     CommentInternalState:

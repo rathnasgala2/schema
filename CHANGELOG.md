@@ -8,6 +8,58 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.24.0] - 2026-10-28
+
+The HTTP contract for "Publish the update": a site's live version can fall
+behind the repository's default branch (a push or the GitHub web editor,
+Galascribe system commits that were held back, a failed publish, a restore), and
+until now nothing but a new change could bring it forward. The site read now
+says so, and one new action publishes the head. Additive: every 3.23.1 request
+still validates, and a server must now emit `liveUpdate` on the site read. No
+JSON Schema root changes here, so `npm run compatibility:check` is unaffected.
+
+### Added
+
+- `GET .../site` returns a required `liveUpdate` object, `SiteLiveUpdate`:
+  `state` (`CURRENT`, `BEHIND` or `UNKNOWN`; `UNKNOWN` means never published, no
+  repository binding, or GitHub unreachable, and a client shows nothing extra),
+  `servedCommit` and `headCommit` (the prefixed object id the deployment intent
+  already uses, `sha1:` plus 40 or `sha256:` plus 64 lowercase hex, each
+  nullable; `headCommit` is the head the server compared against and the value a
+  client sends back on publish), `waiting` (`SiteLiveUpdateWaiting`:
+  `authorCommits` and `galascribeCommits`, each an integer of at least 0, and
+  `truncated`), `unreviewed` (the site requires review and `authorCommits` is
+  above 0), `restored` (the live version is a restore rather than the newest
+  publish) and `publishing` (a publish of any kind is in flight). The operation
+  description and example show it.
+- `POST .../site:publish-update`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdate`):
+  publishes the repository head when the live version is behind it. The body is
+  `{ headCommit }`; `202` is the accepted-operation shape `changes:publish`
+  returns (kind `publish`, with `publishId`). `Idempotency-Key` and
+  `X-CSRF-Token` as on `changes:publish`. Capability `publication.publish` with
+  assurance class `RECENT_AUTHENTICATION` (`401 REAUTH_REQUIRED` on a stale
+  session); browser session only, not callable with an admin API key, because
+  the press is a person's approval. The description states that a person's press
+  counts as approval of the unreviewed commits counted in `liveUpdate`, and that
+  it replaces a restored version.
+- Problems, all `409`: `HEAD_MOVED` (the repository head is no longer
+  `headCommit`; read the site again and ask again), `ALREADY_LIVE` (the live
+  version is already that head), `PUBLISH_IN_PROGRESS` (a publish of any kind is
+  in flight) and `NOT_SET_UP` (the repository needs Update now first). The four
+  codes are new members of the problem catalog; `REAUTH_REQUIRED`,
+  `AUTHORIZATION_DENIED`, `COMMAND_REPLAY_CONFLICT` and the other envelope codes
+  are reused.
+
+### Changed
+
+- The App route catalog binds `site:publish-update` to the Home route, so the
+  operation is not left unbound; the route's screen job is unchanged.
+- The `GET .../site` description no longer says nothing is read from the
+  person's repository: `liveUpdate.headCommit` and `liveUpdate.waiting` come
+  from the repository's default branch on GitHub, and an unreachable GitHub
+  makes `liveUpdate.state` `UNKNOWN` without failing the read.
+
 ## [3.23.1] - 2026-10-28
 
 Two additive fixes to the 3.23.0 audience HTTP contract, found while building
@@ -3588,7 +3640,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.23.1...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.24.0...HEAD
+[3.24.0]: https://github.com/rathnasgala2/schema/compare/v3.23.1...v3.24.0
 [3.23.1]: https://github.com/rathnasgala2/schema/compare/v3.23.0...v3.23.1
 [3.23.0]: https://github.com/rathnasgala2/schema/compare/v3.22.0...v3.23.0
 [3.22.0]: https://github.com/rathnasgala2/schema/compare/v3.21.0...v3.22.0

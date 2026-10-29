@@ -763,6 +763,9 @@ function validateContractClosure(records, components) {
         // SCHEMA-3.18.0: the Stripe webhook answers 503 while billing is not
         // configured on the deployment (no webhook signing secret).
         'postCallbacksStripe',
+        // SCHEMA-3.24.0: publish the update re-reads the repository head from
+        // GitHub before it dispatches, so an unreachable GitHub is a 503.
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdate',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
     ) {

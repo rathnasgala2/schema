@@ -128,5 +128,10 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       PLAN_REQUIRED: { statuses: [409], retryable: false },
       POSTAL_ADDRESS_REQUIRED: { statuses: [422], retryable: false },
       TOKEN_EXPIRED: { statuses: [410], retryable: false },
+      // SCHEMA-3.24.0: publish the update (site:publish-update).
+      ALREADY_LIVE: { statuses: [409], retryable: false },
+      HEAD_MOVED: { statuses: [409], retryable: false },
+      NOT_SET_UP: { statuses: [409], retryable: false },
+      PUBLISH_IN_PROGRESS: { statuses: [409], retryable: false },
     })
   );
