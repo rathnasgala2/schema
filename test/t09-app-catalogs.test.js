@@ -104,8 +104,9 @@ test('reviewed source ledgers validate without invented entries', async () => {
   // 3.15.0: the catalogs describe only the current UI. One component survives
   // (ValidationSummary) and 44 routes, one for every address the App mounts.
   // 3.23.0 adds the six audience addresses (50 routes).
+  // 3.25.0 adds the operator Prism console (51 routes).
   assert.equal(validateAppComponentSource(componentSourceValue).length, 1);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 50);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 51);
   const paths = new Set(
     /** @type {JsonObject[]} */ (
       /** @type {JsonObject} */ (routeSourceValue).routes
@@ -165,7 +166,7 @@ test('reviewed source ledgers validate without invented entries', async () => {
   ]) {
     assert.ok(paths.has(path), path);
   }
-  assert.equal(paths.size, 50);
+  assert.equal(paths.size, 51);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -197,7 +198,8 @@ test('generated catalogs match the committed projection', async () => {
   // 3.15.0 (reviewed 2026-10-18): the catalog is the current UI's 44 routes
   // alone (629 to 580).
   // 3.23.0 (reviewed 2026-10-27): the six audience routes (580 to 667).
-  assert.equal(authoredMessageCount, 667);
+  // 3.25.0 (reviewed 2026-10-29): the operator Prism console route (667 to 683).
+  assert.equal(authoredMessageCount, 683);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {

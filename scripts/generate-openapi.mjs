@@ -51,6 +51,8 @@ export const BINARY_RESPONSE_CONTENT_TYPES =
         Object.freeze(['text/csv']),
       postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport:
         Object.freeze(['text/csv']),
+      // SCHEMA-3.25.0: the operator Prism generation export is a CSV download.
+      postPlatformPrismGenerationsExport: Object.freeze(['text/csv']),
     })
   );
 export const BINARY_RESPONSE_OPERATIONS = Object.freeze(

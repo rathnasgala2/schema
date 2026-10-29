@@ -1090,3 +1090,38 @@ test('createValidatorSuite never exposes the internal registry or fragmentAjv (S
     );
   }
 });
+
+test('SCHEMA-3.25.0 admits deleteDate, listing, aiRights and performance and rejects malformed values', async () => {
+  const front = await readJson(
+    'examples/valid/content-frontmatter/canonical.json',
+  );
+  const fm = (/** @type {unknown} */ deleteDate) =>
+    validateGalaDocument(front.schemaId, { ...front, deleteDate }).valid;
+  assert.equal(fm('2027-01-31'), true);
+  assert.equal(fm('2027-1-31'), false);
+  const pub = await readJson('examples/valid/publication/canonical.json');
+  const has = (/** @type {Record<string, unknown>} */ extra) =>
+    validateGalaDocument(pub.schemaId, { ...pub, ...extra }).valid;
+  assert.equal(has({ listing: { pageSize: 50 } }), true);
+  assert.equal(has({ listing: { pageSize: 0 } }), false);
+  assert.equal(has({ listing: { pageSize: 51 } }), false);
+  assert.equal(has({ aiRights: { search: 'allow', training: 'block' } }), true);
+  assert.equal(
+    has({
+      aiRights: {
+        search: 'allow',
+        training: 'block',
+        licenseUrl: 'https://example.com/license',
+      },
+    }),
+    true,
+  );
+  assert.equal(has({ aiRights: { search: 'allow' } }), false);
+  assert.equal(
+    has({ aiRights: { search: 'allow', training: 'maybe' } }),
+    false,
+  );
+  assert.equal(has({ performance: { budgets: { htmlBytes: 1024 } } }), true);
+  assert.equal(has({ performance: { budgets: { htmlBytes: 1023 } } }), false);
+  assert.equal(has({ performance: { budgets: { cssBytes: 5, x: 1 } } }), false);
+});

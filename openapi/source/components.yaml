@@ -2551,8 +2551,12 @@ components:
           type: string
         phase:
           $ref: '#/components/schemas/OperationPhase'
+        performance:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/deploymentPerformance
         reason:
           $ref: '#/components/schemas/OperationReason'
+        reasonDetails:
+          $ref: '#/components/schemas/PageLossGuardDetails'
         recoveryActions:
           items:
             maxLength: 80
@@ -2900,8 +2904,12 @@ components:
             - failed_no_effect
             - cancelled_no_effect
           type: string
+        performance:
+          $ref: ../schemas/deployment-receipt.schema.json#/$defs/deploymentPerformance
         reason:
           $ref: '#/components/schemas/OperationReason'
+        reasonDetails:
+          $ref: '#/components/schemas/PageLossGuardDetails'
         recoveryActions:
           items:
             maxLength: 80
@@ -3014,11 +3022,42 @@ components:
         run settled with no receipt), `CANONICAL_BASE_MISMATCH` (the site's
         canonical base was not the address it is served from when the
         operation was dispatched) and `DOMAIN_NOT_READY` (a custom domain was
-        part-way through its switch and no origin could be verified).
+        part-way through its switch and no origin could be verified). New in
+        3.25.0: `PAGE_LOSS_GUARD` (the publish would have removed too many pages
+        from the live site, so authorization was refused and nothing was
+        deployed; the operation's `reasonDetails` carry the counts).
       maxLength: 64
       minLength: 3
       pattern: ^[A-Z][A-Z0-9_]{2,63}$
       type: string
+    PageLossGuardDetails:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.25.0. Present on an operation read when `reason` is
+        `PAGE_LOSS_GUARD`: the candidate build has fewer pages than the last
+        successful deployment of the same site and target. `lostPageCount` is
+        `previousPageCount - candidatePageCount`; `permittedLoss` is the loss
+        the platform settings allow. A person who accepts the loss publishes
+        again with `allowPageLoss: true`.
+      properties:
+        candidatePageCount:
+          minimum: 0
+          type: integer
+        lostPageCount:
+          minimum: 0
+          type: integer
+        permittedLoss:
+          minimum: 0
+          type: integer
+        previousPageCount:
+          minimum: 0
+          type: integer
+      required:
+        - previousPageCount
+        - candidatePageCount
+        - lostPageCount
+        - permittedLoss
+      type: object
     OperationResponse:
       additionalProperties: false
       properties:
@@ -5238,6 +5277,15 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesRequest:
       additionalProperties: false
       properties:
+        allowPageLoss:
+          default: false
+          description:
+            'SCHEMA-3.25.0: true accepts that this publish may remove many pages
+            from the live site. The server stores it with the operation and
+            skips the page-loss guard; absent or false keeps the guard on (a
+            publish that would lose too many pages ends `FAILED_NO_EFFECT` with
+            reason `PAGE_LOSS_GUARD`).'
+          type: boolean
         reviewId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -6774,6 +6822,13 @@ components:
         manifestDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        pageCount:
+          description:
+            'SCHEMA-3.25.0: the number of `.html` files in the artifact.
+            Optional so a kernel built before 3.25.0 still validates; an absent
+            count exempts the deployment from the page-loss guard.'
+          minimum: 0
+          type: integer
         pagesBuildVersion:
           description: |
             The Pages build version this deployment addresses, when the
@@ -8213,8 +8268,9 @@ components:
             PAGES_NOT_AVAILABLE, REPORT_FAILED, LIVE_CHECK_FAILED,
             CHANGE_CLOSED_ON_GITHUB and, new in 3.17.0,
             DESTINATION_BUSY_TIMEOUT, DESTINATION_FENCE_EXPIRED,
-            CANONICAL_BASE_MISMATCH, DOMAIN_NOT_READY (the same codes as
-            `OperationReason`). Clients must tolerate other values.'
+            CANONICAL_BASE_MISMATCH, DOMAIN_NOT_READY and, new in 3.25.0,
+            PAGE_LOSS_GUARD (the same codes as `OperationReason`). Clients must
+            tolerate other values.'
           maxLength: 80
           minLength: 1
           type: string
@@ -8338,6 +8394,15 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishRequest:
       additionalProperties: false
       properties:
+        allowPageLoss:
+          default: false
+          description:
+            'SCHEMA-3.25.0: true accepts that this publish may remove many pages
+            from the live site. The server stores it with the operation and
+            skips the page-loss guard; absent or false keeps the guard on (a
+            publish that would lose too many pages ends `FAILED_NO_EFFECT` with
+            reason `PAGE_LOSS_GUARD`).'
+          type: boolean
         changeIds:
           items:
             format: uuid
@@ -12950,6 +13015,78 @@ components:
         - firstSeenAt
         - processedAt
         - updatedAt
+      type: object
+    PlatformPrismGeneration:
+      additionalProperties: false
+      description:
+        SCHEMA-3.25.0. One Prism generation as the operator list shows it,
+        ownership and state only, never article text or the candidate body.
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        editionKind:
+          $ref: '#/components/schemas/PrismEditionKind'
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/PrismGenerationState'
+      required:
+        - generationId
+        - organizationId
+        - publicationId
+        - editionKind
+        - state
+        - createdAt
+      type: object
+    GetPlatformPrismGenerationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformPrismGeneration'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
       type: object
     GetPlatformWebhookEventsResponse:
       additionalProperties: false

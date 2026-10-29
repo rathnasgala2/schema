@@ -161,7 +161,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 906);
+  assert.equal(files.length, 908);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -253,7 +253,13 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // (publication/SCHEMA_ARRAY_DUPLICATE and publication/SCHEMA_UNION_INVALID),
     // making 906.
     aggregate.digest('hex'),
-    '95ff25d7587afff2483be25a876353c4354d117c28639efdbaf4d811d33eeff5',
+    //
+    // 3.25.0 (reviewed 2026-10-29): deleteDate, listing, aiRights and
+    // performance regenerated the content-frontmatter, publication and
+    // build-input fixtures and the manifest, and added two case files
+    // (publication/SCHEMA_NUMBER_TOO_LARGE and SCHEMA_NUMBER_TOO_SMALL),
+    // making 908.
+    '480c5cad36dd08e6a23aae1de55a66af655945b708567300e7280351c481634d',
   );
 });
 

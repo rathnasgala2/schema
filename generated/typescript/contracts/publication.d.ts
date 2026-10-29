@@ -1,6 +1,12 @@
 // Generated from urn:gala:schema:publication:2.0.0; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 // Do not edit.
 
+export type PublicationAiRights = Readonly<{
+  readonly licenseUrl?: PublicationUrlHttps;
+  readonly search: 'allow' | 'block';
+  readonly training: 'allow' | 'block';
+}>;
+
 export type PublicationBcp47 = string;
 
 export type PublicationCanonicalRoute = string;
@@ -36,6 +42,10 @@ export type PublicationGlob = string;
 
 export type PublicationIsoCountry = string;
 
+export type PublicationListing = Readonly<{
+  readonly pageSize?: number;
+}>;
+
 export type PublicationNewsletter =
   | Readonly<{
       readonly emailContent: 'card' | 'full';
@@ -56,6 +66,14 @@ export type PublicationPackageExact = string;
 export type PublicationPackageRange = string;
 
 export type PublicationPassiveVisualToken = never;
+
+export type PublicationPerformance = Readonly<{
+  readonly budgets?: Readonly<{
+    readonly cssBytes?: number;
+    readonly htmlBytes?: number;
+    readonly jsBytes?: number;
+  }>;
+}>;
 
 export type PublicationPlainLabel = string;
 
@@ -125,6 +143,7 @@ export type PublicationUrlHttps = string;
 export type PublicationUrn = string;
 
 export type PublicationDocument = Readonly<{
+  readonly aiRights?: PublicationAiRights;
   readonly authors: ReadonlyArray<PublicationRepoRelativePath>;
   readonly canonicalBase: PublicationUrlHttps;
   readonly contactForm?: PublicationContactForm;
@@ -136,7 +155,9 @@ export type PublicationDocument = Readonly<{
   readonly extensions: PublicationExtensionMap;
   readonly footerCard?: PublicationFooterCard;
   readonly id: PublicationStableId;
+  readonly listing?: PublicationListing;
   readonly newsletter?: PublicationNewsletter;
+  readonly performance?: PublicationPerformance;
   readonly policies?: PublicationPublicationPolicies;
   readonly profile?: PublicationPublicationProfile;
   readonly schemaId: 'urn:gala:schema:publication:2.0.0';

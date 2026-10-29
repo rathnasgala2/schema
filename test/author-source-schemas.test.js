@@ -71,6 +71,10 @@ const ROOT_LEDGERS = {
       'sharing',
       'contactForm',
       'crawlers',
+      // SCHEMA-3.25.0: listing page size, AI rights, performance budgets.
+      'listing',
+      'aiRights',
+      'performance',
     ],
   },
   author: {
@@ -144,6 +148,8 @@ const ROOT_LEDGERS = {
       'publishAfter',
       // SCHEMA-3.21.0: the slug of the article a document translates.
       'translationOf',
+      // SCHEMA-3.25.0: the date a post is removed from the site.
+      'deleteDate',
     ],
   },
 };

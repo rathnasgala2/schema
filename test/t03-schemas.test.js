@@ -288,6 +288,8 @@ const ROOT_LEDGERS = {
       'rollbackReason',
       'supersededByOperationId',
       'supersededByGenerationId',
+      // SCHEMA-3.25.0: the size-budget summary of the artifact.
+      'performance',
     ],
   },
   'public-generation-marker': {

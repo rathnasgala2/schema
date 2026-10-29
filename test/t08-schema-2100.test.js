@@ -466,7 +466,9 @@ test('SCHEMA-2.10.0 LOCAL-63: the receipt-exchange request family matches its pi
     // is re-pinned rather than the family frozen. The intent this pin protects
     // (LOCAL-63d: Spaces providerBinding stays forbidden on the request) no
     // longer rides on the digest alone: the next test asserts it directly.
-    '33b0aa3bd58a5ed8796235373828c79cb65abeb5d836e8b0238abba8dcaca986',
+    // SCHEMA-3.25.0 (reviewed 2026-10-29): the only movement is the additive
+    // optional `pageCount` on ReceiptExchangeDeploymentIntentRequest.
+    '302991e418ad9613d61ea8ef1160fa3f5428b967343b3c8d09597f7784ae9c46',
     'the receipt-exchange request family moved since its SCHEMA-3.17.0 pin; re-pin it deliberately, and Spaces providerBinding must stay forbidden on the request until a future packet, per LOCAL-63d (asserted directly in the next test)',
   );
 });

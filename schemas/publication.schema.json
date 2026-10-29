@@ -52,6 +52,9 @@
     "sharing": { "$ref": "#/$defs/sharing" },
     "contactForm": { "$ref": "#/$defs/contactForm" },
     "crawlers": { "$ref": "#/$defs/crawlers" },
+    "listing": { "$ref": "#/$defs/listing" },
+    "aiRights": { "$ref": "#/$defs/aiRights" },
+    "performance": { "$ref": "#/$defs/performance" },
     "extensions": { "$ref": "#/$defs/extensionMap" }
   },
   "additionalProperties": false,
@@ -357,6 +360,44 @@
       "required": ["ai"],
       "properties": { "ai": { "enum": ["allow", "block"] } },
       "additionalProperties": false
+    },
+    "listing": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "pageSize": { "type": "integer", "minimum": 1, "maximum": 50 }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.25.0: listing settings. `pageSize` is the number of posts on each listing page (1 to 50); an absent member means 10."
+    },
+    "aiRights": {
+      "type": "object",
+      "required": ["search", "training"],
+      "properties": {
+        "search": { "enum": ["allow", "block"] },
+        "training": { "enum": ["allow", "block"] },
+        "licenseUrl": { "$ref": "#/$defs/urlHttps" }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.25.0: how AI systems may use the writing. `search` covers search and answer bots, `training` covers training crawlers. When present it wins over `crawlers.ai`; when absent, `crawlers.ai` allow means both allow and block means both block. `licenseUrl` is the optional https URL of the license terms."
+    },
+    "performance": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "budgets": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "htmlBytes": { "type": "integer", "minimum": 1024 },
+            "cssBytes": { "type": "integer", "minimum": 1024 },
+            "jsBytes": { "type": "integer", "minimum": 1024 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.25.0: size budgets in bytes, each at least 1024 and optional. `htmlBytes` bounds a page's HTML, `cssBytes` and `jsBytes` bound the sum of the same-origin stylesheets and scripts a page links. A page over budget is reported; a budget never fails a build."
     },
     "extensionMap": {
       "type": "object",

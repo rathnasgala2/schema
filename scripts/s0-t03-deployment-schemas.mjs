@@ -2607,6 +2607,43 @@ export function createDeploymentSchemas(language) {
     'intentDigest',
   ];
 
+  const performanceBytes = { type: 'integer', minimum: 1024 };
+  const deploymentPerformance = {
+    type: 'object',
+    description:
+      "SCHEMA-3.25.0: the publish kernel's size-budget summary of the final artifact. `budgets` are the effective byte budgets; `overBudgetCount` counts every page asset over budget; `overBudget` lists at most 20, largest first. Informational: it never fails a publish.",
+    required: ['budgets', 'overBudgetCount', 'overBudget'],
+    properties: {
+      budgets: {
+        type: 'object',
+        required: [],
+        properties: {
+          htmlBytes: performanceBytes,
+          cssBytes: performanceBytes,
+          jsBytes: performanceBytes,
+        },
+        additionalProperties: false,
+      },
+      overBudgetCount: { type: 'integer', minimum: 0 },
+      overBudget: {
+        type: 'array',
+        maxItems: 20,
+        items: {
+          type: 'object',
+          required: ['path', 'kind', 'bytes', 'budget'],
+          properties: {
+            path: ref('repoRelativePath'),
+            kind: { enum: ['html', 'css', 'js'] },
+            bytes: { type: 'integer', minimum: 0 },
+            budget: { type: 'integer', minimum: 1024 },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
+    additionalProperties: false,
+  };
+
   const receiptProperties = {
     receiptId: ref('stableId'),
     snapshotSequence: { type: 'integer', minimum: 1, maximum: 1_000 },
@@ -2677,6 +2714,7 @@ export function createDeploymentSchemas(language) {
       ],
     },
     warnings: arrayOf(ref('deploymentWarning'), 0, 2, true),
+    performance: ref('deploymentPerformance'),
     failure: ref('deploymentFailure'),
     rollbackOfOperationId: ref('stableId'),
     rollbackOfGenerationId: ref('stableId'),
@@ -2886,6 +2924,7 @@ export function createDeploymentSchemas(language) {
         deploymentStageEvidence,
         finding,
         deploymentWarning,
+        deploymentPerformance,
         githubWorkflowRef,
         deploymentObservation,
       },

@@ -8,6 +8,42 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.25.0] - 2026-10-29
+
+Contracts for scheduled removal, listing page size, AI rights, performance
+budgets and the page-loss guard. Additive and optional throughout: every 3.24.0
+document and request still validates and nothing existing changes meaning.
+
+### Added
+
+- `content-frontmatter` and the `build-input` content record: `deleteDate`
+  (`YYYY-MM-DD`, the same format as `publishAfter`). The API enforces that it is
+  later than `publishAfter` and `date`.
+- `publication` and the normalized `build-input` publication: `listing.pageSize`
+  (integer 1 to 50, default 10); `aiRights` (`search` and `training`, each
+  `allow` or `block`, both required; optional https `licenseUrl`; wins over
+  `crawlers.ai` when present); `performance.budgets` (`htmlBytes`, `cssBytes`,
+  `jsBytes`, each an integer of at least 1024 and optional).
+- `ReceiptExchangeDeploymentIntentRequest.pageCount` (integer, at least 0,
+  optional): the `.html` files in the artifact, for the page-loss guard.
+- `deployment-receipt.performance` (optional): `budgets`, `overBudgetCount` and
+  `overBudget` (at most 20 entries of `path`, `kind` html/css/js, `bytes`,
+  `budget`).
+- `allowPageLoss` (boolean, default false) on the `changes:publish` and
+  `publishes` request bodies.
+- Operation reads (`OperationDetailResponse`,
+  `ManagedDeploymentOperationResponse`) carry optional `performance` and
+  `reasonDetails` (`PageLossGuardDetails`: `previousPageCount`,
+  `candidatePageCount`, `lostPageCount`, `permittedLoss`). New operation reason
+  `PAGE_LOSS_GUARD`.
+- Platform settings keys `publish.pageLossGuard.percent` (20, 1..100),
+  `publish.pageLossGuard.pages` (25, 1..100000) and
+  `publish.pageLossGuard.minimumLoss` (5, 1..1000). Setting keys are a free
+  string in the contract, so only this note records them.
+- Operator Prism console: `GET /v2/platform/prism-generations` and
+  `POST /v2/platform/prism-generations:export` (CSV, recent authentication),
+  capabilities `platform.prism.view` and `platform.prism.export`.
+
 ## [3.24.0] - 2026-10-28
 
 The HTTP contract for "Publish the update": a site's live version can fall
@@ -3640,7 +3676,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.24.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.25.0...HEAD
+[3.25.0]: https://github.com/rathnasgala2/schema/compare/v3.24.0...v3.25.0
 [3.24.0]: https://github.com/rathnasgala2/schema/compare/v3.23.1...v3.24.0
 [3.23.1]: https://github.com/rathnasgala2/schema/compare/v3.23.0...v3.23.1
 [3.23.0]: https://github.com/rathnasgala2/schema/compare/v3.22.0...v3.23.0

@@ -555,6 +555,17 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "deployment-receipt-invalid-52ded7d3dab46f07",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/deploymentPerformance/properties/budgets:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/deploymentPerformance/properties/budgets",
+    "keyword": "additionalProperties",
+    "instance": { "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "deployment-receipt-invalid-5364ef2a4796ea4a",
     "coveredRuleIds": [
       "deployment-receipt:#/$defs/destinationIdentity/allOf/4/then/properties/providerBinding/properties/owner:false"
@@ -846,6 +857,46 @@
       "name": "fixture-1",
       "state": "present",
       "value": "fixture-1",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-receipt-invalid-90269746f6f62e43",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/deploymentPerformance:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/deploymentPerformance",
+    "keyword": "additionalProperties",
+    "instance": {
+      "budgets": {},
+      "overBudgetCount": 0,
+      "overBudget": [
+        {
+          "path": "content/fixture-1.md",
+          "kind": "html",
+          "bytes": 0,
+          "budget": 1024
+        }
+      ],
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "deployment-receipt-invalid-94031805e97a82c4",
+    "coveredRuleIds": [
+      "deployment-receipt:#/$defs/deploymentPerformance/properties/overBudget/items:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:deployment-receipt:2.0.0",
+    "schemaPointer": "#/$defs/deploymentPerformance/properties/overBudget/items",
+    "keyword": "additionalProperties",
+    "instance": {
+      "path": "content/fixture-1.md",
+      "kind": "html",
+      "bytes": 0,
+      "budget": 1024,
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

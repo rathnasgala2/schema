@@ -1,6 +1,12 @@
 // Generated from urn:gala:schema:build-input:2.0.0; sourceDesignRevision=a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a.
 // Do not edit.
 
+export type BuildInputAiRights = Readonly<{
+  readonly licenseUrl?: BuildInputUrlHttps;
+  readonly search: 'allow' | 'block';
+  readonly training: 'allow' | 'block';
+}>;
+
 export type BuildInputAnalyticsConfig = Readonly<{
   readonly consent: Readonly<{
     readonly policy: 'opt-in';
@@ -158,6 +164,7 @@ export type BuildInputContentEdition = Readonly<{
 export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly createdAt: BuildInputRfc3339;
+  readonly deleteDate?: BuildInputDeleteDate;
   readonly description?: BuildInputPlainText;
   readonly edition?: BuildInputContentEdition;
   readonly hero?: BuildInputResolvedMedia;
@@ -186,6 +193,8 @@ export type BuildInputContentSeo = Readonly<{
   readonly noindex?: boolean;
   readonly title?: BuildInputPlainText;
 }>;
+
+export type BuildInputDeleteDate = string;
 
 export type BuildInputDestinationCapabilityProfile = Readonly<{
   readonly adapter: BuildInputAuthoredAdapterIdentity;
@@ -227,6 +236,10 @@ export type BuildInputInteractionsConfig = Readonly<{
 export type BuildInputInteractionsServiceOrigin = string;
 
 export type BuildInputIsoCountry = string;
+
+export type BuildInputListing = Readonly<{
+  readonly pageSize?: number;
+}>;
 
 export type BuildInputLocalizedAuthor = Readonly<{
   readonly biography: BuildInputPlainText;
@@ -317,6 +330,14 @@ export type BuildInputPackageRange = string;
 
 export type BuildInputPassiveVisualToken = never;
 
+export type BuildInputPerformance = Readonly<{
+  readonly budgets?: Readonly<{
+    readonly cssBytes?: number;
+    readonly htmlBytes?: number;
+    readonly jsBytes?: number;
+  }>;
+}>;
+
 export type BuildInputPlainLabel = string;
 
 export type BuildInputPlainText = string;
@@ -332,6 +353,7 @@ export type BuildInputPolicyPageNormalized = Readonly<{
 }>;
 
 export type BuildInputPublicationNormalized = Readonly<{
+  readonly aiRights?: BuildInputAiRights;
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly canonicalBase: BuildInputUrlHttps;
   readonly contactAuthorId?: BuildInputStableId;
@@ -349,7 +371,9 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly heading: BuildInputPlainText;
   }>;
   readonly id: BuildInputStableId;
+  readonly listing?: BuildInputListing;
   readonly newsletter?: BuildInputNewsletter;
+  readonly performance?: BuildInputPerformance;
   readonly profile?: Readonly<{
     readonly body: BuildInputRenderableBody;
     readonly route: BuildInputCanonicalRoute;

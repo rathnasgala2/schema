@@ -440,6 +440,88 @@ export function editionKindRule() {
   };
 }
 
+/**
+ * SCHEMA-3.25.0: the `deleteDate` front-matter member, same format as
+ * `publishAfterDate`. Shared by the `content-frontmatter` root and the
+ * normalized `build-input` content record.
+ *
+ * @returns {Record<string, unknown>} date string schema
+ */
+export function createDeleteDateDefinition() {
+  return {
+    type: 'string',
+    pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+    description:
+      "SCHEMA-3.25.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe removes this article from the published site: it leaves every listing, feed, sitemap and search index and its route renders a removed-post notice. Same format as `publishAfter`; it must be later than `publishAfter` and `date` when both exist. The API enforces that rule; the schema only fixes the shape.",
+  };
+}
+
+/**
+ * SCHEMA-3.25.0: listing settings of a publication.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed listing object schema
+ */
+export function createListingDefinition({ closedObject }) {
+  return closedObject(
+    { pageSize: { type: 'integer', minimum: 1, maximum: 50 } },
+    [],
+    {
+      description:
+        'SCHEMA-3.25.0: listing settings. `pageSize` is the number of posts on each listing page (1 to 50); an absent member means 10.',
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.25.0: AI use of the publication's writing, shared by the
+ * `publication` root and the normalized `build-input` publication.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed aiRights object schema
+ */
+export function createAiRightsDefinition({ ref, closedObject }) {
+  return closedObject(
+    {
+      search: { enum: ['allow', 'block'] },
+      training: { enum: ['allow', 'block'] },
+      licenseUrl: ref('urlHttps'),
+    },
+    ['search', 'training'],
+    {
+      description:
+        'SCHEMA-3.25.0: how AI systems may use the writing. `search` covers search and answer bots, `training` covers training crawlers. When present it wins over `crawlers.ai`; when absent, `crawlers.ai` allow means both allow and block means both block. `licenseUrl` is the optional https URL of the license terms.',
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.25.0: per-page size budgets of a publication.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed performance object schema
+ */
+export function createPerformanceDefinition({ closedObject }) {
+  const bytes = { type: 'integer', minimum: 1024 };
+  return closedObject(
+    {
+      budgets: closedObject(
+        { htmlBytes: bytes, cssBytes: bytes, jsBytes: bytes },
+        [],
+      ),
+    },
+    [],
+    {
+      description:
+        "SCHEMA-3.25.0: size budgets in bytes, each at least 1024 and optional. `htmlBytes` bounds a page's HTML, `cssBytes` and `jsBytes` bound the sum of the same-origin stylesheets and scripts a page links. A page over budget is reported; a budget never fails a build.",
+    },
+  );
+}
+
 /** SCHEMA-3.21.0 `translationOf` description shared by every frontmatter schema. */
 export const TRANSLATION_OF_DESCRIPTION =
   "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`.";
@@ -1053,6 +1135,9 @@ export function createCompositionBuildSchemas(language) {
         ['enabled', 'heading', 'body', 'authorIds'],
       ),
       crawlers: closedObject({ ai: { enum: ['allow', 'block'] } }, ['ai']),
+      listing: ref('listing'),
+      aiRights: ref('aiRights'),
+      performance: ref('performance'),
       newsletter: ref('newsletter'),
       sharing: ref('sharing'),
       contactForm: ref('contactFormNormalized'),
@@ -1172,6 +1257,7 @@ export function createCompositionBuildSchemas(language) {
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),
+      deleteDate: ref('deleteDate'),
       translationOf: {
         ...ref('slug'),
         description: TRANSLATION_OF_DESCRIPTION,
@@ -2291,6 +2377,10 @@ export function createCompositionBuildSchemas(language) {
         publicationNormalized,
         newsletter: createNewsletterDefinition(language),
         sharing: createSharingDefinition(language),
+        listing: createListingDefinition(language),
+        aiRights: createAiRightsDefinition(language),
+        performance: createPerformanceDefinition(language),
+        deleteDate: createDeleteDateDefinition(),
         contactFormNormalized: createContactFormDefinition(
           language,
           ref('renderableBody'),

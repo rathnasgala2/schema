@@ -745,6 +745,23 @@ export type DeploymentReceiptDeploymentObservation = (
   }> &
   unknown;
 
+export type DeploymentReceiptDeploymentPerformance = Readonly<{
+  readonly budgets: Readonly<{
+    readonly cssBytes?: number;
+    readonly htmlBytes?: number;
+    readonly jsBytes?: number;
+  }>;
+  readonly overBudget: ReadonlyArray<
+    Readonly<{
+      readonly budget: number;
+      readonly bytes: number;
+      readonly kind: 'html' | 'css' | 'js';
+      readonly path: DeploymentReceiptRepoRelativePath;
+    }>
+  >;
+  readonly overBudgetCount: number;
+}>;
+
 export type DeploymentReceiptDeploymentPolicyDecision = Readonly<{
   readonly activationDetectionIntervalSeconds: 60;
   readonly activationDetectionProfile: 'gala-public-activation-detection-v2';
@@ -1613,6 +1630,7 @@ export type DeploymentReceiptDocument = (
       | 'superseded'
       | 'unknown-reconciling'
       | 'rolled-back';
+    readonly performance?: DeploymentReceiptDeploymentPerformance;
     readonly provenanceDigest: DeploymentReceiptDigest;
     readonly publisher: DeploymentReceiptPackageIdentity &
       Readonly<{

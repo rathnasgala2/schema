@@ -6,7 +6,11 @@ import { format, resolveConfig } from 'prettier';
 import { runIfMain } from './run-if-main.mjs';
 import { createAdapterSchema } from './s0-t03-adapter-schema.mjs';
 import {
+  createAiRightsDefinition,
   createAttributionDefinition,
+  createDeleteDateDefinition,
+  createListingDefinition,
+  createPerformanceDefinition,
   createCompositionBuildSchemas,
   createContentEditionDefinition,
   createContactFormDefinition,
@@ -493,6 +497,9 @@ const schemas = {
       sharing: ref('sharing'),
       contactForm: ref('contactForm'),
       crawlers: ref('crawlers'),
+      listing: ref('listing'),
+      aiRights: ref('aiRights'),
+      performance: ref('performance'),
       extensions: ref('extensionMap'),
     },
     [
@@ -520,6 +527,9 @@ const schemas = {
       sharing: createSharingDefinition({ arrayOf, closedObject }),
       contactForm: createContactFormDefinition({ closedObject }),
       crawlers,
+      listing: createListingDefinition({ closedObject }),
+      aiRights: createAiRightsDefinition({ ref, closedObject }),
+      performance: createPerformanceDefinition({ closedObject }),
       extensionMap,
     },
   ),
@@ -632,6 +642,7 @@ const schemas = {
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),
       publishAfter: ref('publishAfterDate'),
+      deleteDate: ref('deleteDate'),
       translationOf: {
         ...ref('slug'),
         description: TRANSLATION_OF_DESCRIPTION,
@@ -659,6 +670,7 @@ const schemas = {
         description:
           "SCHEMA-3.19.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe publishes this draft. Meaningful only while `status` is `draft`; Galascribe removes it when the post is published. The API enforces both rules; the schema only fixes the shape.",
       },
+      deleteDate: createDeleteDateDefinition(),
       contentEdition: createContentEditionDefinition({ ref, closedObject }),
       contentSeo: createContentSeoDefinition({
         ref,

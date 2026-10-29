@@ -24,6 +24,8 @@ export type ContentFrontmatterContentSeo = Readonly<{
   readonly title?: ContentFrontmatterPlainText;
 }>;
 
+export type ContentFrontmatterDeleteDate = string;
+
 export type ContentFrontmatterDigest = string;
 
 export type ContentFrontmatterExtensionKey = string;
@@ -74,6 +76,7 @@ export type ContentFrontmatterUrn = string;
 export type ContentFrontmatterDocument = Readonly<{
   readonly authors: ReadonlyArray<ContentFrontmatterStableId>;
   readonly createdAt: ContentFrontmatterRfc3339;
+  readonly deleteDate?: ContentFrontmatterDeleteDate;
   readonly description?: ContentFrontmatterPlainText;
   readonly edition?: ContentFrontmatterContentEdition;
   readonly extensions: ContentFrontmatterExtensionMap;

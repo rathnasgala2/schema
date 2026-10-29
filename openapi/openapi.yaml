@@ -4776,6 +4776,48 @@ components:
       type: object
     GetPlatformPlansResponse:
       $ref: "#/components/schemas/PlatformPlanCapacityRelease"
+    GetPlatformPrismGenerationsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: "null"
+          if:
+            properties:
+              hasMore:
+                not:
+                  enum:
+                    - false
+                type: boolean
+                x-gala-const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: "#/components/schemas/PlatformPrismGeneration"
+          maxItems: 100
+          type: array
+        nextCursor:
+          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+      required:
+        - items
+        - hasMore
+      type: object
     GetPlatformSettingsByKeyResponse:
       $ref: "#/components/schemas/PlatformSetting"
     GetPlatformSettingsOverridesByKindByIdByKeyResponse:
@@ -5693,7 +5735,7 @@ components:
       additionalProperties: false
       properties:
         reasonCode:
-          description: "A free string. Known values: RUN_NOT_STARTED, BUILD_FAILED, RUN_CANCELLED, RUN_TIMED_OUT, WORKFLOW_UNAVAILABLE, DEPLOY_FAILED, PAGES_NOT_AVAILABLE, REPORT_FAILED, LIVE_CHECK_FAILED, CHANGE_CLOSED_ON_GITHUB and, new in 3.17.0, DESTINATION_BUSY_TIMEOUT, DESTINATION_FENCE_EXPIRED, CANONICAL_BASE_MISMATCH, DOMAIN_NOT_READY (the same codes as `OperationReason`). Clients must tolerate other values."
+          description: "A free string. Known values: RUN_NOT_STARTED, BUILD_FAILED, RUN_CANCELLED, RUN_TIMED_OUT, WORKFLOW_UNAVAILABLE, DEPLOY_FAILED, PAGES_NOT_AVAILABLE, REPORT_FAILED, LIVE_CHECK_FAILED, CHANGE_CLOSED_ON_GITHUB and, new in 3.17.0, DESTINATION_BUSY_TIMEOUT, DESTINATION_FENCE_EXPIRED, CANONICAL_BASE_MISMATCH, DOMAIN_NOT_READY and, new in 3.25.0, PAGE_LOSS_GUARD (the same codes as `OperationReason`). Clients must tolerate other values."
           maxLength: 80
           minLength: 1
           type: string
@@ -6479,10 +6521,14 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        performance:
+          $ref: "#/components/schemas/PortableDeploymentReceiptDeploymentPerformance"
         phase:
           $ref: "#/components/schemas/OperationPhase"
         reason:
           $ref: "#/components/schemas/OperationReason"
+        reasonDetails:
+          $ref: "#/components/schemas/PageLossGuardDetails"
         recoveryActions:
           items:
             maxLength: 80
@@ -7455,6 +7501,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        performance:
+          $ref: "#/components/schemas/PortableDeploymentReceiptDeploymentPerformance"
         phase:
           enum:
             - accepted
@@ -7466,6 +7514,8 @@ components:
           type: string
         reason:
           $ref: "#/components/schemas/OperationReason"
+        reasonDetails:
+          $ref: "#/components/schemas/PageLossGuardDetails"
         recoveryActions:
           items:
             maxLength: 80
@@ -7594,7 +7644,10 @@ components:
         run settled with no receipt), `CANONICAL_BASE_MISMATCH` (the site's
         canonical base was not the address it is served from when the
         operation was dispatched) and `DOMAIN_NOT_READY` (a custom domain was
-        part-way through its switch and no origin could be verified).
+        part-way through its switch and no origin could be verified). New in
+        3.25.0: `PAGE_LOSS_GUARD` (the publish would have removed too many pages
+        from the live site, so authorization was refused and nothing was
+        deployed; the operation's `reasonDetails` carry the counts).
       maxLength: 64
       minLength: 3
       pattern: ^[A-Z][A-Z0-9_]{2,63}$
@@ -7794,6 +7847,34 @@ components:
         - REVOKED
         - EXPIRED
       type: string
+    PageLossGuardDetails:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.25.0. Present on an operation read when `reason` is
+        `PAGE_LOSS_GUARD`: the candidate build has fewer pages than the last
+        successful deployment of the same site and target. `lostPageCount` is
+        `previousPageCount - candidatePageCount`; `permittedLoss` is the loss
+        the platform settings allow. A person who accepts the loss publishes
+        again with `allowPageLoss: true`.
+      properties:
+        candidatePageCount:
+          minimum: 0
+          type: integer
+        lostPageCount:
+          minimum: 0
+          type: integer
+        permittedLoss:
+          minimum: 0
+          type: integer
+        previousPageCount:
+          minimum: 0
+          type: integer
+      required:
+        - previousPageCount
+        - candidatePageCount
+        - lostPageCount
+        - permittedLoss
+      type: object
     PasskeyState:
       enum:
         - ACTIVE
@@ -8660,6 +8741,36 @@ components:
         - PRO
         - BUSINESS
       type: string
+    PlatformPrismGeneration:
+      additionalProperties: false
+      description: SCHEMA-3.25.0. One Prism generation as the operator list shows it, ownership and state only, never article text or the candidate body.
+      properties:
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        editionKind:
+          $ref: "#/components/schemas/PrismEditionKind"
+        generationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: "#/components/schemas/PrismGenerationState"
+      required:
+        - generationId
+        - organizationId
+        - publicationId
+        - editionKind
+        - state
+        - createdAt
+      type: object
     PlatformSetting:
       additionalProperties: false
       description: "An app-wide setting: the active release value, or the default when none is released."
@@ -9047,6 +9158,10 @@ components:
             minimum: 1
       required: []
       type: object
+    PortableContentFrontmatterDeleteDate:
+      description: "SCHEMA-3.25.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe removes this article from the published site: it leaves every listing, feed, sitemap and search index and its route renders a removed-post notice. Same format as `publishAfter`; it must be later than `publishAfter` and `date` when both exist. The API enforces that rule; the schema only fixes the shape."
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      type: string
     PortableContentFrontmatterDigest:
       pattern: ^sha256:[0-9a-f]{64}$
       type: string
@@ -9114,6 +9229,8 @@ components:
           type: array
         createdAt:
           $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+        deleteDate:
+          $ref: "#/components/schemas/PortableContentFrontmatterDeleteDate"
         description:
           $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
           x-gala-graphemeLength:
@@ -12988,6 +13105,57 @@ components:
         - evidenceDigest
         - probes
       type: object
+    PortableDeploymentReceiptDeploymentPerformance:
+      additionalProperties: false
+      description: "SCHEMA-3.25.0: the publish kernel's size-budget summary of the final artifact. `budgets` are the effective byte budgets; `overBudgetCount` counts every page asset over budget; `overBudget` lists at most 20, largest first. Informational: it never fails a publish."
+      properties:
+        budgets:
+          additionalProperties: false
+          properties:
+            cssBytes:
+              minimum: 1024
+              type: integer
+            htmlBytes:
+              minimum: 1024
+              type: integer
+            jsBytes:
+              minimum: 1024
+              type: integer
+          required: []
+          type: object
+        overBudget:
+          items:
+            additionalProperties: false
+            properties:
+              budget:
+                minimum: 1024
+                type: integer
+              bytes:
+                minimum: 0
+                type: integer
+              kind:
+                enum:
+                  - html
+                  - css
+                  - js
+              path:
+                $ref: "#/components/schemas/PortableDeploymentReceiptRepoRelativePath"
+            required:
+              - path
+              - kind
+              - bytes
+              - budget
+            type: object
+          maxItems: 20
+          type: array
+        overBudgetCount:
+          minimum: 0
+          type: integer
+      required:
+        - budgets
+        - overBudgetCount
+        - overBudget
+      type: object
     PortableDeploymentReceiptDeploymentWarning:
       oneOf:
         - allOf:
@@ -13837,6 +14005,8 @@ components:
             - superseded
             - unknown-reconciling
             - rolled-back
+        performance:
+          $ref: "#/components/schemas/PortableDeploymentReceiptDeploymentPerformance"
         provenanceDigest:
           $ref: "#/components/schemas/PortableDeploymentReceiptDigest"
         publisher:
@@ -15730,6 +15900,10 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdChangesPublishRequest:
       additionalProperties: false
       properties:
+        allowPageLoss:
+          default: false
+          description: "SCHEMA-3.25.0: true accepts that this publish may remove many pages from the live site. The server stores it with the operation and skips the page-loss guard; absent or false keeps the guard on (a publish that would lose too many pages ends `FAILED_NO_EFFECT` with reason `PAGE_LOSS_GUARD`)."
+          type: boolean
         changeIds:
           items:
             format: uuid
@@ -16228,6 +16402,10 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesRequest:
       additionalProperties: false
       properties:
+        allowPageLoss:
+          default: false
+          description: "SCHEMA-3.25.0: true accepts that this publish may remove many pages from the live site. The server stores it with the operation and skips the page-loss guard; absent or false keeps the guard on (a publish that would lose too many pages ends `FAILED_NO_EFFECT` with reason `PAGE_LOSS_GUARD`)."
+          type: boolean
         reviewId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -19432,6 +19610,10 @@ components:
         manifestDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
+        pageCount:
+          description: "SCHEMA-3.25.0: the number of `.html` files in the artifact. Optional so a kernel built before 3.25.0 still validates; an absent count exempts the deployment from the page-loss guard."
+          minimum: 0
+          type: integer
         pagesBuildVersion:
           description: |
             The Pages build version this deployment addresses, when the
@@ -59845,6 +60027,175 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: update
+      x-gala-tenant-scope: NONE
+  /v2/platform/prism-generations:
+    get:
+      description: |
+        Operators only (`ADMIN` or `ROOT`). Every Prism edition generation on
+        the platform across all organizations, newest first, one keyset page at
+        a time. Article text and candidate bodies are never exposed, only the
+        generation's state, size and ownership.
+      operationId: getPlatformPrismGenerations
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - description: Only generations in this state.
+          example: CANDIDATE_READY
+          in: query
+          name: state
+          required: false
+          schema:
+            $ref: "#/components/schemas/PrismGenerationState"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - createdAt: "2026-10-10T12:00:00.000Z"
+                        editionKind: QUICK_READ
+                        generationId: 018f0000-0000-7000-8000-000000000001
+                        organizationId: 018f0000-0000-7000-8000-000000000003
+                        publicationId: 018f0000-0000-7000-8000-000000000002
+                        state: CANDIDATE_READY
+                    nextCursor: null
+              schema:
+                $ref: "#/components/schemas/GetPlatformPrismGenerationsResponse"
+          description: list platform Prism generations succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/PlatformAuthenticationRequired"
+        "403":
+          $ref: "#/components/responses/AuthorizationDenied"
+      security:
+        - browserSession: []
+      summary: list platform Prism generations
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.prism.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform Prism generations
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/prism-generations:export:
+    post:
+      description: Operators only (`ADMIN` or `ROOT`), with recent authentication (`401 REAUTH_REQUIRED` when the session is stale). The answer is a UTF-8 CSV file with a header row (`generationId,organizationId,publicationId,editionKind,state,createdAt`) that the operator App saves as a download. A cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return is prefixed with an apostrophe so a spreadsheet does not run it as a formula.
+      operationId: postPlatformPrismGenerationsExport
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "200":
+          content:
+            text/csv:
+              schema:
+                format: binary
+                type: string
+          description: export platform Prism generations as CSV succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Content-Disposition:
+              $ref: "#/components/headers/ContentDispositionAttachment"
+            X-Content-Type-Options:
+              $ref: "#/components/headers/XContentTypeOptionsNosniff"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          $ref: "#/components/responses/AuthorizationDenied"
+      security:
+        - browserSession: []
+      summary: export platform Prism generations as CSV
+      tags:
+        - platform
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: RECENT_AUTHENTICATION
+      x-gala-capability-key: platform.prism.export
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: export platform Prism generations as CSV
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
   /v2/platform/settings/overrides/{kind}/{id}/{key}:
     delete:

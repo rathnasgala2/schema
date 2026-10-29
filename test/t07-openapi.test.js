@@ -747,7 +747,7 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
   );
   // SCHEMA-3.7.0 adds keyset collections for platform users, abuse cases and
   // webhook events.
-  assert.equal(collections.length, 24);
+  assert.equal(collections.length, 25);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),

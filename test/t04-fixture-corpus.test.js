@@ -112,7 +112,9 @@ const T03_SCHEMA_HASHES = {
     // intro), its newsletter becomes the shared link-or-Galascribe union
     // (new $defs/newsletter), and the embedded interactions config gains the
     // optional follows member. Additive.
-    'a8d2fa809e095291522fac0bb98d84011585bf0d3e52b72d764b2b5434c91e1b',
+    //
+    // 3.25.0 (reviewed 2026-10-29): the content record gains the optional deleteDate (new $defs/deleteDate) and the normalized publication gains the optional listing, aiRights and performance members (new $defs). Additive.
+    'f60b68b9abaeb863cdad4b150c7b2ffb403f3c2eac819725a2846154afe8a87d',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -127,7 +129,9 @@ const T03_SCHEMA_HASHES = {
     //
     // 3.21.0 (reviewed 2026-10-27): the optional translationOf slug and its
     // article-only, never-with-edition rule. Additive.
-    '3104073a542e77794a3fa114ec910350e927881c7d2ab9ac6c9d7cd4455d74bd',
+    //
+    // 3.25.0 (reviewed 2026-10-29): the optional deleteDate member (new $defs/deleteDate, same format as publishAfterDate). Additive.
+    'e9a9dffaf844bfb527c63c50d07db6efcf1a8e850bb4ed5390508b2faafd11e3',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
@@ -153,7 +157,9 @@ const T03_SCHEMA_HASHES = {
     //
     // 3.17.0: destinationIdentity gains the optional verificationBaseUrl (see
     // adapter-capability above). Additive.
-    'ad0cefc1c17eb430df1fe9f12c09936fd35edc9e3a02978a80242ef67f654768',
+    //
+    // 3.25.0 (reviewed 2026-10-29): the optional performance summary (new $defs/deploymentPerformance). Additive.
+    '7abd1059e87710be65c9ce77ecfcdc71fd244d41b49a4985cec4c26a11063b50',
   lock: 'b594649a9449a01dd30fb48562fae0ac7728d5de78547f5e4ca9516a40626fe7',
   navigation:
     // 2026-09-25 code-discipline review, SCH-C3: navigationItem/
@@ -174,7 +180,9 @@ const T03_SCHEMA_HASHES = {
     // link shape (now with an optional `mode: "link"`) and the Galascribe
     // shape (new `oneOf` in $defs/newsletter). Additive: every 3.21 file
     // still validates.
-    '29900a3c4a2309bc6738debb97b1caee5baec47a2c65057b51e7d069b03466c8',
+    //
+    // 3.25.0 (reviewed 2026-10-29): the optional closed listing, aiRights and performance members (new $defs). Additive.
+    '45e18150750d431250f4a439c39f46ce32c97a8cefa47566e49e53cd26d3b7ed',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

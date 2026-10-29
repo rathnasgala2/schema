@@ -140,6 +140,7 @@
       "maxItems": 2,
       "uniqueItems": true
     },
+    "performance": { "$ref": "#/$defs/deploymentPerformance" },
     "failure": { "$ref": "#/$defs/deploymentFailure" },
     "rollbackOfOperationId": { "$ref": "#/$defs/stableId" },
     "rollbackOfGenerationId": { "$ref": "#/$defs/stableId" },
@@ -4723,6 +4724,40 @@
           ]
         }
       ]
+    },
+    "deploymentPerformance": {
+      "type": "object",
+      "description": "SCHEMA-3.25.0: the publish kernel's size-budget summary of the final artifact. `budgets` are the effective byte budgets; `overBudgetCount` counts every page asset over budget; `overBudget` lists at most 20, largest first. Informational: it never fails a publish.",
+      "required": ["budgets", "overBudgetCount", "overBudget"],
+      "properties": {
+        "budgets": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "htmlBytes": { "type": "integer", "minimum": 1024 },
+            "cssBytes": { "type": "integer", "minimum": 1024 },
+            "jsBytes": { "type": "integer", "minimum": 1024 }
+          },
+          "additionalProperties": false
+        },
+        "overBudgetCount": { "type": "integer", "minimum": 0 },
+        "overBudget": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": ["path", "kind", "bytes", "budget"],
+            "properties": {
+              "path": { "$ref": "#/$defs/repoRelativePath" },
+              "kind": { "enum": ["html", "css", "js"] },
+              "bytes": { "type": "integer", "minimum": 0 },
+              "budget": { "type": "integer", "minimum": 1024 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     },
     "githubWorkflowRef": {
       "type": "string",

@@ -514,6 +514,9 @@
           "properties": { "ai": { "enum": ["allow", "block"] } },
           "additionalProperties": false
         },
+        "listing": { "$ref": "#/$defs/listing" },
+        "aiRights": { "$ref": "#/$defs/aiRights" },
+        "performance": { "$ref": "#/$defs/performance" },
         "newsletter": { "$ref": "#/$defs/newsletter" },
         "sharing": { "$ref": "#/$defs/sharing" },
         "contactForm": { "$ref": "#/$defs/contactFormNormalized" },
@@ -592,6 +595,49 @@
       },
       "additionalProperties": false,
       "description": "SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 11 unique members of the closed target set. An absent `sharing` member means `[\"copy-link\"]` (the Copy link button only); an empty `targets` array means no share buttons. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service's documented share URL. Bookmark is not a share target and is unaffected."
+    },
+    "listing": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "pageSize": { "type": "integer", "minimum": 1, "maximum": 50 }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.25.0: listing settings. `pageSize` is the number of posts on each listing page (1 to 50); an absent member means 10."
+    },
+    "aiRights": {
+      "type": "object",
+      "required": ["search", "training"],
+      "properties": {
+        "search": { "enum": ["allow", "block"] },
+        "training": { "enum": ["allow", "block"] },
+        "licenseUrl": { "$ref": "#/$defs/urlHttps" }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.25.0: how AI systems may use the writing. `search` covers search and answer bots, `training` covers training crawlers. When present it wins over `crawlers.ai`; when absent, `crawlers.ai` allow means both allow and block means both block. `licenseUrl` is the optional https URL of the license terms."
+    },
+    "performance": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "budgets": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "htmlBytes": { "type": "integer", "minimum": 1024 },
+            "cssBytes": { "type": "integer", "minimum": 1024 },
+            "jsBytes": { "type": "integer", "minimum": 1024 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.25.0: size budgets in bytes, each at least 1024 and optional. `htmlBytes` bounds a page's HTML, `cssBytes` and `jsBytes` bound the sum of the same-origin stylesheets and scripts a page links. A page over budget is reported; a budget never fails a build."
+    },
+    "deleteDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "SCHEMA-3.25.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe removes this article from the published site: it leaves every listing, feed, sitemap and search index and its route renders a removed-post notice. Same format as `publishAfter`; it must be later than `publishAfter` and `date` when both exist. The API enforces that rule; the schema only fixes the shape."
     },
     "contactFormNormalized": {
       "type": "object",
@@ -971,6 +1017,7 @@
         },
         "edition": { "$ref": "#/$defs/contentEdition" },
         "seo": { "$ref": "#/$defs/contentSeo" },
+        "deleteDate": { "$ref": "#/$defs/deleteDate" },
         "translationOf": {
           "$ref": "#/$defs/slug",
           "description": "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`."
