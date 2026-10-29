@@ -67,6 +67,12 @@ export type ProblemDocument = Readonly<{
   readonly code: ProblemProblemCode;
   readonly correlationId: ProblemStableId;
   readonly detail: ProblemPlainText;
+  readonly details?: Readonly<{
+    readonly candidatePageCount: number;
+    readonly lostPageCount: number;
+    readonly permittedLoss: number;
+    readonly previousPageCount: number;
+  }>;
   readonly domainState?: string;
   readonly errors: ReadonlyArray<ProblemFieldError>;
   readonly expectedBase?: ProblemUrlHttps;

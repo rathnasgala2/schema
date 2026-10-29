@@ -49,6 +49,8 @@ const ROOT_LEDGERS = {
       'profileBase',
       'domainState',
       'remedy',
+      // 3.25.1: the PAGE_LOSS_GUARD counts.
+      'details',
     ],
   },
   'event-envelope': {

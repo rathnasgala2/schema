@@ -1159,6 +1159,7 @@ test('DEC-097 receipt exchange is the closed synchronous union with exact new fa
     'DEPENDENCY_UNAVAILABLE',
     'DESTINATION_MUTATION_IN_PROGRESS',
     'INVALID_SOURCE_STATE',
+    'PAGE_LOSS_GUARD',
     'RATE_LIMITED',
     'REQUEST_FIELD_UNKNOWN',
     'VALIDATION_FAILED',

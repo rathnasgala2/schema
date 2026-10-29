@@ -1394,6 +1394,9 @@ components:
         `gala/publication.json`. An absent member is preserved. `null`
         resets `description` to the publication title (the file requires a
         description); `null` clears `defaultImageRef` and `crawlers`.
+        `listing`, `aiRights` and `performance` (SCHEMA-3.25.1, the
+        `publication.schema.json` 3.25.0 members) follow `crawlers`: absent
+        keeps the stored value, an object replaces it whole, `null` clears it.
         `title`, `defaultLanguage` and `socialLinks` cannot be cleared.
         `socialLinks` (max 32, the publication file's own limit) replaces
         the whole list. `canonicalBase` is never client-settable: it changes
@@ -1401,6 +1404,10 @@ components:
         `422 VALIDATION_FAILED` pointed at `/publicationProfile`; member
         failures point at `/publicationProfile/<member>`.
       properties:
+        aiRights:
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationAiRights"
+            - type: "null"
         crawlers:
           oneOf:
             - $ref: "#/components/schemas/PortablePublicationCrawlers"
@@ -1419,6 +1426,14 @@ components:
               x-gala-graphemeLength:
                 maximum: 300
                 minimum: 1
+            - type: "null"
+        listing:
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationListing"
+            - type: "null"
+        performance:
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationPerformance"
             - type: "null"
         socialLinks:
           items:
@@ -1473,12 +1488,18 @@ components:
         `contentId` is the header's `id`; `status` is the header's `status`
         upper-cased to this contract's enum style. `publishAfter`
         (SCHEMA-3.19.0, optional and nullable) is the header's staggered-release
-        date.
+        date. `deleteDate` (SCHEMA-3.25.1, optional and nullable) is the
+        header's scheduled-removal date.
       properties:
         contentId:
           $ref: "#/components/schemas/PortableContentFrontmatterStableId"
         createdAt:
           $ref: "#/components/schemas/PortableContentFrontmatterRfc3339"
+        deleteDate:
+          description: "SCHEMA-3.25.1: the header's `deleteDate` date (`YYYY-MM-DD`) of an article scheduled for removal, `null` or absent when the header carries none."
+          oneOf:
+            - $ref: "#/components/schemas/PortableContentFrontmatterDeleteDate"
+            - type: "null"
         language:
           $ref: "#/components/schemas/PortableContentFrontmatterBcp47"
         publishAfter:
@@ -1573,8 +1594,12 @@ components:
         as the inventory, and returned on every page of the inventory, not
         only the first -- the editor needs these facts regardless of which
         page it opened. Carries no personal data beyond what each author
-        file itself already publishes.
+        file itself already publishes. `listing`, `aiRights` and `performance`
+        (SCHEMA-3.25.1, optional) are the publication file's 3.25.0 members,
+        absent when the file carries none.
       properties:
+        aiRights:
+          $ref: "#/components/schemas/PortablePublicationAiRights"
         authors:
           items:
             $ref: "#/components/schemas/ContentPublicationAuthorSummary"
@@ -1591,6 +1616,10 @@ components:
           x-gala-graphemeLength:
             maximum: 500
             minimum: 1
+        listing:
+          $ref: "#/components/schemas/PortablePublicationListing"
+        performance:
+          $ref: "#/components/schemas/PortablePublicationPerformance"
         socialLinks:
           items:
             $ref: "#/components/schemas/PortablePublicationSocialLink"
@@ -14924,6 +14953,28 @@ components:
           x-gala-graphemeLength:
             maximum: 500
             minimum: 0
+        details:
+          additionalProperties: false
+          description: "SCHEMA-3.25.1, optional, carried by a PAGE_LOSS_GUARD problem and absent from every other: the counts behind the refusal, the same members as the `PageLossGuardDetails` operation `reasonDetails`. The candidate build has fewer pages than the last successful deployment; `lostPageCount` is `previousPageCount - candidatePageCount` and `permittedLoss` is the loss the platform settings allow."
+          properties:
+            candidatePageCount:
+              minimum: 0
+              type: integer
+            lostPageCount:
+              minimum: 0
+              type: integer
+            permittedLoss:
+              minimum: 0
+              type: integer
+            previousPageCount:
+              minimum: 0
+              type: integer
+          required:
+            - previousPageCount
+            - candidatePageCount
+            - lostPageCount
+            - permittedLoss
+          type: object
         domainState:
           description: "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the state of the site's custom-domain binding that decided `expectedBase` (a `DomainBindingState` value such as `CERTIFICATE_PENDING` or `ACTIVE`), absent when the site has no custom domain. A client shows a value it does not know as is."
           maxLength: 80
@@ -15063,6 +15114,24 @@ components:
       format: uri
       pattern: ^https://(?![^/?#]*@)
       type: string
+    PortablePublicationAiRights:
+      additionalProperties: false
+      description: "SCHEMA-3.25.0: how AI systems may use the writing. `search` covers search and answer bots, `training` covers training crawlers. When present it wins over `crawlers.ai`; when absent, `crawlers.ai` allow means both allow and block means both block. `licenseUrl` is the optional https URL of the license terms."
+      properties:
+        licenseUrl:
+          $ref: "#/components/schemas/PortablePublicationUrlHttps"
+        search:
+          enum:
+            - allow
+            - block
+        training:
+          enum:
+            - allow
+            - block
+      required:
+        - search
+        - training
+      type: object
     PortablePublicationBcp47:
       description: Structurally valid canonical BCP-47 language tag.
       format: gala-bcp47
@@ -15082,6 +15151,36 @@ components:
             - block
       required:
         - ai
+      type: object
+    PortablePublicationListing:
+      additionalProperties: false
+      description: "SCHEMA-3.25.0: listing settings. `pageSize` is the number of posts on each listing page (1 to 50); an absent member means 10."
+      properties:
+        pageSize:
+          maximum: 50
+          minimum: 1
+          type: integer
+      required: []
+      type: object
+    PortablePublicationPerformance:
+      additionalProperties: false
+      description: "SCHEMA-3.25.0: size budgets in bytes, each at least 1024 and optional. `htmlBytes` bounds a page's HTML, `cssBytes` and `jsBytes` bound the sum of the same-origin stylesheets and scripts a page links. A page over budget is reported; a budget never fails a build."
+      properties:
+        budgets:
+          additionalProperties: false
+          properties:
+            cssBytes:
+              minimum: 1024
+              type: integer
+            htmlBytes:
+              minimum: 1024
+              type: integer
+            jsBytes:
+              minimum: 1024
+              type: integer
+          required: []
+          type: object
+      required: []
       type: object
     PortablePublicationPlainLabel:
       description: Normalized Unicode plain text without markup, controls, or bidi overrides.
@@ -16032,7 +16131,12 @@ components:
         (SCHEMA-3.19.0) is refused with `409 STAGGERED_RELEASE_DISABLED` while the
         publication's staggered release is off (`publishingPolicy.staggeredRelease`), and
         with `422 PUBLISH_AFTER_ON_PUBLISHED_POST` when its `status` is not
-        `draft`; `errors[].pointer` is `/documents/<path>`.
+        `draft`; `errors[].pointer` is `/documents/<path>`. A document whose
+        `deleteDate` (SCHEMA-3.25.0) is not later than its `publishAfter` or
+        `date` is refused with the content-change rejection reason
+        `DELETE_DATE_NOT_AFTER_RELEASE` (SCHEMA-3.25.1), alongside the other
+        reasons the API reports for cross-document rules; those reasons are
+        not an enumerated schema member.
         Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
         at most 20 per change, each at most 5 MiB and together at most
         20 MiB, measured on the decoded bytes -- `assets[].bytesBase64` is
@@ -16855,6 +16959,10 @@ components:
         person confirmed. The server publishes that head only while it is still
         the repository's head.
       properties:
+        allowPageLoss:
+          default: false
+          description: "SCHEMA-3.25.0: true accepts that this publish may remove many pages from the live site. The server stores it with the operation and skips the page-loss guard; absent or false keeps the guard on (a publish that would lose too many pages ends `FAILED_NO_EFFECT` with reason `PAGE_LOSS_GUARD`)."
+          type: boolean
         headCommit:
           $ref: "#/components/schemas/PortableDeploymentIntentGitObjectId"
       required:
@@ -18103,6 +18211,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        performance:
+          $ref: "#/components/schemas/PortableDeploymentReceiptDeploymentPerformance"
         provenanceDigest:
           pattern: ^sha256:[0-9a-f]{64}$
           type: string
@@ -70904,6 +71014,24 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                PAGE_LOSS_GUARD:
+                  summary: PAGE_LOSS_GUARD
+                  value:
+                    code: PAGE_LOSS_GUARD
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    details:
+                      candidatePageCount: 40
+                      lostPageCount: 60
+                      permittedLoss: 25
+                      previousPageCount: 100
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PAGE_LOSS_GUARD
+                    type: urn:gala:problem:page-loss-guard
                 WORKLOAD_REPLAYED:
                   summary: WORKLOAD_REPLAYED
                   value:
@@ -70919,7 +71047,7 @@ paths:
                     type: urn:gala:problem:workload-replayed
               schema:
                 $ref: "#/components/schemas/Problem"
-          description: DESTINATION_MUTATION_IN_PROGRESS, INVALID_SOURCE_STATE, WORKLOAD_REPLAYED
+          description: DESTINATION_MUTATION_IN_PROGRESS, INVALID_SOURCE_STATE, PAGE_LOSS_GUARD, WORKLOAD_REPLAYED
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
@@ -70928,6 +71056,7 @@ paths:
           x-gala-problem-codes:
             - DESTINATION_MUTATION_IN_PROGRESS
             - INVALID_SOURCE_STATE
+            - PAGE_LOSS_GUARD
             - WORKLOAD_REPLAYED
         "410":
           content:
@@ -71091,6 +71220,7 @@ paths:
         - DEPENDENCY_UNAVAILABLE
         - DESTINATION_MUTATION_IN_PROGRESS
         - INVALID_SOURCE_STATE
+        - PAGE_LOSS_GUARD
         - RATE_LIMITED
         - REQUEST_FIELD_UNKNOWN
         - VALIDATION_FAILED

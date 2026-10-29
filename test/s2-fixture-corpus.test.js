@@ -259,7 +259,11 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // build-input fixtures and the manifest, and added two case files
     // (publication/SCHEMA_NUMBER_TOO_LARGE and SCHEMA_NUMBER_TOO_SMALL),
     // making 908.
-    '480c5cad36dd08e6a23aae1de55a66af655945b708567300e7280351c481634d',
+    //
+    // 3.25.1 (reviewed 2026-10-29): the optional Problem.details member
+    // (PAGE_LOSS_GUARD counts) regenerated the problem fixtures and the
+    // manifest. No file added; still 908.
+    'a3d59f2f3d379ccf6879ed6546ac5cc81fcacf97362ac5c6f2d2a0294dd58c90',
   );
 });
 

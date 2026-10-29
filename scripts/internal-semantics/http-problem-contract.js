@@ -13,6 +13,7 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       DEPENDENCY_UNAVAILABLE: { statuses: [503], retryable: true },
       DESTINATION_MUTATION_IN_PROGRESS: { statuses: [409], retryable: false },
       INVALID_SOURCE_STATE: { statuses: [409], retryable: false },
+      PAGE_LOSS_GUARD: { statuses: [409], retryable: false },
       RATE_LIMITED: { statuses: [429], retryable: true },
       REAUTH_REQUIRED: { statuses: [401], retryable: false },
       REPORTING_CAPABILITY_INVALID: { statuses: [401], retryable: false },

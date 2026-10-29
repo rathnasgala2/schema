@@ -145,6 +145,24 @@ export function createPlatformSchemas(language) {
           description:
             "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the state of the site's custom-domain binding that decided `expectedBase` (a `DomainBindingState` value such as `CERTIFICATE_PENDING` or `ACTIVE`), absent when the site has no custom domain. A client shows a value it does not know as is.",
         },
+        details: {
+          type: 'object',
+          description:
+            'SCHEMA-3.25.1, optional, carried by a PAGE_LOSS_GUARD problem and absent from every other: the counts behind the refusal, the same members as the `PageLossGuardDetails` operation `reasonDetails`. The candidate build has fewer pages than the last successful deployment; `lostPageCount` is `previousPageCount - candidatePageCount` and `permittedLoss` is the loss the platform settings allow.',
+          required: [
+            'previousPageCount',
+            'candidatePageCount',
+            'lostPageCount',
+            'permittedLoss',
+          ],
+          properties: {
+            previousPageCount: { type: 'integer', minimum: 0 },
+            candidatePageCount: { type: 'integer', minimum: 0 },
+            lostPageCount: { type: 'integer', minimum: 0 },
+            permittedLoss: { type: 'integer', minimum: 0 },
+          },
+          additionalProperties: false,
+        },
         remedy: graphemeBound(
           {
             ...ref('plainText'),

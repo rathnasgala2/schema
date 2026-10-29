@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.25.1] - 2026-10-29
+
+Closes four contract gaps left by 3.25.0. Additive and optional throughout.
+
+### Added
+
+- `ContentInventoryItemSummary.deleteDate` (optional, nullable, `YYYY-MM-DD`),
+  the same pattern as its `publishAfter`.
+- `PostWorkloadsDeploymentReceiptsRequest.performance` (optional): the same
+  `deployment-receipt` `performance` summary.
+- `POST /v2/workloads/github/receipt-exchanges` documents the `409`
+  `PAGE_LOSS_GUARD` refusal raised when the page-loss guard trips, with the
+  counts in the new optional `Problem.details` (the `PageLossGuardDetails`
+  members). `PAGE_LOSS_GUARD` joins the endpoint's reachable problem codes.
+- The content-change description names the rejection reason
+  `DELETE_DATE_NOT_AFTER_RELEASE` for a `deleteDate` not later than
+  `publishAfter` or `date`. The reasons are not an enumerated schema member.
+
 ## [3.25.0] - 2026-10-29
 
 Contracts for scheduled removal, listing page size, AI rights, performance
@@ -3676,7 +3694,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.25.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.25.1...HEAD
+[3.25.1]: https://github.com/rathnasgala2/schema/compare/v3.25.0...v3.25.1
 [3.25.0]: https://github.com/rathnasgala2/schema/compare/v3.24.0...v3.25.0
 [3.24.0]: https://github.com/rathnasgala2/schema/compare/v3.23.1...v3.24.0
 [3.23.1]: https://github.com/rathnasgala2/schema/compare/v3.23.0...v3.23.1

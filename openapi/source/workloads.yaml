@@ -536,6 +536,24 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                PAGE_LOSS_GUARD:
+                  summary: PAGE_LOSS_GUARD
+                  value:
+                    code: PAGE_LOSS_GUARD
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    details:
+                      candidatePageCount: 40
+                      lostPageCount: 60
+                      permittedLoss: 25
+                      previousPageCount: 100
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PAGE_LOSS_GUARD
+                    type: urn:gala:problem:page-loss-guard
                 WORKLOAD_REPLAYED:
                   summary: WORKLOAD_REPLAYED
                   value:
@@ -553,7 +571,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
           description:
             DESTINATION_MUTATION_IN_PROGRESS, INVALID_SOURCE_STATE,
-            WORKLOAD_REPLAYED
+            PAGE_LOSS_GUARD, WORKLOAD_REPLAYED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -562,6 +580,7 @@ paths:
           x-gala-problem-codes:
             - DESTINATION_MUTATION_IN_PROGRESS
             - INVALID_SOURCE_STATE
+            - PAGE_LOSS_GUARD
             - WORKLOAD_REPLAYED
         '410':
           content:
@@ -731,6 +750,7 @@ paths:
         - DEPENDENCY_UNAVAILABLE
         - DESTINATION_MUTATION_IN_PROGRESS
         - INVALID_SOURCE_STATE
+        - PAGE_LOSS_GUARD
         - RATE_LIMITED
         - REQUEST_FIELD_UNKNOWN
         - VALIDATION_FAILED
