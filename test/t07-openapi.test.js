@@ -4148,6 +4148,37 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.equal(request.properties.newsletterSubscriberLimit.minimum, 0);
 });
 
+test('SCHEMA-3.27.0: FollowState carries an optional non-negative integer followers', async () => {
+  const { bundle } = await readProjections();
+  const state = bundle.components.schemas.FollowState;
+  assert.deepEqual(state.required, ['following']);
+  assert.equal(state.additionalProperties, false);
+  assert.deepEqual(state.properties.followers, {
+    minimum: 0,
+    type: 'integer',
+  });
+  assert.match(state.description, /^SCHEMA-3\.27\.0:/u);
+  const validate = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/FollowState',
+  });
+  assert.equal(validate({ following: true }), true);
+  assert.equal(validate({ following: false, followers: 0 }), true);
+  assert.equal(validate({ following: true, followers: 3 }), true);
+  assert.equal(validate({ following: true, followers: -1 }), false);
+  assert.equal(validate({ following: true, followers: 1.5 }), false);
+  assert.equal(validate({ following: true, followers: '3' }), false);
+  assert.equal(validate({ followers: 3 }), false);
+  const follow =
+    '/v2/public/publications/{publicationId}/authors/{authorId}/follow';
+  for (const method of ['get', 'put', 'delete']) {
+    assert.match(
+      operationAt(bundle, method, follow).description,
+      /`followers`/u,
+      method,
+    );
+  }
+});
+
 test('SCHEMA-3.26.0: the Listen settings mirror the contact-form settings and plans carry listen', async () => {
   const { bundle } = await readProjections();
   const schemas = bundle.components.schemas;

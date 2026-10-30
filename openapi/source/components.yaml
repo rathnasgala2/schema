@@ -14523,7 +14523,17 @@ components:
       type: object
     FollowState:
       additionalProperties: false
+      description:
+        "SCHEMA-3.27.0: whether the reader follows the author. `followers` is
+        the number of readers following this author on this site; it is present
+        only when the bearer token is for this publication and its principal
+        holds `publication.audience.read` on it (the site's team, the same
+        people who may open the Audience page), and absent for every other
+        caller, including callers with no token."
       properties:
+        followers:
+          minimum: 0
+          type: integer
         following:
           type: boolean
       required:

@@ -1623,7 +1623,10 @@ paths:
         Idempotent, and allowed whether or not the site still has follows turned
         on or is live, so a reader can always leave. `404 AUTHOR_NOT_FOUND` only
         when the site names no such author and the reader holds no follow of
-        that id.
+        that id. On a site-team token (this publication's token whose principal
+        holds `publication.audience.read`) the response also carries
+        `followers`, the number of readers following the author; it is absent
+        for every other caller, including callers with no token.
       operationId: deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1803,7 +1806,11 @@ paths:
         Public read with an optional reader bearer token. With a token,
         `following` says whether that reader follows the author; without one it
         is false. The site's Follow button decides whether to show itself from
-        the `follows.enabled` setting it was built with, not from this read.
+        the `follows.enabled` setting it was built with, not from this read. On
+        a site-team token (this publication's token whose principal holds
+        `publication.audience.read`) the response also carries `followers`, the
+        number of readers following the author; it is absent for every other
+        caller, including callers with no token.
       operationId: getPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1914,7 +1921,11 @@ paths:
         a reader's own business: only that reader sees it, the site owner sees a
         display name in the follower list and there is no public follower count.
         `409 FOLLOWS_DISABLED` while the author has the Follow button off. `404
-        AUTHOR_NOT_FOUND` when the site names no such author."
+        AUTHOR_NOT_FOUND` when the site names no such author. On a site-team
+        token (this publication's token whose principal holds
+        `publication.audience.read`) the response also carries `followers`, the
+        number of readers following the author; it is absent for every other
+        caller, including callers with no token."
       operationId: putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

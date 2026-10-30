@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.27.0] - 2026-10-30
+
+The follower count for the site's team: `FollowState` gains an optional
+`followers` (integer, minimum 0) on the follow read, follow and unfollow
+(design: `scrap/20261030_follow-count-cards/design.md`, D1 to D3). Additive and
+optional: every 3.26 response still validates and `npm run compatibility:check`
+reports no breaking change.
+
+### Added
+
+- `FollowState.followers`: the number of readers following this author on this
+  site. A server emits it only when the bearer token is for this publication and
+  its principal holds `publication.audience.read` on it (the site's team, the
+  same people who may open the Audience page); it is absent for every other
+  caller, including callers with no token. It applies to `GET`, `PUT` and
+  `DELETE` `/v2/public/publications/{publicationId}/authors/{authorId}/follow`,
+  whose descriptions now say so. Nothing else changes.
+
 ## [3.26.0] - 2026-10-30
 
 Listen, the audio version of posts: the shapes the template and the publish
@@ -3793,7 +3811,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.26.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.27.0...HEAD
+[3.27.0]: https://github.com/rathnasgala2/schema/compare/v3.26.0...v3.27.0
 [3.26.0]: https://github.com/rathnasgala2/schema/compare/v3.25.1...v3.26.0
 [3.25.1]: https://github.com/rathnasgala2/schema/compare/v3.25.0...v3.25.1
 [3.25.0]: https://github.com/rathnasgala2/schema/compare/v3.24.0...v3.25.0
