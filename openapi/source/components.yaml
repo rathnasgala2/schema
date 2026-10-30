@@ -12876,6 +12876,13 @@ components:
             and no contact form, PRO 500 and a contact form, BUSINESS 2000 and a
             contact form.'
           type: boolean
+        listen:
+          description:
+            'SCHEMA-3.26.0, whether sites on this plan may turn on Listen, the
+            audio version of posts. A site on a plan without it sees the setting
+            locked, and enabling it is `409 PLAN_REQUIRED`. Defaults: FREE no
+            Listen, PRO and BUSINESS Listen.'
+          type: boolean
         newsletterSubscriberLimit:
           description:
             'SCHEMA-3.23.0, the confirmed newsletter subscribers one
@@ -12897,6 +12904,7 @@ components:
         - publicationLimit
         - newsletterSubscriberLimit
         - contactForm
+        - listen
       type: object
     PlatformPlanCapacityRelease:
       additionalProperties: false
@@ -12966,6 +12974,10 @@ components:
         contactForm:
           description:
             "SCHEMA-3.23.0, optional; absent keeps the plan's current value."
+          type: boolean
+        listen:
+          description:
+            "SCHEMA-3.26.0, optional; absent keeps the plan's current value."
           type: boolean
         newsletterSubscriberLimit:
           description:
@@ -14636,6 +14648,8 @@ components:
         - nextCursor
         - total
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse:
+      $ref: '#/components/schemas/ListenSettings'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssuesResponse:
       additionalProperties: false
       properties:
@@ -14769,6 +14783,34 @@ components:
             - type: 'null'
       required:
         - address
+      type: object
+    ListenSettings:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.26.0: the Listen setting of a site at the linked repository's
+        main branch head: the `listen` member of `gala/publication.json`
+        (`enabled`). A publication with no `listen` member reads `enabled`
+        false. `planAllows` is read-only: false while the site's plan does not
+        include Listen (the Free plan by default), in which case `enabled`
+        cannot be turned on. `openChange` names an existing not-yet-published
+        change of this publication that touches the file, or is null. `setUp`
+        matches `GET .../repository/setup` `state`."
+      properties:
+        enabled:
+          type: boolean
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        planAllows:
+          type: boolean
+        setUp:
+          type: boolean
+      required:
+        - enabled
+        - planAllows
+        - openChange
+        - setUp
       type: object
     NewsletterCapacity:
       additionalProperties: false
@@ -15444,6 +15486,22 @@ components:
         - intro
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsRequest:
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+      required:
+        - enabled
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse:
       additionalProperties: false
       properties:
         change:

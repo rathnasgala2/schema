@@ -4063,6 +4063,7 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.equal(
     plan({
       contactForm: false,
+      listen: false,
       newsletterSubscriberLimit: 50,
       planKey: 'FREE',
       publicationLimit: 1,
@@ -4072,6 +4073,7 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.equal(
     plan({
       contactForm: true,
+      listen: true,
       newsletterSubscriberLimit: 0,
       planKey: 'PRO',
       publicationLimit: 10,
@@ -4080,6 +4082,7 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   );
   assert.equal(
     plan({
+      listen: false,
       newsletterSubscriberLimit: 50,
       planKey: 'FREE',
       publicationLimit: 1,
@@ -4087,12 +4090,18 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
     false,
   );
   assert.equal(
-    plan({ contactForm: false, planKey: 'FREE', publicationLimit: 1 }),
+    plan({
+      contactForm: false,
+      listen: false,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
     false,
   );
   assert.equal(
     plan({
       contactForm: false,
+      listen: false,
       newsletterSubscriberLimit: -1,
       planKey: 'FREE',
       publicationLimit: 1,
@@ -4102,6 +4111,7 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.equal(
     plan({
       contactForm: 'no',
+      listen: false,
       newsletterSubscriberLimit: 50,
       planKey: 'FREE',
       publicationLimit: 1,
@@ -4136,6 +4146,179 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.deepEqual(request.required, ['publicationLimit', 'reason']);
   assert.deepEqual(request.properties.contactForm.type, 'boolean');
   assert.equal(request.properties.newsletterSubscriberLimit.minimum, 0);
+});
+
+test('SCHEMA-3.26.0: the Listen settings mirror the contact-form settings and plans carry listen', async () => {
+  const { bundle } = await readProjections();
+  const schemas = bundle.components.schemas;
+  const orgPub =
+    '/v2/organizations/{organizationId}/publications/{publicationId}';
+  const read = operationAt(bundle, 'get', `${orgPub}/listen-settings`);
+  const write = operationAt(bundle, 'put', `${orgPub}/listen-settings`);
+  const contactRead = operationAt(
+    bundle,
+    'get',
+    `${orgPub}/contact-form-settings`,
+  );
+  const contactWrite = operationAt(
+    bundle,
+    'put',
+    `${orgPub}/contact-form-settings`,
+  );
+  assert.equal(
+    read.operationId,
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings',
+  );
+  assert.equal(
+    write.operationId,
+    'putOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings',
+  );
+  // The same extensions and security as the contact-form pair: session only,
+  // the interaction-settings tag, the same capabilities, concurrency, guards
+  // and replay identity.
+  for (const {
+    listen,
+    contact,
+  } of /** @type {{listen: JsonObject, contact: JsonObject}[]} */ ([
+    { listen: read, contact: contactRead },
+    { listen: write, contact: contactWrite },
+  ])) {
+    assert.deepEqual(listen.tags, ['interaction-settings']);
+    assert.deepEqual(listen.security, [{ browserSession: [] }]);
+    assert.equal(listen['x-gala-api-key-scope'], undefined);
+    for (const key of [
+      'x-gala-capability-key',
+      'x-gala-concurrency',
+      'x-gala-activation-gate',
+      'x-gala-activation-guards',
+      'x-gala-state-guards',
+      'x-gala-replay-identity',
+      'x-gala-success-category',
+      'x-gala-tenant-scope',
+      'x-gala-example-profile',
+      'x-gala-nullability',
+    ]) {
+      assert.deepEqual(
+        listen[key],
+        contact[key],
+        `${listen.operationId} ${key}`,
+      );
+    }
+    assert.deepEqual(
+      listen.parameters.map((/** @type {JsonObject} */ p) => p.$ref ?? p.name),
+      contact.parameters.map((/** @type {JsonObject} */ p) => p.$ref ?? p.name),
+    );
+    assert.deepEqual(
+      Object.keys(listen.responses),
+      Object.keys(contact.responses),
+    );
+  }
+  assert.equal(read['x-gala-capability-key'], 'publication.view');
+  assert.equal(write['x-gala-capability-key'], 'publication.settings.manage');
+  assert.deepEqual(read['x-gala-reachable-problems'], [
+    ...contactRead['x-gala-reachable-problems'],
+  ]);
+  assert.deepEqual(
+    write['x-gala-reachable-problems'],
+    contactWrite['x-gala-reachable-problems'].filter(
+      (/** @type {string} */ code) => code !== 'CONTACT_ROUTE_IN_USE',
+    ),
+  );
+  assert.ok(
+    read['x-gala-reachable-problems'].includes('DEPENDENCY_UNAVAILABLE'),
+  );
+  // Turning Listen on without the entitlement is 409 PLAN_REQUIRED pointed at
+  // `enabled`; there is no route-collision refusal.
+  const conflict = write.responses['409'];
+  assert.deepEqual(conflict['x-gala-problem-codes'], [
+    'COMMAND_REPLAY_CONFLICT',
+    'INVALID_SOURCE_STATE',
+    'PLAN_REQUIRED',
+    'TRANSFER_PENDING',
+  ]);
+  assert.deepEqual(
+    conflict.content['application/problem+json'].examples.PLAN_REQUIRED.value
+      .errors,
+    [{ code: 'PLAN_REQUIRED', pointer: '/enabled' }],
+  );
+  assert.equal(
+    conflict.content['application/problem+json'].examples.PLAN_REQUIRED.value
+      .status,
+    409,
+  );
+  // The read: `enabled`, the read-only `planAllows`, `openChange` and `setUp`.
+  assert.equal(
+    read.responses['200'].content['application/json'].schema.$ref,
+    '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse',
+  );
+  const settings = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/ListenSettings',
+  });
+  const nominal = {
+    enabled: false,
+    openChange: null,
+    planAllows: false,
+    setUp: true,
+  };
+  assert.equal(settings(nominal), true);
+  assert.equal(settings({ ...nominal, enabled: true, planAllows: true }), true);
+  assert.deepEqual(
+    read.responses['200'].content['application/json'].examples.nominal.value,
+    nominal,
+  );
+  for (const member of Object.keys(nominal)) {
+    const missing = { ...nominal };
+    delete (/** @type {Record<string, unknown>} */ (missing)[member]);
+    assert.equal(settings(missing), false, `${member} is required`);
+  }
+  assert.equal(settings({ ...nominal, enabled: 'yes' }), false);
+  assert.equal(settings({ ...nominal, planAllows: null }), false);
+  assert.equal(settings({ ...nominal, fields: {} }), false);
+  // The write body is exactly `{ enabled: boolean }`, and it answers `change`.
+  const request = await compileResolvedSchema(bundle, {
+    $ref: '#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsRequest',
+  });
+  assert.equal(request({ enabled: true }), true);
+  assert.equal(request({ enabled: false }), true);
+  assert.equal(request({}), false);
+  assert.equal(request({ enabled: 'true' }), false);
+  assert.equal(request({ enabled: true, planAllows: true }), false);
+  assert.deepEqual(
+    write.requestBody.content['application/json'].examples.nominal.value,
+    { enabled: true },
+  );
+  assert.equal(
+    schemas
+      .PutOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse
+      .properties.change.$ref,
+    '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse',
+  );
+  // Plans carry the entitlement beside the contact-form switch: required in a
+  // plan the server returns, optional on the write (absent keeps the value).
+  assert.ok(schemas.PlatformPlan.required.includes('listen'));
+  assert.equal(schemas.PlatformPlan.properties.listen.type, 'boolean');
+  assert.match(
+    schemas.PlatformPlan.properties.listen.description,
+    /FREE no\s+Listen, PRO and BUSINESS Listen/u,
+  );
+  const request2 = schemas.PutPlatformPlansByPlanKeyRequest;
+  assert.deepEqual(request2.required, ['publicationLimit', 'reason']);
+  assert.equal(request2.properties.listen.type, 'boolean');
+  const listing = operationAt(bundle, 'get', '/v2/platform/plans').responses[
+    '200'
+  ].content['application/json'].examples.nominal.value.items;
+  assert.deepEqual(
+    listing.map((/** @type {JsonObject} */ item) => [
+      item.planKey,
+      item.contactForm,
+      item.listen,
+    ]),
+    [
+      ['FREE', false, false],
+      ['PRO', true, true],
+      ['BUSINESS', true, true],
+    ],
+  );
 });
 
 test('SCHEMA-3.23.1: a notification target is an App path or, for kind site, an https address', async () => {

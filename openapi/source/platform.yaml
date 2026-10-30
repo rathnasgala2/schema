@@ -1153,10 +1153,12 @@ paths:
         active publication-capacity release with its single optimistic-lock
         version and the closed FREE, PRO, and BUSINESS plan catalog.
         Each plan carries its `publicationLimit`, its `newsletterSubscriberLimit`
-        (confirmed newsletter subscribers per organization) and `contactForm`
-        (whether its sites may turn on the contact form). Defaults of the first
-        release: FREE 50 and no contact form, PRO 500 and a contact form,
-        BUSINESS 2000 and a contact form.
+        (confirmed newsletter subscribers per organization), `contactForm`
+        (whether its sites may turn on the contact form) and `listen` (whether
+        its sites may turn on Listen, the audio version of posts). Defaults of
+        the first release: FREE 50 and no contact form, PRO 500 and a contact
+        form, BUSINESS 2000 and a contact form. Listen defaults: FREE no, PRO
+        and BUSINESS yes.
       operationId: getPlatformPlans
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1171,14 +1173,17 @@ paths:
                     effectiveAt: 2026-10-10T00:00:04.000Z
                     items:
                       - contactForm: false
+                        listen: false
                         newsletterSubscriberLimit: 50
                         planKey: FREE
                         publicationLimit: 1
                       - contactForm: true
+                        listen: true
                         newsletterSubscriberLimit: 500
                         planKey: PRO
                         publicationLimit: 10
                       - contactForm: true
+                        listen: true
                         newsletterSubscriberLimit: 2000
                         planKey: BUSINESS
                         publicationLimit: 50
@@ -1227,9 +1232,9 @@ paths:
         Operators only, with recent authentication. Atomically replaces the
         complete publication-capacity release, changing the named plan's limits
         while retaining the other two, at the release version in `If-Match`.
-        `newsletterSubscriberLimit` and `contactForm` are optional: absent keeps
-        the plan's current value. The invariant FREE <= PRO <= BUSINESS is
-        enforced on `publicationLimit` only. `reason` is a
+        `newsletterSubscriberLimit`, `contactForm` and `listen` are optional:
+        absent keeps the plan's current value. The invariant FREE <= PRO <=
+        BUSINESS is enforced on `publicationLimit` only. `reason` is a
         non-sensitive operator reason code recorded in the audit event.
       operationId: putPlatformPlansByPlanKey
       parameters:
@@ -1266,14 +1271,17 @@ paths:
                     effectiveAt: 2026-10-10T12:00:00.000Z
                     items:
                       - contactForm: false
+                        listen: false
                         newsletterSubscriberLimit: 50
                         planKey: FREE
                         publicationLimit: 1
                       - contactForm: true
+                        listen: true
                         newsletterSubscriberLimit: 500
                         planKey: PRO
                         publicationLimit: 12
                       - contactForm: true
+                        listen: true
                         newsletterSubscriberLimit: 2000
                         planKey: BUSINESS
                         publicationLimit: 50

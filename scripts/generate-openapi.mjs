@@ -742,6 +742,7 @@ function validateContractClosure(records, components) {
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetup',

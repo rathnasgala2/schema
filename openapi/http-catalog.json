@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:5023084f9257d1180b98e8115147bfd81aafa3cf1c0a52f4cf8c8eaf84bdb350",
+  "openApiDigest": "sha256:07d7442bdbf45ccffadcef925e6a3b89a64bcba0a0740f45fc84a205c8ce0d87",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1321,6 +1321,32 @@
       "assuranceClass": "SESSION",
       "actionGrant": "none",
       "apiKeyScope": "content:write",
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/listen-settings",
+      "purpose": "read this publication's listen settings at the main branch head",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interaction-settings"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/listen-settings",
+      "purpose": "save this publication's listen settings as a repository change",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "interaction-settings"
     },
     {
@@ -3232,5 +3258,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:59a5d0108e2da074828eab414140e982903631f3d4bd2e540d6d26b5841aabc1"
+  "digest": "sha256:28d27648fd6f8ed884b626d63d79c0a9a4b5fc9fc262755560bd62e3c051d2b8"
 }
