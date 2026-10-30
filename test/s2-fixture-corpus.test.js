@@ -42,6 +42,21 @@ const S2_FAMILIES = [
       'normalized-publication-sharing-unknown-target-invalid',
       'normalized-publication-sharing-duplicate-target-invalid',
       'normalized-publication-contact-form-fields-missing-invalid',
+      'normalized-publication-listen-valid',
+      'normalized-publication-listen-without-enabled-invalid',
+      'normalized-publication-listen-enabled-not-boolean-invalid',
+      'normalized-publication-listen-unknown-member-invalid',
+      'normalized-content-listen-valid',
+      'normalized-content-listen-m4a-valid',
+      'normalized-content-listen-on-page-invalid',
+      'normalized-content-listen-audio-missing-invalid',
+      'normalized-content-listen-media-type-invalid',
+      'normalized-content-listen-path-extension-invalid',
+      'normalized-content-listen-file-over-25-mib-invalid',
+      'normalized-content-listen-empty-file-invalid',
+      'normalized-content-listen-duration-over-three-hours-invalid',
+      'normalized-content-listen-duration-zero-invalid',
+      'normalized-content-listen-format-unknown-invalid',
     ],
   },
   {
@@ -263,7 +278,14 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // 3.25.1 (reviewed 2026-10-29): the optional Problem.details member
     // (PAGE_LOSS_GUARD counts) regenerated the problem fixtures and the
     // manifest. No file added; still 908.
-    'a3d59f2f3d379ccf6879ed6546ac5cc81fcacf97362ac5c6f2d2a0294dd58c90',
+    //
+    // 3.26.0 (reviewed 2026-10-30): the optional `listen` members (publication,
+    // article front matter, and build-input's $defs/listen,
+    // $defs/contentListenNormalized and $defs/listenAudio) regenerated the
+    // publication, content-frontmatter and build-input valid, boundary,
+    // unknown-field and invalid fixtures and the manifest. No file added or
+    // removed; still 908.
+    '158570b915ab2bd94fe3ffdf5261564fecb3e8a45d235b2e406b28381779ac3f',
   );
 });
 

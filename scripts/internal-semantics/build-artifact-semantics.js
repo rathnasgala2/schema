@@ -1518,6 +1518,27 @@ function validateResolvedFile(candidate, addSource) {
 }
 
 /**
+ * SCHEMA-3.26.0: a resolved Listen audio file belongs to the source closure
+ * like any other asset, and its recorded size is the size of the tree file.
+ *
+ * @param {unknown} candidate resolved audio value
+ * @param {Map<string, {path: string, mode: string, objectId: string, bytes: Buffer}>} treeFiles source tree
+ * @param {(path: string, digestValue: string, role: string) => void} addSource source closure sink
+ * @returns {void}
+ */
+function validateResolvedAudio(candidate, treeFiles, addSource) {
+  const code = 'BUILD_SOURCE_REFERENCE_INVALID';
+  const audio = ledger(
+    candidate,
+    ['sourcePath', 'mediaType', 'bytes', 'sha256'],
+    code,
+  );
+  const sourcePath = asString(audio.sourcePath, code);
+  addSource(sourcePath, digest(audio.sha256, code), 'asset');
+  if (audio.bytes !== treeFiles.get(sourcePath)?.bytes.length) fail(code);
+}
+
+/**
  * Require a canonical string set.
  *
  * @param {unknown} value candidate array
@@ -1878,6 +1899,13 @@ function validateBuildInput(lock, buildInput, context) {
     }
     if (Object.hasOwn(frontmatter, 'socialImage')) {
       validateResolvedFile(frontmatter.socialImage, addSource);
+    }
+    if (Object.hasOwn(frontmatter, 'listen')) {
+      const listen = asObject(
+        frontmatter.listen,
+        'BUILD_SOURCE_REFERENCE_INVALID',
+      );
+      validateResolvedAudio(listen.audio, treeFiles, addSource);
     }
   }
   if (

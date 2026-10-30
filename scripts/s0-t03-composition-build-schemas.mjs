@@ -655,10 +655,7 @@ export function createListenAudioDefinition({ ref, closedObject }) {
  * @param {Function} language.closedObject closed-object constructor
  * @returns {Record<string, unknown>} closed normalized content listen schema
  */
-export function createContentListenNormalizedDefinition({
-  ref,
-  closedObject,
-}) {
+export function createContentListenNormalizedDefinition({ ref, closedObject }) {
   return closedObject(
     {
       audio: ref('listenAudio'),

@@ -75,6 +75,8 @@ const ROOT_LEDGERS = {
       'listing',
       'aiRights',
       'performance',
+      // SCHEMA-3.26.0: the Listen switch.
+      'listen',
     ],
   },
   author: {
@@ -150,6 +152,8 @@ const ROOT_LEDGERS = {
       'translationOf',
       // SCHEMA-3.25.0: the date a post is removed from the site.
       'deleteDate',
+      // SCHEMA-3.26.0: the audio version of an article.
+      'listen',
     ],
   },
 };

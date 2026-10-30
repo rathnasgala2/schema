@@ -114,7 +114,9 @@ const T03_SCHEMA_HASHES = {
     // optional follows member. Additive.
     //
     // 3.25.0 (reviewed 2026-10-29): the content record gains the optional deleteDate (new $defs/deleteDate) and the normalized publication gains the optional listing, aiRights and performance members (new $defs). Additive.
-    'f60b68b9abaeb863cdad4b150c7b2ffb403f3c2eac819725a2846154afe8a87d',
+    //
+    // 3.26.0 (reviewed 2026-10-30): the normalized publication gains the optional listen switch (new $defs/listen, shared with publication) and the normalized frontmatter gains the optional article-only listen member (new $defs/contentListenNormalized and $defs/listenAudio, the resolved audio file as its own definition). Additive.
+    'd727142db624f7565858916a68e87a491d9563e8191b1d0e260d0df16c46c89e',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -131,7 +133,9 @@ const T03_SCHEMA_HASHES = {
     // article-only, never-with-edition rule. Additive.
     //
     // 3.25.0 (reviewed 2026-10-29): the optional deleteDate member (new $defs/deleteDate, same format as publishAfterDate). Additive.
-    'e9a9dffaf844bfb527c63c50d07db6efcf1a8e850bb4ed5390508b2faafd11e3',
+    //
+    // 3.26.0 (reviewed 2026-10-30): the optional article-only listen member (new $defs/contentListen: audio path ending in .mp3 or .m4a, durationSeconds 1 to 10800, format) and its shape rule. Additive.
+    'ec0408ae9b28ab4c06b162af18b6775d1231daa56acdef03387457bf9c763b97',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
@@ -182,7 +186,9 @@ const T03_SCHEMA_HASHES = {
     // still validates.
     //
     // 3.25.0 (reviewed 2026-10-29): the optional closed listing, aiRights and performance members (new $defs). Additive.
-    '45e18150750d431250f4a439c39f46ce32c97a8cefa47566e49e53cd26d3b7ed',
+    //
+    // 3.26.0 (reviewed 2026-10-30): the optional closed listen member (new $defs/listen). Additive.
+    'cafc10cc90bfa900628d7d22e38d86f48514d0300b17c4dadb484af52bb7d9de',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

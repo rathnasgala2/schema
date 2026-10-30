@@ -171,6 +171,7 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly id: BuildInputStableId;
   readonly kind: 'article' | 'page' | 'edition';
   readonly language: BuildInputBcp47;
+  readonly listen?: BuildInputContentListenNormalized;
   readonly publishedAt: BuildInputRfc3339;
   readonly redirects: ReadonlyArray<BuildInputCanonicalRoute>;
   readonly route?: BuildInputCanonicalRoute;
@@ -186,6 +187,12 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly updatedAt?: BuildInputRfc3339;
 }> &
   unknown;
+
+export type BuildInputContentListenNormalized = Readonly<{
+  readonly audio: BuildInputListenAudio;
+  readonly durationSeconds: number;
+  readonly format: 'conversation' | 'narration' | 'debate' | 'skit';
+}>;
 
 export type BuildInputContentSeo = Readonly<{
   readonly canonicalUrl?: BuildInputUrlHttps;
@@ -236,6 +243,17 @@ export type BuildInputInteractionsConfig = Readonly<{
 export type BuildInputInteractionsServiceOrigin = string;
 
 export type BuildInputIsoCountry = string;
+
+export type BuildInputListen = Readonly<{
+  readonly enabled: boolean;
+}>;
+
+export type BuildInputListenAudio = Readonly<{
+  readonly bytes: number;
+  readonly mediaType: 'audio/mpeg' | 'audio/mp4';
+  readonly sha256: BuildInputDigest;
+  readonly sourcePath: BuildInputRepoRelativePath;
+}>;
 
 export type BuildInputListing = Readonly<{
   readonly pageSize?: number;
@@ -371,6 +389,7 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly heading: BuildInputPlainText;
   }>;
   readonly id: BuildInputStableId;
+  readonly listen?: BuildInputListen;
   readonly listing?: BuildInputListing;
   readonly newsletter?: BuildInputNewsletter;
   readonly performance?: BuildInputPerformance;

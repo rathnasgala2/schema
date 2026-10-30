@@ -466,6 +466,15 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-invalid-63b52a35209d3d88",
+    "coveredRuleIds": ["build-input:#/$defs/listen:additionalProperties"],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listen",
+    "keyword": "additionalProperties",
+    "instance": { "enabled": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-invalid-6b9ebafb7d1d90e9",
     "coveredRuleIds": ["build-input:#/$defs/attribution:additionalProperties"],
     "schemaId": "urn:gala:schema:build-input:2.0.0",
@@ -563,6 +572,21 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-invalid-88f31dd77e9b29de",
+    "coveredRuleIds": ["build-input:#/$defs/listenAudio:additionalProperties"],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio",
+    "keyword": "additionalProperties",
+    "instance": {
+      "sourcePath": "assets/listen/fixture.mp3",
+      "mediaType": "audio/mpeg",
+      "bytes": 1,
+      "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-invalid-8c3c5cdd228d00f0",
     "coveredRuleIds": [
       "build-input:#/$defs/contentEdition/properties/generation:additionalProperties"
@@ -598,6 +622,27 @@
     "instance": {
       "enabled": false,
       "fields": { "website": false, "phone": false },
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-invalid-900eed4c86a41e25",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentListenNormalized:additionalProperties"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentListenNormalized",
+    "keyword": "additionalProperties",
+    "instance": {
+      "audio": {
+        "sourcePath": "assets/listen/fixture.mp3",
+        "mediaType": "audio/mpeg",
+        "bytes": 1,
+        "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "durationSeconds": 1,
+      "format": "conversation",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

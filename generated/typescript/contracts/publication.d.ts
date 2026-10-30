@@ -42,6 +42,10 @@ export type PublicationGlob = string;
 
 export type PublicationIsoCountry = string;
 
+export type PublicationListen = Readonly<{
+  readonly enabled: boolean;
+}>;
+
 export type PublicationListing = Readonly<{
   readonly pageSize?: number;
 }>;
@@ -155,6 +159,7 @@ export type PublicationDocument = Readonly<{
   readonly extensions: PublicationExtensionMap;
   readonly footerCard?: PublicationFooterCard;
   readonly id: PublicationStableId;
+  readonly listen?: PublicationListen;
   readonly listing?: PublicationListing;
   readonly newsletter?: PublicationNewsletter;
   readonly performance?: PublicationPerformance;

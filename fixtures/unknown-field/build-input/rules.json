@@ -1112,6 +1112,35 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-50723dbc1ed1435a",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentListenNormalized/properties/durationSeconds:maximum",
+      "build-input:#/$defs/contentListenNormalized/properties/durationSeconds:minimum",
+      "build-input:#/$defs/contentListenNormalized/properties/durationSeconds:type",
+      "build-input:#/$defs/contentListenNormalized/properties/format:enum",
+      "build-input:#/$defs/contentListenNormalized:additionalProperties",
+      "build-input:#/$defs/contentListenNormalized:required:audio",
+      "build-input:#/$defs/contentListenNormalized:required:durationSeconds",
+      "build-input:#/$defs/contentListenNormalized:required:format",
+      "build-input:#/$defs/contentListenNormalized:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentListenNormalized",
+    "keyword": "additionalProperties",
+    "instance": {
+      "audio": {
+        "sourcePath": "assets/listen/fixture.mp3",
+        "mediaType": "audio/mpeg",
+        "bytes": 1,
+        "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "durationSeconds": 1,
+      "format": "conversation",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-53a189b729c940c9",
     "coveredRuleIds": [
       "build-input:#/$defs/authoredAdapterIdentity/properties/adapterId:enum",
@@ -1554,6 +1583,33 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-dd448fa0942e16fa",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenAudio/properties/bytes:maximum",
+      "build-input:#/$defs/listenAudio/properties/bytes:minimum",
+      "build-input:#/$defs/listenAudio/properties/bytes:type",
+      "build-input:#/$defs/listenAudio/properties/mediaType:enum",
+      "build-input:#/$defs/listenAudio/properties/sourcePath:pattern",
+      "build-input:#/$defs/listenAudio:additionalProperties",
+      "build-input:#/$defs/listenAudio:required:bytes",
+      "build-input:#/$defs/listenAudio:required:mediaType",
+      "build-input:#/$defs/listenAudio:required:sha256",
+      "build-input:#/$defs/listenAudio:required:sourcePath",
+      "build-input:#/$defs/listenAudio:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio",
+    "keyword": "additionalProperties",
+    "instance": {
+      "sourcePath": "assets/listen/fixture.mp3",
+      "mediaType": "audio/mpeg",
+      "bytes": 1,
+      "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-ddf7847f1333a8c9",
     "coveredRuleIds": [
       "build-input:#/$defs/manifestRenderPolicyIdentity/properties/name:const",
@@ -1763,6 +1819,20 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-fc29fea60e320af0",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listen/properties/enabled:type",
+      "build-input:#/$defs/listen:additionalProperties",
+      "build-input:#/$defs/listen:required:enabled",
+      "build-input:#/$defs/listen:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listen",
+    "keyword": "additionalProperties",
+    "instance": { "enabled": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-fc3cc67b44d0a9c0",
     "coveredRuleIds": [
       "build-input:#/$defs/contentFrontmatterNormalized/allOf/0/else/not:required:edition",
@@ -1775,6 +1845,9 @@
       "build-input:#/$defs/contentFrontmatterNormalized/allOf/1/then/properties/kind:const",
       "build-input:#/$defs/contentFrontmatterNormalized/allOf/1/then:not",
       "build-input:#/$defs/contentFrontmatterNormalized/allOf/1/then:required:kind",
+      "build-input:#/$defs/contentFrontmatterNormalized/allOf/2/if:required:listen",
+      "build-input:#/$defs/contentFrontmatterNormalized/allOf/2/then/properties/kind:const",
+      "build-input:#/$defs/contentFrontmatterNormalized/allOf/2/then:required:kind",
       "build-input:#/$defs/contentFrontmatterNormalized/properties/authorIds:maxItems",
       "build-input:#/$defs/contentFrontmatterNormalized/properties/authorIds:minItems",
       "build-input:#/$defs/contentFrontmatterNormalized/properties/authorIds:type",

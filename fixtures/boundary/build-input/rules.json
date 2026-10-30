@@ -22,6 +22,18 @@
     "instance": "opt-in"
   },
   {
+    "caseId": "build-input-boundary-01ba4a778e1067ca",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listen:additionalProperties",
+      "build-input:#/$defs/listen:required:enabled",
+      "build-input:#/$defs/listen:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listen",
+    "keyword": "additionalProperties",
+    "instance": { "enabled": false }
+  },
+  {
     "caseId": "build-input-boundary-02fa045274157fb7",
     "coveredRuleIds": [
       "build-input:#/$defs/localizedAuthor/properties/biography:x-gala-graphemeLength"
@@ -35,6 +47,16 @@
       "length": 2000,
       "direction": "maximum"
     }
+  },
+  {
+    "caseId": "build-input-boundary-0305d6a0dba8beba",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentListenNormalized/properties/durationSeconds:maximum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentListenNormalized/properties/durationSeconds",
+    "keyword": "maximum",
+    "instance": 10800
   },
   {
     "caseId": "build-input-boundary-03a54930848ca744",
@@ -143,6 +165,17 @@
     "schemaPointer": "#/$defs/contentBuildMediaFile/allOf/2/if",
     "keyword": "required",
     "instance": { "mediaType": "video/mp4" }
+  },
+  {
+    "caseId": "build-input-boundary-0c1d2ddd3b5819f6",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenAudio/properties/bytes:minimum",
+      "build-input:#/$defs/listenAudio/properties/bytes:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio/properties/bytes",
+    "keyword": "minimum",
+    "instance": 1
   },
   {
     "caseId": "build-input-boundary-0e79291d640235c8",
@@ -451,6 +484,29 @@
       "kind": "schema-array-boundary",
       "schemaPointer": "#/properties/authors",
       "length": 1
+    }
+  },
+  {
+    "caseId": "build-input-boundary-16a8752631bc126a",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentListenNormalized:additionalProperties",
+      "build-input:#/$defs/contentListenNormalized:required:audio",
+      "build-input:#/$defs/contentListenNormalized:required:durationSeconds",
+      "build-input:#/$defs/contentListenNormalized:required:format",
+      "build-input:#/$defs/contentListenNormalized:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentListenNormalized",
+    "keyword": "additionalProperties",
+    "instance": {
+      "audio": {
+        "sourcePath": "assets/listen/fixture.mp3",
+        "mediaType": "audio/mpeg",
+        "bytes": 1,
+        "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "durationSeconds": 1,
+      "format": "conversation"
     }
   },
   {
@@ -985,6 +1041,16 @@
     "instance": false
   },
   {
+    "caseId": "build-input-boundary-2c2507dc967008bb",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentFrontmatterNormalized/allOf/2/then/properties/kind:const"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/2/then/properties/kind",
+    "keyword": "const",
+    "instance": "article"
+  },
+  {
     "caseId": "build-input-boundary-2c3e5f6824947504",
     "coveredRuleIds": [
       "build-input:#/$defs/resolvedMedia/allOf/0/if:required:role"
@@ -1072,6 +1138,16 @@
     "schemaPointer": "#/$defs/interactionsConfig/properties/publicCounts",
     "keyword": "additionalProperties",
     "instance": { "reactions": false, "comments": false }
+  },
+  {
+    "caseId": "build-input-boundary-306e00d9eb5cb1ea",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenAudio/properties/sourcePath:pattern"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio/properties/sourcePath",
+    "keyword": "pattern",
+    "instance": "assets/listen/fixture.mp3"
   },
   {
     "caseId": "build-input-boundary-3084d1d86c619ace",
@@ -1296,6 +1372,16 @@
         "registry": "https://fixture-4.example.com/"
       }
     ]
+  },
+  {
+    "caseId": "build-input-boundary-3efbed3b4ca88013",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenAudio/properties/mediaType:enum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio/properties/mediaType",
+    "keyword": "enum",
+    "instance": "audio/mpeg"
   },
   {
     "caseId": "build-input-boundary-3effa560b9a9c266",
@@ -1542,6 +1628,17 @@
       "length": 2048,
       "direction": "maximum"
     }
+  },
+  {
+    "caseId": "build-input-boundary-4851c3ad107ae839",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentListenNormalized/properties/durationSeconds:minimum",
+      "build-input:#/$defs/contentListenNormalized/properties/durationSeconds:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentListenNormalized/properties/durationSeconds",
+    "keyword": "minimum",
+    "instance": 1
   },
   {
     "caseId": "build-input-boundary-485a0ddee7a5663c",
@@ -1945,6 +2042,16 @@
     }
   },
   {
+    "caseId": "build-input-boundary-5f4e2e4916ab5a66",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentListenNormalized/properties/format:enum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentListenNormalized/properties/format",
+    "keyword": "enum",
+    "instance": "conversation"
+  },
+  {
     "caseId": "build-input-boundary-626f222d5c22b718",
     "coveredRuleIds": [
       "build-input:#/$defs/contentBuildMediaFile/allOf/2/then/properties/byteLength:maximum"
@@ -2081,6 +2188,16 @@
     "schemaPointer": "#/$defs/contentFrontmatterNormalized/properties/status",
     "keyword": "enum",
     "instance": "published"
+  },
+  {
+    "caseId": "build-input-boundary-6c51fd439ebe0317",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentFrontmatterNormalized/allOf/2/if:required:listen"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/2/if",
+    "keyword": "required",
+    "instance": { "listen": null }
   },
   {
     "caseId": "build-input-boundary-6c9ddb880a14215d",
@@ -2287,6 +2404,26 @@
     "instance": 50
   },
   {
+    "caseId": "build-input-boundary-73f88ab1e3239ebe",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenAudio:additionalProperties",
+      "build-input:#/$defs/listenAudio:required:bytes",
+      "build-input:#/$defs/listenAudio:required:mediaType",
+      "build-input:#/$defs/listenAudio:required:sha256",
+      "build-input:#/$defs/listenAudio:required:sourcePath",
+      "build-input:#/$defs/listenAudio:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio",
+    "keyword": "additionalProperties",
+    "instance": {
+      "sourcePath": "assets/listen/fixture.mp3",
+      "mediaType": "audio/mpeg",
+      "bytes": 1,
+      "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  },
+  {
     "caseId": "build-input-boundary-7781ca6d3139fb92",
     "coveredRuleIds": [
       "build-input:#/$defs/contentFrontmatterNormalized/allOf/1/then:not",
@@ -2439,6 +2576,16 @@
     "schemaPointer": "#/$defs/publicationNormalized/properties/footerCard/properties/authorIds",
     "keyword": "type",
     "instance": ["019c0000-0000-7000-8000-000000000001"]
+  },
+  {
+    "caseId": "build-input-boundary-7cb7daf97bcf4c38",
+    "coveredRuleIds": [
+      "build-input:#/$defs/contentFrontmatterNormalized/allOf/2/then:required:kind"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/2/then",
+    "keyword": "required",
+    "instance": { "kind": "article" }
   },
   {
     "caseId": "build-input-boundary-7d132f5230a29157",
@@ -2615,6 +2762,14 @@
     "schemaPointer": "#/$defs/stableId",
     "keyword": "pattern",
     "instance": "019c0000-0000-7000-8000-000000000001"
+  },
+  {
+    "caseId": "build-input-boundary-8557321919aee10a",
+    "coveredRuleIds": ["build-input:#/$defs/listen/properties/enabled:type"],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listen/properties/enabled",
+    "keyword": "type",
+    "instance": false
   },
   {
     "caseId": "build-input-boundary-85bcd006aab15d72",
@@ -2977,6 +3132,16 @@
         "enabled": false
       }
     ]
+  },
+  {
+    "caseId": "build-input-boundary-9c410df5d84b7bbf",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenAudio/properties/bytes:maximum"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenAudio/properties/bytes",
+    "keyword": "maximum",
+    "instance": 26214400
   },
   {
     "caseId": "build-input-boundary-9cae35af02b29ac8",

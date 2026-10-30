@@ -485,6 +485,7 @@ function stringValue(schema, pointer, variant = 0) {
     '^2.0.0',
     'G-ABC123XYZ',
     'gala/theme-pages/terms.md',
+    'assets/listen/fixture.mp3',
     '/',
     '**',
   ];
@@ -1210,12 +1211,20 @@ function synthesize(sourceSchema, root, pointer, variant = 0) {
     return clone(schema.enum[variant % schema.enum.length]);
   }
   if (typeof schema.$ref === 'string') {
-    return synthesize(
+    const referenced = synthesize(
       resolvePointer(root, schema.$ref),
       root,
       schema.$ref,
       variant,
     );
+    // SCHEMA-3.26.0: a sibling `pattern` narrows the referenced string (the
+    // Listen audio path is a repository path that must end in .mp3 or .m4a),
+    // so a witness of the referenced definition alone may not satisfy it.
+    return typeof referenced === 'string' &&
+      typeof schema.pattern === 'string' &&
+      !new RegExp(schema.pattern, 'u').test(referenced)
+      ? stringValue(schema, pointer, variant)
+      : referenced;
   }
   const hasStructuralBase =
     schema.type !== undefined ||
@@ -2533,6 +2542,205 @@ function firstS2Record(value, code) {
 }
 
 /**
+ * SCHEMA-3.26.0: the normalized-input cases of Listen, the publication switch
+ * and the resolved audio of an article.
+ *
+ * @param {(contract: string) => Record<string, unknown>} canonical cloned canonical document by contract
+ * @param {(change: (publication: Record<string, unknown>) => void) => Record<string, unknown>} withPublication canonical build input with one change to its publication
+ * @returns {Array<Record<string, unknown>>} fixture cases
+ */
+function listenNormalizedCases(canonical, withPublication) {
+  const audio = {
+    sourcePath: 'assets/listen/episode.mp3',
+    mediaType: 'audio/mpeg',
+    bytes: 4_243_000,
+    sha256: `sha256:${'0'.repeat(63)}1`,
+  };
+  /**
+   * The canonical build input with one change to its first article's
+   * normalized front matter.
+   *
+   * @type {(change: (frontmatter: Record<string, unknown>) => void) => Record<string, unknown>}
+   */
+  const withFrontmatter = (change) => {
+    const input = canonical('build-input');
+    change(
+      requireS2Record(
+        firstS2Record(input.content, 'S2_BUILD_CONTENT_ABSENT').frontmatter,
+        'S2_BUILD_FRONTMATTER_ABSENT',
+      ),
+    );
+    return input;
+  };
+  /**
+   * The canonical build input whose first article carries `listen`.
+   *
+   * @type {(listen: Record<string, unknown>) => Record<string, unknown>}
+   */
+  const withListen = (listen) =>
+    withFrontmatter((frontmatter) => {
+      frontmatter.listen = listen;
+    });
+  const episode = { audio, durationSeconds: 424, format: 'conversation' };
+  return [
+    s2Case(
+      'normalized-publication-listen-valid',
+      withPublication((publication) => {
+        publication.listen = { enabled: true };
+      }),
+    ),
+    s2Case(
+      'normalized-publication-listen-without-enabled-invalid',
+      withPublication((publication) => {
+        publication.listen = {};
+      }),
+      [
+        {
+          code: 'SCHEMA_REQUIRED_FIELD_MISSING',
+          instancePointer: '/publication/listen/enabled',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-listen-enabled-not-boolean-invalid',
+      withPublication((publication) => {
+        publication.listen = { enabled: 1 };
+      }),
+      [
+        {
+          code: 'SCHEMA_TYPE_INVALID',
+          instancePointer: '/publication/listen/enabled',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-listen-unknown-member-invalid',
+      withPublication((publication) => {
+        publication.listen = { enabled: true, autoplay: true };
+      }),
+      [
+        {
+          code: 'REQUEST_FIELD_UNKNOWN',
+          instancePointer: '/publication/listen/autoplay',
+        },
+      ],
+    ),
+    s2Case('normalized-content-listen-valid', withListen(episode)),
+    s2Case(
+      'normalized-content-listen-m4a-valid',
+      withListen({
+        audio: {
+          ...audio,
+          sourcePath: 'assets/listen/episode.m4a',
+          mediaType: 'audio/mp4',
+        },
+        durationSeconds: 10_800,
+        format: 'narration',
+      }),
+    ),
+    s2Case(
+      'normalized-content-listen-on-page-invalid',
+      withFrontmatter((frontmatter) => {
+        frontmatter.kind = 'page';
+        frontmatter.listen = episode;
+      }),
+      [
+        {
+          code: 'SCHEMA_CONSTANT_INVALID',
+          instancePointer: '/content/0/frontmatter/kind',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-audio-missing-invalid',
+      withListen({ durationSeconds: 424, format: 'skit' }),
+      [
+        {
+          code: 'SCHEMA_REQUIRED_FIELD_MISSING',
+          instancePointer: '/content/0/frontmatter/listen/audio',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-media-type-invalid',
+      withListen({ ...episode, audio: { ...audio, mediaType: 'audio/ogg' } }),
+      [
+        {
+          code: 'SCHEMA_ENUM_INVALID',
+          instancePointer: '/content/0/frontmatter/listen/audio/mediaType',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-path-extension-invalid',
+      withListen({
+        ...episode,
+        audio: { ...audio, sourcePath: 'assets/listen/episode.wav' },
+      }),
+      [
+        {
+          code: 'SCHEMA_PATTERN_INVALID',
+          instancePointer: '/content/0/frontmatter/listen/audio/sourcePath',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-file-over-25-mib-invalid',
+      withListen({
+        ...episode,
+        audio: { ...audio, bytes: 26_214_401 },
+      }),
+      [
+        {
+          code: 'SCHEMA_NUMBER_TOO_LARGE',
+          instancePointer: '/content/0/frontmatter/listen/audio/bytes',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-empty-file-invalid',
+      withListen({ ...episode, audio: { ...audio, bytes: 0 } }),
+      [
+        {
+          code: 'SCHEMA_NUMBER_TOO_SMALL',
+          instancePointer: '/content/0/frontmatter/listen/audio/bytes',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-duration-over-three-hours-invalid',
+      withListen({ ...episode, durationSeconds: 10_801 }),
+      [
+        {
+          code: 'SCHEMA_NUMBER_TOO_LARGE',
+          instancePointer: '/content/0/frontmatter/listen/durationSeconds',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-duration-zero-invalid',
+      withListen({ ...episode, durationSeconds: 0 }),
+      [
+        {
+          code: 'SCHEMA_NUMBER_TOO_SMALL',
+          instancePointer: '/content/0/frontmatter/listen/durationSeconds',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-content-listen-format-unknown-invalid',
+      withListen({ ...episode, format: 'podcast' }),
+      [
+        {
+          code: 'SCHEMA_ENUM_INVALID',
+          instancePointer: '/content/0/frontmatter/listen/format',
+        },
+      ],
+    ),
+  ];
+}
+
+/**
  * Add the separate S2 consumer corpus without changing the legacy corpus.
  * Semantic contexts remain internal and are referenced by exact existing test
  * names instead of being serialized as a new public fixture format.
@@ -2822,6 +3030,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
         },
       ],
     ),
+    ...listenNormalizedCases(canonical, withPublication),
   ]);
 
   const unicodePath = canonical('repository');

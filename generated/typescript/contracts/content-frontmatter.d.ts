@@ -17,6 +17,12 @@ export type ContentFrontmatterContentEdition = Readonly<{
   readonly sourceDigest: ContentFrontmatterDigest;
 }>;
 
+export type ContentFrontmatterContentListen = Readonly<{
+  readonly audio: ContentFrontmatterRepoRelativePath;
+  readonly durationSeconds: number;
+  readonly format: 'conversation' | 'narration' | 'debate' | 'skit';
+}>;
+
 export type ContentFrontmatterContentSeo = Readonly<{
   readonly canonicalUrl?: ContentFrontmatterUrlHttps;
   readonly description?: ContentFrontmatterPlainText;
@@ -84,6 +90,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly id: ContentFrontmatterStableId;
   readonly kind: 'article' | 'page' | 'edition';
   readonly language: ContentFrontmatterBcp47;
+  readonly listen?: ContentFrontmatterContentListen;
   readonly newsletter?: 'ineligible' | 'eligible';
   readonly publishAfter?: ContentFrontmatterPublishAfterDate;
   readonly publishedAt?: ContentFrontmatterRfc3339;

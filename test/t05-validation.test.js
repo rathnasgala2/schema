@@ -1125,3 +1125,198 @@ test('SCHEMA-3.25.0 admits deleteDate, listing, aiRights and performance and rej
   assert.equal(has({ performance: { budgets: { htmlBytes: 1023 } } }), false);
   assert.equal(has({ performance: { budgets: { cssBytes: 5, x: 1 } } }), false);
 });
+
+test('SCHEMA-3.26.0 admits the publication Listen switch and rejects malformed values', async () => {
+  const pub = await readJson('examples/valid/publication/canonical.json');
+  assert.equal(validateGalaDocument(pub.schemaId, pub).valid, true);
+  const has = (/** @type {unknown} */ listen) =>
+    validateGalaDocument(pub.schemaId, { ...pub, listen }).valid;
+  assert.equal(has({ enabled: true }), true);
+  assert.equal(has({ enabled: false }), true);
+  assert.equal(has({}), false);
+  assert.equal(has({ enabled: 'yes' }), false);
+  assert.equal(has({ enabled: 1 }), false);
+  assert.equal(has({ enabled: true, autoplay: true }), false);
+  assert.equal(has(true), false);
+  assert.equal(has(null), false);
+});
+
+test('SCHEMA-3.26.0 admits article front matter listen and rejects malformed values', async () => {
+  const front = await readJson(
+    'examples/valid/content-frontmatter/canonical.json',
+  );
+  assert.equal(front.kind, 'article');
+  const episode = {
+    audio: 'assets/listen/episode.mp3',
+    durationSeconds: 424,
+    format: 'conversation',
+  };
+  const valid = (
+    /** @type {unknown} */ listen,
+    /** @type {Record<string, unknown>} */ extra = {},
+  ) =>
+    validateGalaDocument(front.schemaId, { ...front, ...extra, listen }).valid;
+  assert.equal(validateGalaDocument(front.schemaId, front).valid, true);
+  assert.equal(valid(episode), true);
+  assert.equal(valid({ ...episode, audio: 'assets/listen/episode.m4a' }), true);
+  for (const format of ['conversation', 'narration', 'debate', 'skit']) {
+    assert.equal(valid({ ...episode, format }), true, format);
+  }
+  for (const format of ['podcast', 'Conversation', '', null]) {
+    assert.equal(valid({ ...episode, format }), false, String(format));
+  }
+  // The duration is a whole number of seconds from 1 to 10800.
+  for (const durationSeconds of [1, 424, 10_800]) {
+    assert.equal(valid({ ...episode, durationSeconds }), true);
+  }
+  for (const durationSeconds of [0, -1, 10_801, 424.5, '424', null]) {
+    assert.equal(valid({ ...episode, durationSeconds }), false);
+  }
+  // The audio is a repository-relative path ending in .mp3 or .m4a.
+  for (const audio of [
+    'assets/listen/episode.wav',
+    'assets/listen/episode.MP3',
+    'assets/listen/episode.mp3.txt',
+    'assets/listen/episode',
+    '.mp3',
+    '/assets/listen/episode.mp3',
+    'assets\\listen\\episode.mp3',
+    '',
+    7,
+    null,
+  ]) {
+    assert.equal(valid({ ...episode, audio }), false, String(audio));
+  }
+  // All three members are required, and the object is closed.
+  for (const member of ['audio', 'durationSeconds', 'format']) {
+    const missing = { ...episode };
+    delete (/** @type {Record<string, unknown>} */ (missing)[member]);
+    assert.equal(valid(missing), false, `${member} is required`);
+  }
+  assert.equal(valid({ ...episode, volume: 1 }), false);
+  assert.equal(valid({}), false);
+  assert.equal(valid(null), false);
+  // Only an article may carry it: a page and an edition that are valid
+  // without it are refused with it.
+  const edition = {
+    of: front.slug,
+    kind: 'STANDARD',
+    sourceDigest: `sha256:${'0'.repeat(64)}`,
+    generation: {
+      provider: 'anthropic',
+      model: 'fixture',
+      generationId: front.id,
+    },
+    approvedAt: '2026-09-13T12:00:00.000Z',
+  };
+  assert.equal(
+    validateGalaDocument(front.schemaId, { ...front, kind: 'page' }).valid,
+    true,
+  );
+  assert.equal(
+    validateGalaDocument(front.schemaId, { ...front, kind: 'edition', edition })
+      .valid,
+    true,
+  );
+  assert.equal(valid(episode, { kind: 'page' }), false);
+  assert.equal(valid(episode, { kind: 'edition', edition }), false);
+});
+
+test('SCHEMA-3.26.0 carries Listen into the build input as its own resolved audio shape', async () => {
+  const build = await readJson('examples/valid/build-input/canonical.json');
+  assert.equal(validateGalaDocument(build.schemaId, build).valid, true);
+  // The publication switch: optional, closed, and the same definition as the
+  // authored publication's.
+  const publicationValid = (/** @type {unknown} */ listen) =>
+    validateGalaDocument(build.schemaId, {
+      ...build,
+      publication: { ...build.publication, listen },
+    }).valid;
+  assert.equal(publicationValid({ enabled: false }), true);
+  assert.equal(publicationValid({ enabled: true }), true);
+  assert.equal(publicationValid({}), false);
+  assert.equal(publicationValid({ enabled: 'no' }), false);
+  assert.equal(publicationValid({ enabled: true, extra: 1 }), false);
+  const buildSchema = await readJson('schemas/build-input.schema.json');
+  const publicationSchema = await readJson('schemas/publication.schema.json');
+  assert.deepEqual(buildSchema.$defs.listen, publicationSchema.$defs.listen);
+  // The resolved audio of an article.
+  const audio = {
+    sourcePath: 'assets/listen/episode.mp3',
+    mediaType: 'audio/mpeg',
+    bytes: 4_243_000,
+    sha256: `sha256:${'a'.repeat(64)}`,
+  };
+  const episode = { audio, durationSeconds: 424, format: 'conversation' };
+  const valid = (
+    /** @type {unknown} */ listen,
+    /** @type {Record<string, unknown>} */ extra = {},
+  ) =>
+    validateGalaDocument(build.schemaId, {
+      ...build,
+      content: build.content.map(
+        (/** @type {Record<string, any>} */ record, /** @type {number} */ i) =>
+          i === 0
+            ? {
+                ...record,
+                frontmatter: { ...record.frontmatter, ...extra, listen },
+              }
+            : record,
+      ),
+    }).valid;
+  assert.equal(valid(episode), true);
+  assert.equal(
+    valid({
+      ...episode,
+      audio: {
+        ...audio,
+        sourcePath: 'assets/listen/episode.m4a',
+        mediaType: 'audio/mp4',
+      },
+    }),
+    true,
+  );
+  // The image-only media shapes are not widened: only the two audio types.
+  for (const mediaType of [
+    'audio/ogg',
+    'audio/wav',
+    'image/png',
+    'video/mp4',
+  ]) {
+    assert.equal(valid({ ...episode, audio: { ...audio, mediaType } }), false);
+  }
+  // 1 byte to 25 MiB.
+  assert.equal(valid({ ...episode, audio: { ...audio, bytes: 1 } }), true);
+  assert.equal(
+    valid({ ...episode, audio: { ...audio, bytes: 26_214_400 } }),
+    true,
+  );
+  for (const bytes of [0, -1, 26_214_401, 1.5, '4243000']) {
+    assert.equal(valid({ ...episode, audio: { ...audio, bytes } }), false);
+  }
+  for (const sha256 of [
+    'a'.repeat(64),
+    `sha256:${'a'.repeat(63)}`,
+    'sha256:',
+  ]) {
+    assert.equal(valid({ ...episode, audio: { ...audio, sha256 } }), false);
+  }
+  for (const sourcePath of [
+    'assets/listen/episode.wav',
+    'assets/listen/episode',
+    '/assets/listen/episode.mp3',
+  ]) {
+    assert.equal(valid({ ...episode, audio: { ...audio, sourcePath } }), false);
+  }
+  for (const member of ['sourcePath', 'mediaType', 'bytes', 'sha256']) {
+    const missing = { ...audio };
+    delete (/** @type {Record<string, unknown>} */ (missing)[member]);
+    assert.equal(valid({ ...episode, audio: missing }), false, member);
+  }
+  assert.equal(valid({ ...episode, audio: { ...audio, path: 'x' } }), false);
+  assert.equal(valid({ ...episode, durationSeconds: 10_801 }), false);
+  assert.equal(valid({ ...episode, format: 'podcast' }), false);
+  assert.equal(valid({ durationSeconds: 424, format: 'skit' }), false);
+  // Only an article record may carry it.
+  assert.equal(valid(episode, { kind: 'page' }), false);
+});

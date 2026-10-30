@@ -360,16 +360,19 @@ function spdxPackage(row, SPDXID) {
 /**
  * Build one complete, independently projected accepted fixture.
  *
- * @param {{policies?: boolean, contactIntro?: boolean}} [options] `policies`
+ * @param {{policies?: boolean, contactIntro?: boolean, listenAudio?: boolean}} [options] `policies`
  *   adds the site's own Terms and Privacy pages: two Markdown sources, their
  *   rendered bodies in the build input and their rows in the source inventory;
  *   `contactIntro` adds the contact form's intro the same way (one Markdown
- *   source, `publication.contactForm.intro`, one inventory row)
+ *   source, `publication.contactForm.intro`, one inventory row); `listenAudio`
+ *   adds the article's Listen audio (one audio asset in the tree, the resolved
+ *   `frontmatter.listen`, one `asset` inventory row)
  * @returns {{records: UnknownRecord, context: UnknownRecord}}
  */
 function makeFixture({
   policies: withPolicies = false,
   contactIntro: withContactIntro = false,
+  listenAudio: withListenAudio = false,
 } = {}) {
   const packageNames = [
     '@rathnasgala2/schemas',
@@ -519,6 +522,7 @@ function makeFixture({
     terms: Buffer.from('## Terms\n'),
     privacy: Buffer.from('## Privacy\n'),
     contact: Buffer.from('## Contact\n'),
+    audio: Buffer.from('ID3\u0004\u0000\u0000\u0000\u0000\u0000\u0000audio'),
     caller: Buffer.from(
       `name: Gala caller\njobs:\n  build:\n    steps:\n      - run: |\n          printf '%s\\n' 'uses: ignored/example@${'5'.repeat(40)}'\n      - uses: ${rootAction.use}\n`,
     ),
@@ -547,6 +551,12 @@ function makeFixture({
     },
   ];
   const renderedBody = '<p>Fixture</p>\n';
+  const listenAudio = {
+    sourcePath: 'assets/listen/episode.mp3',
+    mediaType: 'audio/mpeg',
+    bytes: sourceBytes.audio.length,
+    sha256: sha256Tagged(sourceBytes.audio),
+  };
   const content = [
     {
       frontmatter: {
@@ -561,6 +571,15 @@ function makeFixture({
         publishedAt: BUILD_EPOCH,
         slug: 'fixture',
         redirects: [],
+        ...(withListenAudio
+          ? {
+              listen: {
+                audio: listenAudio,
+                durationSeconds: 424,
+                format: 'conversation',
+              },
+            }
+          : {}),
       },
       body: renderedBody,
       bodyMediaType: 'text/html',
@@ -683,6 +702,9 @@ function makeFixture({
       : []),
     ...(contactPage
       ? [treeEntry('gala/theme-pages/contact.md', sourceBytes.contact)]
+      : []),
+    ...(withListenAudio
+      ? [treeEntry(listenAudio.sourcePath, sourceBytes.audio)]
       : []),
   ];
   const repositoryRootEntries = treeEntries
@@ -1030,6 +1052,16 @@ function makeFixture({
         sourceRevision: SOURCE_COMMIT,
         role: 'content',
       })),
+      ...(withListenAudio
+        ? [
+            {
+              path: listenAudio.sourcePath,
+              sha256: listenAudio.sha256,
+              sourceRevision: SOURCE_COMMIT,
+              role: 'asset',
+            },
+          ]
+        : []),
     ])
   );
   const excludedInputs = /** @type {UnknownRecord[]} */ (
@@ -2036,6 +2068,99 @@ test('rejects a contact intro whose rendered body or source is substituted, or t
     );
     const publication = /** @type {UnknownRecord} */ (buildInput.publication);
     delete (/** @type {UnknownRecord} */ (publication.contactForm).intro);
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      'ARTIFACT_SOURCE_PARTITION_INVALID',
+    );
+  }
+});
+
+test('accepts the Listen audio file as an asset of the source closure', () => {
+  const fixture = makeFixture({ listenAudio: true });
+  const buildInput = /** @type {UnknownRecord} */ (fixture.records.buildInput);
+  const result = validateBuildArtifactSemantics(
+    fixture.records,
+    fixture.context,
+  );
+  assert.equal(result.buildInputDigest, buildInput.inputDigest);
+  const manifest = /** @type {UnknownRecord} */ (
+    fixture.records.artifactManifest
+  );
+  const included = /** @type {UnknownRecord[]} */ (manifest.includedSources);
+  assert.deepEqual(included.map(({ path }) => path).sort(), [
+    'assets/listen/episode.mp3',
+    'authors/example.json',
+    'content/fixture.md',
+    'publication.json',
+  ]);
+  assert.equal(
+    included.find(({ path }) => path === 'assets/listen/episode.mp3')?.role,
+    'asset',
+  );
+});
+
+test('rejects a Listen audio file whose digest, size or source is substituted, whose record is not exact, or that nothing names', () => {
+  for (const {
+    code,
+    mutate,
+  } of /** @type {{code: string, mutate: (audio: UnknownRecord) => void}[]} */ ([
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (audio) => {
+        audio.sha256 = tagged('substituted-listen-audio');
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (audio) => {
+        audio.bytes = Number(audio.bytes) + 1;
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (audio) => {
+        audio.sourcePath = 'assets/listen/missing.mp3';
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (audio) => {
+        delete audio.mediaType;
+      },
+    },
+    {
+      code: 'BUILD_SOURCE_REFERENCE_INVALID',
+      mutate: (audio) => {
+        audio.sourceDigest = audio.sha256;
+      },
+    },
+  ])) {
+    const fixture = makeFixture({ listenAudio: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    const record = /** @type {UnknownRecord} */ (
+      /** @type {UnknownRecord[]} */ (buildInput.content)[0]
+    );
+    const frontmatter = /** @type {UnknownRecord} */ (record.frontmatter);
+    const listen = /** @type {UnknownRecord} */ (frontmatter.listen);
+    mutate(/** @type {UnknownRecord} */ (listen.audio));
+    assertCode(
+      () => validateBuildArtifactSemantics(fixture.records, fixture.context),
+      code,
+    );
+  }
+  {
+    // The audio file is in the tree, but the article no longer names it, so
+    // the source partition is no longer complete.
+    const fixture = makeFixture({ listenAudio: true });
+    const buildInput = /** @type {UnknownRecord} */ (
+      fixture.records.buildInput
+    );
+    const record = /** @type {UnknownRecord} */ (
+      /** @type {UnknownRecord[]} */ (buildInput.content)[0]
+    );
+    delete (/** @type {UnknownRecord} */ (record.frontmatter).listen);
     assertCode(
       () => validateBuildArtifactSemantics(fixture.records, fixture.context),
       'ARTIFACT_SOURCE_PARTITION_INVALID',
