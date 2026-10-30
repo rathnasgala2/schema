@@ -55,6 +55,7 @@
     "listing": { "$ref": "#/$defs/listing" },
     "aiRights": { "$ref": "#/$defs/aiRights" },
     "performance": { "$ref": "#/$defs/performance" },
+    "listen": { "$ref": "#/$defs/listen" },
     "extensions": { "$ref": "#/$defs/extensionMap" }
   },
   "additionalProperties": false,
@@ -398,6 +399,13 @@
       },
       "additionalProperties": false,
       "description": "SCHEMA-3.25.0: size budgets in bytes, each at least 1024 and optional. `htmlBytes` bounds a page's HTML, `cssBytes` and `jsBytes` bound the sum of the same-origin stylesheets and scripts a page links. A page over budget is reported; a budget never fails a build."
+    },
+    "listen": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": { "enabled": { "type": "boolean" } },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.26.0: the site's Listen setting. `enabled: true` offers the audio version of the posts that have one: the template adds a Listen button to the top bar, a small invitation on each post with audio and a playlist on the home page, and ships its script only while at least one published article carries a `listen` member. An absent `listen` means off. The API, not the schema, limits turning it on to the Pro and Business plans."
     },
     "extensionMap": {
       "type": "object",

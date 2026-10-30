@@ -522,6 +522,171 @@ export function createPerformanceDefinition({ closedObject }) {
   );
 }
 
+/** SCHEMA-3.26.0: the closed set of Listen episode formats. */
+export const LISTEN_FORMATS = Object.freeze([
+  'conversation',
+  'narration',
+  'debate',
+  'skit',
+]);
+
+/** SCHEMA-3.26.0: the longest Listen episode, in seconds (three hours). */
+export const LISTEN_MAX_DURATION_SECONDS = 10_800;
+
+/** SCHEMA-3.26.0: the largest Listen audio file, in bytes (25 MiB). */
+export const LISTEN_MAX_AUDIO_BYTES = 26_214_400;
+
+/** SCHEMA-3.26.0: the file extensions a Listen audio path may end in. */
+const LISTEN_AUDIO_PATH_PATTERN = '^.+\\.(?:mp3|m4a)$';
+
+/**
+ * SCHEMA-3.26.0: the episode length and format members, shared by the
+ * author-source and the normalized `listen` of a content record.
+ *
+ * @returns {Record<string, Record<string, unknown>>} the two member schemas
+ */
+function listenEpisodeMembers() {
+  return {
+    durationSeconds: {
+      type: 'integer',
+      minimum: 1,
+      maximum: LISTEN_MAX_DURATION_SECONDS,
+      description:
+        'Length of the episode in whole seconds, 1 to 10800 (three hours).',
+    },
+    format: {
+      enum: [...LISTEN_FORMATS],
+      description:
+        'What the episode is: `conversation` (two voices talking the post over), `narration` (one voice reading it), `debate` (two voices taking sides) or `skit` (a scripted scene). The template words its invitation by format.',
+    },
+  };
+}
+
+/**
+ * SCHEMA-3.26.0: the publication's Listen switch, shared byte-for-byte by the
+ * `publication` author-source root and the normalized `build-input`
+ * publication (one `$defs/listen` body, so the shared-definition gate holds).
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed listen object schema
+ */
+export function createListenDefinition({ closedObject }) {
+  return closedObject({ enabled: { type: 'boolean' } }, ['enabled'], {
+    description:
+      "SCHEMA-3.26.0: the site's Listen setting. `enabled: true` offers the audio version of the posts that have one: the template adds a Listen button to the top bar, a small invitation on each post with audio and a playlist on the home page, and ships its script only while at least one published article carries a `listen` member. An absent `listen` means off. The API, not the schema, limits turning it on to the Pro and Business plans.",
+  });
+}
+
+/**
+ * SCHEMA-3.26.0: the audio version of an article, as the author writes it in
+ * front matter.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed content listen object schema
+ */
+export function createContentListenDefinition({ ref, closedObject }) {
+  return closedObject(
+    {
+      audio: {
+        ...ref('repoRelativePath'),
+        pattern: LISTEN_AUDIO_PATH_PATTERN,
+        description:
+          'Repository-relative path of the audio file: an `.mp3` or `.m4a` file that sits under one of the repository `assetRoots`. The schema fixes the shape and the extension; the publish toolchain checks the asset root, that the file exists and is a regular file, that it sniffs as MP3 or M4A and the size limits.',
+      },
+      ...listenEpisodeMembers(),
+    },
+    ['audio', 'durationSeconds', 'format'],
+    {
+      description:
+        'SCHEMA-3.26.0: the audio version of this article. All three members are required. `listen` is allowed only when `kind` is `article`. It has an effect only while the publication has `listen.enabled` true.',
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.26.0: one resolved Listen audio file of the normalized `build-input`
+ * content record. It is its own definition: the image-only resolved-media
+ * shapes are not widened.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed listen audio object schema
+ */
+export function createListenAudioDefinition({ ref, closedObject }) {
+  return closedObject(
+    {
+      sourcePath: {
+        ...ref('repoRelativePath'),
+        pattern: LISTEN_AUDIO_PATH_PATTERN,
+      },
+      mediaType: {
+        enum: ['audio/mpeg', 'audio/mp4'],
+        description:
+          'What the toolchain sniffed: `audio/mpeg` for an MP3 file, `audio/mp4` for an M4A file.',
+      },
+      bytes: {
+        type: 'integer',
+        minimum: 1,
+        maximum: LISTEN_MAX_AUDIO_BYTES,
+        description:
+          'Size of the file in bytes, 1 to 26214400 (25 MiB), which must equal the size of the file in the source tree.',
+      },
+      sha256: ref('digest'),
+    },
+    ['sourcePath', 'mediaType', 'bytes', 'sha256'],
+    {
+      description:
+        'SCHEMA-3.26.0: one resolved audio file. `sha256` is the digest of the file bytes and must equal the file digest in the source tree; the file belongs to the source closure like any other asset.',
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.26.0: the audio version of an article in the normalized
+ * `build-input` content record, with `audio` resolved to a file in the source
+ * tree. Absent when the article has none.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed normalized content listen schema
+ */
+export function createContentListenNormalizedDefinition({
+  ref,
+  closedObject,
+}) {
+  return closedObject(
+    {
+      audio: ref('listenAudio'),
+      ...listenEpisodeMembers(),
+    },
+    ['audio', 'durationSeconds', 'format'],
+    {
+      description:
+        'SCHEMA-3.26.0: the normalized audio version of an article. It appears only on a `kind: article` record and is absent when the article has none.',
+    },
+  );
+}
+
+/**
+ * Create the `listen` shape rule: the member is allowed only on an article.
+ *
+ * @returns {Record<string, unknown>} one `allOf` member
+ */
+export function listenRule() {
+  return {
+    if: { required: ['listen'] },
+    then: {
+      properties: { kind: { const: 'article' } },
+      required: ['kind'],
+    },
+  };
+}
+
 /** SCHEMA-3.21.0 `translationOf` description shared by every frontmatter schema. */
 export const TRANSLATION_OF_DESCRIPTION =
   "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`.";
@@ -1141,6 +1306,11 @@ export function createCompositionBuildSchemas(language) {
       newsletter: ref('newsletter'),
       sharing: ref('sharing'),
       contactForm: ref('contactFormNormalized'),
+      listen: {
+        ...ref('listen'),
+        description:
+          'SCHEMA-3.26.0: the toolchain always writes this member, `enabled: false` when the site sets none; a build input without it is read as off, so every 3.25 build input still validates.',
+      },
       sourcePath: ref('repoRelativePath'),
       sourceDigest: ref('digest'),
     },
@@ -1262,6 +1432,7 @@ export function createCompositionBuildSchemas(language) {
         ...ref('slug'),
         description: TRANSLATION_OF_DESCRIPTION,
       },
+      listen: ref('contentListenNormalized'),
     },
     [
       'id',
@@ -1278,7 +1449,7 @@ export function createCompositionBuildSchemas(language) {
     ],
     {
       dependentRequired: { seriesOrder: ['series'] },
-      allOf: [editionKindRule(), translationOfRule()],
+      allOf: [editionKindRule(), translationOfRule(), listenRule()],
       $comment:
         'Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically.',
     },
@@ -2385,6 +2556,10 @@ export function createCompositionBuildSchemas(language) {
           language,
           ref('renderableBody'),
         ),
+        listen: createListenDefinition(language),
+        listenAudio: createListenAudioDefinition(language),
+        contentListenNormalized:
+          createContentListenNormalizedDefinition(language),
         policyPageNormalized,
         policiesNormalized,
         authorNormalized,

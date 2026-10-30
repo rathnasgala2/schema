@@ -14,11 +14,14 @@ import {
   createCompositionBuildSchemas,
   createContentEditionDefinition,
   createContactFormDefinition,
+  createContentListenDefinition,
   createContentSeoDefinition,
+  createListenDefinition,
   createNewsletterDefinition,
   createSemanticTokensDefinition,
   createSharingDefinition,
   editionKindRule,
+  listenRule,
   TRANSLATION_OF_DESCRIPTION,
   translationOfRule,
 } from './s0-t03-composition-build-schemas.mjs';
@@ -500,6 +503,7 @@ const schemas = {
       listing: ref('listing'),
       aiRights: ref('aiRights'),
       performance: ref('performance'),
+      listen: ref('listen'),
       extensions: ref('extensionMap'),
     },
     [
@@ -530,6 +534,7 @@ const schemas = {
       listing: createListingDefinition({ closedObject }),
       aiRights: createAiRightsDefinition({ ref, closedObject }),
       performance: createPerformanceDefinition({ closedObject }),
+      listen: createListenDefinition({ closedObject }),
       extensionMap,
     },
   ),
@@ -647,6 +652,7 @@ const schemas = {
         ...ref('slug'),
         description: TRANSLATION_OF_DESCRIPTION,
       },
+      listen: ref('contentListen'),
       extensions: ref('extensionMap'),
     },
     [
@@ -671,6 +677,7 @@ const schemas = {
           "SCHEMA-3.19.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe publishes this draft. Meaningful only while `status` is `draft`; Galascribe removes it when the post is published. The API enforces both rules; the schema only fixes the shape.",
       },
       deleteDate: createDeleteDateDefinition(),
+      contentListen: createContentListenDefinition({ ref, closedObject }),
       contentEdition: createContentEditionDefinition({ ref, closedObject }),
       contentSeo: createContentSeoDefinition({
         ref,
@@ -702,6 +709,7 @@ const schemas = {
         },
         editionKindRule(),
         translationOfRule(),
+        listenRule(),
       ],
       $comment:
         'The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks.',

@@ -520,6 +520,10 @@
         "newsletter": { "$ref": "#/$defs/newsletter" },
         "sharing": { "$ref": "#/$defs/sharing" },
         "contactForm": { "$ref": "#/$defs/contactFormNormalized" },
+        "listen": {
+          "$ref": "#/$defs/listen",
+          "description": "SCHEMA-3.26.0: the toolchain always writes this member, `enabled: false` when the site sets none; a build input without it is read as off, so every 3.25 build input still validates."
+        },
         "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
         "sourceDigest": { "$ref": "#/$defs/digest" }
       },
@@ -657,6 +661,55 @@
       },
       "additionalProperties": false,
       "description": "SCHEMA-3.22.0: the normalized contact form. `intro` is the rendered body of the optional `gala/theme-pages/contact.md`, absent when the file is absent (the template then shows its default intro). The template renders the `/contact/` page only when `enabled` is true."
+    },
+    "listen": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": { "enabled": { "type": "boolean" } },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.26.0: the site's Listen setting. `enabled: true` offers the audio version of the posts that have one: the template adds a Listen button to the top bar, a small invitation on each post with audio and a playlist on the home page, and ships its script only while at least one published article carries a `listen` member. An absent `listen` means off. The API, not the schema, limits turning it on to the Pro and Business plans."
+    },
+    "listenAudio": {
+      "type": "object",
+      "required": ["sourcePath", "mediaType", "bytes", "sha256"],
+      "properties": {
+        "sourcePath": {
+          "$ref": "#/$defs/repoRelativePath",
+          "pattern": "^.+\\.(?:mp3|m4a)$"
+        },
+        "mediaType": {
+          "enum": ["audio/mpeg", "audio/mp4"],
+          "description": "What the toolchain sniffed: `audio/mpeg` for an MP3 file, `audio/mp4` for an M4A file."
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 26214400,
+          "description": "Size of the file in bytes, 1 to 26214400 (25 MiB), which must equal the size of the file in the source tree."
+        },
+        "sha256": { "$ref": "#/$defs/digest" }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.26.0: one resolved audio file. `sha256` is the digest of the file bytes and must equal the file digest in the source tree; the file belongs to the source closure like any other asset."
+    },
+    "contentListenNormalized": {
+      "type": "object",
+      "required": ["audio", "durationSeconds", "format"],
+      "properties": {
+        "audio": { "$ref": "#/$defs/listenAudio" },
+        "durationSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10800,
+          "description": "Length of the episode in whole seconds, 1 to 10800 (three hours)."
+        },
+        "format": {
+          "enum": ["conversation", "narration", "debate", "skit"],
+          "description": "What the episode is: `conversation` (two voices talking the post over), `narration` (one voice reading it), `debate` (two voices taking sides) or `skit` (a scripted scene). The template words its invitation by format."
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.26.0: the normalized audio version of an article. It appears only on a `kind: article` record and is absent when the article has none."
     },
     "policyPageNormalized": {
       "type": "object",
@@ -1021,7 +1074,8 @@
         "translationOf": {
           "$ref": "#/$defs/slug",
           "description": "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`."
-        }
+        },
+        "listen": { "$ref": "#/$defs/contentListenNormalized" }
       },
       "additionalProperties": false,
       "dependentRequired": { "seriesOrder": ["series"] },
@@ -1040,6 +1094,13 @@
             "properties": { "kind": { "const": "article" } },
             "required": ["kind"],
             "not": { "required": ["edition"] }
+          }
+        },
+        {
+          "if": { "required": ["listen"] },
+          "then": {
+            "properties": { "kind": { "const": "article" } },
+            "required": ["kind"]
           }
         }
       ],

@@ -71,6 +71,7 @@
       "$ref": "#/$defs/slug",
       "description": "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`."
     },
+    "listen": { "$ref": "#/$defs/contentListen" },
     "extensions": { "$ref": "#/$defs/extensionMap" }
   },
   "additionalProperties": false,
@@ -228,6 +229,29 @@
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "description": "SCHEMA-3.25.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe removes this article from the published site: it leaves every listing, feed, sitemap and search index and its route renders a removed-post notice. Same format as `publishAfter`; it must be later than `publishAfter` and `date` when both exist. The API enforces that rule; the schema only fixes the shape."
     },
+    "contentListen": {
+      "type": "object",
+      "required": ["audio", "durationSeconds", "format"],
+      "properties": {
+        "audio": {
+          "$ref": "#/$defs/repoRelativePath",
+          "pattern": "^.+\\.(?:mp3|m4a)$",
+          "description": "Repository-relative path of the audio file: an `.mp3` or `.m4a` file that sits under one of the repository `assetRoots`. The schema fixes the shape and the extension; the publish toolchain checks the asset root, that the file exists and is a regular file, that it sniffs as MP3 or M4A and the size limits."
+        },
+        "durationSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10800,
+          "description": "Length of the episode in whole seconds, 1 to 10800 (three hours)."
+        },
+        "format": {
+          "enum": ["conversation", "narration", "debate", "skit"],
+          "description": "What the episode is: `conversation` (two voices talking the post over), `narration` (one voice reading it), `debate` (two voices taking sides) or `skit` (a scripted scene). The template words its invitation by format."
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.26.0: the audio version of this article. All three members are required. `listen` is allowed only when `kind` is `article`. It has an effect only while the publication has `listen.enabled` true."
+    },
     "contentEdition": {
       "type": "object",
       "required": ["of", "kind", "sourceDigest", "generation", "approvedAt"],
@@ -308,6 +332,13 @@
         "properties": { "kind": { "const": "article" } },
         "required": ["kind"],
         "not": { "required": ["edition"] }
+      }
+    },
+    {
+      "if": { "required": ["listen"] },
+      "then": {
+        "properties": { "kind": { "const": "article" } },
+        "required": ["kind"]
       }
     }
   ],
