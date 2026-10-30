@@ -8,6 +8,105 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.26.0] - 2026-10-30
+
+Listen, the audio version of posts: the shapes the template and the publish
+toolchain read, and the HTTP contract for the site setting and its plan term
+(design: `scrap/20261030_listen/design.md`, sections 1 and 6). Additive and
+optional throughout: every 3.25 document and request still validates, and
+`npm run compatibility:check` reports no breaking change (the compatibility
+baseline is unchanged, as for 3.22.0 and 3.25.0). Contract versions and every
+`schemaVersion` are unchanged. A server must now emit `listen` in each plan it
+returns.
+
+### Added
+
+- `publication.listen` (new `$defs/listen`, shared byte for byte with
+  `build-input`): the closed object `{ "enabled": boolean }`, `enabled`
+  required. `enabled: true` offers the audio version of the posts that have one.
+  An absent `listen` means off. The Pro and Business plan limit is enforced by
+  the API, not the schema.
+- `content-frontmatter.listen` (new `$defs/contentListen`): the closed object
+  `{ "audio", "durationSeconds", "format" }`, all three required.
+  - `audio` reuses the repository-relative path definition `hero.path` uses
+    (`$defs/repoRelativePath`) and must end in `.mp3` or `.m4a` (lowercase,
+    `^.+\.(?:mp3|m4a)$`). That it sits under an `assetRoots` entry is not a
+    schema rule: the publish toolchain checks it.
+  - `durationSeconds` is an integer from 1 to 10800.
+  - `format` is `conversation`, `narration`, `debate` or `skit`.
+  - The member is allowed only when `kind` is `article`: a document with
+    `listen` and any other `kind` fails with `SCHEMA_CONSTANT_INVALID` at
+    `/kind`, the way `translationOf` is refused (new `allOf` rule, applied to
+    the authored front matter and to the normalized `build-input` front matter).
+  - The OpenAPI `ContentFrontmatter` is generated from this schema, so the
+    content document read and write carry `listen` too and an author's audio
+    survives a save made through the HTTP contract.
+- `build-input`:
+  - The normalized `publication` gains the optional `listen`, the same
+    `$defs/listen` as the authored publication. The toolchain always writes it
+    (`enabled: false` when the site sets none); a build input without it is read
+    as off, so every 3.25 build input still validates. It is optional in the
+    schema on purpose: a required member would make every existing build input
+    invalid and `compatibility:check` would report it as breaking.
+  - The normalized content front matter gains the optional article-only `listen`
+    (new `$defs/contentListenNormalized`): `audio` is the resolved file,
+    `durationSeconds` and `format` are carried unchanged. The resolved file is
+    its own definition, `$defs/listenAudio`: `sourcePath` (a repository path
+    ending in `.mp3` or `.m4a`), `mediaType` (`audio/mpeg` for MP3, `audio/mp4`
+    for M4A), `bytes` (an integer from 1 to 26214400, the 25 MiB per-file limit)
+    and `sha256` (the `sha256:` digest of the file bytes), all required. The
+    image-only resolved-media shapes are not widened. The artifact manifest
+    already admits `audio/mpeg` and `audio/mp4`.
+  - The reference semantic validator puts the audio file in the source closure
+    like any other asset (role `asset`): its `sha256` must be the file's digest
+    in the source tree and `bytes` its size, and a file the build input does not
+    name is an incomplete source partition, so a toolchain that resolves
+    `listen.audio` must put it in the build input.
+- Listen settings, the HTTP contract (tag `interaction-settings`, session only,
+  mirroring `contact-form-settings`): `GET` and
+  `PUT /v2/organizations/{organizationId}/publications/{publicationId}/listen-settings`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings`,
+  `putOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings`).
+  - The read is a live read of the main branch head: `ListenSettings` is
+    `{ enabled, planAllows, openChange, setUp }`, all required. A publication
+    with no `listen` member reads `enabled` false. `planAllows` is the API's own
+    status, false while the site's plan does not include Listen (the Free plan
+    by default). `openChange` and `setUp` are as on the other settings reads.
+    The read needs `publication.view` and is on the dependency-unavailable
+    allowlist.
+  - The write body is `{ "enabled": boolean }`, both closed and required. The
+    server writes the `listen` member of `gala/publication.json` as one
+    repository change and answers the same `change` as the other settings
+    writes. It needs `publication.settings.manage` and carries `Idempotency-Key`
+    and `X-CSRF-Token`, with the same concurrency (expected git head and binding
+    epoch), state guards and problems as the contact form write except
+    `CONTACT_ROUTE_IN_USE`. Turning `enabled` on while the plan does not include
+    Listen is `409 PLAN_REQUIRED` pointed at `/enabled`; saving it off, or
+    unchanged, is always allowed.
+  - No admin API key reaches the pair, so the reviewed key allowlist is
+    unchanged.
+- `PlatformPlan.listen` (boolean, required in a plan the server returns):
+  whether sites on the plan may turn Listen on. Defaults: FREE no, PRO and
+  BUSINESS yes. `PUT /v2/platform/plans/{planKey}` accepts it as an optional
+  member (absent keeps the plan's value). The `GET` and `PUT` descriptions and
+  examples show it.
+- App routes: the site Settings route is bound to the two new operations (51
+  routes, as before).
+
+### Changed
+
+- `scripts/generate-openapi.mjs`: the Listen settings read joins the
+  dependency-unavailable allowlist.
+- `scripts/generate-fixture-corpus.mjs`: a node that is a `$ref` with a sibling
+  `pattern` now synthesizes a witness that satisfies the pattern (the Listen
+  audio path must end in `.mp3` or `.m4a`; the earlier `policyPage.body` path
+  matched its `.md` pattern only by luck), and the S2 normalized-inputs family
+  gains fifteen Listen cases.
+- `test/t05-validation.test.js`, `test/t03-build-artifact-semantics.test.js`,
+  `test/t07-openapi.test.js` and the pinned digests of the fixture and schema
+  tests cover the new members; the 3.23.0 plan test now includes `listen` in
+  each plan it validates.
+
 ## [3.25.1] - 2026-10-29
 
 Closes four contract gaps left by 3.25.0. Additive and optional throughout.
@@ -3694,7 +3793,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.25.1...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.26.0...HEAD
+[3.26.0]: https://github.com/rathnasgala2/schema/compare/v3.25.1...v3.26.0
 [3.25.1]: https://github.com/rathnasgala2/schema/compare/v3.25.0...v3.25.1
 [3.25.0]: https://github.com/rathnasgala2/schema/compare/v3.24.0...v3.25.0
 [3.24.0]: https://github.com/rathnasgala2/schema/compare/v3.23.1...v3.24.0
