@@ -433,7 +433,8 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // operation, changing the deployment destination and planning a configuration
   // change. Since 3.23.0 also the audience operations a published site's own
   // script calls (the Follow button, the batched counts, the contact form) and
-  // the one-click notification unsubscribe a mail provider posts.
+  // the one-click notification unsubscribe a mail provider posts. Since 3.28.0
+  // also the two Home overview operations until the App binds them to Home.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
     'deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
@@ -444,6 +445,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getOrganizationsByOrganizationIdPublicationImports',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId',
     'getPlatformDemoSitesByPublicationId',
@@ -460,6 +462,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postCallbacksGithubApp',
     'postCallbacksStripe',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefresh',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlan',

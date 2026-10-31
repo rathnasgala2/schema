@@ -4249,6 +4249,8 @@ components:
             maximum: 120
             minimum: 1
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefreshResponse:
+      $ref: '#/components/schemas/PublicationOverview'
     PublicationAppearanceBuilt:
       additionalProperties: false
       description: |
@@ -4517,6 +4519,13 @@ components:
           oneOf:
             - $ref: ../schemas/content-frontmatter.schema.json#/$defs/deleteDate
             - type: 'null'
+        description:
+          description:
+            "SCHEMA-3.28.0: the post's front-matter description, so the Posts
+            list can show an excerpt without reading each document; absent when
+            the header carries none."
+          maxLength: 320
+          type: string
         language:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/bcp47
         publishAfter:
@@ -4765,6 +4774,123 @@ components:
         - headRevision
         - state
         - observedAt
+      type: object
+    PublicationOverview:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.28.0: the Home page's at-a-glance numbers for one site. The
+        counts are a snapshot taken at `computedAt` and valid until
+        `expiresAt` (cached at least 24 hours per site); `lastPublish` and
+        `reviewsWaitingOnYou` are live. When `posts.complete` is false the scan
+        was truncated and the post counts are a lower bound.
+      properties:
+        computedAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        expiresAt:
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type: string
+        followers:
+          format: int64
+          minimum: 0
+          type: integer
+        interactions:
+          additionalProperties: false
+          properties:
+            comments:
+              format: int64
+              minimum: 0
+              type: integer
+            commentsAwaitingModeration:
+              format: int64
+              minimum: 0
+              type: integer
+            reactions:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - reactions
+            - comments
+            - commentsAwaitingModeration
+          type: object
+        lastPublish:
+          oneOf:
+            - additionalProperties: false
+              properties:
+                at:
+                  format: date-time
+                  pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+                  type: string
+                outcome:
+                  enum:
+                    - SUCCEEDED
+                    - FAILED
+                    - PUBLISHING
+                  type: string
+              required:
+                - at
+                - outcome
+              type: object
+            - type: 'null'
+        newsletterSubscribers:
+          additionalProperties: false
+          properties:
+            confirmed:
+              format: int64
+              minimum: 0
+              type: integer
+            pending:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - confirmed
+            - pending
+          type: object
+        posts:
+          additionalProperties: false
+          properties:
+            complete:
+              type: boolean
+            draft:
+              format: int64
+              minimum: 0
+              type: integer
+            published:
+              format: int64
+              minimum: 0
+              type: integer
+            scheduled:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - published
+            - draft
+            - scheduled
+            - complete
+          type: object
+        reviewsWaitingOnYou:
+          format: int64
+          minimum: 0
+          type: integer
+        unreadContactMessages:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - computedAt
+        - expiresAt
+        - followers
+        - newsletterSubscribers
+        - unreadContactMessages
+        - interactions
+        - posts
+        - lastPublish
+        - reviewsWaitingOnYou
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettingsRequest:
       additionalProperties: false
@@ -14658,6 +14784,8 @@ components:
         - nextCursor
         - total
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewResponse:
+      $ref: '#/components/schemas/PublicationOverview'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse:
       $ref: '#/components/schemas/ListenSettings'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssuesResponse:

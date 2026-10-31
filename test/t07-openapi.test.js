@@ -690,7 +690,14 @@ test('success categories enforce statuses and required response headers', async 
       response.headers.Location !== undefined,
       ['create', 'oauth-callback'].includes(category),
     );
-    assert.equal(response.headers.ETag !== undefined, category === 'update');
+    // SCHEMA-3.28.0: the overview read is a query that carries an ETag (it honours
+    // If-None-Match with 304); every other ETag-bearing operation is an update.
+    assert.equal(
+      response.headers.ETag !== undefined,
+      category === 'update' ||
+        row.operationId ===
+          'getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview',
+    );
   }
 });
 

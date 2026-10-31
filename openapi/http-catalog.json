@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:8e06f225ba6a87bc9960c962a0a0475fe06687fcc7bc0c87eb3de7b4ea011e29",
+  "openApiDigest": "sha256:82f4c024ac6f9d5d06f6fdcad3e4978c941cbbfc9308b4d1d5d9bb454c31f687",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1446,6 +1446,32 @@
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers/{subscriberId}",
       "purpose": "remove one newsletter subscriber",
       "capabilityKey": "publication.audience.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/overview",
+      "purpose": "read a site's overview",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefresh",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/overview:refresh",
+      "purpose": "refresh a site's overview",
+      "capabilityKey": "publication.view",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -3258,5 +3284,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:1c1ca363e47f0a129cb68627faa69bc653cced35479efef00442c8ada5daf487"
+  "digest": "sha256:be3610e2d83052bec0111df25c7b5fbc4cea7143d55e2bdc5800eeddea9843af"
 }

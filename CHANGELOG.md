@@ -8,6 +8,29 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.28.0] - 2026-10-31
+
+The Home page overview and the post excerpt. Additive and optional: every 3.27
+response still validates.
+
+### Added
+
+- `GET /v2/organizations/{organizationId}/publications/{publicationId}/overview`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview`)
+  returns a `PublicationOverview`: followers, newsletter subscribers, unread
+  contact messages, interactions, post counts (`posts.complete` is false when
+  the scan was truncated), `lastPublish` and `reviewsWaitingOnYou`. The body is
+  a snapshot cached for at least 24 hours per site; `lastPublish` and
+  `reviewsWaitingOnYou` are live. It carries an `ETag` and honours
+  `If-None-Match` with `304`.
+- `POST .../overview:refresh`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefresh`)
+  recomputes the snapshot and returns the same `PublicationOverview`; at most
+  one refresh per site per minute, otherwise `429 RATE_LIMITED`.
+- `ContentInventoryItemSummary.description` (optional, at most 320 characters):
+  the post's front-matter description, so the Posts list can show an excerpt
+  without reading each document.
+
 ## [3.27.0] - 2026-10-30
 
 The follower count for the site's team: `FollowState` gains an optional
@@ -3811,7 +3834,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.27.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.28.0...HEAD
+[3.28.0]: https://github.com/rathnasgala2/schema/compare/v3.27.0...v3.28.0
 [3.27.0]: https://github.com/rathnasgala2/schema/compare/v3.26.0...v3.27.0
 [3.26.0]: https://github.com/rathnasgala2/schema/compare/v3.25.1...v3.26.0
 [3.25.1]: https://github.com/rathnasgala2/schema/compare/v3.25.0...v3.25.1
