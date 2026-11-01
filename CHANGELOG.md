@@ -8,6 +8,29 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.29.0] - 2026-11-01
+
+The draft preview's context read. Additive and optional: every 3.28 response
+still validates.
+
+### Added
+
+- `GET /v2/organizations/{organizationId}/publications/{publicationId}/content/preview-context`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext`)
+  returns a `ContentPreviewContext`: the `revision` read, `navigation`
+  (`gala/navigation.json`), `publication` (`gala/publication.json`) and
+  `authors` (the author files the publication declares), so the App can render a
+  draft with the site's real header menu, footer and author cards. Needs
+  `publication.view`; `revision` has the documents read's semantics. Each member
+  is best-effort: absent, oversize or invalid files are `null` (or left out of
+  `authors`) and never fail the read. It carries a strong `ETag`, honours
+  `If-None-Match` with `304`, and sends `Cache-Control: private, no-cache` (new
+  header component `CacheControlPrivateNoCache`). `GET .../content/documents`
+  still refuses `gala/` paths.
+- `ContentInventoryItemSummary.tags`, `.authorIds` and `.heroPath` (all
+  optional): the header's tags, author ids and hero image path, for the "keep
+  reading" cards.
+
 ## [3.28.0] - 2026-10-31
 
 The Home page overview and the post excerpt. Additive and optional: every 3.27
@@ -3834,7 +3857,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.28.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.29.0...HEAD
+[3.29.0]: https://github.com/rathnasgala2/schema/compare/v3.28.0...v3.29.0
 [3.28.0]: https://github.com/rathnasgala2/schema/compare/v3.27.0...v3.28.0
 [3.27.0]: https://github.com/rathnasgala2/schema/compare/v3.26.0...v3.27.0
 [3.26.0]: https://github.com/rathnasgala2/schema/compare/v3.25.1...v3.26.0

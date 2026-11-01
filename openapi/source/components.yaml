@@ -11,6 +11,17 @@ components:
       required: true
       schema:
         const: no-store
+    CacheControlPrivateNoCache:
+      description:
+        'SCHEMA-3.29.0: `private, no-cache` -- a browser may store the body but
+        must revalidate it (`If-None-Match`) before every use. Used by reads
+        that carry a strong `ETag` and answer `304`.'
+      required: true
+      schema:
+        enum:
+          - private, no-cache
+          - no-cache, private
+        type: string
     ContentDispositionAttachment:
       description: 'The archive is a download: `attachment` with its file name.'
       required: true
@@ -4509,6 +4520,15 @@ components:
       properties:
         contentId:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/stableId
+        authorIds:
+          description:
+            "SCHEMA-3.29.0: the header's `authors` (stable ids, header order),
+            so a card can show a byline without reading the document; absent
+            when the header names none."
+          items:
+            $ref: ../schemas/content-frontmatter.schema.json#/$defs/stableId
+          maxItems: 32
+          type: array
         createdAt:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
         deleteDate:
@@ -4526,6 +4546,11 @@ components:
             the header carries none."
           maxLength: 320
           type: string
+        heroPath:
+          description:
+            "SCHEMA-3.29.0: the repository path of the header's `hero` image,
+            for a card thumbnail; absent when the header carries no hero."
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/repoRelativePath
         language:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/bcp47
         publishAfter:
@@ -4542,6 +4567,14 @@ components:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/slug
         status:
           $ref: '#/components/schemas/ContentItemStatus'
+        tags:
+          description:
+            "SCHEMA-3.29.0: the header's `tags`, so a card can show them; absent
+            when the header carries none."
+          items:
+            $ref: ../schemas/content-frontmatter.schema.json#/$defs/plainLabel
+          maxItems: 32
+          type: array
         title:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/plainText
           x-gala-graphemeLength:
@@ -4626,6 +4659,45 @@ components:
       required:
         - id
         - displayName
+      type: object
+    ContentPreviewContext:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.29.0. The repository facts a draft preview needs besides the
+        post, all read at `revision`. Every member is best-effort: a file that
+        is absent, unreadable, over 256 KiB or invalid against its schema is
+        `null` (`navigation`, `publication`) or left out of `authors`, and
+        never fails the read. `authors` holds the author files the
+        publication document declares, in the order it declares them, at most
+        200.
+      properties:
+        authors:
+          items:
+            $ref: ../schemas/author.schema.json
+          maxItems: 200
+          type: array
+        navigation:
+          description:
+            The `gala/navigation.json` document, validated against its schema;
+            `null` when the file is absent or invalid.
+          oneOf:
+            - $ref: ../schemas/navigation.schema.json
+            - type: 'null'
+        publication:
+          description:
+            The `gala/publication.json` document, validated against its schema;
+            `null` when the file is absent or invalid.
+          oneOf:
+            - $ref: ../schemas/publication.schema.json
+            - type: 'null'
+        revision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+      required:
+        - revision
+        - navigation
+        - publication
+        - authors
       type: object
     ContentPublicationSummary:
       additionalProperties: false
@@ -5130,6 +5202,8 @@ components:
         - catalog
         - openChange
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContextResponse:
+      $ref: '#/components/schemas/ContentPreviewContext'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsResponse:
       additionalProperties: false
       properties:

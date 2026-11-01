@@ -14,6 +14,11 @@ import {
 } from './s0-interactions-config-schema.mjs';
 import { runIfMain } from './run-if-main.mjs';
 
+const CACHE_CONTROL_REFERENCES = [
+  '#/components/headers/CacheControlNoStore',
+  '#/components/headers/CacheControlPrivateNoCache',
+];
+
 const VERSION = '2.0.0';
 const CONTRACT_ID = 'urn:gala:schema:openapi:2.0.0';
 const SOURCE_DIRECTORY = path.resolve('openapi/source');
@@ -356,8 +361,9 @@ function validateOperation(record, schemas) {
   if (
     success.headers?.['X-Correlation-Id']?.$ref !==
       '#/components/headers/XCorrelationId' ||
-    success.headers?.['Cache-Control']?.$ref !==
-      '#/components/headers/CacheControlNoStore'
+    // SCHEMA-3.29.0: a query that carries a strong ETag and answers 304 may
+    // send `private, no-cache`; every other success response is `no-store`.
+    !CACHE_CONTROL_REFERENCES.includes(success.headers?.['Cache-Control']?.$ref)
   ) {
     throw new Error(`${identity}: success control headers are incomplete`);
   }
@@ -741,6 +747,7 @@ function validateContractClosure(records, components) {
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContent',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocuments',
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings',
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings',

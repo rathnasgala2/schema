@@ -332,6 +332,9 @@ function withoutBundleLiftedKeys(schema) {
   );
 }
 
+const PREVIEW_CONTEXT_OPERATION =
+  'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext';
+
 test('source fragments, bundle and catalog define the same operations plus health', async () => {
   const { bundle, catalog, sourceOperations } = await readProjections();
   const sourceIdentities = sourceOperations
@@ -683,8 +686,12 @@ test('success categories enforce statuses and required response headers', async 
     assert.deepEqual(response.headers['X-Correlation-Id'], {
       $ref: '#/components/headers/XCorrelationId',
     });
+    // SCHEMA-3.29.0: the preview-context read revalidates under `private, no-cache`.
     assert.deepEqual(response.headers['Cache-Control'], {
-      $ref: '#/components/headers/CacheControlNoStore',
+      $ref:
+        row.operationId === PREVIEW_CONTEXT_OPERATION
+          ? '#/components/headers/CacheControlPrivateNoCache'
+          : '#/components/headers/CacheControlNoStore',
     });
     assert.equal(
       response.headers.Location !== undefined,
@@ -695,8 +702,10 @@ test('success categories enforce statuses and required response headers', async 
     assert.equal(
       response.headers.ETag !== undefined,
       category === 'update' ||
-        row.operationId ===
+        [
           'getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview',
+          PREVIEW_CONTEXT_OPERATION,
+        ].includes(row.operationId),
     );
   }
 });

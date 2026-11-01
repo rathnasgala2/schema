@@ -13,6 +13,14 @@ components:
         pattern: ^no-store$
         type: string
         x-gala-const: no-store
+    CacheControlPrivateNoCache:
+      description: "SCHEMA-3.29.0: `private, no-cache` -- a browser may store the body but must revalidate it (`If-None-Match`) before every use. Used by reads that carry a strong `ETag` and answer `304`."
+      required: true
+      schema:
+        enum:
+          - private, no-cache
+          - no-cache, private
+        type: string
     ContentDispositionAttachment:
       description: "The archive is a download: `attachment` with its file name."
       required: true
@@ -1491,6 +1499,12 @@ components:
         date. `deleteDate` (SCHEMA-3.25.1, optional and nullable) is the
         header's scheduled-removal date.
       properties:
+        authorIds:
+          description: "SCHEMA-3.29.0: the header's `authors` (stable ids, header order), so a card can show a byline without reading the document; absent when the header names none."
+          items:
+            $ref: "#/components/schemas/PortableContentFrontmatterStableId"
+          maxItems: 32
+          type: array
         contentId:
           $ref: "#/components/schemas/PortableContentFrontmatterStableId"
         createdAt:
@@ -1504,6 +1518,9 @@ components:
           description: "SCHEMA-3.28.0: the post's front-matter description, so the Posts list can show an excerpt without reading each document; absent when the header carries none."
           maxLength: 320
           type: string
+        heroPath:
+          $ref: "#/components/schemas/PortableContentFrontmatterRepoRelativePath"
+          description: "SCHEMA-3.29.0: the repository path of the header's `hero` image, for a card thumbnail; absent when the header carries no hero."
         language:
           $ref: "#/components/schemas/PortableContentFrontmatterBcp47"
         publishAfter:
@@ -1517,6 +1534,12 @@ components:
           $ref: "#/components/schemas/PortableContentFrontmatterSlug"
         status:
           $ref: "#/components/schemas/ContentItemStatus"
+        tags:
+          description: "SCHEMA-3.29.0: the header's `tags`, so a card can show them; absent when the header carries none."
+          items:
+            $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
+          maxItems: 32
+          type: array
         title:
           $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
           x-gala-graphemeLength:
@@ -1574,6 +1597,41 @@ components:
         - HEADER_INVALID
         - TOO_LARGE
       type: string
+    ContentPreviewContext:
+      additionalProperties: false
+      description: |
+        SCHEMA-3.29.0. The repository facts a draft preview needs besides the
+        post, all read at `revision`. Every member is best-effort: a file that
+        is absent, unreadable, over 256 KiB or invalid against its schema is
+        `null` (`navigation`, `publication`) or left out of `authors`, and
+        never fails the read. `authors` holds the author files the
+        publication document declares, in the order it declares them, at most
+        200.
+      properties:
+        authors:
+          items:
+            $ref: "#/components/schemas/PortableAuthorDocument"
+          maxItems: 200
+          type: array
+        navigation:
+          description: The `gala/navigation.json` document, validated against its schema; `null` when the file is absent or invalid.
+          oneOf:
+            - $ref: "#/components/schemas/PortableNavigationDocument"
+            - type: "null"
+        publication:
+          description: The `gala/publication.json` document, validated against its schema; `null` when the file is absent or invalid.
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationDocument"
+            - type: "null"
+        revision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+      required:
+        - revision
+        - navigation
+        - publication
+        - authors
+      type: object
     ContentPublicationAuthorSummary:
       additionalProperties: false
       properties:
@@ -3250,6 +3308,8 @@ components:
         - body
         - digest
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContextResponse:
+      $ref: "#/components/schemas/ContentPreviewContext"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentResponse:
       additionalProperties: false
       allOf:
@@ -9146,9 +9206,174 @@ components:
           type: object
       required: []
       type: object
+    PortableAuthorBcp47:
+      description: Structurally valid canonical BCP-47 language tag.
+      format: gala-bcp47
+      maxLength: 255
+      minLength: 1
+      pattern: ^[A-Za-z0-9-]+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 255
+        minimum: 1
+    PortableAuthorDocument:
+      additionalProperties: false
+      properties:
+        avatarRef:
+          $ref: "#/components/schemas/PortableAuthorRepoRelativePath"
+        biography:
+          $ref: "#/components/schemas/PortableAuthorPlainText"
+          x-gala-graphemeLength:
+            maximum: 2000
+            minimum: 0
+        displayName:
+          $ref: "#/components/schemas/PortableAuthorPlainText"
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
+        extensions:
+          $ref: "#/components/schemas/PortableAuthorExtensionMap"
+        id:
+          $ref: "#/components/schemas/PortableAuthorStableId"
+        links:
+          items:
+            $ref: "#/components/schemas/PortableAuthorSocialLink"
+          maxItems: 32
+          minItems: 0
+          type: array
+        localized:
+          items:
+            $ref: "#/components/schemas/PortableAuthorLocalizedAuthor"
+          maxItems: 32
+          minItems: 0
+          type: array
+        pronouns:
+          $ref: "#/components/schemas/PortableAuthorPlainText"
+          x-gala-graphemeLength:
+            maximum: 80
+            minimum: 1
+        schemaId:
+          pattern: ^urn:gala:schema:author:2\.0\.0$
+          type: string
+          x-gala-const: urn:gala:schema:author:2.0.0
+        schemaVersion:
+          pattern: ^2\.0\.0$
+          type: string
+          x-gala-const: 2.0.0
+      required:
+        - schemaId
+        - schemaVersion
+        - id
+        - displayName
+        - biography
+        - links
+        - localized
+        - extensions
+      title: Gala author contract
+      type: object
+    PortableAuthorExtensionKey:
+      description: Reverse-DNS extension namespace that cannot shadow a core key.
+      format: gala-extension-key
+      type: string
+    PortableAuthorExtensionMap:
+      additionalProperties:
+        x-gala-maxCanonicalBytes: 16384
+      maxProperties: 32
+      propertyNames:
+        $ref: "#/components/schemas/PortableAuthorExtensionKey"
+      type: object
+      x-gala-maxCanonicalBytes: 131072
+    PortableAuthorLocalizedAuthor:
+      additionalProperties: false
+      properties:
+        biography:
+          $ref: "#/components/schemas/PortableAuthorPlainText"
+          x-gala-graphemeLength:
+            maximum: 2000
+            minimum: 0
+        displayName:
+          $ref: "#/components/schemas/PortableAuthorPlainText"
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
+        language:
+          $ref: "#/components/schemas/PortableAuthorBcp47"
+      required:
+        - language
+        - displayName
+        - biography
+      type: object
+    PortableAuthorPlainLabel:
+      description: Normalized Unicode plain text without markup, controls, or bidi overrides.
+      format: gala-plain-label
+      type: string
+      x-gala-graphemeLength:
+        maximum: 80
+        minimum: 1
     PortableAuthorPlainText:
       description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
       format: gala-plain-text
+      type: string
+    PortableAuthorRepoRelativePath:
+      description: NFC UTF-8 repository-relative path using slash separators, with no leading slash, dot segment, NUL, backslash, or percent-decoded traversal.
+      format: gala-repository-relative-path
+      maxLength: 512
+      minLength: 1
+      pattern: ^(?!/)(?!.*\\)(?!.*\u0000).+$
+      type: string
+      x-gala-utf8ByteLength:
+        maximum: 512
+    PortableAuthorSocialLink:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              uri:
+                $ref: "#/components/schemas/PortableAuthorUrlHttps"
+          if:
+            properties:
+              type:
+                pattern: ^email$
+                type: string
+                x-gala-const: email
+            required:
+              - type
+          then:
+            properties:
+              uri:
+                format: uri
+                pattern: "^mailto:"
+                type: string
+      properties:
+        label:
+          $ref: "#/components/schemas/PortableAuthorPlainLabel"
+        type:
+          enum:
+            - website
+            - email
+            - github
+            - linkedin
+            - mastodon
+            - bluesky
+            - x
+            - youtube
+            - other
+        uri:
+          maxLength: 2048
+          minLength: 1
+          type: string
+      required:
+        - type
+        - uri
+      type: object
+    PortableAuthorStableId:
+      description: Lowercase canonical UUIDv7. Once published, it is immutable; its time ordering conveys neither chronology nor authority.
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      type: string
+    PortableAuthorUrlHttps:
+      description: Absolute HTTPS URL without embedded credentials.
+      format: uri
+      pattern: ^https://(?![^/?#]*@)
       type: string
     PortableContentFrontmatterBcp47:
       description: Structurally valid canonical BCP-47 language tag.
@@ -15009,6 +15234,159 @@ components:
         - kind
         - token
       type: object
+    PortableNavigationCanonicalRoute:
+      description: Absolute normalized route with no query, fragment, dot segment, double slash, or non-normalized percent encoding.
+      format: gala-canonical-route
+      minLength: 1
+      pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+      type: string
+    PortableNavigationDocument:
+      $comment: The navigation graph validator rejects duplicate normalized internal routes within each collection.
+      additionalProperties: false
+      properties:
+        extensions:
+          $ref: "#/components/schemas/PortableNavigationExtensionMap"
+        footerItems:
+          items:
+            $ref: "#/components/schemas/PortableNavigationNavigationItem"
+          maxItems: 50
+          minItems: 0
+          type: array
+        items:
+          items:
+            $ref: "#/components/schemas/PortableNavigationNavigationItem"
+          maxItems: 100
+          minItems: 0
+          type: array
+        schemaId:
+          pattern: ^urn:gala:schema:navigation:2\.0\.0$
+          type: string
+          x-gala-const: urn:gala:schema:navigation:2.0.0
+        schemaVersion:
+          pattern: ^2\.0\.0$
+          type: string
+          x-gala-const: 2.0.0
+      required:
+        - schemaId
+        - schemaVersion
+        - items
+        - footerItems
+        - extensions
+      title: Gala navigation contract
+      type: object
+    PortableNavigationExtensionKey:
+      description: Reverse-DNS extension namespace that cannot shadow a core key.
+      format: gala-extension-key
+      type: string
+    PortableNavigationExtensionMap:
+      additionalProperties:
+        x-gala-maxCanonicalBytes: 16384
+      maxProperties: 32
+      propertyNames:
+        $ref: "#/components/schemas/PortableNavigationExtensionKey"
+      type: object
+      x-gala-maxCanonicalBytes: 131072
+    PortableNavigationNavigationItem:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              required:
+                - route
+            required:
+              - url
+          if:
+            properties:
+              type:
+                pattern: ^internal$
+                type: string
+                x-gala-const: internal
+            required:
+              - type
+          then:
+            not:
+              required:
+                - url
+            required:
+              - route
+      properties:
+        children:
+          items:
+            $ref: "#/components/schemas/PortableNavigationNavigationLeaf"
+          maxItems: 20
+          minItems: 0
+          type: array
+        label:
+          $ref: "#/components/schemas/PortableNavigationPlainLabel"
+        route:
+          $ref: "#/components/schemas/PortableNavigationCanonicalRoute"
+        type:
+          enum:
+            - internal
+            - external
+        url:
+          $ref: "#/components/schemas/PortableNavigationUrlHttps"
+      required:
+        - type
+        - label
+        - children
+      type: object
+    PortableNavigationNavigationLeaf:
+      additionalProperties: false
+      allOf:
+        - else:
+            not:
+              required:
+                - route
+            required:
+              - url
+          if:
+            properties:
+              type:
+                pattern: ^internal$
+                type: string
+                x-gala-const: internal
+            required:
+              - type
+          then:
+            not:
+              required:
+                - url
+            required:
+              - route
+      properties:
+        children:
+          maxItems: 0
+          minItems: 0
+          type: array
+          x-gala-const: []
+        label:
+          $ref: "#/components/schemas/PortableNavigationPlainLabel"
+        route:
+          $ref: "#/components/schemas/PortableNavigationCanonicalRoute"
+        type:
+          enum:
+            - internal
+            - external
+        url:
+          $ref: "#/components/schemas/PortableNavigationUrlHttps"
+      required:
+        - type
+        - label
+        - children
+      type: object
+    PortableNavigationPlainLabel:
+      description: Normalized Unicode plain text without markup, controls, or bidi overrides.
+      format: gala-plain-label
+      type: string
+      x-gala-graphemeLength:
+        maximum: 80
+        minimum: 1
+    PortableNavigationUrlHttps:
+      description: Absolute HTTPS URL without embedded credentials.
+      format: uri
+      pattern: ^https://(?![^/?#]*@)
+      type: string
     PortableProblemCanonicalRoute:
       description: Absolute normalized route with no query, fragment, dot segment, double slash, or non-normalized percent encoding.
       format: gala-canonical-route
@@ -15216,6 +15594,33 @@ components:
       x-gala-utf8ByteLength:
         maximum: 255
         minimum: 1
+    PortablePublicationCanonicalRoute:
+      description: Absolute normalized route with no query, fragment, dot segment, double slash, or non-normalized percent encoding.
+      format: gala-canonical-route
+      minLength: 1
+      pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
+      type: string
+    PortablePublicationContactForm:
+      additionalProperties: false
+      description: "SCHEMA-3.22.0: the site's contact form. `enabled` turns the form on, and the template renders the `/contact/` page only when it is true. `fields.website` and `fields.phone` add the optional Website and Phone inputs; name, email and message are always present. The intro text is not a member: it is the optional document `gala/theme-pages/contact.md`, and the template shows a default intro when it is absent. An absent `contactForm` means no form. The API, not the schema, limits the form to the Pro and Business plans."
+      properties:
+        enabled:
+          type: boolean
+        fields:
+          additionalProperties: false
+          properties:
+            phone:
+              type: boolean
+            website:
+              type: boolean
+          required:
+            - website
+            - phone
+          type: object
+      required:
+        - enabled
+        - fields
+      type: object
     PortablePublicationCrawlers:
       additionalProperties: false
       properties:
@@ -15225,6 +15630,134 @@ components:
             - block
       required:
         - ai
+      type: object
+    PortablePublicationDocument:
+      additionalProperties: false
+      properties:
+        aiRights:
+          $ref: "#/components/schemas/PortablePublicationAiRights"
+        authors:
+          items:
+            $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+          maxItems: 32
+          minItems: 1
+          type: array
+        canonicalBase:
+          $ref: "#/components/schemas/PortablePublicationUrlHttps"
+        contactForm:
+          $ref: "#/components/schemas/PortablePublicationContactForm"
+        contactRef:
+          $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+        crawlers:
+          $ref: "#/components/schemas/PortablePublicationCrawlers"
+        defaultImageRef:
+          $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+        defaultLanguage:
+          $ref: "#/components/schemas/PortablePublicationBcp47"
+        description:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 500
+            minimum: 1
+        extensions:
+          $ref: "#/components/schemas/PortablePublicationExtensionMap"
+        footerCard:
+          $ref: "#/components/schemas/PortablePublicationFooterCard"
+        id:
+          $ref: "#/components/schemas/PortablePublicationStableId"
+        listen:
+          $ref: "#/components/schemas/PortablePublicationListen"
+        listing:
+          $ref: "#/components/schemas/PortablePublicationListing"
+        newsletter:
+          $ref: "#/components/schemas/PortablePublicationNewsletter"
+        performance:
+          $ref: "#/components/schemas/PortablePublicationPerformance"
+        policies:
+          $ref: "#/components/schemas/PortablePublicationPublicationPolicies"
+        profile:
+          $ref: "#/components/schemas/PortablePublicationPublicationProfile"
+        schemaId:
+          pattern: ^urn:gala:schema:publication:2\.0\.0$
+          type: string
+          x-gala-const: urn:gala:schema:publication:2.0.0
+        schemaVersion:
+          pattern: ^2\.0\.0$
+          type: string
+          x-gala-const: 2.0.0
+        sharing:
+          $ref: "#/components/schemas/PortablePublicationSharing"
+        slug:
+          $ref: "#/components/schemas/PortablePublicationSlug"
+        socialLinks:
+          items:
+            $ref: "#/components/schemas/PortablePublicationSocialLink"
+          maxItems: 32
+          minItems: 0
+          type: array
+        title:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 200
+            minimum: 1
+      required:
+        - schemaId
+        - schemaVersion
+        - id
+        - slug
+        - title
+        - description
+        - canonicalBase
+        - defaultLanguage
+        - authors
+        - socialLinks
+        - extensions
+      title: Gala publication contract
+      type: object
+    PortablePublicationExtensionKey:
+      description: Reverse-DNS extension namespace that cannot shadow a core key.
+      format: gala-extension-key
+      type: string
+    PortablePublicationExtensionMap:
+      additionalProperties:
+        x-gala-maxCanonicalBytes: 16384
+      maxProperties: 32
+      propertyNames:
+        $ref: "#/components/schemas/PortablePublicationExtensionKey"
+      type: object
+      x-gala-maxCanonicalBytes: 131072
+    PortablePublicationFooterCard:
+      additionalProperties: false
+      properties:
+        authorIds:
+          items:
+            $ref: "#/components/schemas/PortablePublicationStableId"
+          maxItems: 32
+          minItems: 1
+          type: array
+        body:
+          $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+        enabled:
+          type: boolean
+        heading:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
+      required:
+        - enabled
+        - heading
+        - body
+        - authorIds
+      type: object
+    PortablePublicationListen:
+      additionalProperties: false
+      description: "SCHEMA-3.26.0: the site's Listen setting. `enabled: true` offers the audio version of the posts that have one: the template adds a Listen button to the top bar, a small invitation on each post with audio and a playlist on the home page, and ships its script only while at least one published article carries a `listen` member. An absent `listen` means off. The API, not the schema, limits turning it on to the Pro and Business plans."
+      properties:
+        enabled:
+          type: boolean
+      required:
+        - enabled
       type: object
     PortablePublicationListing:
       additionalProperties: false
@@ -15236,6 +15769,59 @@ components:
           type: integer
       required: []
       type: object
+    PortablePublicationNewsletter:
+      description: "SCHEMA-3.22.0: the newsletter panel. Link mode (`mode` absent or `link`) sends readers to the author's own newsletter at `url`; Galascribe mode (`mode: \"galascribe\"`) collects and mails subscribers itself. An absent `newsletter` member means the panel is off."
+      oneOf:
+        - additionalProperties: false
+          description: "Link mode: the panel links to an external newsletter. `mode` is optional and `link` when present, so a 3.21 publication still validates."
+          properties:
+            mode:
+              pattern: ^link$
+              type: string
+              x-gala-const: link
+            text:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 300
+                minimum: 1
+            title:
+              $ref: "#/components/schemas/PortablePublicationPlainLabel"
+            url:
+              $ref: "#/components/schemas/PortablePublicationUrlHttps"
+          required:
+            - url
+            - title
+            - text
+          type: object
+        - additionalProperties: false
+          description: "Galascribe mode: the panel is an email field and a Subscribe button. `title` and `text` are the panel heading and sentence; there is no `url`. The API refuses to turn this mode on until the site owner has a postal address in their Account."
+          properties:
+            emailContent:
+              description: "`card` mails the post title, description, image and a Read the post button; the template renders no email fragment. `full` mails the whole post: for each published post the template renders an email-safe HTML fragment at `/_gala/email/<content id>.html` (`<content id>` is the post's front-matter `id`; absolute URLs and inline-safe markup only; `noindex`; absent from the sitemap, the feeds, the search index and the llms files), which the API fetches after the generation is certified live."
+              enum:
+                - card
+                - full
+            mode:
+              pattern: ^galascribe$
+              type: string
+              x-gala-const: galascribe
+            replyToOwner:
+              description: When true, subscribers' replies go to the site owner's contact email; when false the emails carry no Reply-To.
+              type: boolean
+            text:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 300
+                minimum: 1
+            title:
+              $ref: "#/components/schemas/PortablePublicationPlainLabel"
+          required:
+            - mode
+            - title
+            - text
+            - emailContent
+            - replyToOwner
+          type: object
     PortablePublicationPerformance:
       additionalProperties: false
       description: "SCHEMA-3.25.0: size budgets in bytes, each at least 1024 and optional. `htmlBytes` bounds a page's HTML, `cssBytes` and `jsBytes` bound the sum of the same-origin stylesheets and scripts a page links. A page over budget is reported; a budget never fails a build."
@@ -15267,6 +15853,43 @@ components:
       description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
       format: gala-plain-text
       type: string
+    PortablePublicationPolicyPage:
+      additionalProperties: false
+      properties:
+        body:
+          $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+          pattern: ^.+\.md$
+        title:
+          $ref: "#/components/schemas/PortablePublicationPlainText"
+          x-gala-graphemeLength:
+            maximum: 80
+            minimum: 1
+      required:
+        - title
+        - body
+      type: object
+    PortablePublicationPublicationPolicies:
+      additionalProperties: false
+      properties:
+        privacy:
+          $ref: "#/components/schemas/PortablePublicationPolicyPage"
+        terms:
+          $ref: "#/components/schemas/PortablePublicationPolicyPage"
+      required:
+        - terms
+        - privacy
+      type: object
+    PortablePublicationPublicationProfile:
+      additionalProperties: false
+      properties:
+        body:
+          $ref: "#/components/schemas/PortablePublicationRepoRelativePath"
+        route:
+          $ref: "#/components/schemas/PortablePublicationCanonicalRoute"
+      required:
+        - route
+        - body
+      type: object
     PortablePublicationRepoRelativePath:
       description: NFC UTF-8 repository-relative path using slash separators, with no leading slash, dot segment, NUL, backslash, or percent-decoded traversal.
       format: gala-repository-relative-path
@@ -15276,6 +15899,36 @@ components:
       type: string
       x-gala-utf8ByteLength:
         maximum: 512
+    PortablePublicationSharing:
+      additionalProperties: false
+      description: "SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 11 unique members of the closed target set. An absent `sharing` member means `[\"copy-link\"]` (the Copy link button only); an empty `targets` array means no share buttons. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service's documented share URL. Bookmark is not a share target and is unaffected."
+      properties:
+        targets:
+          items:
+            enum:
+              - copy-link
+              - native
+              - x
+              - bluesky
+              - linkedin
+              - facebook
+              - hacker-news
+              - whatsapp
+              - telegram
+              - reddit
+              - email
+          maxItems: 11
+          minItems: 0
+          type: array
+          uniqueItems: true
+      required:
+        - targets
+      type: object
+    PortablePublicationSlug:
+      maxLength: 80
+      minLength: 1
+      pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+      type: string
     PortablePublicationSocialLink:
       additionalProperties: false
       allOf:
@@ -15319,6 +15972,10 @@ components:
         - type
         - uri
       type: object
+    PortablePublicationStableId:
+      description: Lowercase canonical UUIDv7. Once published, it is immutable; its time ordering conveys neither chronology nor authority.
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      type: string
     PortablePublicationUrlHttps:
       description: Absolute HTTPS URL without embedded credentials.
       format: uri
@@ -38190,6 +38847,334 @@ paths:
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
       x-gala-nullability: required-and-nullable-are-explicit
       x-gala-purpose: read one content document
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/content/preview-context:
+    get:
+      description: |
+        Needs `publication.view`. The facts the published page reads from the
+        site's repository besides the post itself, so the App's draft preview
+        can render the site's real header menu, footer and author cards:
+        `navigation` (`gala/navigation.json`), `publication`
+        (`gala/publication.json`) and `authors` (every `gala/authors/*.json`).
+        This is the one read of those `gala/` files; `GET .../content/documents`
+        still refuses them. `revision` omitted reads the linked repository's
+        current main head; a supplied `revision` is checked exactly as the
+        documents read checks it, and any other value is `404
+        RESOURCE_NOT_FOUND`. The read is best-effort per member: a file that is
+        absent, unreadable, larger than 256 KiB or invalid against its schema
+        is `null` (`navigation`, `publication`) or left out (`authors`, at most
+        200, in file-name order), and never fails the read. The response
+        carries a strong `ETag` and honours `If-None-Match` with `304` and no
+        body; `Cache-Control` is `private, no-cache`, so a browser stores the
+        body and revalidates it on every use.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: sha1:0000000000000000000000000000000000000000
+          in: query
+          name: revision
+          required: false
+          schema:
+            pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+            type: string
+        - description: A previously returned `ETag`; a match answers `304`.
+          example: '"a1b2c3d4"'
+          in: header
+          name: If-None-Match
+          required: false
+          schema:
+            maxLength: 256
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    authors:
+                      - biography: Writes about the craft of publishing.
+                        displayName: Example Author
+                        extensions: {}
+                        id: 018f0000-0000-7000-8000-000000000001
+                        links:
+                          - type: website
+                            uri: https://example.com/
+                        localized: []
+                        schemaId: urn:gala:schema:author:2.0.0
+                        schemaVersion: 2.0.0
+                    navigation:
+                      extensions: {}
+                      footerItems: []
+                      items:
+                        - children: []
+                          label: About
+                          route: /about/
+                          type: internal
+                      schemaId: urn:gala:schema:navigation:2.0.0
+                      schemaVersion: 2.0.0
+                    publication:
+                      authors:
+                        - gala/authors/example-author.json
+                      canonicalBase: https://example.com/
+                      defaultLanguage: en
+                      description: A site about the craft of publishing.
+                      extensions: {}
+                      id: 018f0000-0000-7000-8000-000000000001
+                      schemaId: urn:gala:schema:publication:2.0.0
+                      schemaVersion: 2.0.0
+                      slug: example
+                      socialLinks: []
+                      title: Example
+                    revision: sha1:0000000000000000000000000000000000000000
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContextResponse"
+          description: read the preview context succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlPrivateNoCache"
+            ETag:
+              description: Strong validator of this response body.
+              required: true
+              schema:
+                maxLength: 256
+                type: string
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "304":
+          description: the caller's `If-None-Match` still matches; no body
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlPrivateNoCache"
+            ETag:
+              description: Strong validator of this response body.
+              required: true
+              schema:
+                maxLength: 256
+                type: string
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read the preview context
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the preview context
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - AUTHORIZATION_DENIED
