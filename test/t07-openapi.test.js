@@ -334,6 +334,8 @@ function withoutBundleLiftedKeys(schema) {
 
 const PREVIEW_CONTEXT_OPERATION =
   'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext';
+const HOSTING_CHECK_OPERATION =
+  'getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck';
 
 test('source fragments, bundle and catalog define the same operations plus health', async () => {
   const { bundle, catalog, sourceOperations } = await readProjections();
@@ -688,10 +690,11 @@ test('success categories enforce statuses and required response headers', async 
     });
     // SCHEMA-3.29.0: the preview-context read revalidates under `private, no-cache`.
     assert.deepEqual(response.headers['Cache-Control'], {
-      $ref:
-        row.operationId === PREVIEW_CONTEXT_OPERATION
-          ? '#/components/headers/CacheControlPrivateNoCache'
-          : '#/components/headers/CacheControlNoStore',
+      $ref: [PREVIEW_CONTEXT_OPERATION, HOSTING_CHECK_OPERATION].includes(
+        row.operationId,
+      )
+        ? '#/components/headers/CacheControlPrivateNoCache'
+        : '#/components/headers/CacheControlNoStore',
     });
     assert.equal(
       response.headers.Location !== undefined,
@@ -705,6 +708,7 @@ test('success categories enforce statuses and required response headers', async 
         [
           'getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview',
           PREVIEW_CONTEXT_OPERATION,
+          HOSTING_CHECK_OPERATION,
         ].includes(row.operationId),
     );
   }

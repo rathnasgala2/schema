@@ -8,6 +8,60 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.30.0] - 2026-11-02
+
+Hosting checks, assistance requests, collaborators on every plan, Galascribe
+addresses and the included domain. Additive: every 3.29 request and response
+still validates. `PlatformPlan.collaboratorLimit` is a new member of a response
+shape, so a client that rejects unknown members must be updated first.
+
+### Added
+
+- `GET /v2/organizations/{organizationId}/plan`
+  (`getOrganizationsByOrganizationIdPlan`) returns an `OrganizationPlan`: the
+  `tier` (`FREE`, `PRO`, `BUSINESS`; billing calls them Free, Basic and Pro),
+  `collaborators` (`limit`, null for no limit, and `used`: active members other
+  than owners plus `PENDING` invitations), `entitlements` (`galascribeAddress`,
+  `includedDomain`, `galascribeHosting`) and `galascribeAddressZone` (absent
+  when Galascribe addresses are not configured). Any member may read it.
+- `409 PLAN_REQUIRED` on `POST .../membership-invitations` and on
+  `POST /v2/membership-invitations/{token}:accept` when the plan allows no more
+  collaborators. Every organization may now invite; a personal organization
+  becomes collaborative with its first invitation. The "Enterprise only" wording
+  of `OrganizationKind` is gone.
+- `GET .../publications/{publicationId}/site/hosting-check`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck`)
+  returns a `SiteHostingCheck`: what the repository holds that GitHub Pages
+  limits or does not allow (`HostingFinding` with `HostingFindingCode`
+  `SITE_OVER_SIZE_LIMIT`, `SITE_NEAR_SIZE_LIMIT`, `FILE_OVER_SIZE_LIMIT`,
+  `LARGE_FILE`, `DIRECTORY_TOO_LARGE`, `HEAVY_MEDIA`, `COMMERCE_PAGE`,
+  `SENSITIVE_FORM`), with the totals, the limits used and the `offers`
+  (`UPGRADE`, `REQUEST_GALASCRIBE_HOSTING`). It carries a strong `ETag`, honours
+  `If-None-Match` with `304` and sends `Cache-Control: private, no-cache`. It is
+  advice and never blocks publishing.
+- `POST` and `GET .../publications/{publicationId}/assistance-requests`
+  (`AssistanceRequestCreate`, `AssistanceRequest`; kinds `GALASCRIBE_HOSTING`,
+  `DOMAIN_REGISTRATION`, `DOMAIN_MOVE`). A create answers `201`, or `200` with
+  the request already `OPEN` for the same kind, or `409 PLAN_REQUIRED` on the
+  Free plan.
+- Platform operator reads: `GET /v2/platform/assistance-requests` (keyset paged,
+  `state=OPEN|CLOSED`) and
+  `POST /v2/platform/assistance-requests/{requestId}:close`. `PlatformPlan`
+  gains `collaboratorLimit` (0 means no limit; required in a read, optional in
+  `PUT /v2/platform/plans/{planKey}`).
+- `POST .../domains:check-galascribe-address` (`GalascribeAddressCheck`) and
+  `POST .../domains:claim-galascribe-address` (`201 DomainBinding`,
+  `409 PLAN_REQUIRED`, `409 INVALID_SOURCE_STATE`, `422 VALIDATION_FAILED`,
+  `503 CAPABILITY_UNAVAILABLE`). `DomainBinding.galascribeManaged` (optional,
+  `kind` `GALASCRIBE_ADDRESS` or `INCLUDED_DOMAIN`) is present when Galascribe
+  owns the DNS records, so a client never asks the person to add records.
+- `POST .../domain-registrations:check` (`DomainRegistrationCheck`, no price),
+  `POST .../domain-registrations` (`DomainRegistrationCreate` with a write-only
+  `registrant`; `202 DomainRegistration`), and `GET .../domain-registrations`
+  and `.../domain-registrations/{registrationId}`. The address `region` of the
+  registrant is named `region`, not `state`, because a member named `state` must
+  be a closed lifecycle enumeration.
+
 ## [3.29.0] - 2026-11-01
 
 The draft preview's context read. Additive and optional: every 3.28 response
@@ -3857,7 +3911,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.29.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.30.0...HEAD
+[3.30.0]: https://github.com/rathnasgala2/schema/compare/v3.29.0...v3.30.0
 [3.29.0]: https://github.com/rathnasgala2/schema/compare/v3.28.0...v3.29.0
 [3.28.0]: https://github.com/rathnasgala2/schema/compare/v3.27.0...v3.28.0
 [3.27.0]: https://github.com/rathnasgala2/schema/compare/v3.26.0...v3.27.0
