@@ -766,8 +766,8 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
       schema.properties?.nextCursor !== undefined,
   );
   // SCHEMA-3.7.0 adds keyset collections for platform users, abuse cases and
-  // webhook events.
-  assert.equal(collections.length, 25);
+  // webhook events; SCHEMA-3.30.0 adds the platform assistance requests.
+  assert.equal(collections.length, 26);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),
@@ -4082,6 +4082,7 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   });
   assert.equal(
     plan({
+      collaboratorLimit: 1,
       contactForm: false,
       listen: false,
       newsletterSubscriberLimit: 50,
@@ -4092,6 +4093,7 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   );
   assert.equal(
     plan({
+      collaboratorLimit: 0,
       contactForm: true,
       listen: true,
       newsletterSubscriberLimit: 0,
@@ -4131,6 +4133,28 @@ test('SCHEMA-3.23.0: plans carry the newsletter allowance and the contact-form s
   assert.equal(
     plan({
       contactForm: 'no',
+      listen: false,
+      newsletterSubscriberLimit: 50,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
+    false,
+  );
+  // SCHEMA-3.30.0: `collaboratorLimit` is required in a read, and negative is refused.
+  assert.equal(
+    plan({
+      contactForm: false,
+      listen: false,
+      newsletterSubscriberLimit: 50,
+      planKey: 'FREE',
+      publicationLimit: 1,
+    }),
+    false,
+  );
+  assert.equal(
+    plan({
+      collaboratorLimit: -1,
+      contactForm: false,
       listen: false,
       newsletterSubscriberLimit: 50,
       planKey: 'FREE',

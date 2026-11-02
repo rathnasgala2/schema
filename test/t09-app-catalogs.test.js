@@ -435,6 +435,8 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // script calls (the Follow button, the batched counts, the contact form) and
   // the one-click notification unsubscribe a mail provider posts. Since 3.28.0
   // also the two Home overview operations until the App binds them to Home.
+  // Since 3.30.0 also the plan, hosting-check, assistance, Galascribe address
+  // and domain registration operations until the App binds them.
   // Since 3.29.0 also the preview-context read until the App binds it to the
   // draft preview.
   assert.deepEqual(unbound, [
@@ -444,13 +446,19 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'deleteReaderTokensCurrent',
     'getInternalHealth',
     'getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId',
+    'getOrganizationsByOrganizationIdPlan',
     'getOrganizationsByOrganizationIdPublicationImports',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrations',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsByRegistrationId',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId',
+    'getPlatformAssistanceRequests',
     'getPlatformDemoSitesByPublicationId',
     'getPlatformDemoSitesPreflight',
     'getPlatformOauthClients',
@@ -464,11 +472,17 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postAuthenticationPasskeyAssertions',
     'postCallbacksGithubApp',
     'postCallbacksStripe',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrations',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsCheck',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsCheckGalascribeAddress',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsClaimGalascribeAddress',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefresh',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesPlan',
+    'postPlatformAssistanceRequestsByRequestIdClose',
     'postPlatformDemoSites',
     'postPlatformOauthClients',
     'postPlatformOauthClientsByOauthClientIdRevoke',
