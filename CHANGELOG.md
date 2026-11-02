@@ -8,6 +8,23 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.31.0] - 2026-11-02
+
+The platform users read returns the contact email address. Additive: every 3.30
+request and response still validates. `PlatformUser.contactEmail` is a new
+member of a response shape, so a client that rejects unknown members must be
+updated first.
+
+### Added
+
+- `PlatformUser.contactEmail` (string up to 320 characters, or null): the
+  contact email address the person agreed to share. It is returned only when one
+  is on file and the caller holds `platform.users.contact`; null otherwise.
+  `contactEmailOnFile` is true whenever an agreed address is on file, whether or
+  not the caller may see it.
+- `GET /v2/platform/users`: a `search` containing "@" also matches a person
+  whose contact email on file equals it exactly (case-insensitive).
+
 ## [3.30.0] - 2026-11-02
 
 Hosting checks, assistance requests, collaborators on every plan, Galascribe
@@ -3911,7 +3928,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.30.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.31.0...HEAD
+[3.31.0]: https://github.com/rathnasgala2/schema/compare/v3.30.0...v3.31.0
 [3.30.0]: https://github.com/rathnasgala2/schema/compare/v3.29.0...v3.30.0
 [3.29.0]: https://github.com/rathnasgala2/schema/compare/v3.28.0...v3.29.0
 [3.28.0]: https://github.com/rathnasgala2/schema/compare/v3.27.0...v3.28.0
