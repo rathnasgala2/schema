@@ -9698,8 +9698,9 @@ components:
       type: object
     OrganizationKind:
       description:
-        '`SINGLE`: a personal (Pro) organization with one owner and no other
-        members. `COLLABORATIVE`: an Enterprise organization with members, roles
+        '`SINGLE`: a personal organization with one owner and no other members.
+        It becomes `COLLABORATIVE` with its first invitation, on any plan
+        (SCHEMA-3.30.0). `COLLABORATIVE`: an organization with members, roles
         and custom roles (SCHEMA-3.3.0).'
       enum:
         - SINGLE
@@ -11409,6 +11410,24 @@ components:
           type: string
         expiresAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        galascribeManaged:
+          additionalProperties: false
+          description: |
+            SCHEMA-3.30.0. Present when Galascribe owns the DNS records of this
+            domain, so the person is never asked to add records and a client
+            shows the steps as "Galascribe is setting this up". Absent for a
+            domain the person brought. `GALASCRIBE_ADDRESS`: a free
+            `name.galascribe.com` address (Basic and Pro). `INCLUDED_DOMAIN`: the
+            domain registered for the organization with its plan (Pro).
+          properties:
+            kind:
+              enum:
+                - GALASCRIBE_ADDRESS
+                - INCLUDED_DOMAIN
+              type: string
+          required:
+            - kind
+          type: object
         hostname:
           description: Lower-case ASCII (IDNA) hostname.
           maxLength: 253
@@ -13068,6 +13087,15 @@ components:
     PlatformPlan:
       additionalProperties: false
       properties:
+        collaboratorLimit:
+          description:
+            'SCHEMA-3.30.0, the collaborators (active members other than owners
+            plus pending invitations) one organization on this plan may have; a
+            further invitation is `409 PLAN_REQUIRED`. 0 means no limit.
+            Defaults: FREE 1, PRO and BUSINESS no limit.'
+          format: int64
+          minimum: 0
+          type: integer
         contactForm:
           description:
             'SCHEMA-3.23.0, whether sites on this plan may turn on the contact
@@ -13105,6 +13133,7 @@ components:
         - newsletterSubscriberLimit
         - contactForm
         - listen
+        - collaboratorLimit
       type: object
     PlatformPlanCapacityRelease:
       additionalProperties: false
@@ -13171,6 +13200,13 @@ components:
     PutPlatformPlansByPlanKeyRequest:
       additionalProperties: false
       properties:
+        collaboratorLimit:
+          description:
+            "SCHEMA-3.30.0, optional; absent keeps the plan's current value. 0
+            means no limit."
+          format: int64
+          minimum: 0
+          type: integer
         contactForm:
           description:
             "SCHEMA-3.23.0, optional; absent keeps the plan's current value."
@@ -15880,6 +15916,841 @@ components:
       maxItems: 11
       type: array
       uniqueItems: true
+    OrganizationPlan:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.30.0: an organization's plan as the App needs it. `tier` is
+        the API tier (`FREE`, `PRO`, `BUSINESS`); the plans are named Free,
+        Basic and Pro in billing and in the App, so `PRO` is Basic and
+        `BUSINESS` is Pro."
+      properties:
+        collaborators:
+          additionalProperties: false
+          description:
+            How many people besides the owners the plan lets the organization
+            have.
+          properties:
+            limit:
+              description:
+                The most collaborators the plan allows, or null when the plan
+                has no limit.
+              format: int64
+              minimum: 0
+              type:
+                - integer
+                - 'null'
+            used:
+              description:
+                Active members other than owners plus invitations still
+                `PENDING`. An invitation counts from the moment it is sent.
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - limit
+            - used
+          type: object
+        entitlements:
+          additionalProperties: false
+          description:
+            What the plan includes. A client hides what is false and offers the
+            upgrade.
+          properties:
+            galascribeAddress:
+              description:
+                A free `name.galascribe.com` address for a site (Basic and Pro).
+              type: boolean
+            galascribeHosting:
+              description:
+                Galascribe can host what GitHub Pages does not allow, on request
+                (Basic and Pro).
+              type: boolean
+            includedDomain:
+              description:
+                One domain registered for the organization at no charge (Pro).
+              type: boolean
+          required:
+            - galascribeAddress
+            - includedDomain
+            - galascribeHosting
+          type: object
+        galascribeAddressZone:
+          description:
+            The zone Galascribe addresses are created in, for example
+            `galascribe.com`. Absent when Galascribe addresses are not
+            configured on this deployment; a client then hides the option.
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        tier:
+          $ref: '#/components/schemas/PlatformPlanKey'
+          description: The plan tier.
+      required:
+        - tier
+        - collaborators
+        - entitlements
+      type: object
+    HostingFindingCode:
+      description:
+        '`SITE_OVER_SIZE_LIMIT`: the published files add up to 1 GiB or more,
+        the most GitHub Pages serves. `SITE_NEAR_SIZE_LIMIT`: they add up to 800
+        MiB or more. `FILE_OVER_SIZE_LIMIT`: one file is 100 MiB or more, which
+        GitHub refuses. `LARGE_FILE`: one file is 50 MiB or more, which GitHub
+        warns about. `DIRECTORY_TOO_LARGE`: one folder holds more than 3,000
+        entries. `HEAVY_MEDIA`: images, audio, video and PDFs together are 500
+        MiB or more. `COMMERCE_PAGE`: a page links to a checkout and uses shop
+        words, or is named like a shop, and GitHub does not allow sites that are
+        mainly for selling. `SENSITIVE_FORM`: a page has a password or
+        card-number field, and GitHub does not allow sending passwords or card
+        numbers.'
+      enum:
+        - SITE_OVER_SIZE_LIMIT
+        - SITE_NEAR_SIZE_LIMIT
+        - FILE_OVER_SIZE_LIMIT
+        - LARGE_FILE
+        - DIRECTORY_TOO_LARGE
+        - HEAVY_MEDIA
+        - COMMERCE_PAGE
+        - SENSITIVE_FORM
+      type: string
+    HostingFindingSeverity:
+      description:
+        '`LIMIT`: GitHub will refuse the deploy or stop serving the site.
+        `WARNING`: a risk that does not stop publishing.'
+      enum:
+        - LIMIT
+        - WARNING
+      type: string
+    HostingFindingSignal:
+      description:
+        'What made a `COMMERCE_PAGE` or `SENSITIVE_FORM` finding fire.
+        `CHECKOUT_LINK`: a link to a known checkout or payment host.
+        `SHOP_WORDS`: words such as "add to cart" or "buy now". `SHOP_ADDRESS`:
+        a page address or title such as shop, store, cart or checkout.
+        `PASSWORD_FIELD`: a password input in raw HTML. `CARD_FIELD`: a
+        card-number or security-code input in raw HTML.'
+      enum:
+        - CHECKOUT_LINK
+        - SHOP_WORDS
+        - SHOP_ADDRESS
+        - PASSWORD_FIELD
+        - CARD_FIELD
+      type: string
+    HostingOffer:
+      description:
+        '`UPGRADE`: the Free plan can move to a paid plan, which includes
+        Galascribe hosting. `REQUEST_GALASCRIBE_HOSTING`: a paid plan can ask
+        Galascribe to host what GitHub does not allow.'
+      enum:
+        - UPGRADE
+        - REQUEST_GALASCRIBE_HOSTING
+      type: string
+    HostingFindingItem:
+      additionalProperties: false
+      description: One file or page a finding is about.
+      properties:
+        bytes:
+          description: The file size in bytes, for size findings.
+          format: int64
+          minimum: 0
+          type: integer
+        path:
+          description: The path in the site's repository.
+          maxLength: 1024
+          minLength: 1
+          type: string
+        title:
+          description: The page's title, when it has one.
+          maxLength: 300
+          minLength: 1
+          type: string
+      required:
+        - path
+      type: object
+    HostingFinding:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.30.0: one thing the hosting check found. There is at most one
+        finding per `code`.'
+      properties:
+        bytes:
+          description:
+            'The measured size in bytes for a size finding: the total for the
+            site and media findings, the largest file for the file findings.'
+          format: int64
+          minimum: 0
+          type: integer
+        code:
+          $ref: '#/components/schemas/HostingFindingCode'
+        items:
+          description:
+            Up to 20 of the files or pages concerned, largest or first found
+            first. `pathCount` is the full number.
+          items:
+            $ref: '#/components/schemas/HostingFindingItem'
+          maxItems: 20
+          type: array
+        limitBytes:
+          description:
+            The threshold in bytes the finding is measured against, for a size
+            finding.
+          format: int64
+          minimum: 0
+          type: integer
+        pathCount:
+          description: How many files or pages the finding concerns in all.
+          format: int64
+          minimum: 0
+          type: integer
+        severity:
+          $ref: '#/components/schemas/HostingFindingSeverity'
+        signals:
+          description:
+            What made a `COMMERCE_PAGE` or `SENSITIVE_FORM` finding fire. Absent
+            for other codes.
+          items:
+            $ref: '#/components/schemas/HostingFindingSignal'
+          maxItems: 5
+          type: array
+          uniqueItems: true
+      required:
+        - code
+        - severity
+        - items
+        - pathCount
+      type: object
+    SiteHostingCheck:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.30.0: what the site's repository contains that GitHub Pages
+        limits or does not allow. It is advice: nothing here blocks publishing.
+        `findings` is empty and `offers` is empty when the site is fine."
+      properties:
+        checkedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+          description: When the check ran.
+        findings:
+          items:
+            $ref: '#/components/schemas/HostingFinding'
+          maxItems: 8
+          type: array
+        host:
+          description:
+            'Where the site is hosted today. `GITHUB_PAGES`: GitHub Pages.'
+          enum:
+            - GITHUB_PAGES
+          type: string
+        limits:
+          additionalProperties: false
+          description: The thresholds the check used, so a client can show them.
+          properties:
+            directoryEntries:
+              description:
+                The most entries one folder may hold before
+                `DIRECTORY_TOO_LARGE`.
+              format: int64
+              minimum: 0
+              type: integer
+            fileMaxBytes:
+              description: The file size at which `FILE_OVER_SIZE_LIMIT` fires.
+              format: int64
+              minimum: 0
+              type: integer
+            fileWarningBytes:
+              description: The file size at which `LARGE_FILE` fires.
+              format: int64
+              minimum: 0
+              type: integer
+            mediaWarningBytes:
+              description: The media total at which `HEAVY_MEDIA` fires.
+              format: int64
+              minimum: 0
+              type: integer
+            siteBytes:
+              description: The site size at which `SITE_OVER_SIZE_LIMIT` fires.
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - siteBytes
+            - fileWarningBytes
+            - fileMaxBytes
+            - directoryEntries
+            - mediaWarningBytes
+          type: object
+        offers:
+          description:
+            What the person can do about the findings. Empty when there is no
+            finding.
+          items:
+            $ref: '#/components/schemas/HostingOffer'
+          maxItems: 2
+          type: array
+          uniqueItems: true
+        planTier:
+          $ref: '#/components/schemas/PlatformPlanKey'
+          description: The organization's plan tier when the check ran.
+        revision:
+          description: The commit of the default branch that was checked.
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        totals:
+          additionalProperties: false
+          properties:
+            files:
+              description: Files in the repository.
+              format: int64
+              minimum: 0
+              type: integer
+            mediaBytes:
+              description: Bytes of images, audio, video and PDFs.
+              format: int64
+              minimum: 0
+              type: integer
+            mediaFiles:
+              description: Number of images, audio, video and PDF files.
+              format: int64
+              minimum: 0
+              type: integer
+            siteBytes:
+              description: Bytes of all files.
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - siteBytes
+            - mediaBytes
+            - mediaFiles
+            - files
+          type: object
+      required:
+        - checkedAt
+        - revision
+        - host
+        - planTier
+        - totals
+        - limits
+        - findings
+        - offers
+      type: object
+    AssistanceRequestKind:
+      description:
+        "`GALASCRIBE_HOSTING`: host what GitHub Pages does not allow.
+        `DOMAIN_REGISTRATION`: register the included domain by hand.
+        `DOMAIN_MOVE`: move a registered domain to the author's own account."
+      enum:
+        - GALASCRIBE_HOSTING
+        - DOMAIN_REGISTRATION
+        - DOMAIN_MOVE
+      type: string
+    AssistanceRequestState:
+      description:
+        '`OPEN`: waiting for the Galascribe team. `CLOSED`: an operator finished
+        it.'
+      enum:
+        - OPEN
+        - CLOSED
+      type: string
+    AssistanceRequestCreate:
+      additionalProperties: false
+      description: 'SCHEMA-3.30.0: a request for help with a site.'
+      properties:
+        domainName:
+          description:
+            The domain the request is about (`DOMAIN_REGISTRATION`,
+            `DOMAIN_MOVE`). Absent for other kinds.
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        findingCodes:
+          description:
+            The hosting-check findings the request is about
+            (`GALASCRIBE_HOSTING`). Absent for other kinds.
+          items:
+            $ref: '#/components/schemas/HostingFindingCode'
+          maxItems: 8
+          type: array
+          uniqueItems: true
+        kind:
+          $ref: '#/components/schemas/AssistanceRequestKind'
+        note:
+          description: Anything the person wants the Galascribe team to know.
+          maxLength: 1000
+          type: string
+      required:
+        - kind
+      type: object
+    AssistanceRequest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.30.0: a request the site made to the Galascribe team.'
+      properties:
+        closedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+          description:
+            When an operator closed the request. Absent while it is `OPEN`.
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        domainName:
+          description:
+            The domain the request is about (`DOMAIN_REGISTRATION`,
+            `DOMAIN_MOVE`). Absent for other kinds.
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        findingCodes:
+          description:
+            The hosting-check findings the request is about
+            (`GALASCRIBE_HOSTING`). Absent for other kinds.
+          items:
+            $ref: '#/components/schemas/HostingFindingCode'
+          maxItems: 8
+          type: array
+          uniqueItems: true
+        kind:
+          $ref: '#/components/schemas/AssistanceRequestKind'
+        requestId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/AssistanceRequestState'
+      required:
+        - requestId
+        - kind
+        - state
+        - createdAt
+      type: object
+    AssistanceRequestList:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AssistanceRequest'
+          maxItems: 100
+          minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    PlatformAssistanceRequest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.30.0: an assistance request with the organization and site it
+        came from, for the platform operator.'
+      properties:
+        closedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+          description:
+            When an operator closed the request. Absent while it is `OPEN`.
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        domainName:
+          description:
+            The domain the request is about (`DOMAIN_REGISTRATION`,
+            `DOMAIN_MOVE`). Absent for other kinds.
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        findingCodes:
+          description:
+            The hosting-check findings the request is about
+            (`GALASCRIBE_HOSTING`). Absent for other kinds.
+          items:
+            $ref: '#/components/schemas/HostingFindingCode'
+          maxItems: 8
+          type: array
+          uniqueItems: true
+        kind:
+          $ref: '#/components/schemas/AssistanceRequestKind'
+        note:
+          description: The person's note.
+          maxLength: 1000
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationName:
+          maxLength: 200
+          minLength: 1
+          type: string
+        publicationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publicationName:
+          maxLength: 200
+          minLength: 1
+          type: string
+        requestedByLogin:
+          description: The GitHub login of the person who asked.
+          maxLength: 100
+          minLength: 1
+          type: string
+        requestId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/AssistanceRequestState'
+      required:
+        - requestId
+        - kind
+        - state
+        - createdAt
+        - organizationId
+        - organizationName
+        - publicationId
+        - publicationName
+        - requestedByLogin
+      type: object
+    PlatformAssistanceRequestPage:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformAssistanceRequest'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GalascribeAddressReason:
+      description:
+        '`INVALID`: not a usable label. `RESERVED`: a name Galascribe keeps for
+        itself. `TAKEN`: another site has it or something already exists at that
+        name. `PLAN_REQUIRED`: the plan has no Galascribe address.
+        `NOT_CONFIGURED`: not set up on this deployment. `ALREADY_HAS_DOMAIN`:
+        the site already has a domain that is not detached.'
+      enum:
+        - INVALID
+        - RESERVED
+        - TAKEN
+        - PLAN_REQUIRED
+        - NOT_CONFIGURED
+        - ALREADY_HAS_DOMAIN
+      type: string
+    GalascribeAddressLabel:
+      description:
+        'The part before `.galascribe.com`: 3 to 63 lowercase letters, digits
+        and hyphens, not starting or ending with a hyphen. A label that is not
+        usable is answered by the check as `INVALID`.'
+      maxLength: 63
+      minLength: 1
+      type: string
+    GalascribeAddressCheck:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.30.0: whether a label can become the site's Galascribe
+        address."
+      properties:
+        available:
+          type: boolean
+        hostname:
+          description: The full address, when the label is well formed.
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        label:
+          $ref: '#/components/schemas/GalascribeAddressLabel'
+        reason:
+          $ref: '#/components/schemas/GalascribeAddressReason'
+          description:
+            Why the label cannot be used. Absent when `available` is true.
+      required:
+        - label
+        - available
+      type: object
+    DomainRegistrationCheckReason:
+      description:
+        '`UNAVAILABLE`: already registered. `EXTENSION_NOT_SUPPORTED`:
+        Galascribe cannot register that ending. `PREMIUM`: a premium name.
+        `OVER_PRICE_CAP`: the first-year price is above what the included domain
+        covers. `INVALID_NAME`: not a usable domain name. `PLAN_REQUIRED`: the
+        plan has no included domain. `ALREADY_USED`: the organization already
+        used its included domain. `NOT_CONFIGURED`: registration is not set up
+        on this deployment.'
+      enum:
+        - UNAVAILABLE
+        - EXTENSION_NOT_SUPPORTED
+        - PREMIUM
+        - OVER_PRICE_CAP
+        - INVALID_NAME
+        - PLAN_REQUIRED
+        - ALREADY_USED
+        - NOT_CONFIGURED
+      type: string
+    DomainRegistrationCheck:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.30.0: whether a name can be registered as the included domain.
+        It carries no price: the domain is included in the plan.'
+      properties:
+        name:
+          description: The name that was checked, as Galascribe read it.
+          maxLength: 253
+          minLength: 1
+          type: string
+        reason:
+          $ref: '#/components/schemas/DomainRegistrationCheckReason'
+          description:
+            Why the name cannot be registered. Absent when `registrable` is
+            true.
+        registrable:
+          type: boolean
+      required:
+        - name
+        - registrable
+      type: object
+    DomainRegistrationAddress:
+      additionalProperties: false
+      properties:
+        city:
+          maxLength: 100
+          minLength: 1
+          type: string
+        countryCode:
+          description: ISO 3166-1 alpha-2, upper case.
+          pattern: ^[A-Z]{2}$
+          type: string
+        postalCode:
+          maxLength: 20
+          minLength: 1
+          type: string
+        region:
+          description:
+            State or province (the region), when the country has them.
+          maxLength: 100
+          minLength: 1
+          type: string
+        street:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - street
+        - city
+        - postalCode
+        - countryCode
+      type: object
+    DomainRegistrant:
+      additionalProperties: false
+      description:
+        The person or business that will own the domain. Sent to the registrar
+        and never stored, logged or returned by Galascribe (write-only).
+      properties:
+        address:
+          $ref: '#/components/schemas/DomainRegistrationAddress'
+        email:
+          format: email
+          maxLength: 254
+          minLength: 3
+          type: string
+        name:
+          maxLength: 200
+          minLength: 1
+          type: string
+        organization:
+          description: The business name, when the owner is a business.
+          maxLength: 200
+          minLength: 1
+          type: string
+        phone:
+          description: Country code and number in the form `+1.5555555555`.
+          pattern: ^\+[0-9]{1,3}\.[0-9]{4,14}$
+          type: string
+      required:
+        - name
+        - email
+        - phone
+        - address
+      type: object
+    DomainRegistrationCreate:
+      additionalProperties: false
+      description: 'SCHEMA-3.30.0: register the included domain.'
+      properties:
+        domainName:
+          description: The domain to register, for example `mayawrites.com`.
+          maxLength: 253
+          minLength: 1
+          type: string
+        registrant:
+          $ref: '#/components/schemas/DomainRegistrant'
+      required:
+        - domainName
+        - registrant
+      type: object
+    DomainRegistrationState:
+      description:
+        '`REQUESTED`: accepted, not started. `REGISTERING`: the registrar is
+        registering the name. `ACTION_REQUIRED`: the registrar needs something
+        Galascribe cannot do alone; the person may ask for help. `REGISTERED`:
+        the name is bought and the site does not use it yet. `ATTACHED`: the
+        site uses it; `domainId` names the binding. `FAILED`: registration did
+        not happen; `failure` says why.'
+      enum:
+        - REQUESTED
+        - REGISTERING
+        - ACTION_REQUIRED
+        - REGISTERED
+        - ATTACHED
+        - FAILED
+      type: string
+    DomainRegistration:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.30.0: the registration of an included domain. The registrant
+        is never part of it.'
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        domainId:
+          description:
+            The domain binding once the site uses the domain (`ATTACHED`).
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        domainName:
+          maxLength: 253
+          minLength: 1
+          pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
+          type: string
+        failure:
+          additionalProperties: false
+          description: Present for `FAILED` and `ACTION_REQUIRED`.
+          properties:
+            code:
+              description: A short machine-readable reason.
+              maxLength: 100
+              minLength: 1
+              type: string
+            detail:
+              description: A plain sentence for the person.
+              maxLength: 500
+              minLength: 1
+              type: string
+          required:
+            - code
+            - detail
+          type: object
+        registrationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        state:
+          $ref: '#/components/schemas/DomainRegistrationState'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - registrationId
+        - domainName
+        - state
+        - createdAt
+        - updatedAt
+      type: object
+    DomainRegistrationList:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DomainRegistration'
+          maxItems: 20
+          minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsCheckGalascribeAddressRequest:
+      additionalProperties: false
+      properties:
+        label:
+          $ref: '#/components/schemas/GalascribeAddressLabel'
+      required:
+        - label
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsClaimGalascribeAddressRequest:
+      additionalProperties: false
+      properties:
+        label:
+          $ref: '#/components/schemas/GalascribeAddressLabel'
+      required:
+        - label
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsCheckRequest:
+      additionalProperties: false
+      properties:
+        name:
+          description: The domain name to check, for example `mayawrites.com`.
+          maxLength: 253
+          minLength: 1
+          type: string
+      required:
+        - name
+      type: object
+    GetOrganizationsByOrganizationIdPlanResponse:
+      $ref: '#/components/schemas/OrganizationPlan'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheckResponse:
+      $ref: '#/components/schemas/SiteHostingCheck'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequestsRequest:
+      $ref: '#/components/schemas/AssistanceRequestCreate'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequestsResponse:
+      $ref: '#/components/schemas/AssistanceRequest'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequestsResponse:
+      $ref: '#/components/schemas/AssistanceRequestList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsCheckGalascribeAddressResponse:
+      $ref: '#/components/schemas/GalascribeAddressCheck'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsClaimGalascribeAddressResponse:
+      $ref: '#/components/schemas/DomainBinding'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsCheckResponse:
+      $ref: '#/components/schemas/DomainRegistrationCheck'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsRequest:
+      $ref: '#/components/schemas/DomainRegistrationCreate'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsResponse:
+      $ref: '#/components/schemas/DomainRegistration'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsResponse:
+      $ref: '#/components/schemas/DomainRegistrationList'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsByRegistrationIdResponse:
+      $ref: '#/components/schemas/DomainRegistration'
+    GetPlatformAssistanceRequestsResponse:
+      $ref: '#/components/schemas/PlatformAssistanceRequestPage'
+    PostPlatformAssistanceRequestsByRequestIdCloseResponse:
+      $ref: '#/components/schemas/PlatformAssistanceRequest'
+
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)
