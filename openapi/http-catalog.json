@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:9a6283166187baead823a51e679e4ba245996e2daf63e19ccb74e3696a2dd35c",
+  "openApiDigest": "sha256:ccec64c2b226de64f8411f98900c9441a4846ca3fc616d043eac3a7a79406fa0",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -578,6 +578,19 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPlan",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/plan",
+      "purpose": "read an organization's plan",
+      "capabilityKey": "organization.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationImports",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publication-imports",
@@ -804,6 +817,32 @@
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/appearance",
       "purpose": "read this publication's theme selection at the main branch head",
       "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/assistance-requests",
+      "purpose": "list a site's requests for help",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/assistance-requests",
+      "purpose": "ask Galascribe for help with a site",
+      "capabilityKey": "publication.settings.manage",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -1064,6 +1103,58 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrations",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domain-registrations",
+      "purpose": "list the domain registrations of a site",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrations",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domain-registrations",
+      "purpose": "register the included domain",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsCheck",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domain-registrations:check",
+      "purpose": "check a domain name for registration",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsByRegistrationId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domain-registrations/{registrationId}",
+      "purpose": "read a domain registration",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "domains"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdDomains",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains",
@@ -1081,6 +1172,32 @@
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains",
       "purpose": "add a custom domain",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsCheckGalascribeAddress",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains:check-galascribe-address",
+      "purpose": "check a Galascribe address",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "domains"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsClaimGalascribeAddress",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/domains:claim-galascribe-address",
+      "purpose": "claim a Galascribe address",
       "capabilityKey": "publication.settings.manage",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -1906,6 +2023,19 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/site/hosting-check",
+      "purpose": "read a site's hosting check",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/transfers",
@@ -2122,6 +2252,32 @@
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformAssistanceRequests",
+      "method": "GET",
+      "path": "/v2/platform/assistance-requests",
+      "purpose": "list assistance requests",
+      "capabilityKey": "platform.users.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "postPlatformAssistanceRequestsByRequestIdClose",
+      "method": "POST",
+      "path": "/v2/platform/assistance-requests/{requestId}:close",
+      "purpose": "close an assistance request",
+      "capabilityKey": "platform.users.contact",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "platform"
@@ -3297,5 +3453,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:13614d005135fd4a4fcdd93321c8b812d45be1ddcc5700e65a9d79f9a540bab3"
+  "digest": "sha256:a52fd507fecb38bef3ebe3e30a2b2bcaa0be5952e949e65d1061e4c9ad7765ed"
 }

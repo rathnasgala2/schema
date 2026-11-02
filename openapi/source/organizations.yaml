@@ -1179,9 +1179,25 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      The organization's plan allows no more collaborators. See
+                      the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE
+          description:
+            COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE, PLAN_REQUIRED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -1190,6 +1206,7 @@ paths:
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
             - INVALID_SOURCE_STATE
+            - PLAN_REQUIRED
         '422':
           content:
             application/problem+json:
@@ -1227,6 +1244,13 @@ paths:
         the invitation, never a verified identity and never an authorization
         input. Hand the link only to the person it is meant for, and revoke and
         re-invite if it goes astray (LOCAL-34 G6).
+
+        Every organization may invite, on any plan (SCHEMA-3.30.0). A personal
+        organization becomes collaborative with its first invitation. The plan
+        limits how many collaborators the organization may have: active members
+        other than owners plus invitations still `PENDING` (`GET
+        .../plan` shows the count). An invitation past the limit is `409
+        PLAN_REQUIRED`, and the detail names the limit.
       summary: create invitation bound to scope, role and epoch
       tags:
         - organizations
@@ -1244,6 +1268,7 @@ paths:
         - AUTHORIZATION_DENIED
         - COMMAND_REPLAY_CONFLICT
         - INVALID_SOURCE_STATE
+        - PLAN_REQUIRED
         - REAUTH_REQUIRED
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
@@ -22240,4 +22265,608 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: update
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/plan:
+    get:
+      description: |
+        Needs `organization.view`, so any member of the organization may read it.
+        The organization's plan tier, how many collaborators it may have and how
+        many it has, and what the plan includes: a `name.galascribe.com`
+        address, one included domain and Galascribe hosting. `collaborators.limit`
+        is null when the plan has no limit; `collaborators.used` counts the active
+        members other than owners plus the invitations still `PENDING`.
+        `galascribeAddressZone` is the zone Galascribe addresses are created in and
+        is absent when Galascribe addresses are not configured, so a client hides
+        the option.
+      operationId: getOrganizationsByOrganizationIdPlan
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    collaborators:
+                      limit: null
+                      used: 2
+                    entitlements:
+                      galascribeAddress: true
+                      galascribeHosting: true
+                      includedDomain: false
+                    galascribeAddressZone: galascribe.com
+                    tier: PRO
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPlanResponse'
+          description: read an organization's plan succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: read an organization's plan
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: organization.view
+      x-gala-concurrency: authorization-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read an organization's plan
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/site/hosting-check:
+    get:
+      description: |
+        Needs `publication.view`. What the site's repository contains that GitHub
+        Pages limits or does not allow, as a `SiteHostingCheck`, computed for the
+        default branch's current commit (`revision`) from the repository's file
+        tree and a bounded scan of its pages. It is advice and never blocks
+        publishing: a `LIMIT` finding is something GitHub will refuse or stop
+        serving, a `WARNING` is a risk. `offers` is empty when there is no
+        finding, `UPGRADE` on the Free plan and `REQUEST_GALASCRIBE_HOSTING` on a
+        paid plan. The response carries a strong `ETag` and honours
+        `If-None-Match` with `304` and no body; `Cache-Control` is `private,
+        no-cache`, so a browser stores the body and revalidates it on every use.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - description: A previously returned `ETag`; a match answers `304`.
+          example: '"1"'
+          in: header
+          name: If-None-Match
+          required: false
+          schema:
+            maxLength: 256
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    checkedAt: 2026-11-02T09:00:00.000Z
+                    findings:
+                      - bytes: 62914560
+                        code: LARGE_FILE
+                        items:
+                          - bytes: 62914560
+                            path: media/launch-tour.mp4
+                        limitBytes: 52428800
+                        pathCount: 1
+                        severity: WARNING
+                      - code: COMMERCE_PAGE
+                        items:
+                          - path: pages/shop.md
+                            title: Shop
+                        pathCount: 1
+                        severity: WARNING
+                        signals:
+                          - CHECKOUT_LINK
+                          - SHOP_WORDS
+                    host: GITHUB_PAGES
+                    limits:
+                      directoryEntries: 3000
+                      fileMaxBytes: 104857600
+                      fileWarningBytes: 52428800
+                      mediaWarningBytes: 524288000
+                      siteBytes: 1073741824
+                    offers:
+                      - UPGRADE
+                    planTier: FREE
+                    revision: sha1:0000000000000000000000000000000000000000
+                    totals:
+                      files: 142
+                      mediaBytes: 83886080
+                      mediaFiles: 12
+                      siteBytes: 125829120
+              schema:
+                $ref:
+                  "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPubli\
+                  cationIdSiteHostingCheckResponse"
+          description: read a site's hosting check succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlPrivateNoCache'
+            ETag:
+              description: Strong validator of this response body.
+              required: true
+              schema:
+                maxLength: 256
+                type: string
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '304':
+          description: the caller's `If-None-Match` still matches; no body
+          headers:
+            ETag:
+              description: Strong validator of this response body.
+              required: true
+              schema:
+                maxLength: 256
+                type: string
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '503':
+          content:
+            application/problem+json:
+              examples:
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read a site's hosting check
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read a site's hosting check
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - DEPENDENCY_UNAVAILABLE
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/assistance-requests:
+    post:
+      description: |
+        Needs `publication.settings.manage`. Paid plans only: `409 PLAN_REQUIRED`
+        on the Free plan. Asks the Galascribe team to do something by hand for the
+        site: `GALASCRIBE_HOSTING` (host what GitHub does not allow, with the
+        `findingCodes` of the hosting check), `DOMAIN_REGISTRATION` (register the
+        included domain `domainName` for the author) or `DOMAIN_MOVE` (move the
+        domain `domainName` to the author's own account). The request is `OPEN`
+        until an operator closes it. When a request of the same `kind` is already
+        `OPEN` for the site, that request is returned with `200` and nothing new
+        is created.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  findingCodes:
+                    - LARGE_FILE
+                  kind: GALASCRIBE_HOSTING
+                  note: The tour video is 60 MB.
+            schema:
+              $ref:
+                "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPubl\
+                icationIdAssistanceRequestsRequest"
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: The request of this kind that is already open
+                  value:
+                    createdAt: 2026-11-02T09:00:00.000Z
+                    findingCodes:
+                      - LARGE_FILE
+                    kind: GALASCRIBE_HOSTING
+                    requestId: 018f0000-0000-7000-8000-000000000001
+                    state: OPEN
+              schema:
+                $ref: '#/components/schemas/AssistanceRequest'
+          description: a request of the same kind is already open for the site
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '201':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: 2026-11-02T09:00:00.000Z
+                    findingCodes:
+                      - LARGE_FILE
+                    kind: GALASCRIBE_HOSTING
+                    requestId: 018f0000-0000-7000-8000-000000000001
+                    state: OPEN
+              schema:
+                $ref:
+                  "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPubl\
+                  icationIdAssistanceRequestsResponse"
+          description: ask Galascribe for help with a site succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      The organization's plan does not include asking Galascribe
+                      for help. See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT, PLAN_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - PLAN_REQUIRED
+      security:
+        - browserSession: []
+      summary: ask Galascribe for help with a site
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: ask Galascribe for help with a site
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - PLAN_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    get:
+      description: |
+        Needs `publication.view`. The requests this site has made to the Galascribe
+        team (`AssistanceRequest`), newest first, open and closed. At most 100.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - createdAt: 2026-11-02T09:00:00.000Z
+                        findingCodes:
+                          - LARGE_FILE
+                        kind: GALASCRIBE_HOSTING
+                        requestId: 018f0000-0000-7000-8000-000000000001
+                        state: OPEN
+              schema:
+                $ref:
+                  "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPubli\
+                  cationIdAssistanceRequestsResponse"
+          description: list a site's requests for help succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: list a site's requests for help
+      tags:
+        - organizations
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list a site's requests for help
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH

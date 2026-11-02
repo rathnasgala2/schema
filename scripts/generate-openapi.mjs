@@ -776,6 +776,9 @@ function validateContractClosure(records, components) {
         // SCHEMA-3.24.0: publish the update re-reads the repository head from
         // GitHub before it dispatches, so an unreachable GitHub is a 503.
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdSitePublishUpdate',
+        // SCHEMA-3.30.0: the hosting check reads the repository's file tree and
+        // pages from GitHub, so an unreachable GitHub is a 503.
+        'getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
     ) {

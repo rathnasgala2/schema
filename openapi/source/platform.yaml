@@ -1158,7 +1158,9 @@ paths:
         its sites may turn on Listen, the audio version of posts). Defaults of
         the first release: FREE 50 and no contact form, PRO 500 and a contact
         form, BUSINESS 2000 and a contact form. Listen defaults: FREE no, PRO
-        and BUSINESS yes.
+        and BUSINESS yes. `collaboratorLimit` (SCHEMA-3.30.0) is the most
+        collaborators an organization on the plan may have, 0 meaning no limit:
+        FREE 1, PRO and BUSINESS no limit.
       operationId: getPlatformPlans
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1172,17 +1174,20 @@ paths:
                   value:
                     effectiveAt: 2026-10-10T00:00:04.000Z
                     items:
-                      - contactForm: false
+                      - collaboratorLimit: 1
+                        contactForm: false
                         listen: false
                         newsletterSubscriberLimit: 50
                         planKey: FREE
                         publicationLimit: 1
-                      - contactForm: true
+                      - collaboratorLimit: 0
+                        contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 500
                         planKey: PRO
                         publicationLimit: 10
-                      - contactForm: true
+                      - collaboratorLimit: 0
+                        contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 2000
                         planKey: BUSINESS
@@ -1232,8 +1237,8 @@ paths:
         Operators only, with recent authentication. Atomically replaces the
         complete publication-capacity release, changing the named plan's limits
         while retaining the other two, at the release version in `If-Match`.
-        `newsletterSubscriberLimit`, `contactForm` and `listen` are optional:
-        absent keeps the plan's current value. The invariant FREE <= PRO <=
+        `newsletterSubscriberLimit`, `contactForm`, `listen` and
+        `collaboratorLimit` are optional: absent keeps the plan's current value. The invariant FREE <= PRO <=
         BUSINESS is enforced on `publicationLimit` only. `reason` is a
         non-sensitive operator reason code recorded in the audit event.
       operationId: putPlatformPlansByPlanKey
@@ -1270,17 +1275,20 @@ paths:
                   value:
                     effectiveAt: 2026-10-10T12:00:00.000Z
                     items:
-                      - contactForm: false
+                      - collaboratorLimit: 1
+                        contactForm: false
                         listen: false
                         newsletterSubscriberLimit: 50
                         planKey: FREE
                         publicationLimit: 1
-                      - contactForm: true
+                      - collaboratorLimit: 0
+                        contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 500
                         planKey: PRO
                         publicationLimit: 12
-                      - contactForm: true
+                      - collaboratorLimit: 0
+                        contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 2000
                         planKey: BUSINESS
@@ -4366,4 +4374,168 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: update
+      x-gala-tenant-scope: NONE
+  /v2/platform/assistance-requests:
+    get:
+      description: |
+        Operators only, with recent authentication. Keyset-paged requests that
+        authors made for help with their sites, newest first. `state` limits the
+        list to `OPEN` or `CLOSED` requests. Each item names the organization and
+        site, the GitHub login that asked and the optional note.
+      operationId: getPlatformAssistanceRequests
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - description: Which requests to list. Absent lists both.
+          example: OPEN
+          in: query
+          name: state
+          required: false
+          schema:
+            enum:
+              - OPEN
+              - CLOSED
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - createdAt: 2026-11-02T09:00:00.000Z
+                        findingCodes:
+                          - LARGE_FILE
+                        kind: GALASCRIBE_HOSTING
+                        requestId: 018f0000-0000-7000-8000-000000000001
+                        state: OPEN
+                        note: The tour video is 60 MB.
+                        organizationId: 018f0000-0000-7000-8000-000000000001
+                        organizationName: Maya Studio
+                        publicationId: 018f0000-0000-7000-8000-000000000001
+                        publicationName: Maya Writes
+                        requestedByLogin: maya
+              schema:
+                $ref: '#/components/schemas/GetPlatformAssistanceRequestsResponse'
+          description: list assistance requests succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list assistance requests
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.users.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list assistance requests
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/assistance-requests/{requestId}:close:
+    post:
+      description: |
+        Operators only, with recent authentication. Marks the request `CLOSED`
+        once the operator has done the work, and returns it. Closing a request that
+        is already closed returns it unchanged.
+      operationId: postPlatformAssistanceRequestsByRequestIdClose
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: requestId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: 2026-11-02T09:00:00.000Z
+                    findingCodes:
+                      - LARGE_FILE
+                    kind: GALASCRIBE_HOSTING
+                    requestId: 018f0000-0000-7000-8000-000000000001
+                    state: CLOSED
+                    note: The tour video is 60 MB.
+                    organizationId: 018f0000-0000-7000-8000-000000000001
+                    organizationName: Maya Studio
+                    publicationId: 018f0000-0000-7000-8000-000000000001
+                    publicationName: Maya Writes
+                    requestedByLogin: maya
+                    closedAt: 2026-11-02T09:00:00.000Z
+              schema:
+                $ref:
+                  "#/components/schemas/PostPlatformAssistanceRequestsByRequestIdCloseRespo\
+                  nse"
+          description: close an assistance request succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: close an assistance request
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.users.contact
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: close an assistance request
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
       x-gala-tenant-scope: NONE

@@ -250,9 +250,24 @@ paths:
                     status: 409
                     title: INVALID_SOURCE_STATE
                     type: urn:gala:problem:invalid-source-state
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      The organization's plan allows no more collaborators. See
+                      the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: INVALID_SOURCE_STATE
+          description: INVALID_SOURCE_STATE, PLAN_REQUIRED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -260,6 +275,7 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - INVALID_SOURCE_STATE
+            - PLAN_REQUIRED
         '422':
           content:
             application/problem+json:
@@ -294,7 +310,10 @@ paths:
         for the inviter's benefit and is never compared with the accepting
         principal's verified identity (LOCAL-34 G6). The token is single-use and
         non-enumerating; recipient binding is revisited when verified email
-        exists.
+        exists. The organization's plan limits its collaborators (SCHEMA-3.30.0):
+        when accepting would take it past the limit, because the plan changed
+        since the invitation was sent, the answer is `409 PLAN_REQUIRED` and the
+        invitation stays `PENDING`.
       security:
         - {}
         - browserSession: []
@@ -313,6 +332,7 @@ paths:
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - INVALID_SOURCE_STATE
+        - PLAN_REQUIRED
         - REQUEST_FIELD_UNKNOWN
         - VALIDATION_FAILED
       x-gala-replay-identity: invitation-capability
