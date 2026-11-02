@@ -2587,6 +2587,10 @@ test('SCHEMA-3.7.0: platform console exposes only implemented projections', asyn
   ]);
   const user = schemas.PlatformUser.properties;
   assert.ok(user.personId && user.state && user.planTiers);
+  // SCHEMA-3.31.0: the agreed address itself, nullable, beside the on-file flag.
+  assert.equal(user.contactEmail.maxLength, 320);
+  assert.deepEqual(user.contactEmail.type, ['string', 'null']);
+  assert.ok(schemas.PlatformUser.required.includes('contactEmail'));
   for (const invented of [
     'subscriptionStatus',
     'interactions',

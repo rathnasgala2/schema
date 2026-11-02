@@ -12482,10 +12482,20 @@ components:
     PlatformUser:
       additionalProperties: false
       properties:
+        contactEmail:
+          description:
+            SCHEMA-3.31.0, the contact email address the person agreed to share.
+            Returned only when one is on file and the caller holds
+            `platform.users.contact`; null otherwise.
+          maxLength: 320
+          type:
+            - string
+            - 'null'
         contactEmailOnFile:
           description:
-            Whether a contact email the person agreed to is on file. The address
-            itself is never returned.
+            Whether a contact email the person agreed to is on file. True
+            whenever an agreed address is on file, whether or not the caller may
+            see it.
           type: boolean
         createdAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
@@ -12530,6 +12540,7 @@ components:
         - publicationCount
         - planTiers
         - contactEmailOnFile
+        - contactEmail
       type: object
     GetPlatformUsersResponse:
       additionalProperties: false

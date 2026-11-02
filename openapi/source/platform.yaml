@@ -637,7 +637,9 @@ paths:
           schema:
             $ref: '#/components/schemas/PlatformPersonState'
         - description:
-            Case-insensitive match against person id, display name, or login.
+            Case-insensitive match against person id, display name, or login. A
+            search containing "@" also matches a person whose contact email on
+            file equals it exactly (case-insensitive).
           example: ada
           in: query
           name: search
@@ -658,7 +660,8 @@ paths:
                   value:
                     hasMore: false
                     items:
-                      - contactEmailOnFile: true
+                      - contactEmail: ada@example.com
+                        contactEmailOnFile: true
                         createdAt: 2026-09-01T12:00:00.000Z
                         displayName: Ada Reader
                         lastSignInAt: 2026-10-10T11:30:00.000Z

@@ -9602,8 +9602,14 @@ components:
     PlatformUser:
       additionalProperties: false
       properties:
+        contactEmail:
+          description: SCHEMA-3.31.0, the contact email address the person agreed to share. Returned only when one is on file and the caller holds `platform.users.contact`; null otherwise.
+          maxLength: 320
+          type:
+            - string
+            - "null"
         contactEmailOnFile:
-          description: Whether a contact email the person agreed to is on file. The address itself is never returned.
+          description: Whether a contact email the person agreed to is on file. True whenever an agreed address is on file, whether or not the caller may see it.
           type: boolean
         createdAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
@@ -9648,6 +9654,7 @@ components:
         - publicationCount
         - planTiers
         - contactEmailOnFile
+        - contactEmail
       type: object
     PlatformWebhookEvent:
       additionalProperties: false
@@ -65946,7 +65953,7 @@ paths:
           required: false
           schema:
             $ref: "#/components/schemas/PlatformPersonState"
-        - description: Case-insensitive match against person id, display name, or login.
+        - description: Case-insensitive match against person id, display name, or login. A search containing "@" also matches a person whose contact email on file equals it exactly (case-insensitive).
           example: ada
           in: query
           name: search
@@ -65967,7 +65974,8 @@ paths:
                   value:
                     hasMore: false
                     items:
-                      - contactEmailOnFile: true
+                      - contactEmail: ada@example.com
+                        contactEmailOnFile: true
                         createdAt: "2026-09-01T12:00:00.000Z"
                         displayName: Ada Reader
                         lastSignInAt: "2026-10-10T11:30:00.000Z"
