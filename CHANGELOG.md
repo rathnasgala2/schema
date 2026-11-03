@@ -8,6 +8,28 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.32.1] - 2026-11-03
+
+Three contract gaps found while building the 3.32.0 consumers. Additive: every
+3.32.0 request and response still validates; the two new members are optional
+and the new `409` only documents a problem the API already answers. A client
+that rejects unknown response members must be updated first.
+
+### Added
+
+- `POST .../publications/{publicationId}/newsletter-subscribers:import`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport`)
+  documents `409 NEWSLETTER_UNAVAILABLE`, answered when the site takes no
+  subscribers (it is not in Galascribe newsletter mode).
+- `ModerationQueueItem.comment` gains optional `likeCount` (integer, absent
+  counts as 0) and `pinned` (boolean, absent counts as false), worded as on
+  `CommentView`, so the moderation screens read the pin state instead of
+  deriving it from the decision log. The decide response carries the same shape.
+- `GET .../publications/{publicationId}`
+  (`GetOrganizationsByOrganizationIdPublicationsByPublicationIdResponse`) gains
+  optional `createdAt` (date-time, absent means unknown), so a client can apply
+  rules that depend on the age of the site.
+
 ## [3.32.0] - 2026-11-03
 
 The newsletter, recommendation, file-download and comment contracts for the
@@ -3992,7 +4014,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.32.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.32.1...HEAD
+[3.32.1]: https://github.com/rathnasgala2/schema/compare/v3.32.0...v3.32.1
 [3.32.0]: https://github.com/rathnasgala2/schema/compare/v3.31.0...v3.32.0
 [3.31.0]: https://github.com/rathnasgala2/schema/compare/v3.30.0...v3.31.0
 [3.30.0]: https://github.com/rathnasgala2/schema/compare/v3.29.0...v3.30.0
