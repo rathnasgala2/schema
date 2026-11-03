@@ -8,6 +8,70 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.32.0] - 2026-11-03
+
+The newsletter, recommendation, file-download and comment contracts for the
+parity features. Additive: every 3.31 request, response, `publication.json`,
+build input and interactions configuration still validates; every new member is
+optional, every new operation is new, and the new enum members only widen what a
+server may send. `NewsletterSubscriberState` gains `suppressed`,
+`ModerationDecision` gains `PIN` and `UNPIN`, and the issue, confirmation,
+newsletter-settings and comment responses gain optional members, so a client
+that rejects unknown members or closed enum values must be updated first.
+
+### Added
+
+- `publication.schema.json` and `build-input.schema.json`: the Galascribe-mode
+  `newsletter` object takes an optional `welcome` (`subject`: one line of 1 to
+  120 graphemes, `body`: plain text of 1 to 2000 graphemes) and an optional
+  `afterSignupUrl` (https).
+- `publication.schema.json` and `build-input.schema.json`: a top-level optional
+  `recommendations` array (at most 24) of `recommendation` objects (`url`,
+  `title`, optional `description` up to 300 graphemes, optional `addedOn`
+  YYYY-MM-DD). `url` is unique within the array; JSON Schema cannot express
+  uniqueness by one member, so consumers enforce it.
+- `build-input.schema.json`: `application/pdf` joins the `mediaType` enum of a
+  content build media file, with a 10 MiB bound on `byteLength`.
+  `artifact-manifest.schema.json` and `build-provenance.schema.json` admit
+  `application/pdf` in their asset `mediaType` enum, so an emitted PDF row no
+  longer falls back to `application/octet-stream`.
+- `interactions-config.schema.json`: `comments.likes` (boolean, default false).
+- `POST .../publications/{publicationId}/newsletter-subscribers:import`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport`)
+  takes up to 5000 parsed addresses and `attestation: true` and answers `202`
+  with `{queued, skippedKnown, invalid, overCapacity}`. Needs
+  `publication.audience.manage`.
+- `NewsletterSubscriberState.suppressed`: an address that bounced or drew a spam
+  complaint.
+- `NewsletterIssue.delivered`, `opened` and `clicked` (optional integers, null
+  when not yet known).
+- `NewsletterConfirmation.afterSignupUrl` and `recommendations[]` (the new
+  `Recommendation` shape) beside the site view it already carries.
+- `NewsletterSettings` and the `PUT .../newsletter-settings` request take
+  optional `welcome` (`NewsletterWelcome`) and `afterSignupUrl`. On the request
+  an absent member leaves the stored value and null removes it.
+- The publication profile read gains optional `recommendations`, and the
+  `publicationProfile` entry of a `content-changes:plan` batch gains
+  `recommendations` beside `socialLinks`: absent keeps the stored list, an array
+  (at most 24, `url` unique) replaces the whole list, null clears it.
+- `POST /v2/callbacks/brevo` (`postCallbacksBrevo`): the Brevo email-event
+  webhook. The body is an opaque JSON object or array of objects; `202` on
+  admission, `401` when the `X-Gala-Webhook-Token` header is missing or wrong.
+  New security scheme `brevoWebhookToken`.
+- `GET .../publications/{publicationId}/content/documents/history?path=`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsHistory`)
+  returns `{entries}` (`ContentDocumentHistoryEntry`: `revision`, `committedAt`,
+  optional `authorLogin`, `message`, `source` of `draft`, `publish`, `import` or
+  `unknown`).
+- `POST .../publications/{publicationId}/content/link-preview`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdContentLinkPreview`)
+  takes `{url}` and returns `{title?, description?, siteName?, canonicalUrl?}`
+  (no image); `422 VALIDATION_FAILED` for an unreachable or non-HTML page.
+- Comments: `likeCount`, `likedByMe` and `pinned` on every level of
+  `CommentView`; the comment list takes `sort` (`newest`, the default, or
+  `oldest`); `PUT` and `DELETE /v2/public/comments/{commentId}/like` (`204`,
+  reader bearer); `ModerationDecision` gains `PIN` and `UNPIN`.
+
 ## [3.31.0] - 2026-11-02
 
 The platform users read returns the contact email address. Additive: every 3.30
@@ -3928,7 +3992,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.31.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.32.0...HEAD
+[3.32.0]: https://github.com/rathnasgala2/schema/compare/v3.31.0...v3.32.0
 [3.31.0]: https://github.com/rathnasgala2/schema/compare/v3.30.0...v3.31.0
 [3.30.0]: https://github.com/rathnasgala2/schema/compare/v3.29.0...v3.30.0
 [3.29.0]: https://github.com/rathnasgala2/schema/compare/v3.28.0...v3.29.0
