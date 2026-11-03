@@ -70,7 +70,11 @@ const T03_SCHEMA_HASHES = {
     // audio/ogg, audio/wav, video/mp4, video/webm for pass-through media
     // referenced from article bodies. Additive (enum widened); the
     // byte-identical build-provenance.schema.json copy moves with it.
-    '06c30d0889585fb23a5168df9e71666b377803b0a2a575d927b87ab128afd31d',
+    //
+    // 3.32.0 (reviewed 2026-11-03): MANIFEST_MEDIA_TYPES gains application/pdf
+    // for PDF file downloads attached to a post (the build-provenance copy
+    // moves with it). Additive (enum widened).
+    'e7244edd48725982f08f1ad64686af3e7fb72ad261c09a7a68dc1cfe86672287',
   author: '86774ba476ba5a11b298bdca0d949d2584bd698d375e4b5dbeac6203d5133730',
   'build-input':
     // 2026-09-25 code-discipline review, SCH-C3: adapterIdentity renamed to
@@ -116,7 +120,12 @@ const T03_SCHEMA_HASHES = {
     // 3.25.0 (reviewed 2026-10-29): the content record gains the optional deleteDate (new $defs/deleteDate) and the normalized publication gains the optional listing, aiRights and performance members (new $defs). Additive.
     //
     // 3.26.0 (reviewed 2026-10-30): the normalized publication gains the optional listen switch (new $defs/listen, shared with publication) and the normalized frontmatter gains the optional article-only listen member (new $defs/contentListenNormalized and $defs/listenAudio, the resolved audio file as its own definition). Additive.
-    'd727142db624f7565858916a68e87a491d9563e8191b1d0e260d0df16c46c89e',
+    //
+    // 3.32.0 (reviewed 2026-11-03): newsletter.welcome and afterSignupUrl,
+    // $defs/recommendation and the normalized publication's recommendations,
+    // application/pdf in the content build media types (10 MiB bound) and
+    // comments.likes in the embedded interactions configuration. Additive.
+    'bc61c3d2dd455d0de7d76f56734a39fbe329dc7c39db6a27a65bca2a09c25cd4',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -188,7 +197,11 @@ const T03_SCHEMA_HASHES = {
     // 3.25.0 (reviewed 2026-10-29): the optional closed listing, aiRights and performance members (new $defs). Additive.
     //
     // 3.26.0 (reviewed 2026-10-30): the optional closed listen member (new $defs/listen). Additive.
-    'cafc10cc90bfa900628d7d22e38d86f48514d0300b17c4dadb484af52bb7d9de',
+    //
+    // 3.32.0 (reviewed 2026-11-03): newsletter.welcome and afterSignupUrl, and
+    // the top-level recommendations with $defs/recommendation (shared
+    // byte-for-byte with build-input). Additive.
+    '833d80387d790dd5903aeaf311a6efc495e3b9d3152b25452d2e87594e931fe9',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

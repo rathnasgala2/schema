@@ -67,6 +67,8 @@ const ROOT_LEDGERS = {
       'policies',
       'footerCard',
       'newsletter',
+      // SCHEMA-3.32.0: the sites the author recommends.
+      'recommendations',
       // SCHEMA-3.22.0: the share buttons and the contact form.
       'sharing',
       'contactForm',

@@ -166,6 +166,11 @@ paths:
         removed and settles the appeal `DENIED` (`note` optional, at most 1000
         characters). `DENY_APPEAL` without a pending appeal is `409
         INVALID_DECISION`. Only a person decides an appeal.
+        SCHEMA-3.32.0: `PIN` pins a visible root comment to the top of its
+        article's comments (at most one pinned comment per article; pinning
+        another moves the pin) and `UNPIN` releases it; on any other comment, or
+        when the comment is already in the asked state, they are `409
+        INVALID_DECISION`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecide
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:11a6a57c617dd51f0784d23d0473d8a83038b1d8ec80eb6a7d5d9b83ebcf95d4",
+  "openApiDigest": "sha256:27d37fa955aa758d38c89dabbe084332bffc023c018c619ca9acce64d17ee999",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -67,6 +67,19 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "authentication"
+    },
+    {
+      "operationId": "postCallbacksBrevo",
+      "method": "POST",
+      "path": "/v2/callbacks/brevo",
+      "purpose": "admit an authenticated Brevo email event",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "callbacks"
     },
     {
       "operationId": "getCallbacksCloudflareOauth",
@@ -1012,6 +1025,32 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsHistory",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content/documents/history",
+      "purpose": "list the history of one content document",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdContentLinkPreview",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content/link-preview",
+      "purpose": "preview one linked page",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/content/preview-context",
@@ -1566,6 +1605,19 @@
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "RECENT_AUTHENTICATION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:import",
+      "purpose": "import a site's newsletter subscribers",
+      "capabilityKey": "publication.audience.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "audience"
@@ -2621,6 +2673,32 @@
       "sourceFragment": "public-interactions"
     },
     {
+      "operationId": "deletePublicCommentsByCommentIdLike",
+      "method": "DELETE",
+      "path": "/v2/public/comments/{commentId}/like",
+      "purpose": "withdraw the signed-in reader's like on one comment",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "putPublicCommentsByCommentIdLike",
+      "method": "PUT",
+      "path": "/v2/public/comments/{commentId}/like",
+      "purpose": "like one comment as the signed-in reader",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "public-interactions"
+    },
+    {
       "operationId": "postPublicCommentsByCommentIdReports",
       "method": "POST",
       "path": "/v2/public/comments/{commentId}/reports",
@@ -3453,5 +3531,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:f0e6ca67ada30caff3e03675eecd2d6c7a671800a0909b4d5d93839e5f017d28"
+  "digest": "sha256:6757c4f6ab4e8270463b3d9a57d601afe824fb724e8b7c8646846291235592de"
 }

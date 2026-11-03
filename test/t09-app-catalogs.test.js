@@ -439,8 +439,11 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // and domain registration operations until the App binds them.
   // Since 3.29.0 also the preview-context read until the App binds it to the
   // draft preview.
+  // Since 3.32.0 also the Brevo webhook, the subscriber import, the document
+  // history, the link preview and the comment like until the App binds them.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
+    'deletePublicCommentsByCommentIdLike',
     'deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
     'deleteReaderTokensCurrent',
@@ -449,6 +452,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getOrganizationsByOrganizationIdPlan',
     'getOrganizationsByOrganizationIdPublicationImports',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsHistory',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentPreviewContext',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDeployments',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrations',
@@ -470,14 +474,17 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getSelfExportsByExportIdArchive',
     'postAuthenticationPasskeyAssertionOptions',
     'postAuthenticationPasskeyAssertions',
+    'postCallbacksBrevo',
     'postCallbacksGithubApp',
     'postCallbacksStripe',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdContentLinkPreview',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrations',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsCheck',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsCheckGalascribeAddress',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsClaimGalascribeAddress',
+    'postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefresh',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdBringUpToDate',
@@ -498,6 +505,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postWorkloadsDeploymentReceipts',
     'postWorkloadsGithubReceiptExchanges',
     'putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination',
+    'putPublicCommentsByCommentIdLike',
     'putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'putPublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
   ]);

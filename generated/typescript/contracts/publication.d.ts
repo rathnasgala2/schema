@@ -52,11 +52,16 @@ export type PublicationListing = Readonly<{
 
 export type PublicationNewsletter =
   | Readonly<{
+      readonly afterSignupUrl?: PublicationUrlHttps;
       readonly emailContent: 'card' | 'full';
       readonly mode: 'galascribe';
       readonly replyToOwner: boolean;
       readonly text: PublicationPlainText;
       readonly title: PublicationPlainLabel;
+      readonly welcome?: Readonly<{
+        readonly body: PublicationPlainText;
+        readonly subject: PublicationPlainText;
+      }>;
     }>
   | Readonly<{
       readonly mode?: 'link';
@@ -96,6 +101,13 @@ export type PublicationPublicationPolicies = Readonly<{
 export type PublicationPublicationProfile = Readonly<{
   readonly body: PublicationRepoRelativePath;
   readonly route: PublicationCanonicalRoute;
+}>;
+
+export type PublicationRecommendation = Readonly<{
+  readonly addedOn?: string;
+  readonly description?: PublicationPlainText;
+  readonly title: PublicationPlainLabel;
+  readonly url: PublicationUrlHttps;
 }>;
 
 export type PublicationRepoRelativePath = string;
@@ -165,6 +177,7 @@ export type PublicationDocument = Readonly<{
   readonly performance?: PublicationPerformance;
   readonly policies?: PublicationPublicationPolicies;
   readonly profile?: PublicationPublicationProfile;
+  readonly recommendations?: ReadonlyArray<PublicationRecommendation>;
   readonly schemaId: 'urn:gala:schema:publication:2.0.0';
   readonly schemaVersion: '2.0.0';
   readonly sharing?: PublicationSharing;

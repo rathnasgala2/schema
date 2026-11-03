@@ -1320,6 +1320,164 @@ paths:
         - NONE
       x-gala-success-category: protocol
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:import:
+    post:
+      description: |
+        Needs `publication.audience.manage`. The body is the addresses the owner's file held, already parsed by the App (at most 5000 per call), with `attestation: true`: the owner states that every address agreed to hear from them. Each address that is new becomes a `pending` subscriber and is sent the same confirmation email a reader who signs up receives; nobody is subscribed until they confirm. An address that is already known (`pending`, `confirmed`, `unsubscribed` or `suppressed`) is skipped and counted in `skippedKnown`, so repeating a call is harmless. `invalid` counts entries that are not usable addresses and `overCapacity` those left out because the organization's subscriber allowance was reached. A call without `attestation: true` is `400 VALIDATION_FAILED`.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  addresses:
+                    - reader@example.com
+                  attestation: true
+            schema:
+              $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImportRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    invalid: 0
+                    overCapacity: 0
+                    queued: 1
+                    skippedKnown: 0
+              schema:
+                $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImportResponse'
+          description: import a site's newsletter subscribers succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '413':
+          $ref: '#/components/responses/RequestTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+      security:
+        - browserSession: []
+      summary: import a site's newsletter subscribers
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: import a site's newsletter subscribers
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/public/newsletter-confirmations/{token}:
     get:
       description:

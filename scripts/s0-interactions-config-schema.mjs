@@ -101,6 +101,12 @@ export function interactionsConfigParts(language) {
           enabled: { type: 'boolean' },
           allowReplies: { type: 'boolean' },
           maxDepth: { type: 'integer', minimum: 1, maximum: 4 },
+          likes: {
+            type: 'boolean',
+            default: false,
+            description:
+              'SCHEMA-3.32.0: when true, signed-in readers can like a comment. An absent member means false, so every 3.31 configuration still validates.',
+          },
         },
         ['enabled', 'allowReplies', 'maxDepth'],
       ),

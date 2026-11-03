@@ -521,6 +521,28 @@ test('Gala JSON request bodies are closed and the raw GitHub callback is the sol
       ]);
       continue;
     }
+    if (row.path === '/v2/callbacks/brevo') {
+      // SCHEMA-3.32.0: Brevo posts one opaque event per call; an object or an
+      // array of objects is accepted, authenticated by the shared token.
+      const branches = /** @type {JsonObject[]} */ (schema.oneOf);
+      assert.equal(branches.length, 2);
+      assert.equal(branches[0]?.additionalProperties, true);
+      assert.equal(branches[1]?.items.additionalProperties, true);
+      const headerNames = /** @type {JsonObject[]} */ (operation.parameters)
+        .filter((parameter) => parameter.in === 'header')
+        .map((parameter) => parameter.name)
+        .sort();
+      assert.deepEqual(headerNames, ['X-Gala-Webhook-Token']);
+      assert.deepEqual(operation.security, [{ brevoWebhookToken: [] }]);
+      assert.deepEqual(Object.keys(operation.responses).sort(), [
+        '202',
+        '400',
+        '401',
+        '413',
+        '415',
+      ]);
+      continue;
+    }
     if (row.path === '/v2/callbacks/github/app') {
       assert.equal(schema.additionalProperties, true);
       const headerNames = /** @type {JsonObject[]} */ (operation.parameters)

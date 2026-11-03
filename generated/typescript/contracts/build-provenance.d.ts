@@ -122,7 +122,8 @@ export type BuildProvenanceManifestAsset = Readonly<{
     | 'audio/ogg'
     | 'audio/wav'
     | 'video/mp4'
-    | 'video/webm';
+    | 'video/webm'
+    | 'application/pdf';
   readonly path: BuildProvenanceRepoRelativePath;
   readonly sha256: BuildProvenanceDigest;
 }>;
@@ -276,7 +277,8 @@ export type BuildProvenanceManifestRoute = Readonly<{
     | 'audio/ogg'
     | 'audio/wav'
     | 'video/mp4'
-    | 'video/webm';
+    | 'video/webm'
+    | 'application/pdf';
   readonly path: BuildProvenanceRepoRelativePath;
   readonly routeClass: 'html' | 'feed' | 'sitemap' | 'asset' | 'error';
   readonly sha256: BuildProvenanceDigest;

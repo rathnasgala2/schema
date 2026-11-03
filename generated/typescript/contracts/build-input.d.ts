@@ -130,7 +130,8 @@ export type BuildInputContentBuildMediaFile = Readonly<{
     | 'audio/ogg'
     | 'audio/wav'
     | 'video/mp4'
-    | 'video/webm';
+    | 'video/webm'
+    | 'application/pdf';
   readonly path: BuildInputRepoRelativePath;
   readonly sourceDigest: BuildInputDigest;
 }> &
@@ -223,6 +224,7 @@ export type BuildInputInteractionsConfig = Readonly<{
   readonly comments: Readonly<{
     readonly allowReplies: boolean;
     readonly enabled: boolean;
+    readonly likes?: boolean;
     readonly maxDepth: number;
   }>;
   readonly follows?: Readonly<{
@@ -308,11 +310,16 @@ export type BuildInputNavigationNormalized = Readonly<{
 
 export type BuildInputNewsletter =
   | Readonly<{
+      readonly afterSignupUrl?: BuildInputUrlHttps;
       readonly emailContent: 'card' | 'full';
       readonly mode: 'galascribe';
       readonly replyToOwner: boolean;
       readonly text: BuildInputPlainText;
       readonly title: BuildInputPlainLabel;
+      readonly welcome?: Readonly<{
+        readonly body: BuildInputPlainText;
+        readonly subject: BuildInputPlainText;
+      }>;
     }>
   | Readonly<{
       readonly mode?: 'link';
@@ -397,6 +404,7 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly body: BuildInputRenderableBody;
     readonly route: BuildInputCanonicalRoute;
   }>;
+  readonly recommendations?: ReadonlyArray<BuildInputRecommendation>;
   readonly sharing?: BuildInputSharing;
   readonly slug: BuildInputSlug;
   readonly socialLinks: ReadonlyArray<BuildInputSocialLink>;
@@ -434,6 +442,13 @@ export type BuildInputReactionVisual = Readonly<{
     | '🚀'
     | '💯'
     | '👀';
+}>;
+
+export type BuildInputRecommendation = Readonly<{
+  readonly addedOn?: string;
+  readonly description?: BuildInputPlainText;
+  readonly title: BuildInputPlainLabel;
+  readonly url: BuildInputUrlHttps;
 }>;
 
 export type BuildInputRenderableBody = Readonly<{

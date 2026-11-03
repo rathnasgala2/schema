@@ -166,6 +166,10 @@
       "publication:#/properties/authors:minItems",
       "publication:#/properties/authors:type",
       "publication:#/properties/description:x-gala-graphemeLength",
+      "publication:#/properties/recommendations:maxItems",
+      "publication:#/properties/recommendations:minItems",
+      "publication:#/properties/recommendations:type",
+      "publication:#/properties/recommendations:uniqueItems",
       "publication:#/properties/schemaId:const",
       "publication:#/properties/schemaVersion:const",
       "publication:#/properties/socialLinks:maxItems",
@@ -203,6 +207,48 @@
         { "type": "website", "uri": "https://fixture-1.example.com/" }
       ],
       "extensions": {},
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "publication-unknown-37e8c21ac844f738",
+    "coveredRuleIds": [
+      "publication:#/$defs/recommendation/properties/addedOn:pattern",
+      "publication:#/$defs/recommendation/properties/addedOn:type",
+      "publication:#/$defs/recommendation/properties/description:x-gala-graphemeLength",
+      "publication:#/$defs/recommendation:additionalProperties",
+      "publication:#/$defs/recommendation:required:title",
+      "publication:#/$defs/recommendation:required:url",
+      "publication:#/$defs/recommendation:type"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/recommendation",
+    "keyword": "additionalProperties",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "title": "fixture-1",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "publication-unknown-49434124c429699e",
+    "coveredRuleIds": [
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome/properties/body:x-gala-graphemeLength",
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome/properties/subject:pattern",
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome/properties/subject:x-gala-graphemeLength",
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome:additionalProperties",
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome:required:body",
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome:required:subject",
+      "publication:#/$defs/newsletter/oneOf/1/properties/welcome:type"
+    ],
+    "schemaId": "urn:gala:schema:publication:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1/properties/welcome",
+    "keyword": "additionalProperties",
+    "instance": {
+      "subject": "fixture-1",
+      "body": "fixture-1",
       "unexpected": true
     },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]

@@ -3765,6 +3765,157 @@ components:
         - organizations
         - capabilities
       type: object
+    PostCallbacksBrevoRequest:
+      description:
+        Raw Brevo webhook JSON authenticated by the X-Gala-Webhook-Token header.
+        Brevo posts one event per call; an object or an array of objects is
+        accepted and every member is opaque to the contract.
+      oneOf:
+        - additionalProperties: true
+          type: object
+        - items:
+            additionalProperties: true
+            type: object
+          maxItems: 1000
+          type: array
+    PostCallbacksBrevoResponse:
+      additionalProperties: false
+      properties:
+        accepted:
+          const: true
+      required:
+        - accepted
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImportRequest:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.32.0: the addresses to invite, already parsed from the owner's
+        file. `attestation` must be true: the owner states that every address
+        agreed to hear from them. Each new address becomes a `pending`
+        subscriber and is sent the confirmation email; nobody is subscribed
+        without confirming."
+      properties:
+        addresses:
+          items:
+            format: email
+            maxLength: 320
+            minLength: 3
+            type: string
+          maxItems: 5000
+          minItems: 1
+          type: array
+        attestation:
+          const: true
+      required:
+        - addresses
+        - attestation
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImportResponse:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.32.0: what the import did. `queued` addresses were new and had
+        a confirmation email queued; `skippedKnown` were already pending,
+        confirmed, unsubscribed or suppressed; `invalid` were not usable
+        addresses; `overCapacity` were left out because the organization's
+        subscriber allowance was reached."
+      properties:
+        invalid:
+          format: int64
+          minimum: 0
+          type: integer
+        overCapacity:
+          format: int64
+          minimum: 0
+          type: integer
+        queued:
+          format: int64
+          minimum: 0
+          type: integer
+        skippedKnown:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - queued
+        - skippedKnown
+        - invalid
+        - overCapacity
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsHistoryResponse:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.32.0: the commits on the linked repository's main branch that
+        changed one path, newest first, at most 50."
+      properties:
+        entries:
+          items:
+            : '#/components/schemas/ContentDocumentHistoryEntry'
+          maxItems: 50
+          type: array
+      required:
+        - entries
+      type: object
+    ContentDocumentHistoryEntry:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.32.0: one commit that changed a content document. `source` is
+        `draft` (saved from the editor), `publish` (a publish of the site),
+        `import` (an import) or `unknown` (a commit Galascribe did not make).
+        `authorLogin` is present only when GitHub names the committer.'
+      properties:
+        authorLogin:
+          maxLength: 39
+          minLength: 1
+          type: string
+        committedAt:
+          : ../schemas/problem.schema.json#/$defs/rfc3339
+        message:
+          maxLength: 200
+          type: string
+        revision:
+          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
+          type: string
+        source:
+          enum:
+            - draft
+            - publish
+            - import
+            - unknown
+          type: string
+      required:
+        - revision
+        - committedAt
+        - message
+        - source
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentLinkPreviewRequest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.32.0: the page to preview. Only https addresses are fetched.'
+      properties:
+        url:
+          $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+      required:
+        - url
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentLinkPreviewResponse:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.32.0: what the page says about itself. Every member is omitted
+        when the page does not give one; there is no image.'
+      properties:
+        canonicalUrl:
+          $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+        description:
+          maxLength: 500
+          type: string
+        siteName:
+          maxLength: 200
+          type: string
+        title:
+          maxLength: 300
+          type: string
+      type: object
     PostCallbacksGithubAppRequest:
       additionalProperties: true
       description:
@@ -4213,7 +4364,10 @@ components:
         keeps the stored value, an object replaces it whole, `null` clears it.
         `title`, `defaultLanguage` and `socialLinks` cannot be cleared.
         `socialLinks` (max 32, the publication file's own limit) replaces
-        the whole list. `canonicalBase` is never client-settable: it changes
+        the whole list. SCHEMA-3.32.0: `recommendations` (the sites the author
+        recommends, max 24, `url` unique within the list) follows `crawlers`
+        and not `socialLinks`: absent keeps the stored list, an array replaces
+        the whole list, `null` clears it. `canonicalBase` is never client-settable: it changes
         only through domain attach and detach. A profile that changes nothing is
         `422 VALIDATION_FAILED` pointed at `/publicationProfile`; member
         failures point at `/publicationProfile/<member>`.
@@ -4248,6 +4402,13 @@ components:
         performance:
           oneOf:
             - $ref: ../schemas/publication.schema.json#/$defs/performance
+            - type: 'null'
+        recommendations:
+          oneOf:
+            - items:
+                $ref: '#/components/schemas/Recommendation'
+              maxItems: 24
+              type: array
             - type: 'null'
         socialLinks:
           items:
@@ -4709,7 +4870,9 @@ components:
         page it opened. Carries no personal data beyond what each author
         file itself already publishes. `listing`, `aiRights` and `performance`
         (SCHEMA-3.25.1, optional) are the publication file's 3.25.0 members,
-        absent when the file carries none.
+        absent when the file carries none. `recommendations` (SCHEMA-3.32.0,
+        optional) is the publication file's list of recommended sites, absent
+        when the file carries none.
       properties:
         aiRights:
           $ref: ../schemas/publication.schema.json#/$defs/aiRights
@@ -4733,6 +4896,11 @@ components:
           $ref: ../schemas/publication.schema.json#/$defs/listing
         performance:
           $ref: ../schemas/publication.schema.json#/$defs/performance
+        recommendations:
+          items:
+            $ref: '#/components/schemas/Recommendation'
+          maxItems: 24
+          type: array
         socialLinks:
           items:
             $ref: ../schemas/publication.schema.json#/$defs/socialLink
@@ -8736,6 +8904,18 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        likeCount:
+          description:
+            'SCHEMA-3.32.0: how many readers like the comment; absent counts as
+            0.'
+          format: int64
+          minimum: 0
+          type: integer
+        likedByMe:
+          description:
+            'SCHEMA-3.32.0: true when the signed-in reader likes the comment;
+            absent counts as false.'
+          type: boolean
         moreReplies:
           type: boolean
         own:
@@ -8746,6 +8926,11 @@ components:
               pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
               type: string
             - type: 'null'
+        pinned:
+          description:
+            'SCHEMA-3.32.0: true for the one root comment the site owner pinned
+            to the top of the article; absent counts as false.'
+          type: boolean
         replies:
           items:
             $ref: '#/components/schemas/CommentViewLevel1'
@@ -8799,6 +8984,18 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        likeCount:
+          description:
+            'SCHEMA-3.32.0: how many readers like the comment; absent counts as
+            0.'
+          format: int64
+          minimum: 0
+          type: integer
+        likedByMe:
+          description:
+            'SCHEMA-3.32.0: true when the signed-in reader likes the comment;
+            absent counts as false.'
+          type: boolean
         moreReplies:
           type: boolean
         own:
@@ -8809,6 +9006,11 @@ components:
               pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
               type: string
             - type: 'null'
+        pinned:
+          description:
+            'SCHEMA-3.32.0: true for the one root comment the site owner pinned
+            to the top of the article; absent counts as false.'
+          type: boolean
         replies:
           items:
             $ref: '#/components/schemas/CommentViewLevel2'
@@ -8862,6 +9064,18 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        likeCount:
+          description:
+            'SCHEMA-3.32.0: how many readers like the comment; absent counts as
+            0.'
+          format: int64
+          minimum: 0
+          type: integer
+        likedByMe:
+          description:
+            'SCHEMA-3.32.0: true when the signed-in reader likes the comment;
+            absent counts as false.'
+          type: boolean
         moreReplies:
           type: boolean
         own:
@@ -8872,6 +9086,11 @@ components:
               pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
               type: string
             - type: 'null'
+        pinned:
+          description:
+            'SCHEMA-3.32.0: true for the one root comment the site owner pinned
+            to the top of the article; absent counts as false.'
+          type: boolean
         replies:
           items:
             $ref: '#/components/schemas/CommentViewLevel3'
@@ -8925,6 +9144,18 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        likeCount:
+          description:
+            'SCHEMA-3.32.0: how many readers like the comment; absent counts as
+            0.'
+          format: int64
+          minimum: 0
+          type: integer
+        likedByMe:
+          description:
+            'SCHEMA-3.32.0: true when the signed-in reader likes the comment;
+            absent counts as false.'
+          type: boolean
         moreReplies:
           type: boolean
         own:
@@ -8935,6 +9166,11 @@ components:
               pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
               type: string
             - type: 'null'
+        pinned:
+          description:
+            'SCHEMA-3.32.0: true for the one root comment the site owner pinned
+            to the top of the article; absent counts as false.'
+          type: boolean
         replies:
           maxItems: 0
           type: array
@@ -9223,12 +9459,18 @@ components:
         - items
       type: object
     ModerationDecision:
+      description:
+        "SCHEMA-3.32.0: `PIN` and `UNPIN` pin a visible root comment to the top
+        of its article's comments, or release it. They apply to a visible root
+        comment only, and change nothing else about it."
       enum:
         - HOLD
         - RESTORE
         - REMOVE
         - DISMISS_REPORTS
         - DENY_APPEAL
+        - PIN
+        - UNPIN
       type: string
     ModerationQueueItem:
       additionalProperties: false
@@ -15094,11 +15336,20 @@ components:
     NewsletterConfirmation:
       additionalProperties: false
       description:
-        'SCHEMA-3.23.0: what the confirmation page shows for one confirmation
-        token.'
+        "SCHEMA-3.23.0: what the confirmation page shows for one confirmation
+        token. SCHEMA-3.32.0: `afterSignupUrl` (the site's own after-signup
+        address, when set) and `recommendations` (the sites the author
+        recommends, when any) are present only when the site has them."
       properties:
+        afterSignupUrl:
+          $ref: ../schemas/publication.schema.json#/$defs/urlHttps
         publication:
           $ref: '#/components/schemas/AudiencePublication'
+        recommendations:
+          items:
+            $ref: '#/components/schemas/Recommendation'
+          maxItems: 24
+          type: array
         state:
           $ref: '#/components/schemas/NewsletterConfirmationState'
       required:
@@ -15131,6 +15382,15 @@ components:
         time; `sent`, `failed` and `deferred` (held back by a daily ceiling,
         retried later) account for them.'
       properties:
+        clicked:
+          description:
+            'SCHEMA-3.32.0: addresses that clicked a link in the issue, from the
+            mail provider; null when not yet known.'
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
         contentId:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -15139,6 +15399,15 @@ components:
           format: int64
           minimum: 0
           type: integer
+        delivered:
+          description:
+            'SCHEMA-3.32.0: addresses the receiving server accepted the issue
+            for, from the mail provider; null when not yet known.'
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
         failed:
           format: int64
           minimum: 0
@@ -15147,6 +15416,17 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        opened:
+          description:
+            'SCHEMA-3.32.0: addresses that opened the issue, from the mail
+            provider; an estimate, because open tracking is pixel-based and mail
+            clients can load or block the pixel for the reader. Null when not
+            yet known.'
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
         recipients:
           format: int64
           minimum: 0
@@ -15183,6 +15463,50 @@ components:
         - link
         - galascribe
       type: string
+    NewsletterWelcome:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.32.0: the welcome email mailed once to a new subscriber after
+        they confirm: a one-line subject of 1 to 120 graphemes and a plain-text
+        body of 1 to 2000 graphemes.'
+      properties:
+        body:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 2000
+            minimum: 1
+        subject:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          pattern: ^[^\r\n\u2028\u2029]+$
+          x-gala-graphemeLength:
+            maximum: 120
+            minimum: 1
+      required:
+        - subject
+        - body
+      type: object
+    Recommendation:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.32.0: one site the author recommends to readers. `addedOn` is
+        the day it was added (YYYY-MM-DD, UTC) and feeds the `created_at` and
+        `updated_at` of the site's `/.well-known/recommendations.json` entry."
+      properties:
+        addedOn:
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
+          type: string
+        description:
+          $ref: ../schemas/publication.schema.json#/$defs/plainText
+          x-gala-graphemeLength:
+            maximum: 300
+        title:
+          $ref: ../schemas/publication.schema.json#/$defs/plainLabel
+        url:
+          $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+      required:
+        - url
+        - title
+      type: object
     NewsletterSettings:
       additionalProperties: false
       description:
@@ -15198,8 +15522,14 @@ components:
         address. `capacity` is the organization's subscriber allowance.
         `openChange` names an existing not-yet-published change of this
         publication that touches the file, or is null. `setUp` matches `GET
-        .../repository/setup` `state`."
+        .../repository/setup` `state`. SCHEMA-3.32.0: `welcome` and
+        `afterSignupUrl` (`galascribe` mode only; null when unset or in another
+        mode) are optional members, so a 3.31 reader ignores them."
       properties:
+        afterSignupUrl:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+            - type: 'null'
         capacity:
           $ref: '#/components/schemas/NewsletterCapacity'
         emailContent:
@@ -15236,6 +15566,10 @@ components:
         url:
           oneOf:
             - $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+            - type: 'null'
+        welcome:
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterWelcome'
             - type: 'null'
       required:
         - mode
@@ -15306,11 +15640,14 @@ components:
       description:
         'SCHEMA-3.23.0: `pending` (asked, not yet confirmed), `confirmed`, or
         `unsubscribed` (the address is kept only as a suppression digest, so its
-        row has no `email`).'
+        row has no `email`). SCHEMA-3.32.0: `suppressed` is an address mail to
+        which bounced or drew a spam complaint; it receives nothing further and
+        cannot be re-imported or re-subscribed by the owner.'
       enum:
         - pending
         - confirmed
         - unsubscribed
+        - suppressed
       type: string
     NewsletterSubscription:
       additionalProperties: false
@@ -15799,8 +16136,14 @@ components:
         `title` and `text` (all required); `galascribe` takes `title`, `text`,
         `emailContent` and `replyToOwner` (all required). A member that does not
         belong to the chosen mode is `422 VALIDATION_FAILED` pointed at that
-        member.'
+        member. SCHEMA-3.32.0: `welcome` and `afterSignupUrl` are optional in
+        `galascribe` mode (an absent member leaves the stored value as it is and
+        null removes it).'
       properties:
+        afterSignupUrl:
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+            - type: 'null'
         emailContent:
           $ref: '#/components/schemas/NewsletterEmailContent'
         mode:
@@ -15816,6 +16159,10 @@ components:
           $ref: ../schemas/publication.schema.json#/$defs/plainLabel
         url:
           $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+        welcome:
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterWelcome'
+            - type: 'null'
       required:
         - mode
       type: object
@@ -16781,6 +17128,10 @@ components:
     galaReceipt:
       in: header
       name: Authorization
+      type: apiKey
+    brevoWebhookToken:
+      in: header
+      name: X-Gala-Webhook-Token
       type: apiKey
     githubOidc:
       bearerFormat: GitHub OIDC JWT

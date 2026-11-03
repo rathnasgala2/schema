@@ -285,7 +285,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // publication, content-frontmatter and build-input valid, boundary,
     // unknown-field and invalid fixtures and the manifest. No file added or
     // removed; still 908.
-    '158570b915ab2bd94fe3ffdf5261564fecb3e8a45d235b2e406b28381779ac3f',
+    //
+    // 3.32.0 (reviewed 2026-11-03): newsletter.welcome and afterSignupUrl,
+    // recommendations, application/pdf and comments.likes regenerated the
+    // publication, build-input, artifact-manifest, build-provenance and
+    // interactions-config fixtures and the manifest. No file added or removed.
+    '4ff2064629aa49ce1919b250748e7f41c0898f0a277e28da46320e006bc59dec',
   );
 });
 

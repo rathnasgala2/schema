@@ -162,6 +162,9 @@
       "build-input:#/$defs/contentBuildMediaFile/allOf/2/if/properties/mediaType:enum",
       "build-input:#/$defs/contentBuildMediaFile/allOf/2/if:required:mediaType",
       "build-input:#/$defs/contentBuildMediaFile/allOf/2/then/properties/byteLength:maximum",
+      "build-input:#/$defs/contentBuildMediaFile/allOf/3/if/properties/mediaType:enum",
+      "build-input:#/$defs/contentBuildMediaFile/allOf/3/if:required:mediaType",
+      "build-input:#/$defs/contentBuildMediaFile/allOf/3/then/properties/byteLength:maximum",
       "build-input:#/$defs/contentBuildMediaFile/properties/byteLength:minimum",
       "build-input:#/$defs/contentBuildMediaFile/properties/byteLength:type",
       "build-input:#/$defs/contentBuildMediaFile/properties/mediaType:enum",
@@ -237,6 +240,7 @@
     "coveredRuleIds": [
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/allowReplies:type",
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/enabled:type",
+      "build-input:#/$defs/interactionsConfig/properties/comments/properties/likes:type",
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:maximum",
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:minimum",
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/maxDepth:type",
@@ -844,6 +848,27 @@
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {
+    "caseId": "build-input-unknown-37e8c21ac844f738",
+    "coveredRuleIds": [
+      "build-input:#/$defs/recommendation/properties/addedOn:pattern",
+      "build-input:#/$defs/recommendation/properties/addedOn:type",
+      "build-input:#/$defs/recommendation/properties/description:x-gala-graphemeLength",
+      "build-input:#/$defs/recommendation:additionalProperties",
+      "build-input:#/$defs/recommendation:required:title",
+      "build-input:#/$defs/recommendation:required:url",
+      "build-input:#/$defs/recommendation:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/recommendation",
+    "keyword": "additionalProperties",
+    "instance": {
+      "url": "https://fixture-1.example.com/",
+      "title": "fixture-1",
+      "unexpected": true
+    },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
     "caseId": "build-input-unknown-394c7d1fa0c974a1",
     "coveredRuleIds": [
       "build-input:#/$defs/renderableBody/properties/body:maxLength",
@@ -972,6 +997,10 @@
       "build-input:#/$defs/publicationNormalized/properties/authorIds:minItems",
       "build-input:#/$defs/publicationNormalized/properties/authorIds:type",
       "build-input:#/$defs/publicationNormalized/properties/description:x-gala-graphemeLength",
+      "build-input:#/$defs/publicationNormalized/properties/recommendations:maxItems",
+      "build-input:#/$defs/publicationNormalized/properties/recommendations:minItems",
+      "build-input:#/$defs/publicationNormalized/properties/recommendations:type",
+      "build-input:#/$defs/publicationNormalized/properties/recommendations:uniqueItems",
       "build-input:#/$defs/publicationNormalized/properties/socialLinks:maxItems",
       "build-input:#/$defs/publicationNormalized/properties/socialLinks:minItems",
       "build-input:#/$defs/publicationNormalized/properties/socialLinks:type",
@@ -1023,6 +1052,27 @@
     "schemaPointer": "#/$defs/contactFormNormalized/properties/fields",
     "keyword": "additionalProperties",
     "instance": { "website": false, "phone": false, "unexpected": true },
+    "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
+  },
+  {
+    "caseId": "build-input-unknown-49434124c429699e",
+    "coveredRuleIds": [
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome/properties/body:x-gala-graphemeLength",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome/properties/subject:pattern",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome/properties/subject:x-gala-graphemeLength",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome:additionalProperties",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome:required:body",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome:required:subject",
+      "build-input:#/$defs/newsletter/oneOf/1/properties/welcome:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/newsletter/oneOf/1/properties/welcome",
+    "keyword": "additionalProperties",
+    "instance": {
+      "subject": "fixture-1",
+      "body": "fixture-1",
+      "unexpected": true
+    },
     "expectedCodes": ["REQUEST_FIELD_UNKNOWN"]
   },
   {

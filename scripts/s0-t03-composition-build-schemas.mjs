@@ -53,6 +53,7 @@ const MANIFEST_MEDIA_TYPES = [
   'audio/wav',
   'video/mp4',
   'video/webm',
+  'application/pdf',
 ];
 
 // SCHEMA-2.17.0: the closed media types an article body may refer to (cover
@@ -75,10 +76,14 @@ const CONTENT_AUDIO_MEDIA_TYPES = [
   'audio/wav',
 ];
 const CONTENT_VIDEO_MEDIA_TYPES = ['video/mp4', 'video/webm'];
+// SCHEMA-3.32.0: file downloads attached to a post. PDF only; no other
+// document, archive or active-content type is admitted.
+const CONTENT_FILE_MEDIA_TYPES = ['application/pdf'];
 const CONTENT_MEDIA_TYPES = [
   ...CONTENT_IMAGE_MEDIA_TYPES,
   ...CONTENT_AUDIO_MEDIA_TYPES,
   ...CONTENT_VIDEO_MEDIA_TYPES,
+  ...CONTENT_FILE_MEDIA_TYPES,
 ];
 
 const LEGACY_THEME_PACKAGES = [
@@ -331,6 +336,58 @@ export function createSharingDefinition({ arrayOf, closedObject }) {
 }
 
 /**
+ * SCHEMA-3.32.0: one site the author recommends, shared byte-for-byte by the
+ * `publication` author-source root and the normalized `build-input`
+ * publication (one `$defs/recommendation` body, so the shared-definition gate
+ * holds).
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} recommendation object schema
+ */
+export function createRecommendationDefinition({ ref, closedObject }) {
+  return closedObject(
+    {
+      url: ref('urlHttps'),
+      title: ref('plainLabel'),
+      description: {
+        ...ref('plainText'),
+        'x-gala-graphemeLength': { maximum: 300 },
+      },
+      addedOn: {
+        type: 'string',
+        pattern: '^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$',
+        description:
+          "The day the recommendation was added, YYYY-MM-DD (UTC). It feeds the `created_at` and `updated_at` members of the site's `/.well-known/recommendations.json` entry.",
+      },
+    },
+    ['url', 'title'],
+    {
+      description: 'SCHEMA-3.32.0: one site the author recommends to readers.',
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.32.0: the top-level `recommendations` array member. At most 24;
+ * JSON Schema cannot express uniqueness by one member, so consumers enforce
+ * that `url` is unique within the array.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.arrayOf array constructor
+ * @returns {Record<string, unknown>} recommendations array schema
+ */
+export function createRecommendationsMember({ ref, arrayOf }) {
+  return {
+    ...arrayOf(ref('recommendation'), 0, 24, true),
+    description:
+      'SCHEMA-3.32.0: the sites the author recommends, shown to readers after they subscribe and published as `/.well-known/recommendations.json`. At most 24; `url` is unique within the array. JSON Schema cannot express uniqueness by one member, so consumers enforce it. An absent member means no recommendations.',
+  };
+}
+
+/**
  * SCHEMA-3.22.0: the newsletter panel, a union of today's link-out shape and
  * the Galascribe-managed shape, shared byte-for-byte by the `publication`
  * author-source root and the normalized `build-input` publication (one
@@ -381,6 +438,25 @@ export function createNewsletterDefinition({
             type: 'boolean',
             description:
               "When true, subscribers' replies go to the site owner's contact email; when false the emails carry no Reply-To.",
+          },
+          welcome: closedObject(
+            {
+              subject: {
+                ...graphemeBound(ref('plainText'), 1, 120),
+                pattern: '^[^\\r\\n\\u2028\\u2029]+$',
+              },
+              body: graphemeBound(ref('plainText'), 1, 2000),
+            },
+            ['subject', 'body'],
+            {
+              description:
+                'SCHEMA-3.32.0: the welcome email mailed once to a new subscriber after they confirm. `subject` is one line (no line break) of 1 to 120 graphemes; `body` is plain text of 1 to 2000 graphemes. An absent `welcome` member means no welcome email.',
+            },
+          ),
+          afterSignupUrl: {
+            ...ref('urlHttps'),
+            description:
+              'SCHEMA-3.32.0: where the subscriber is sent after they confirm. It must be an https URL; the API applies its own open-redirect rules. An absent member shows the Galascribe confirmation page.',
           },
         },
         ['mode', 'title', 'text', 'emailContent', 'replyToOwner'],
@@ -1282,6 +1358,7 @@ export function createCompositionBuildSchemas(language) {
       authorIds: arrayOf(ref('stableId'), 1, 32),
       contactAuthorId: ref('stableId'),
       socialLinks: arrayOf(ref('socialLink'), 0, 32),
+      recommendations: createRecommendationsMember({ ref, arrayOf }),
       defaultImage: ref('resolvedFile'),
       profile: closedObject(
         { route: ref('canonicalRoute'), body: ref('renderableBody') },
@@ -1483,9 +1560,16 @@ export function createCompositionBuildSchemas(language) {
           },
           then: { properties: { byteLength: { maximum: 52_428_800 } } },
         },
+        {
+          if: {
+            properties: { mediaType: { enum: CONTENT_FILE_MEDIA_TYPES } },
+            required: ['mediaType'],
+          },
+          then: { properties: { byteLength: { maximum: 10_485_760 } } },
+        },
       ],
       $comment:
-        'Per-mediaType byteLength bound: image 5 MiB, audio 20 MiB, video 50 MiB, matching the OpenAPI contract’s declared per-file media limits.',
+        'Per-mediaType byteLength bound: image 5 MiB, audio 20 MiB, video 50 MiB, PDF file download 10 MiB, matching the OpenAPI contract’s declared per-file media limits.',
     },
   );
 
@@ -2541,6 +2625,7 @@ export function createCompositionBuildSchemas(language) {
         renderableBody,
         resolvedMedia,
         socialLink,
+        recommendation: createRecommendationDefinition(language),
         localizedAuthor,
         publicationNormalized,
         newsletter: createNewsletterDefinition(language),

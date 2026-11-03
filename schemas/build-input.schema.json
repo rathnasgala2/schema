@@ -423,6 +423,25 @@
         }
       ]
     },
+    "recommendation": {
+      "type": "object",
+      "required": ["url", "title"],
+      "properties": {
+        "url": { "$ref": "#/$defs/urlHttps" },
+        "title": { "$ref": "#/$defs/plainLabel" },
+        "description": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "maximum": 300 }
+        },
+        "addedOn": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$",
+          "description": "The day the recommendation was added, YYYY-MM-DD (UTC). It feeds the `created_at` and `updated_at` members of the site's `/.well-known/recommendations.json` entry."
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.32.0: one site the author recommends to readers."
+    },
     "localizedAuthor": {
       "type": "object",
       "required": ["language", "displayName", "biography"],
@@ -478,6 +497,14 @@
           "items": { "$ref": "#/$defs/socialLink" },
           "minItems": 0,
           "maxItems": 32
+        },
+        "recommendations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/recommendation" },
+          "minItems": 0,
+          "maxItems": 24,
+          "uniqueItems": true,
+          "description": "SCHEMA-3.32.0: the sites the author recommends, shown to readers after they subscribe and published as `/.well-known/recommendations.json`. At most 24; `url` is unique within the array. JSON Schema cannot express uniqueness by one member, so consumers enforce it. An absent member means no recommendations."
         },
         "defaultImage": { "$ref": "#/$defs/resolvedFile" },
         "profile": {
@@ -564,6 +591,27 @@
             "replyToOwner": {
               "type": "boolean",
               "description": "When true, subscribers' replies go to the site owner's contact email; when false the emails carry no Reply-To."
+            },
+            "welcome": {
+              "type": "object",
+              "required": ["subject", "body"],
+              "properties": {
+                "subject": {
+                  "$ref": "#/$defs/plainText",
+                  "x-gala-graphemeLength": { "minimum": 1, "maximum": 120 },
+                  "pattern": "^[^\\r\\n\\u2028\\u2029]+$"
+                },
+                "body": {
+                  "$ref": "#/$defs/plainText",
+                  "x-gala-graphemeLength": { "minimum": 1, "maximum": 2000 }
+                }
+              },
+              "additionalProperties": false,
+              "description": "SCHEMA-3.32.0: the welcome email mailed once to a new subscriber after they confirm. `subject` is one line (no line break) of 1 to 120 graphemes; `body` is plain text of 1 to 2000 graphemes. An absent `welcome` member means no welcome email."
+            },
+            "afterSignupUrl": {
+              "$ref": "#/$defs/urlHttps",
+              "description": "SCHEMA-3.32.0: where the subscriber is sent after they confirm. It must be an https URL; the API applies its own open-redirect rules. An absent member shows the Galascribe confirmation page."
             }
           },
           "additionalProperties": false,
@@ -1164,7 +1212,8 @@
             "audio/ogg",
             "audio/wav",
             "video/mp4",
-            "video/webm"
+            "video/webm",
+            "application/pdf"
           ]
         },
         "byteLength": { "type": "integer", "minimum": 1 }
@@ -1207,9 +1256,16 @@
             "required": ["mediaType"]
           },
           "then": { "properties": { "byteLength": { "maximum": 52428800 } } }
+        },
+        {
+          "if": {
+            "properties": { "mediaType": { "enum": ["application/pdf"] } },
+            "required": ["mediaType"]
+          },
+          "then": { "properties": { "byteLength": { "maximum": 10485760 } } }
         }
       ],
-      "$comment": "Per-mediaType byteLength bound: image 5 MiB, audio 20 MiB, video 50 MiB, matching the OpenAPI contract’s declared per-file media limits."
+      "$comment": "Per-mediaType byteLength bound: image 5 MiB, audio 20 MiB, video 50 MiB, PDF file download 10 MiB, matching the OpenAPI contract’s declared per-file media limits."
     },
     "contentBuildRecord": {
       "type": "object",
@@ -1303,7 +1359,12 @@
           "properties": {
             "enabled": { "type": "boolean" },
             "allowReplies": { "type": "boolean" },
-            "maxDepth": { "type": "integer", "minimum": 1, "maximum": 4 }
+            "maxDepth": { "type": "integer", "minimum": 1, "maximum": 4 },
+            "likes": {
+              "type": "boolean",
+              "default": false,
+              "description": "SCHEMA-3.32.0: when true, signed-in readers can like a comment. An absent member means false, so every 3.31 configuration still validates."
+            }
           },
           "additionalProperties": false
         },

@@ -44,6 +44,14 @@
       "minItems": 0,
       "maxItems": 32
     },
+    "recommendations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/recommendation" },
+      "minItems": 0,
+      "maxItems": 24,
+      "uniqueItems": true,
+      "description": "SCHEMA-3.32.0: the sites the author recommends, shown to readers after they subscribe and published as `/.well-known/recommendations.json`. At most 24; `url` is unique within the array. JSON Schema cannot express uniqueness by one member, so consumers enforce it. An absent member means no recommendations."
+    },
     "defaultImageRef": { "$ref": "#/$defs/repoRelativePath" },
     "profile": { "$ref": "#/$defs/publicationProfile" },
     "policies": { "$ref": "#/$defs/publicationPolicies" },
@@ -218,6 +226,25 @@
         }
       ]
     },
+    "recommendation": {
+      "type": "object",
+      "required": ["url", "title"],
+      "properties": {
+        "url": { "$ref": "#/$defs/urlHttps" },
+        "title": { "$ref": "#/$defs/plainLabel" },
+        "description": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "maximum": 300 }
+        },
+        "addedOn": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$",
+          "description": "The day the recommendation was added, YYYY-MM-DD (UTC). It feeds the `created_at` and `updated_at` members of the site's `/.well-known/recommendations.json` entry."
+        }
+      },
+      "additionalProperties": false,
+      "description": "SCHEMA-3.32.0: one site the author recommends to readers."
+    },
     "publicationProfile": {
       "type": "object",
       "required": ["route", "body"],
@@ -302,6 +329,27 @@
             "replyToOwner": {
               "type": "boolean",
               "description": "When true, subscribers' replies go to the site owner's contact email; when false the emails carry no Reply-To."
+            },
+            "welcome": {
+              "type": "object",
+              "required": ["subject", "body"],
+              "properties": {
+                "subject": {
+                  "$ref": "#/$defs/plainText",
+                  "x-gala-graphemeLength": { "minimum": 1, "maximum": 120 },
+                  "pattern": "^[^\\r\\n\\u2028\\u2029]+$"
+                },
+                "body": {
+                  "$ref": "#/$defs/plainText",
+                  "x-gala-graphemeLength": { "minimum": 1, "maximum": 2000 }
+                }
+              },
+              "additionalProperties": false,
+              "description": "SCHEMA-3.32.0: the welcome email mailed once to a new subscriber after they confirm. `subject` is one line (no line break) of 1 to 120 graphemes; `body` is plain text of 1 to 2000 graphemes. An absent `welcome` member means no welcome email."
+            },
+            "afterSignupUrl": {
+              "$ref": "#/$defs/urlHttps",
+              "description": "SCHEMA-3.32.0: where the subscriber is sent after they confirm. It must be an https URL; the API applies its own open-redirect rules. An absent member shows the Galascribe confirmation page."
             }
           },
           "additionalProperties": false,

@@ -122,7 +122,8 @@ export type ArtifactManifestManifestAsset = Readonly<{
     | 'audio/ogg'
     | 'audio/wav'
     | 'video/mp4'
-    | 'video/webm';
+    | 'video/webm'
+    | 'application/pdf';
   readonly path: ArtifactManifestRepoRelativePath;
   readonly sha256: ArtifactManifestDigest;
 }>;
@@ -276,7 +277,8 @@ export type ArtifactManifestManifestRoute = Readonly<{
     | 'audio/ogg'
     | 'audio/wav'
     | 'video/mp4'
-    | 'video/webm';
+    | 'video/webm'
+    | 'application/pdf';
   readonly path: ArtifactManifestRepoRelativePath;
   readonly routeClass: 'html' | 'feed' | 'sitemap' | 'asset' | 'error';
   readonly sha256: ArtifactManifestDigest;

@@ -486,6 +486,7 @@ function stringValue(schema, pointer, variant = 0) {
     'G-ABC123XYZ',
     'gala/theme-pages/terms.md',
     'assets/listen/fixture.mp3',
+    '2026-01-01',
     '/',
     '**',
   ];
