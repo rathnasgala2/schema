@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.32.2] - 2026-11-03
+
+`application/pdf` joins the content asset types, so a PDF written or read
+through the content endpoints is typed. Additive: every 3.32.1 request and
+response still validates; the only change widens a closed enum and adds a
+response media type. A client that rejects unknown enum members or response
+content types must be updated first. Per-asset size bounds are unchanged.
+
+### Added
+
+- `ContentChangeAssetEntry.contentType` (a `PUT` entry of a
+  `content-changes:plan` batch) admits `application/pdf` beside the five image
+  types.
+- `GET .../publications/{publicationId}/content/assets`
+  (`getOrganizationsByOrganizationIdPublicationsByPublicationIdContentAssets`)
+  declares `application/pdf` as a binary content type of its `200` and `206`
+  responses, so the operation serves twelve types.
+
 ## [3.32.1] - 2026-11-03
 
 Three contract gaps found while building the 3.32.0 consumers. Additive: every
@@ -4014,7 +4032,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.32.1...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.32.2...HEAD
+[3.32.2]: https://github.com/rathnasgala2/schema/compare/v3.32.1...v3.32.2
 [3.32.1]: https://github.com/rathnasgala2/schema/compare/v3.32.0...v3.32.1
 [3.32.0]: https://github.com/rathnasgala2/schema/compare/v3.31.0...v3.32.0
 [3.31.0]: https://github.com/rathnasgala2/schema/compare/v3.30.0...v3.31.0
