@@ -4562,8 +4562,9 @@ components:
         5 MiB bound is measured on the decoded byte length, not this
         field's text length, and `bytesBase64`'s own `maxLength` is the
         base64 ceiling for that same decoded bound. `contentType` is closed
-        to PNG, JPEG, WebP, GIF and AVIF (SCHEMA-3.3.0 drops the sound and
-        video types the server never accepted); `image/svg+xml` is
+        to PNG, JPEG, WebP, GIF, AVIF and PDF (SCHEMA-3.3.0 drops the sound
+        and video types the server never accepted; SCHEMA-3.32.2 adds
+        `application/pdf` for file downloads); `image/svg+xml` is
         deliberately absent everywhere in this contract (an SVG can carry
         script). `DELETE` names only the path it removes and carries none
         of the write-only members.
@@ -4587,6 +4588,7 @@ components:
             - image/webp
             - image/gif
             - image/avif
+            - application/pdf
           type: string
         path:
           maxLength: 512
@@ -5520,7 +5522,8 @@ components:
         `DELETE_DATE_NOT_AFTER_RELEASE` (SCHEMA-3.25.1), alongside the other
         reasons the API reports for cross-document rules; those reasons are
         not an enumerated schema member.
-        Assets are images only (PNG, JPEG, WebP, GIF, AVIF; SVG is refused):
+        Assets are images (PNG, JPEG, WebP, GIF, AVIF; SVG is refused) and,
+        since SCHEMA-3.32.2, PDF files (`application/pdf`):
         at most 20 per change, each at most 5 MiB and together at most
         20 MiB, measured on the decoded bytes -- `assets[].bytesBase64` is
         base64 over raw bytes, so what counts is the decoded byte length,

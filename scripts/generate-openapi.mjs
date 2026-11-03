@@ -44,6 +44,8 @@ export const BINARY_ASSET_CONTENT_TYPES = Object.freeze([
   'audio/wav',
   'video/mp4',
   'video/webm',
+  // SCHEMA-3.32.2: file downloads are PDF.
+  'application/pdf',
 ]);
 export const BINARY_RESPONSE_CONTENT_TYPES =
   /** @type {Readonly<Record<string, readonly string[]>>} */ (
