@@ -8,6 +8,38 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.35.0] - 2026-11-04
+
+Discard a waiting change, and name the changes behind a canonical-base refusal.
+Additive: one new operation, one new problem code and one new optional problem
+member; `schemas/publication.schema.json` is untouched, so no template or
+publish toolchain pin moves.
+
+### Added
+
+- `POST /v2/organizations/{organizationId}/publications/{publicationId}/repository-changes/{changeId}:discard`
+  (capability `publication.source.write`, `Idempotency-Key`, `204`): discards a
+  waiting change by closing its pull request on GitHub and deleting its branch
+  `gala/candidate/<id>`. A change whose pull request is OPEN is closed, its
+  branch is deleted and the change is recorded closed and dismissed; a change
+  already CLOSED on GitHub is simply recorded dismissed (the same effect as
+  `:dismiss`); a change already MERGED on GitHub is on main and cannot be
+  discarded (`409 CHANGE_NOT_DISCARDABLE`). When GitHub cannot be reached the
+  answer is `503 DEPENDENCY_UNAVAILABLE` and nothing is recorded. Reachable
+  problems are those of `:dismiss` plus `CHANGE_NOT_DISCARDABLE` and
+  `DEPENDENCY_UNAVAILABLE`.
+- Problem code `CHANGE_NOT_DISCARDABLE` (409, type
+  `urn:gala:problem:change-not-discardable`).
+- Optional problem member `changeIds` (an array of 1 to 20 unique change ids, in
+  request order) on `409 CANONICAL_BASE_MISMATCH`, naming the waiting changes
+  whose saved copy of `gala/publication.json` carries a different site address
+  than the one the site is served at. When main already carries the right
+  address the server rewrites those changes' address itself (same change id) and
+  publishes; the problem is returned with `changeIds` only when that rewrite
+  could not be done right now (publish again in a moment) or when main itself
+  still carries the old address (then the server includes or proposes the Site
+  address change as before).
+
 ## [3.34.0] - 2026-11-04
 
 Interview: an AI interviewer asks the author about captured material and writes
@@ -4086,7 +4118,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.34.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.35.0...HEAD
+[3.35.0]: https://github.com/rathnasgala2/schema/compare/v3.34.0...v3.35.0
 [3.34.0]: https://github.com/rathnasgala2/schema/compare/v3.33.0...v3.34.0
 [3.33.0]: https://github.com/rathnasgala2/schema/compare/v3.32.2...v3.33.0
 [3.32.2]: https://github.com/rathnasgala2/schema/compare/v3.32.1...v3.32.2
