@@ -176,7 +176,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 908);
+  assert.equal(files.length, 910);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -290,7 +290,14 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // recommendations, application/pdf and comments.likes regenerated the
     // publication, build-input, artifact-manifest, build-provenance and
     // interactions-config fixtures and the manifest. No file added or removed.
-    '4ff2064629aa49ce1919b250748e7f41c0898f0a277e28da46320e006bc59dec',
+    //
+    // 3.35.0 (reviewed 2026-11-04): the problem root's optional
+    // CANONICAL_BASE_MISMATCH member `changeIds` (1 to 20 unique change ids)
+    // regenerated the problem valid, boundary, unknown-field and invalid
+    // fixtures and the manifest, and added two case files
+    // (problem/SCHEMA_ARRAY_DUPLICATE, problem/SCHEMA_ARRAY_TOO_SHORT),
+    // making 910.
+    '852dd0c3293e9ea21cacddd45fdd5cf3c807ec528a94fe4f2f2f4571c45f2a7e',
   );
 });
 
