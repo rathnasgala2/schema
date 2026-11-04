@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.33.0] - 2026-11-04
+
+A site whose theme pages are still on the old layout now says so. Additive: the
+only change widens a closed enum; a client that rejects unknown enum members
+must be updated first.
+
+### Added
+
+- `reason` of a `REPOSITORY_NEEDS_UPDATE` attention item (and of the same entry
+  of a publish refusal's `errors`) admits `LAYOUT_MOVE`: the repository's About,
+  Terms and Privacy pages are on the old layout and wait for the explicit set-up
+  (Update now), which moves them; the system never moves them on its own and the
+  site keeps publishing until then.
+
 ## [3.32.2] - 2026-11-03
 
 `application/pdf` joins the content asset types, so a PDF written or read
@@ -4032,7 +4046,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.32.2...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.33.0...HEAD
+[3.33.0]: https://github.com/rathnasgala2/schema/compare/v3.32.2...v3.33.0
 [3.32.2]: https://github.com/rathnasgala2/schema/compare/v3.32.1...v3.32.2
 [3.32.1]: https://github.com/rathnasgala2/schema/compare/v3.32.0...v3.32.1
 [3.32.0]: https://github.com/rathnasgala2/schema/compare/v3.31.0...v3.32.0
