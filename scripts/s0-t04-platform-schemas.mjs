@@ -145,6 +145,11 @@ export function createPlatformSchemas(language) {
           description:
             "SCHEMA-3.17.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the state of the site's custom-domain binding that decided `expectedBase` (a `DomainBindingState` value such as `CERTIFICATE_PENDING` or `ACTIVE`), absent when the site has no custom domain. A client shows a value it does not know as is.",
         },
+        changeIds: {
+          ...arrayOf(ref('stableId'), 1, 20, true),
+          description:
+            "SCHEMA-3.35.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the ids of the waiting changes whose saved copy of `gala/publication.json` carries a different site address than the one the site is served at, in request order (the same id format as the publish request's `changeIds`). Present only when the server could not rewrite those changes' address itself right now (publish again in a moment) or when main itself still carries the old address.",
+        },
         details: {
           type: 'object',
           description:

@@ -49,6 +49,8 @@ const ROOT_LEDGERS = {
       'profileBase',
       'domainState',
       'remedy',
+      // 3.35.0: the waiting changes behind a CANONICAL_BASE_MISMATCH.
+      'changeIds',
       // 3.25.1: the PAGE_LOSS_GUARD counts.
       'details',
     ],

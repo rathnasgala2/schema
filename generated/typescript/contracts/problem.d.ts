@@ -64,6 +64,7 @@ export type ProblemUrlHttps = string;
 export type ProblemUrn = string;
 
 export type ProblemDocument = Readonly<{
+  readonly changeIds?: ReadonlyArray<ProblemStableId>;
   readonly code: ProblemProblemCode;
   readonly correlationId: ProblemStableId;
   readonly detail: ProblemPlainText;

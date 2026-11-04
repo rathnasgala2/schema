@@ -784,6 +784,9 @@ function validateContractClosure(records, components) {
         // SCHEMA-3.32.0: the document history reads the commits that touched a
         // path from GitHub, so an unreachable GitHub is a 503.
         'getOrganizationsByOrganizationIdPublicationsByPublicationIdContentDocumentsHistory',
+        // SCHEMA-3.35.0: discarding a waiting change closes its pull request
+        // and deletes its branch on GitHub, so an unreachable GitHub is a 503.
+        'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChangesByChangeIdDiscard',
       ].includes(operation.operationId) !==
       reachable.has('DEPENDENCY_UNAVAILABLE')
     ) {
