@@ -8337,7 +8337,11 @@ components:
         `AUTHORIZATION_LOST`: Galascribe lost its GitHub authorization.
         `FORBIDDEN`: GitHub refused for another permission reason. The same
         `reason` and `paths` ride on the `REPOSITORY_NEEDS_UPDATE` entry of a
-        publish refusal's `errors`."
+        publish refusal's `errors`. SCHEMA-3.33.0: `LAYOUT_MOVE`: the
+        repository's About, Terms and Privacy pages are still on the old layout
+        and wait for the explicit set-up (Update now), which moves them; the
+        system never moves them on its own and the site keeps publishing until
+        then."
       properties:
         code:
           enum:
@@ -8371,6 +8375,8 @@ components:
         reason:
           description:
             SCHEMA-3.9.0. Why a `REPOSITORY_NEEDS_UPDATE` needs the author.
+            SCHEMA-3.33.0 adds `LAYOUT_MOVE` (the theme pages wait for the
+            explicit set-up's layout move).
           enum:
             - AUTHOR_EDITED
             - BRANCH_PROTECTION
@@ -8379,6 +8385,7 @@ components:
             - WORKFLOWS_PERMISSION_MISSING
             - AUTHORIZATION_LOST
             - FORBIDDEN
+            - LAYOUT_MOVE
           type: string
         reasonCode:
           description:
