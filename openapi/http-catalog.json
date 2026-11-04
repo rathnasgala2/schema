@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:89d671c73a46477d91e7efc26a10a3569e10e81dd6b58da14a4c817d18f6a4ab",
+  "openApiDigest": "sha256:67b0b1c71e66bec8957bcbc46a8c00ab56eb15fbb74f0bfffa12c98818091cfb",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1493,6 +1493,149 @@
       "sourceFragment": "interaction-settings"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicy",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interview-policy",
+      "purpose": "read the Interview policy",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfile",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interview-profile",
+      "purpose": "read the Interview profile",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfile",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interview-profile",
+      "purpose": "save the Interview profile",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews",
+      "purpose": "list Interviews",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews",
+      "purpose": "capture material for an Interview",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}",
+      "purpose": "read an Interview",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdAccept",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:accept",
+      "purpose": "accept an Interview draft",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdCancel",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:cancel",
+      "purpose": "cancel an Interview",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdFinish",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:finish",
+      "purpose": "finish an Interview and write the draft",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:start",
+      "purpose": "start an Interview",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdTurns",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}/turns",
+      "purpose": "answer the Interviewer",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "interview"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/listen-settings",
@@ -2423,6 +2566,19 @@
       "assuranceClass": "RECENT_AUTHENTICATION",
       "actionGrant": "none",
       "apiKeyScope": "demo:setup",
+      "sourceFragment": "platform"
+    },
+    {
+      "operationId": "getPlatformInterviewUsage",
+      "method": "GET",
+      "path": "/v2/platform/interview-usage",
+      "purpose": "read platform Interview usage",
+      "capabilityKey": "platform.interview.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
       "sourceFragment": "platform"
     },
     {
@@ -3531,5 +3687,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:3d754da549f66fd063ccc40b2f8d12c00b0411e9a50f1117371dbcca396b9ae8"
+  "digest": "sha256:b0234c090be816ca1b55cace4b39c6e20129d71bdc0660f302e0aea4ef723942"
 }

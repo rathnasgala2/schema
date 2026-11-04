@@ -134,5 +134,10 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       HEAD_MOVED: { statuses: [409], retryable: false },
       NOT_SET_UP: { statuses: [409], retryable: false },
       PUBLISH_IN_PROGRESS: { statuses: [409], retryable: false },
+      // SCHEMA-3.34.0: Interview.
+      BUDGET_EXHAUSTED: { statuses: [503], retryable: false },
+      INTERVIEW_STATE_CONFLICT: { statuses: [409], retryable: false },
+      INTERVIEW_TOO_THIN: { statuses: [409], retryable: false },
+      PROVIDER_UNAVAILABLE: { statuses: [503], retryable: true },
     })
   );

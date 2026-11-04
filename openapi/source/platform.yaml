@@ -1424,6 +1424,67 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
+  /v2/platform/interview-usage:
+    get:
+      description: >
+        Operators only (`ADMIN` or `ROOT`). Interview volume and spend for the
+        current UTC month across the platform: how many interviews were started,
+        what they cost in millionths of a US dollar and the monthly cap. Counts
+        and money only, never interview text.
+      operationId: getPlatformInterviewUsage
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    cap:
+                      usdMicros: 50000000
+                    interviews: 42
+                    period: 2026-11
+                    usdMicros: 12500000
+              schema:
+                $ref: '#/components/schemas/GetPlatformInterviewUsageResponse'
+          description: read platform Interview usage succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: read platform Interview usage
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.interview.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read platform Interview usage
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
   /v2/platform/prism-generations:export:
     post:
       description:

@@ -13595,6 +13595,613 @@ components:
         - processedAt
         - updatedAt
       type: object
+    InterviewState:
+      description:
+        SCHEMA-3.34.0. `CAPTURED` (the material is saved, no question asked yet)
+        -> `INTERVIEWING` (a quota unit is reserved) -> `WRITING` ->
+        `DRAFT_READY` -> `ACCEPTED`; `CANCELLED` from any state before
+        `ACCEPTED`; `FAILED` and `EXPIRED` are terminal.
+      enum:
+        - CAPTURED
+        - INTERVIEWING
+        - WRITING
+        - DRAFT_READY
+        - ACCEPTED
+        - CANCELLED
+        - FAILED
+        - EXPIRED
+      type: string
+    InterviewPhase:
+      description:
+        "Where the interview is: asking for the author's own details (`OWNED`),
+        pushing for a view (`INSIGHTFUL`), or finished asking (`DONE`)."
+      enum:
+        - OWNED
+        - INSIGHTFUL
+        - DONE
+      type: string
+    InterviewCaptureKind:
+      description:
+        'How the material was captured: a typed `NOTE`, a `VOICE` transcript or
+        a `LINK` with its text.'
+      enum:
+        - NOTE
+        - VOICE
+        - LINK
+      type: string
+    InterviewTurnRole:
+      description: Who spoke.
+      enum:
+        - INTERVIEWER
+        - AUTHOR
+      type: string
+    InterviewTurnKind:
+      description:
+        "What the turn is: an interviewer `QUESTION`, `RECAP`, `SKEPTIC`
+        challenge or `CLOSING`, or the author's `ANSWER`."
+      enum:
+        - QUESTION
+        - RECAP
+        - SKEPTIC
+        - CLOSING
+        - ANSWER
+      type: string
+    InterviewPolicy:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.34.0. Whether Interview is available to this publication and
+        how many interviews are left this period (UTC month). `enabled: false`
+        means the feature is off; the editor says so and stays usable.'
+      properties:
+        budget:
+          additionalProperties: false
+          description:
+            "`available` is false when the platform's monthly spend cap is
+            reached."
+          properties:
+            available:
+              type: boolean
+          required:
+            - available
+          type: object
+        enabled:
+          description:
+            False when the platform switch is off or the provider is not
+            configured.
+          type: boolean
+        plan:
+          additionalProperties: false
+          properties:
+            allowed:
+              type: boolean
+            requiredTier:
+              description:
+                'The API tier the feature needs: `BUSINESS`, sold as Pro.'
+              enum:
+                - FREE
+                - PRO
+                - BUSINESS
+              type: string
+          required:
+            - allowed
+            - requiredTier
+          type: object
+        quota:
+          additionalProperties: false
+          properties:
+            limit:
+              format: int64
+              minimum: 0
+              type: integer
+            period:
+              description: The UTC month, `YYYY-MM`.
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])$
+              type: string
+            remaining:
+              format: int64
+              minimum: 0
+              type: integer
+            used:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - period
+            - limit
+            - used
+            - remaining
+          type: object
+      required:
+        - enabled
+        - plan
+        - quota
+        - budget
+      type: object
+    InterviewProfile: &a7
+      additionalProperties: false
+      description:
+        SCHEMA-3.34.0. The two facts the interviewer keeps about the site
+        between interviews.
+      properties:
+        niche:
+          maxLength: 200
+          minLength: 0
+          type: string
+          description:
+            What the site is about, in the author's words. May be empty.
+        reader:
+          maxLength: 300
+          minLength: 0
+          type: string
+          description: Who it is for. May be empty.
+      required:
+        - niche
+        - reader
+      type: object
+    InterviewCapture:
+      additionalProperties: false
+      description: SCHEMA-3.34.0. The material an interview starts from.
+      properties:
+        kind:
+          $ref: '#/components/schemas/InterviewCaptureKind'
+        sourceTitle:
+          maxLength: 300
+          minLength: 1
+          type: string
+        sourceUrl:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          format: uri
+        text:
+          maxLength: 20000
+          minLength: 1
+          type: string
+          description: The note or the transcript.
+      required:
+        - kind
+        - text
+      type: object
+    InterviewCreate: &a8
+      additionalProperties: false
+      properties:
+        capture:
+          $ref: '#/components/schemas/InterviewCapture'
+      required:
+        - capture
+      type: object
+    InterviewAnswer: &a9
+      additionalProperties: false
+      description: SCHEMA-3.34.0. The author's answer to the last question.
+      properties:
+        text:
+          maxLength: 8000
+          minLength: 1
+          type: string
+      required:
+        - text
+      type: object
+    InterviewTurn:
+      additionalProperties: false
+      properties:
+        at: &a1
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        kind:
+          $ref: '#/components/schemas/InterviewTurnKind'
+        role:
+          $ref: '#/components/schemas/InterviewTurnRole'
+        seq:
+          format: int64
+          minimum: 0
+          type: integer
+        text:
+          maxLength: 20000
+          minLength: 1
+          type: string
+      required:
+        - seq
+        - role
+        - kind
+        - text
+        - at
+      type: object
+    InterviewProgress:
+      additionalProperties: false
+      properties:
+        beliefDone:
+          type: boolean
+        canFinish:
+          description: True once at least three details are on record.
+          type: boolean
+        details:
+          format: int64
+          minimum: 0
+          type: integer
+        detailsTarget:
+          format: int64
+          minimum: 0
+          type: integer
+          description: How many details the interviewer aims for (5).
+        phase:
+          $ref: '#/components/schemas/InterviewPhase'
+        skepticRounds:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - phase
+        - details
+        - detailsTarget
+        - beliefDone
+        - skepticRounds
+        - canFinish
+      type: object
+    InterviewDraft:
+      additionalProperties: false
+      description:
+        SCHEMA-3.34.0. The post the interview produced; nothing is published
+        until the author accepts and saves it.
+      properties:
+        body:
+          maxLength: 262144
+          minLength: 1
+          type: string
+          description: Markdown.
+        description:
+          maxLength: 160
+          minLength: 1
+          type: string
+        language:
+          maxLength: 35
+          minLength: 2
+          type: string
+          pattern: ^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$
+        title:
+          maxLength: 300
+          minLength: 1
+          type: string
+        tldr:
+          maxLength: 2000
+          minLength: 1
+          type: string
+      required:
+        - title
+        - description
+        - tldr
+        - body
+        - language
+      type: object
+    InterviewReview:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.34.0. What the draft was checked against: each claim is
+        `VERIFIED` against a source, `UNVERIFIED`, or in `CONFLICT` with the
+        author's earlier posts, plus a three-sentence read-back and any passages
+        flagged as unclear."
+      properties:
+        claims:
+          items:
+            additionalProperties: false
+            properties:
+              source:
+                additionalProperties: false
+                properties:
+                  contentPath:
+                    maxLength: 512
+                    minLength: 1
+                    type: string
+                    pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+                  note:
+                    maxLength: 500
+                    minLength: 1
+                    type: string
+                  url:
+                    maxLength: 2048
+                    minLength: 1
+                    type: string
+                    format: uri
+                required: []
+                type: object
+              status:
+                enum:
+                  - VERIFIED
+                  - UNVERIFIED
+                  - CONFLICT
+                type: string
+              text:
+                maxLength: 1000
+                minLength: 1
+                type: string
+            required:
+              - text
+              - status
+            type: object
+          maxItems: 100
+          type: array
+        clear:
+          additionalProperties: false
+          properties:
+            flagged:
+              items:
+                additionalProperties: false
+                properties:
+                  quote:
+                    maxLength: 500
+                    minLength: 1
+                    type: string
+                  why:
+                    maxLength: 500
+                    minLength: 1
+                    type: string
+                required:
+                  - quote
+                  - why
+                type: object
+              maxItems: 50
+              type: array
+            threeSentences:
+              items:
+                maxLength: 500
+                minLength: 1
+                type: string
+              maxItems: 3
+              minItems: 3
+              type: array
+          required:
+            - threeSentences
+            - flagged
+          type: object
+        pastPostsRead:
+          description:
+            Content paths of the author's earlier posts the interviewer read.
+          items:
+            maxLength: 512
+            minLength: 1
+            type: string
+            pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
+          maxItems: 50
+          type: array
+        sources:
+          items:
+            additionalProperties: false
+            properties:
+              title:
+                maxLength: 300
+                minLength: 1
+                type: string
+              url:
+                maxLength: 2048
+                minLength: 1
+                type: string
+                format: uri
+            required:
+              - url
+              - title
+            type: object
+          maxItems: 50
+          type: array
+      required:
+        - claims
+        - clear
+        - sources
+        - pastPostsRead
+      type: object
+    InterviewFailure:
+      additionalProperties: false
+      properties:
+        code:
+          enum:
+            - PROVIDER_UNAVAILABLE
+            - PROVIDER_REFUSED
+            - MALFORMED_ANSWER
+            - BUDGET_EXHAUSTED
+            - EXPIRED
+          type: string
+        message:
+          maxLength: 500
+          minLength: 1
+          type: string
+      required:
+        - code
+      type: object
+    Interview:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.34.0. One Interview: an AI interviewer asks the author about
+        captured material and writes a draft in their words. `turns` is the
+        conversation; `draft` and `review` are present from `DRAFT_READY`;
+        `failure` once `FAILED`.'
+      properties:
+        capture: &a3
+          $ref: '#/components/schemas/InterviewCapture'
+        createdAt: *a1
+        expiresAt: *a1
+        failure: &a4
+          $ref: '#/components/schemas/InterviewFailure'
+        finishedAt: *a1
+        interviewId: &a2
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationId: *a2
+        progress: &a5
+          $ref: '#/components/schemas/InterviewProgress'
+        publicationId: *a2
+        startedAt: *a1
+        state: &a6
+          $ref: '#/components/schemas/InterviewState'
+        updatedAt: *a1
+        draft:
+          $ref: '#/components/schemas/InterviewDraft'
+        review:
+          $ref: '#/components/schemas/InterviewReview'
+        turns:
+          items:
+            $ref: '#/components/schemas/InterviewTurn'
+          maxItems: 400
+          type: array
+      required:
+        - interviewId
+        - organizationId
+        - publicationId
+        - state
+        - capture
+        - progress
+        - createdAt
+        - updatedAt
+        - expiresAt
+        - turns
+      type: object
+    InterviewListItem:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.34.0. An Interview as the list shows it: no turns, draft or
+        review, with `turnCount` and `hasDraft` instead.'
+      properties:
+        capture: *a3
+        createdAt: *a1
+        expiresAt: *a1
+        failure: *a4
+        finishedAt: *a1
+        interviewId: *a2
+        organizationId: *a2
+        progress: *a5
+        publicationId: *a2
+        startedAt: *a1
+        state: *a6
+        updatedAt: *a1
+        hasDraft:
+          type: boolean
+        turnCount:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - interviewId
+        - organizationId
+        - publicationId
+        - state
+        - capture
+        - progress
+        - createdAt
+        - updatedAt
+        - expiresAt
+        - turnCount
+        - hasDraft
+      type: object
+    PlatformInterviewUsage:
+      additionalProperties: false
+      description:
+        SCHEMA-3.34.0. Interview volume and spend for the current UTC month,
+        platform-wide. Counts and money only, never interview text.
+      properties:
+        cap:
+          additionalProperties: false
+          description: The monthly spend cap.
+          properties:
+            usdMicros:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - usdMicros
+          type: object
+        interviews:
+          format: int64
+          minimum: 0
+          type: integer
+        period:
+          description: The current UTC month, `YYYY-MM`.
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])$
+          type: string
+        usdMicros:
+          format: int64
+          minimum: 0
+          type: integer
+          description: Spend so far this month, in millionths of a US dollar.
+      required:
+        - period
+        - interviews
+        - usdMicros
+        - cap
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicyResponse:
+      allOf:
+        - $ref: '#/components/schemas/InterviewPolicy'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfileResponse:
+      allOf:
+        - $ref: '#/components/schemas/InterviewProfile'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfileResponse:
+      allOf:
+        - $ref: '#/components/schemas/InterviewProfile'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfileRequest: *a7
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/InterviewListItem'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsRequest: *a8
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStartResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdTurnsResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdTurnsRequest: *a9
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdFinishResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdCancelResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdAcceptResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    GetPlatformInterviewUsageResponse:
+      allOf:
+        - $ref: '#/components/schemas/PlatformInterviewUsage'
     PlatformPrismGeneration:
       additionalProperties: false
       description:

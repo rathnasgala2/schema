@@ -8,6 +8,46 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.34.0] - 2026-11-04
+
+Interview: an AI interviewer asks the author about captured material and writes
+a draft in their words. Additive: new paths, components, one tag and four
+problem codes; no existing request or response changes, and
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves.
+
+### Added
+
+- Under `/v2/organizations/{organizationId}/publications/{publicationId}`:
+  `GET interview-policy` (plan, monthly quota and spend-cap room), `GET` and
+  `PUT interview-profile` (the site's niche and reader, kept in the database;
+  `PUT` needs `publication.settings.manage`), `GET` and `POST interviews` (list
+  newest first; capture a note, voice transcript or link as a `CAPTURED`
+  interview, `201`), `GET interviews/{interviewId}` (turns, draft and review),
+  and the commands `POST interviews/{interviewId}:start` (reserves one quota
+  unit and asks the first question), `POST .../turns` (the author's answer and
+  the interviewer's reply), `POST .../:finish` (`202`, writes the draft; needs
+  at least three details), `POST .../:cancel` and `POST .../:accept` (only from
+  `DRAFT_READY`). Every command carries `Idempotency-Key`. All use
+  `publication.source.write`.
+- `GET /v2/platform/interview-usage` (`getPlatformInterviewUsage`, capability
+  `platform.interview.view`): interviews, spend and the cap for the current UTC
+  month.
+- Components `Interview`, `InterviewListItem`, `InterviewState`,
+  `InterviewPhase`, `InterviewCaptureKind`, `InterviewTurnRole`,
+  `InterviewTurnKind`, `InterviewPolicy`, `InterviewProfile`, `InterviewCreate`,
+  `InterviewCapture`, `InterviewAnswer`, `InterviewTurn`, `InterviewProgress`,
+  `InterviewDraft`, `InterviewReview`, `InterviewFailure` and
+  `PlatformInterviewUsage`, and the tag `interview`.
+- Problem codes `INTERVIEW_STATE_CONFLICT` (409, the command is not allowed in
+  this state), `INTERVIEW_TOO_THIN` (409, finish with fewer than three details),
+  `BUDGET_EXHAUSTED` (503, the platform's monthly spend cap is reached) and
+  `PROVIDER_UNAVAILABLE` (503, retryable; the turn could not be answered and
+  nothing was stored). Existing `PLAN_REQUIRED`, `CAPABILITY_UNAVAILABLE`,
+  `QUOTA_EXHAUSTED` and `COMMAND_REPLAY_CONFLICT` are reused.
+- App routes `interviews`, `interviews/new` and `interviews/{interviewId}` under
+  a site; the profile is a Settings section.
+
 ## [3.33.0] - 2026-11-04
 
 A site whose theme pages are still on the old layout now says so. Additive: the
@@ -4046,7 +4086,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.33.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.34.0...HEAD
+[3.34.0]: https://github.com/rathnasgala2/schema/compare/v3.33.0...v3.34.0
 [3.33.0]: https://github.com/rathnasgala2/schema/compare/v3.32.2...v3.33.0
 [3.32.2]: https://github.com/rathnasgala2/schema/compare/v3.32.1...v3.32.2
 [3.32.1]: https://github.com/rathnasgala2/schema/compare/v3.32.0...v3.32.1

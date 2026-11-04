@@ -248,6 +248,51 @@
       ]
     },
     {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/interviews",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Interviews; See the site's interviews, newest first, and start a new one.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdCancel"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/interviews/new",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "New interview; Capture a note, a transcript or a link to start an interview from.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfile",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/interviews/{interviewId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Interview; Answer the interviewer, finish to get a draft, check what it was checked against, and accept or cancel it.",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicy",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdAccept",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdCancel",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdFinish",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdTurns"
+      ]
+    },
+    {
       "pathTemplate": "/sites/{organizationId}/{publicationId}/reviews",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
@@ -405,6 +450,7 @@
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaims",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdHistory",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfile",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
@@ -429,6 +475,7 @@
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdAnalyticsSettings",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfile",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettings",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
         "putOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettings",
@@ -826,6 +873,7 @@
       "collection": true,
       "screenJob": "Platform Prism generations; Operators list every edition generation and download the list as CSV.",
       "apiOperationIds": [
+        "getPlatformInterviewUsage",
         "getPlatformPrismGenerations",
         "postPlatformPrismGenerationsExport"
       ]
