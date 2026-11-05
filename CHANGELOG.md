@@ -8,6 +8,26 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.38.0] - 2026-11-05
+
+Syndication follow-up. Additive: two operation kinds and two problem codes; no
+existing request or response changes, and `schemas/publication.schema.json` is
+untouched, so no template or publish toolchain pin moves.
+
+### Added
+
+- `OperationKind` members `syndication_send` (a manual syndication send filed
+  from Settings) and `syndication_retry` (a retry of one syndication delivery).
+- Problem code `SYNDICATION_CONNECTION_NOT_ACTIVE` (409, not retryable, type
+  `urn:gala:problem:syndication-connection-not-active`) on the manual-send and
+  retry operations: the connection named is paused or needs attention, and
+  nothing is filed. A manual send no longer files `SKIPPED` deliveries for such
+  a connection.
+- Problem code `SYNDICATION_DELIVERY_NOT_RETRYABLE` (409, not retryable, type
+  `urn:gala:problem:syndication-delivery-not-retryable`) on the retry operation:
+  the delivery is not `FAILED` or `SKIPPED`. It no longer answers the unchanged
+  delivery.
+
 ## [3.37.0] - 2026-11-05
 
 Syndication: a publication announces each live post to dev.to, Hashnode,
@@ -4175,7 +4195,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.37.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.38.0...HEAD
+[3.38.0]: https://github.com/rathnasgala2/schema/compare/v3.37.0...v3.38.0
 [3.37.0]: https://github.com/rathnasgala2/schema/compare/v3.36.0...v3.37.0
 [3.36.0]: https://github.com/rathnasgala2/schema/compare/v3.35.0...v3.36.0
 [3.35.0]: https://github.com/rathnasgala2/schema/compare/v3.34.0...v3.35.0

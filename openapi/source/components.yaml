@@ -3137,7 +3137,9 @@ components:
         system-initiated operation that moves a site's canonical base to or
         from its custom domain around the CNAME switch; nobody requests it, so
         it is reached through an operation's `held.byOperationId` or a site
-        read rather than a `202`.
+        read rather than a `202`. `syndication_send` (SCHEMA-3.38.0) is a manual
+        syndication send filed from Settings, and `syndication_retry` is a retry
+        of one syndication delivery.
       enum:
         - deployment_reconcile
         - deployment_rollback
@@ -3148,6 +3150,8 @@ components:
         - repository_change_commit
         - repository_change_plan
         - review_request
+        - syndication_retry
+        - syndication_send
       type: string
     OperationSubject:
       additionalProperties: false

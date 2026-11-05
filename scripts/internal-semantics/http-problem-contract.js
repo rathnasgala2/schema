@@ -142,8 +142,12 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       PROVIDER_UNAVAILABLE: { statuses: [503], retryable: true },
       // SCHEMA-3.37.0: syndication.
       SYNDICATION_CONNECTION_LIMIT: { statuses: [409], retryable: false },
+      // SCHEMA-3.38.0: a manual send or retry that names a connection that is
+      // not ACTIVE, and a retry of a delivery that is not retryable.
+      SYNDICATION_CONNECTION_NOT_ACTIVE: { statuses: [409], retryable: false },
       SYNDICATION_CONNECTION_NOT_FOUND: { statuses: [404], retryable: false },
       SYNDICATION_CREDENTIAL_REJECTED: { statuses: [422], retryable: false },
+      SYNDICATION_DELIVERY_NOT_RETRYABLE: { statuses: [409], retryable: false },
       SYNDICATION_DELIVERY_NOT_FOUND: { statuses: [404], retryable: false },
       SYNDICATION_PLATFORM_UNAVAILABLE: { statuses: [503], retryable: true },
       SYNDICATION_POST_NOT_LIVE: { statuses: [409], retryable: false },
