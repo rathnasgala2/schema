@@ -150,6 +150,13 @@ export function createPlatformSchemas(language) {
           description:
             "SCHEMA-3.35.0, optional, carried by a CANONICAL_BASE_MISMATCH problem and absent from every other: the ids of the waiting changes whose saved copy of `gala/publication.json` carries a different site address than the one the site is served at, in request order (the same id format as the publish request's `changeIds`). Present only when the server could not rewrite those changes' address itself right now (publish again in a moment) or when main itself still carries the old address.",
         },
+        platformMessage: {
+          type: 'string',
+          minLength: 1,
+          maxLength: 500,
+          description:
+            "SCHEMA-3.37.0, optional, carried by a SYNDICATION_CREDENTIAL_REJECTED problem and absent from every other: the platform's own words for why it refused the credential, at most 500 characters, for the author to read as the platform's message (for example `Bad credentials`). It never contains the credential.",
+        },
         details: {
           type: 'object',
           description:

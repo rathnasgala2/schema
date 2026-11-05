@@ -17759,6 +17759,576 @@ components:
     PostPlatformAssistanceRequestsByRequestIdCloseResponse:
       $ref: '#/components/schemas/PlatformAssistanceRequest'
 
+    SyndicationConnectionKind:
+      description:
+        SCHEMA-3.37.0. The platforms a publication can announce its posts to.
+        `devto` and `hashnode` mirror the whole article with the original
+        address as canonical; the other four post a short announcement with the
+        live address.
+      enum:
+        - devto
+        - hashnode
+        - bluesky
+        - mastodon
+        - telegram
+        - discord
+      type: string
+    SyndicationConnectionStatus:
+      description:
+        SCHEMA-3.37.0. `ACTIVE` posts new announcements; `PAUSED` was stopped by
+        a person and files nothing; `NEEDS_ATTENTION` means the platform
+        rejected the saved credential, nothing is posted until the credential is
+        replaced or checked again.
+      enum:
+        - ACTIVE
+        - PAUSED
+        - NEEDS_ATTENTION
+      type: string
+    SyndicationDeliveryStatus:
+      description:
+        SCHEMA-3.37.0. `PENDING` waits for its first attempt; `RETRYING` failed
+        for a reason that may pass and will be tried again at `nextAttemptAt`;
+        `SENT` reached the platform; `FAILED` will not be tried again; `SKIPPED`
+        was not posted because the connection was not `ACTIVE`.
+      enum:
+        - PENDING
+        - SENT
+        - RETRYING
+        - FAILED
+        - SKIPPED
+      type: string
+    SyndicationDeliveryRequester:
+      description:
+        SCHEMA-3.37.0. `ANNOUNCEMENT` was filed automatically when a post went
+        live; `MANUAL` was filed by a person for an earlier post.
+      enum:
+        - ANNOUNCEMENT
+        - MANUAL
+      type: string
+    SyndicationCredentialDevto:
+      additionalProperties: false
+      description: SCHEMA-3.37.0. A dev.to credential.
+      properties:
+        kind:
+          const: devto
+          type: string
+        apiKey:
+          maxLength: 200
+          minLength: 8
+          type: string
+          writeOnly: true
+          description: The dev.to API key.
+      required:
+        - kind
+        - apiKey
+      type: object
+    SyndicationCredentialHashnode:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. A Hashnode credential and the publication it posts to.
+      properties:
+        kind:
+          const: hashnode
+          type: string
+        token:
+          maxLength: 200
+          minLength: 8
+          type: string
+          writeOnly: true
+          description: The Hashnode personal access token.
+        publicationHost:
+          description:
+            The host of the Hashnode publication to post to, for example
+            `name.hashnode.dev` or the publication's own domain.
+          maxLength: 253
+          minLength: 3
+          pattern: ^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$
+          type: string
+      required:
+        - kind
+        - token
+        - publicationHost
+      type: object
+    SyndicationCredentialBluesky:
+      additionalProperties: false
+      description: SCHEMA-3.37.0. A Bluesky handle and app password.
+      properties:
+        kind:
+          const: bluesky
+          type: string
+        handle:
+          description:
+            The account handle without the leading `@`, for example
+            `name.bsky.social`.
+          maxLength: 253
+          minLength: 3
+          pattern: ^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$
+          type: string
+        appPassword:
+          maxLength: 64
+          minLength: 8
+          type: string
+          writeOnly: true
+          description: A Bluesky app password, never the account password.
+      required:
+        - kind
+        - handle
+        - appPassword
+      type: object
+    SyndicationCredentialMastodon:
+      additionalProperties: false
+      description: SCHEMA-3.37.0. A Mastodon server and access token.
+      properties:
+        kind:
+          const: mastodon
+          type: string
+        instance:
+          description:
+            'The address of the Mastodon server: `https` and a host, nothing
+            else.'
+          maxLength: 255
+          minLength: 9
+          pattern: ^https://[^\s/?#@]+$
+          type: string
+        accessToken:
+          maxLength: 500
+          minLength: 8
+          type: string
+          writeOnly: true
+          description: An access token with the `write:statuses` scope.
+      required:
+        - kind
+        - instance
+        - accessToken
+      type: object
+    SyndicationCredentialTelegram:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. A Telegram bot token and the channel it posts to.
+      properties:
+        kind:
+          const: telegram
+          type: string
+        botToken:
+          maxLength: 120
+          minLength: 20
+          type: string
+          writeOnly: true
+          description: The bot token from BotFather.
+          pattern: ^[0-9]{5,20}:[A-Za-z0-9_-]{20,80}$
+        channel:
+          description:
+            The public channel the bot posts to, `@` and the channel name.
+          maxLength: 33
+          minLength: 6
+          pattern: ^@[A-Za-z][A-Za-z0-9_]{4,31}$
+          type: string
+      required:
+        - kind
+        - botToken
+        - channel
+      type: object
+    SyndicationCredentialDiscord:
+      additionalProperties: false
+      description: SCHEMA-3.37.0. A Discord channel webhook.
+      properties:
+        kind:
+          const: discord
+          type: string
+        webhookUrl:
+          maxLength: 300
+          minLength: 40
+          type: string
+          writeOnly: true
+          description: The channel webhook address from Discord.
+          format: uri
+          pattern: ^https://(?:discord|discordapp)\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+$
+      required:
+        - kind
+        - webhookUrl
+      type: object
+    SyndicationCredential:
+      description:
+        'SCHEMA-3.37.0. What a connection needs to post, one shape per kind,
+        discriminated by `kind`. A credential is only ever sent to Galascribe:
+        no response carries it, no list, no read, no event.'
+      discriminator:
+        mapping:
+          devto: '#/components/schemas/SyndicationCredentialDevto'
+          hashnode: '#/components/schemas/SyndicationCredentialHashnode'
+          bluesky: '#/components/schemas/SyndicationCredentialBluesky'
+          mastodon: '#/components/schemas/SyndicationCredentialMastodon'
+          telegram: '#/components/schemas/SyndicationCredentialTelegram'
+          discord: '#/components/schemas/SyndicationCredentialDiscord'
+        propertyName: kind
+      oneOf:
+        - $ref: '#/components/schemas/SyndicationCredentialDevto'
+        - $ref: '#/components/schemas/SyndicationCredentialHashnode'
+        - $ref: '#/components/schemas/SyndicationCredentialBluesky'
+        - $ref: '#/components/schemas/SyndicationCredentialMastodon'
+        - $ref: '#/components/schemas/SyndicationCredentialTelegram'
+        - $ref: '#/components/schemas/SyndicationCredentialDiscord'
+    SyndicationConnectionOptions:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. Per-kind choices. Each member is read only by its own
+        kind and ignored for the others; an absent member means the default.
+      properties:
+        devto:
+          additionalProperties: false
+          description:
+            '`publishAsDraft: true` saves each mirrored article on dev.to as a
+            draft for the author to publish there; default `false` publishes it.'
+          properties:
+            publishAsDraft:
+              type: boolean
+          required:
+            - publishAsDraft
+          type: object
+        discord:
+          additionalProperties: false
+          description:
+            '`ANNOUNCEMENT` posts one embed with the title, summary and live
+            address (the default); `PASTE_CARD` posts a private working card
+            with the text for each platform that is posted by hand.'
+          properties:
+            style:
+              enum:
+                - ANNOUNCEMENT
+                - PASTE_CARD
+              type: string
+          required:
+            - style
+          type: object
+      type: object
+    SyndicationConnectionCreate:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. Connect a platform. Galascribe checks the credential
+        against the platform before it saves it. `credential.kind` must equal
+        `kind`.
+      properties:
+        credential:
+          $ref: '#/components/schemas/SyndicationCredential'
+        kind:
+          $ref: '#/components/schemas/SyndicationConnectionKind'
+        options:
+          $ref: '#/components/schemas/SyndicationConnectionOptions'
+      required:
+        - kind
+        - credential
+      type: object
+    SyndicationConnectionAttention:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. Why a connection stopped posting, present while its
+        `status` is `NEEDS_ATTENTION`. `message` is written for the author.
+      properties:
+        code:
+          description:
+            A stable upper-case reason, for example `CREDENTIAL_REJECTED`. A
+            client shows a value it does not know as `message`.
+          maxLength: 64
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9_]*$
+          type: string
+        message:
+          maxLength: 500
+          minLength: 1
+          type: string
+        since:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - code
+        - message
+        - since
+      type: object
+    SyndicationLastDelivery:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. The newest delivery of a connection, so the list can show
+        how it is doing without a second read.
+      properties:
+        at:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        deliveryId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        status:
+          $ref: '#/components/schemas/SyndicationDeliveryStatus'
+      required:
+        - deliveryId
+        - status
+        - at
+      type: object
+    SyndicationConnection:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.37.0. One platform connection of a publication. The credential
+        is never returned: no response, list or event carries it, and a lost one
+        is replaced, not read. `accountLabel` is the platform account the
+        credential belongs to, as the platform names it, for example `@anand` or
+        `name.hashnode.dev`.'
+      properties:
+        accountLabel:
+          maxLength: 200
+          minLength: 1
+          type: string
+        attention:
+          $ref: '#/components/schemas/SyndicationConnectionAttention'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          $ref: '#/components/schemas/SyndicationConnectionKind'
+        lastDelivery:
+          $ref: '#/components/schemas/SyndicationLastDelivery'
+        options:
+          $ref: '#/components/schemas/SyndicationConnectionOptions'
+        status:
+          $ref: '#/components/schemas/SyndicationConnectionStatus'
+      required:
+        - id
+        - kind
+        - accountLabel
+        - status
+        - options
+        - createdAt
+      type: object
+    SyndicationConnectionList:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. Every connection of the publication, oldest first. At
+        most 12.
+      properties:
+        connections:
+          items:
+            $ref: '#/components/schemas/SyndicationConnection'
+          maxItems: 12
+          type: array
+      required:
+        - connections
+      type: object
+    SyndicationDeliveryFailure:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. Why a delivery failed. `message` is the platform's own
+        words when it gave any, else Galascribe's.
+      properties:
+        code:
+          description:
+            A stable upper-case reason, for example `CREDENTIAL_REJECTED`,
+            `PLATFORM_REJECTED` or `RETRIES_EXHAUSTED`. A client shows a value
+            it does not know as `message`.
+          maxLength: 64
+          minLength: 1
+          pattern: ^[A-Z][A-Z0-9_]*$
+          type: string
+        message:
+          maxLength: 500
+          minLength: 1
+          type: string
+      required:
+        - code
+        - message
+      type: object
+    SyndicationDelivery:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. One post of one live article to one platform.
+        `connectionId` is absent once the connection was removed; `kind` and
+        `accountLabel` stay. `externalUrl` is the post on the platform, absent
+        for `discord` and until the delivery is `SENT`.
+      properties:
+        accountLabel:
+          maxLength: 200
+          minLength: 1
+          type: string
+        attemptCount:
+          minimum: 0
+          type: integer
+        connectionId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        contentTitle:
+          maxLength: 300
+          minLength: 1
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        externalUrl:
+          $ref: '#/components/schemas/AudienceUrl'
+        failure:
+          $ref: '#/components/schemas/SyndicationDeliveryFailure'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        kind:
+          $ref: '#/components/schemas/SyndicationConnectionKind'
+        liveUrl:
+          $ref: '#/components/schemas/AudienceUrl'
+        nextAttemptAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        requestedBy:
+          $ref: '#/components/schemas/SyndicationDeliveryRequester'
+        status:
+          $ref: '#/components/schemas/SyndicationDeliveryStatus'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - id
+        - kind
+        - accountLabel
+        - contentId
+        - contentTitle
+        - liveUrl
+        - status
+        - requestedBy
+        - attemptCount
+        - createdAt
+        - updatedAt
+      type: object
+    SyndicationDeliveryList:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. The newest 50 deliveries of the publication, newest
+        first.
+      properties:
+        deliveries:
+          items:
+            $ref: '#/components/schemas/SyndicationDelivery'
+          maxItems: 50
+          type: array
+      required:
+        - deliveries
+      type: object
+    SyndicationManualSend:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. File a delivery of an earlier live post to the chosen
+        connections. `contentId` must name a post with a live announcement (`409
+        SYNDICATION_POST_NOT_LIVE` otherwise).
+      properties:
+        connectionIds:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 12
+          minItems: 1
+          type: array
+          uniqueItems: true
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - contentId
+        - connectionIds
+      type: object
+    SyndicationReplaceCredential:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. A new credential for an existing connection.
+        `credential.kind` must equal the connection's kind.
+      properties:
+        credential:
+          $ref: '#/components/schemas/SyndicationCredential'
+      required:
+        - credential
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnectionList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. Connect a platform. Galascribe checks the credential
+        against the platform before it saves it. `credential.kind` must equal
+        `kind`.
+      properties:
+        credential:
+          $ref: '#/components/schemas/SyndicationCredential'
+        kind:
+          $ref: '#/components/schemas/SyndicationConnectionKind'
+        options:
+          $ref: '#/components/schemas/SyndicationConnectionOptions'
+      required:
+        - kind
+        - credential
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnection'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdPauseResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdResumeResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdVerifyResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdReplaceCredentialRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. A new credential for an existing connection.
+        `credential.kind` must equal the connection's kind.
+      properties:
+        credential:
+          $ref: '#/components/schemas/SyndicationCredential'
+      required:
+        - credential
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdReplaceCredentialResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationConnection'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveriesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationDeliveryList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveriesRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.37.0. File a delivery of an earlier live post to the chosen
+        connections. `contentId` must name a post with a live announcement (`409
+        SYNDICATION_POST_NOT_LIVE` otherwise).
+      properties:
+        connectionIds:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 12
+          minItems: 1
+          type: array
+          uniqueItems: true
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - contentId
+        - connectionIds
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveriesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationDeliveryList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveriesByDeliveryIdRetryResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationDelivery'
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)

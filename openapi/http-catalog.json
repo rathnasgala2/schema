@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:01fdde132696b79aac2f44f85847305515210b05dd50b9c51736fa44a0673561",
+  "openApiDigest": "sha256:b3d729be2428cce3ea41b531261306f24c059da2ea3d061f9ccff9df4c5997d4",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -2244,6 +2244,149 @@
       "sourceFragment": "organizations"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnections",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections",
+      "purpose": "list syndication connections",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnections",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections",
+      "purpose": "connect a syndication platform",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionId",
+      "method": "DELETE",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}",
+      "purpose": "remove a syndication connection",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}",
+      "purpose": "read one syndication connection",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdPause",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}:pause",
+      "purpose": "pause a syndication connection",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdReplaceCredential",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}:replace-credential",
+      "purpose": "replace the credential of a syndication connection",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdResume",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}:resume",
+      "purpose": "resume a syndication connection",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdVerify",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}:verify",
+      "purpose": "check a syndication connection",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveries",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-deliveries",
+      "purpose": "list syndication deliveries",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveries",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-deliveries",
+      "purpose": "send an earlier post to syndication connections",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveriesByDeliveryIdRetry",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-deliveries/{deliveryId}:retry",
+      "purpose": "retry a syndication delivery",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/transfers",
@@ -3700,5 +3843,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:a0a2e2e171b19ebf41758125acc8ac4d24b23b924554c11c76031348e268edf3"
+  "digest": "sha256:9dec921b1f2d4e841a44de0d97dbcf0bf895227e11971bc2b7125ed0e7db6324"
 }

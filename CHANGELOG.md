@@ -8,6 +8,48 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.37.0] - 2026-11-05
+
+Syndication: a publication announces each live post to dev.to, Hashnode,
+Bluesky, Mastodon, Telegram and Discord. Additive: new paths, components, one
+tag, six problem codes and one optional problem member; no existing request or
+response changes, and `schemas/publication.schema.json` is untouched, so no
+template or publish toolchain pin moves.
+
+### Added
+
+- Tag `syndication` and eleven operations under
+  `/v2/organizations/{organizationId}/publications/{publicationId}/`. Reads need
+  `publication.view`; every mutation needs `publication.settings.manage` and
+  carries `Idempotency-Key` and `X-CSRF-TOKEN`.
+  - `syndication-connections`: `GET` (list, at most 12), `POST` (connect, `201`,
+    checks the credential with the platform before saving it sealed).
+  - `syndication-connections/{connectionId}`: `GET`, `DELETE` (`204`, destroys
+    the credential).
+  - `syndication-connections/{connectionId}:pause`, `:resume`, `:verify` and
+    `:replace-credential` (`POST`, `200`, answer the connection).
+  - `syndication-deliveries`: `GET` (newest 50), `POST` (file a manual delivery
+    of an earlier live post to chosen connections, `202`).
+  - `syndication-deliveries/{deliveryId}:retry` (`POST`, `202`).
+- Components `SyndicationConnectionKind`, `SyndicationConnectionStatus`,
+  `SyndicationDeliveryStatus`, `SyndicationDeliveryRequester`,
+  `SyndicationCredential` (a `kind`-discriminated union of six arms, one per
+  platform, secrets `writeOnly`), `SyndicationConnectionOptions`,
+  `SyndicationConnectionCreate`, `SyndicationConnection` (the credential is
+  never returned; `accountLabel` is the platform account name),
+  `SyndicationConnectionList`, `SyndicationDelivery`, `SyndicationDeliveryList`,
+  `SyndicationManualSend`, `SyndicationReplaceCredential` and their helpers.
+- Problem codes `SYNDICATION_CREDENTIAL_REJECTED` (422),
+  `SYNDICATION_PLATFORM_UNAVAILABLE` (503, retryable),
+  `SYNDICATION_CONNECTION_LIMIT` (409), `SYNDICATION_CONNECTION_NOT_FOUND`
+  (404), `SYNDICATION_DELIVERY_NOT_FOUND` (404) and `SYNDICATION_POST_NOT_LIVE`
+  (409).
+- Optional problem member `platformMessage` (1 to 500 characters) on
+  `422 SYNDICATION_CREDENTIAL_REJECTED`: the platform's own words for refusing
+  the credential. It never contains the credential.
+- App route `/sites/{organizationId}/{publicationId}/settings/syndication` bound
+  to the new operations.
+
 ## [3.36.0] - 2026-11-05
 
 The content inventory summary names a post's series. Additive: two new optional
@@ -4133,7 +4175,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.36.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.37.0...HEAD
+[3.37.0]: https://github.com/rathnasgala2/schema/compare/v3.36.0...v3.37.0
 [3.36.0]: https://github.com/rathnasgala2/schema/compare/v3.35.0...v3.36.0
 [3.35.0]: https://github.com/rathnasgala2/schema/compare/v3.34.0...v3.35.0
 [3.34.0]: https://github.com/rathnasgala2/schema/compare/v3.33.0...v3.34.0

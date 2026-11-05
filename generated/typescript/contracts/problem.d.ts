@@ -79,6 +79,7 @@ export type ProblemDocument = Readonly<{
   readonly expectedBase?: ProblemUrlHttps;
   readonly instance?: ProblemCanonicalRoute;
   readonly operationId?: ProblemStableId;
+  readonly platformMessage?: string;
   readonly profileBase?: string;
   readonly remedy?: ProblemPlainText;
   readonly retryable: boolean;

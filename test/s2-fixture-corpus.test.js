@@ -297,7 +297,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // fixtures and the manifest, and added two case files
     // (problem/SCHEMA_ARRAY_DUPLICATE, problem/SCHEMA_ARRAY_TOO_SHORT),
     // making 910.
-    '852dd0c3293e9ea21cacddd45fdd5cf3c807ec528a94fe4f2f2f4571c45f2a7e',
+    //
+    // 3.37.0 (reviewed 2026-11-05): the problem root's optional
+    // SYNDICATION_CREDENTIAL_REJECTED member `platformMessage` (1 to 500
+    // characters) regenerated the problem valid, boundary, unknown-field and
+    // invalid fixtures and the manifest. No file added or removed (910).
+    '400c73a92c0a6e6ed8f05dbe096313e70c8d5487ebd05406a9f5893452157e50',
   );
 });
 

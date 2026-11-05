@@ -51,6 +51,8 @@ const ROOT_LEDGERS = {
       'remedy',
       // 3.35.0: the waiting changes behind a CANONICAL_BASE_MISMATCH.
       'changeIds',
+      // 3.37.0: the platform's message behind a SYNDICATION_CREDENTIAL_REJECTED.
+      'platformMessage',
       // 3.25.1: the PAGE_LOSS_GUARD counts.
       'details',
     ],

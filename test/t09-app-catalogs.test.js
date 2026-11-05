@@ -106,8 +106,9 @@ test('reviewed source ledgers validate without invented entries', async () => {
   // 3.23.0 adds the six audience addresses (50 routes).
   // 3.25.0 adds the operator Prism console (51 routes).
   // 3.34.0 adds the three Interview routes (54 routes).
+  // 3.37.0 adds the Settings syndication route (55 routes).
   assert.equal(validateAppComponentSource(componentSourceValue).length, 1);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 54);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 55);
   const paths = new Set(
     /** @type {JsonObject[]} */ (
       /** @type {JsonObject} */ (routeSourceValue).routes
@@ -167,7 +168,7 @@ test('reviewed source ledgers validate without invented entries', async () => {
   ]) {
     assert.ok(paths.has(path), path);
   }
-  assert.equal(paths.size, 54);
+  assert.equal(paths.size, 55);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -201,7 +202,8 @@ test('generated catalogs match the committed projection', async () => {
   // 3.23.0 (reviewed 2026-10-27): the six audience routes (580 to 667).
   // 3.25.0 (reviewed 2026-10-29): the operator Prism console route (667 to 683).
   // 3.34.0 (reviewed 2026-11-04): the three Interview routes (683 to 725).
-  assert.equal(authoredMessageCount, 725);
+  // 3.37.0 (reviewed 2026-11-05): the Settings syndication route (725 to 741).
+  assert.equal(authoredMessageCount, 741);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {

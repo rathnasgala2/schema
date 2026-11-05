@@ -140,5 +140,12 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       INTERVIEW_STATE_CONFLICT: { statuses: [409], retryable: false },
       INTERVIEW_TOO_THIN: { statuses: [409], retryable: false },
       PROVIDER_UNAVAILABLE: { statuses: [503], retryable: true },
+      // SCHEMA-3.37.0: syndication.
+      SYNDICATION_CONNECTION_LIMIT: { statuses: [409], retryable: false },
+      SYNDICATION_CONNECTION_NOT_FOUND: { statuses: [404], retryable: false },
+      SYNDICATION_CREDENTIAL_REJECTED: { statuses: [422], retryable: false },
+      SYNDICATION_DELIVERY_NOT_FOUND: { statuses: [404], retryable: false },
+      SYNDICATION_PLATFORM_UNAVAILABLE: { statuses: [503], retryable: true },
+      SYNDICATION_POST_NOT_LIVE: { statuses: [409], retryable: false },
     })
   );
