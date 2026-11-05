@@ -17778,16 +17778,20 @@ components:
     SyndicationConnectionKind:
       description:
         SCHEMA-3.37.0. The platforms a publication can announce its posts to.
-        `devto` and `hashnode` mirror the whole article with the original
-        address as canonical; the other four post a short announcement with the
-        live address.
+        `devto`, `hashnode`, `wordpress` and `ghost` mirror the whole article
+        with the original address as canonical; the others post a short
+        announcement with the live address. `wordpress`, `ghost` and `x` since
+        SCHEMA-3.40.0.
       enum:
         - devto
         - hashnode
+        - wordpress
+        - ghost
         - bluesky
         - mastodon
         - telegram
         - discord
+        - x
       type: string
     SyndicationConnectionStatus:
       description:
@@ -17963,6 +17967,111 @@ components:
         - kind
         - webhookUrl
       type: object
+    SyndicationCredentialWordpress:
+      additionalProperties: false
+      description:
+        SCHEMA-3.40.0. A WordPress site, a user on it and an Application
+        Password of that user (WordPress 5.6 or later; on WordPress.com this
+        needs the Business plan or higher).
+      properties:
+        kind:
+          const: wordpress
+          type: string
+        siteUrl:
+          description:
+            The site's root address, for example `https://example.com` or
+            `https://example.com/blog`.
+          format: uri
+          maxLength: 300
+          minLength: 12
+          pattern: ^https://[^\s?#]+$
+          type: string
+        username:
+          description: The WordPress user the posts are published as.
+          maxLength: 100
+          minLength: 1
+          type: string
+        applicationPassword:
+          description:
+            An Application Password from the user's profile, with or without its
+            spaces; never the account password.
+          maxLength: 64
+          minLength: 8
+          type: string
+          writeOnly: true
+      required:
+        - kind
+        - siteUrl
+        - username
+        - applicationPassword
+      type: object
+    SyndicationCredentialGhost:
+      additionalProperties: false
+      description:
+        SCHEMA-3.40.0. A Ghost site and the Admin API key of a custom
+        integration on it (Settings > Integrations).
+      properties:
+        kind:
+          const: ghost
+          type: string
+        siteUrl:
+          description:
+            The Ghost admin address root, for example `https://name.ghost.io` or
+            the site's own domain.
+          format: uri
+          maxLength: 300
+          minLength: 12
+          pattern: ^https://[^\s?#]+$
+          type: string
+        adminApiKey:
+          description: The integration's Admin API key, `id:secret`.
+          maxLength: 89
+          minLength: 89
+          pattern: ^[0-9a-f]{24}:[0-9a-f]{64}$
+          type: string
+          writeOnly: true
+      required:
+        - kind
+        - siteUrl
+        - adminApiKey
+      type: object
+    SyndicationCredentialX:
+      additionalProperties: false
+      description:
+        SCHEMA-3.40.0. The author's own X developer app, OAuth 1.0a user context
+        with Read and Write. X bills the author's developer account for every
+        post.
+      properties:
+        kind:
+          const: x
+          type: string
+        apiKey:
+          maxLength: 200
+          minLength: 8
+          type: string
+          writeOnly: true
+        apiKeySecret:
+          maxLength: 200
+          minLength: 8
+          type: string
+          writeOnly: true
+        accessToken:
+          maxLength: 200
+          minLength: 8
+          type: string
+          writeOnly: true
+        accessTokenSecret:
+          maxLength: 200
+          minLength: 8
+          type: string
+          writeOnly: true
+      required:
+        - kind
+        - apiKey
+        - apiKeySecret
+        - accessToken
+        - accessTokenSecret
+      type: object
     SyndicationCredential:
       description:
         'SCHEMA-3.37.0. What a connection needs to post, one shape per kind,
@@ -17976,6 +18085,9 @@ components:
           mastodon: '#/components/schemas/SyndicationCredentialMastodon'
           telegram: '#/components/schemas/SyndicationCredentialTelegram'
           discord: '#/components/schemas/SyndicationCredentialDiscord'
+          wordpress: '#/components/schemas/SyndicationCredentialWordpress'
+          ghost: '#/components/schemas/SyndicationCredentialGhost'
+          x: '#/components/schemas/SyndicationCredentialX'
         propertyName: kind
       oneOf:
         - $ref: '#/components/schemas/SyndicationCredentialDevto'
@@ -17984,6 +18096,9 @@ components:
         - $ref: '#/components/schemas/SyndicationCredentialMastodon'
         - $ref: '#/components/schemas/SyndicationCredentialTelegram'
         - $ref: '#/components/schemas/SyndicationCredentialDiscord'
+        - $ref: '#/components/schemas/SyndicationCredentialWordpress'
+        - $ref: '#/components/schemas/SyndicationCredentialGhost'
+        - $ref: '#/components/schemas/SyndicationCredentialX'
     SyndicationConnectionOptions:
       additionalProperties: false
       description:
@@ -17995,6 +18110,28 @@ components:
           description:
             '`publishAsDraft: true` saves each mirrored article on dev.to as a
             draft for the author to publish there; default `false` publishes it.'
+          properties:
+            publishAsDraft:
+              type: boolean
+          required:
+            - publishAsDraft
+          type: object
+        wordpress:
+          additionalProperties: false
+          description:
+            'SCHEMA-3.40.0. `publishAsDraft: true` saves each mirrored article
+            on the WordPress site as a draft; default `false` publishes it.'
+          properties:
+            publishAsDraft:
+              type: boolean
+          required:
+            - publishAsDraft
+          type: object
+        ghost:
+          additionalProperties: false
+          description:
+            'SCHEMA-3.40.0. `publishAsDraft: true` saves each mirrored article
+            on the Ghost site as a draft; default `false` publishes it.'
           properties:
             publishAsDraft:
               type: boolean
@@ -18084,8 +18221,9 @@ components:
         'SCHEMA-3.37.0. One platform connection of a publication. The credential
         is never returned: no response, list or event carries it, and a lost one
         is replaced, not read. `accountLabel` is the platform account the
-        credential belongs to, as the platform names it, for example `@anand` or
-        `name.hashnode.dev`.'
+        credential belongs to, as the platform names it, for example `@anand`,
+        `name.hashnode.dev`, `anand @ example.com` (WordPress) or the Ghost site
+        title.'
       properties:
         accountLabel:
           maxLength: 200

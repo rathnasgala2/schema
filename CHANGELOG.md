@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.40.0] - 2026-11-05
+
+Three more syndication platforms: WordPress, Ghost and X. Additive;
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves.
+
+### Added
+
+- `SyndicationConnectionKind` gains `wordpress`, `ghost` and `x`; `hashnode`
+  stays in the enum for existing connections.
+- `SyndicationCredentialWordpress` (`siteUrl`, `username`,
+  `applicationPassword`), `SyndicationCredentialGhost` (`siteUrl`,
+  `adminApiKey`) and `SyndicationCredentialX` (`apiKey`, `apiKeySecret`,
+  `accessToken`, `accessTokenSecret`), each in the `SyndicationCredential` oneOf
+  and discriminator mapping.
+- `SyndicationConnectionOptions.wordpress` and `.ghost`, each
+  `{ publishAsDraft }` like `devto`.
+
 ## [3.39.0] - 2026-11-05
 
 Interview on the Basic plan with a weekly allowance.
@@ -4213,7 +4231,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.39.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.40.0...HEAD
+[3.40.0]: https://github.com/rathnasgala2/schema/compare/v3.39.0...v3.40.0
 [3.39.0]: https://github.com/rathnasgala2/schema/compare/v3.38.0...v3.39.0
 [3.38.0]: https://github.com/rathnasgala2/schema/compare/v3.37.0...v3.38.0
 [3.37.0]: https://github.com/rathnasgala2/schema/compare/v3.36.0...v3.37.0
