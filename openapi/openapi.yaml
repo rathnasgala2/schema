@@ -6723,11 +6723,11 @@ components:
       type: string
     InterviewPolicy:
       additionalProperties: false
-      description: "SCHEMA-3.34.0. Whether Interview is available to this publication and how many interviews are left this period (UTC month). `enabled: false` means the feature is off; the editor says so and stays usable."
+      description: "SCHEMA-3.34.0. Whether Interview is available to this publication and how many interviews are left this period (the UTC week starting Monday). `enabled: false` means the feature is off; the editor says so and stays usable. `plan.requiredTier` is `PRO` and `quota.period` is a week with `quota.renewsAt` as of SCHEMA-3.39.0."
       properties:
         budget:
           additionalProperties: false
-          description: "`available` is false when the platform's monthly spend cap is reached."
+          description: "`available` is false when the platform's optional monthly spend cap is reached."
           properties:
             available:
               type: boolean
@@ -6743,7 +6743,7 @@ components:
             allowed:
               type: boolean
             requiredTier:
-              description: "The API tier the feature needs: `BUSINESS`, sold as Pro."
+              description: "The lowest API tier that includes Interview: `PRO` (sold as Basic). Basic sites get 2 interviews a week and Pro sites (`BUSINESS`) 5, as the platform settings say."
               enum:
                 - FREE
                 - PRO
@@ -6761,19 +6761,23 @@ components:
               minimum: 0
               type: integer
             period:
-              description: The UTC month, `YYYY-MM`.
-              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])$
+              description: The UTC week the allowance counts in, as its Monday, `YYYY-MM-DD`
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
               type: string
             remaining:
               format: int64
               minimum: 0
               type: integer
+            renewsAt:
+              $ref: "#/components/schemas/PortableProblemRfc3339"
+              description: The first instant of the next UTC week (Monday 00:00Z), when the allowance comes back
             used:
               format: int64
               minimum: 0
               type: integer
           required:
             - period
+            - renewsAt
             - limit
             - used
             - remaining
@@ -50477,7 +50481,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/interview-policy:
     get:
       description: |
-        Whether Interview is available to this publication (`enabled`), whether the plan includes it (`plan.allowed`, `BUSINESS` tier, sold as Pro), how many interviews are left this period (UTC month) and whether the platform's monthly spend cap still has room. `enabled: false` means the feature is off; the editor says so and stays usable.
+        Whether Interview is available to this publication (`enabled`), whether the plan includes it (`plan.allowed`: the plan must be `PRO`, sold as Basic, or above), how many interviews are left this period (the UTC week starting Monday) and whether the platform's optional monthly spend cap still has room. `enabled: false` means the feature is off; the editor says so and stays usable.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicy
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -50502,6 +50506,21 @@ paths:
           content:
             application/json:
               examples:
+                basic:
+                  summary: A Basic site
+                  value:
+                    budget:
+                      available: true
+                    enabled: true
+                    plan:
+                      allowed: true
+                      requiredTier: PRO
+                    quota:
+                      limit: 2
+                      period: "2026-11-02"
+                      remaining: 1
+                      renewsAt: "2026-11-09T00:00:00Z"
+                      used: 1
                 nominal:
                   summary: Nominal successful response
                   value:
@@ -50510,11 +50529,12 @@ paths:
                     enabled: true
                     plan:
                       allowed: true
-                      requiredTier: BUSINESS
+                      requiredTier: PRO
                     quota:
-                      limit: 10
-                      period: 2026-11
-                      remaining: 7
+                      limit: 5
+                      period: "2026-11-02"
+                      remaining: 2
+                      renewsAt: "2026-11-09T00:00:00Z"
                       used: 3
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewPolicyResponse"
@@ -51269,7 +51289,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     post:
       description: |
-        Saves the material (a note, a voice transcript or a link with its text) as an interview in `CAPTURED`. Nothing is asked and no quota unit is used yet; `POST .../interviews/{interviewId}:start` begins the conversation. `409 PLAN_REQUIRED` when the plan is below `BUSINESS`; `503 CAPABILITY_UNAVAILABLE` when Interview is off. `201`.
+        Saves the material (a note, a voice transcript or a link with its text) as an interview in `CAPTURED`. Nothing is asked and no quota unit is used yet; `POST .../interviews/{interviewId}:start` begins the conversation. The plan must be `PRO` (sold as Basic) or above: `409 PLAN_REQUIRED` below `PRO`. `503 CAPABILITY_UNAVAILABLE` when Interview is off. `201`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -53088,7 +53108,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:start:
     post:
       description: |
-        Reserves one unit of the organization's monthly allowance and asks the first question. Only from `CAPTURED`. `429 QUOTA_EXHAUSTED` with `Retry-After` when no unit is left this period; `503 BUDGET_EXHAUSTED` when the platform's monthly spend cap is reached; `503 PROVIDER_UNAVAILABLE` when the question could not be asked (nothing is stored and no unit is used; retry).
+        Reserves one unit of the organization's weekly allowance (the UTC week starting Monday; 2 on Basic, 5 on Pro by default) and asks the first question. Only from `CAPTURED`. `429 QUOTA_EXHAUSTED` with `Retry-After` when no unit is left this period; `503 BUDGET_EXHAUSTED` when the platform's optional monthly spend cap is reached; `503 PROVIDER_UNAVAILABLE` when the question could not be asked (nothing is stored and no unit is used; retry).
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"

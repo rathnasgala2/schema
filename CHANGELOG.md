@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.39.0] - 2026-11-05
+
+Interview on the Basic plan with a weekly allowance.
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves.
+
+### Changed
+
+- `InterviewPolicy.plan.requiredTier` is now `PRO` (sold as Basic): the lowest
+  tier that includes Interview.
+- `InterviewPolicy.quota.period` is the UTC week for every plan, as its Monday
+  (`YYYY-MM-DD`), no longer a month; `quota` gains required `renewsAt`, the
+  first instant of the next UTC week.
+- The Interview plan and allowance wording: the plan must be `PRO` or above
+  (`409 PLAN_REQUIRED` below `PRO`), the allowance is the organization's weekly
+  allowance (2 on Basic, 5 on Pro by default), and the platform's spend cap is
+  described as optional and monthly.
+
 ## [3.38.0] - 2026-11-05
 
 Syndication follow-up. Additive: two operation kinds and two problem codes; no
@@ -4195,7 +4213,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.38.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.39.0...HEAD
+[3.39.0]: https://github.com/rathnasgala2/schema/compare/v3.38.0...v3.39.0
 [3.38.0]: https://github.com/rathnasgala2/schema/compare/v3.37.0...v3.38.0
 [3.37.0]: https://github.com/rathnasgala2/schema/compare/v3.36.0...v3.37.0
 [3.36.0]: https://github.com/rathnasgala2/schema/compare/v3.35.0...v3.36.0

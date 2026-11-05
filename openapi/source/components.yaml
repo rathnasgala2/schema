@@ -13667,14 +13667,16 @@ components:
       additionalProperties: false
       description:
         'SCHEMA-3.34.0. Whether Interview is available to this publication and
-        how many interviews are left this period (UTC month). `enabled: false`
-        means the feature is off; the editor says so and stays usable.'
+        how many interviews are left this period (the UTC week starting Monday).
+        `enabled: false` means the feature is off; the editor says so and stays
+        usable. `plan.requiredTier` is `PRO` and `quota.period` is a week with
+        `quota.renewsAt` as of SCHEMA-3.39.0.'
       properties:
         budget:
           additionalProperties: false
           description:
-            "`available` is false when the platform's monthly spend cap is
-            reached."
+            "`available` is false when the platform's optional monthly spend cap
+            is reached."
           properties:
             available:
               type: boolean
@@ -13693,7 +13695,9 @@ components:
               type: boolean
             requiredTier:
               description:
-                'The API tier the feature needs: `BUSINESS`, sold as Pro.'
+                'The lowest API tier that includes Interview: `PRO` (sold as
+                Basic). Basic sites get 2 interviews a week and Pro sites
+                (`BUSINESS`) 5, as the platform settings say.'
               enum:
                 - FREE
                 - PRO
@@ -13711,19 +13715,27 @@ components:
               minimum: 0
               type: integer
             period:
-              description: The UTC month, `YYYY-MM`.
-              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])$
+              description:
+                The UTC week the allowance counts in, as its Monday,
+                `YYYY-MM-DD`
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
               type: string
             remaining:
               format: int64
               minimum: 0
               type: integer
+            renewsAt:
+              $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+              description:
+                The first instant of the next UTC week (Monday 00:00Z), when the
+                allowance comes back
             used:
               format: int64
               minimum: 0
               type: integer
           required:
             - period
+            - renewsAt
             - limit
             - used
             - remaining
