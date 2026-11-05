@@ -4734,6 +4734,19 @@ components:
             - type: 'null'
         publishedAt:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/rfc3339
+        series:
+          description:
+            "SCHEMA-3.36.0: the header's `series` name, present only when the
+            header names one; the editor's series picker lists the site's series
+            from it."
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/plainLabel
+        seriesOrder:
+          description:
+            "SCHEMA-3.36.0: the header's `seriesOrder`, present only with
+            `series`."
+          maximum: 1000000
+          minimum: 1
+          type: integer
         slug:
           $ref: ../schemas/content-frontmatter.schema.json#/$defs/slug
         status:
