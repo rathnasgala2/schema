@@ -4133,7 +4133,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.35.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.36.0...HEAD
+[3.36.0]: https://github.com/rathnasgala2/schema/compare/v3.35.0...v3.36.0
 [3.35.0]: https://github.com/rathnasgala2/schema/compare/v3.34.0...v3.35.0
 [3.34.0]: https://github.com/rathnasgala2/schema/compare/v3.33.0...v3.34.0
 [3.33.0]: https://github.com/rathnasgala2/schema/compare/v3.32.2...v3.33.0
