@@ -8,7 +8,7 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [3.36.0] - 2026-11-04
+## [3.36.0] - 2026-11-05
 
 The content inventory summary names a post's series. Additive: two new optional
 members on `ContentInventoryItemSummary`; `schemas/publication.schema.json` is
