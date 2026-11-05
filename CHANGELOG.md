@@ -8,6 +8,21 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.36.0] - 2026-11-04
+
+The content inventory summary names a post's series. Additive: two new optional
+members on `ContentInventoryItemSummary`; `schemas/publication.schema.json` is
+untouched, so no template or publish toolchain pin moves.
+
+### Added
+
+- Optional `series` on `ContentInventoryItemSummary`: the header's `series` name
+  (the front matter's plain label), present only when the header names one, so
+  the editor's series picker can list the site's series without reading every
+  document.
+- Optional `seriesOrder` on `ContentInventoryItemSummary`: the header's
+  `seriesOrder` (integer 1 to 1000000), present only with `series`.
+
 ## [3.35.0] - 2026-11-04
 
 Discard a waiting change, and name the changes behind a canonical-base refusal.
