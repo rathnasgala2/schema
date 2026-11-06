@@ -151,5 +151,7 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       SYNDICATION_DELIVERY_NOT_FOUND: { statuses: [404], retryable: false },
       SYNDICATION_PLATFORM_UNAVAILABLE: { statuses: [503], retryable: true },
       SYNDICATION_POST_NOT_LIVE: { statuses: [409], retryable: false },
+      // SCHEMA-3.41.0: Connect X through OAuth 2.0.
+      SYNDICATION_X_NOT_CONFIGURED: { statuses: [503], retryable: false },
     })
   );

@@ -8,6 +8,37 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.41.0] - 2026-11-06
+
+Connect X through OAuth 2.0 with Galascribe's own X app.
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves.
+
+### Removed (breaking)
+
+- `SyndicationCredentialX` and its entry in the `SyndicationCredential` oneOf
+  and discriminator mapping. No X connection was ever made with it, so there is
+  no migration; `SyndicationConnectionKind` keeps `x`. `replace-credential` on
+  an `x` connection no longer carries a credential: an X connection is
+  reconnected through `x:authorize`.
+
+### Added
+
+- `POST /v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/x:authorize`
+  (`postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsXAuthorize`)
+  answers `201 SyndicationXAuthorization` (`authorizationUrl`, `expiresAt`);
+  `409 PLAN_REQUIRED`, `409 SYNDICATION_CONNECTION_LIMIT`, `429 RATE_LIMITED`
+  and the new `503 SYNDICATION_X_NOT_CONFIGURED`.
+- `GET /v2/callbacks/x/oauth` (`getCallbacksXOauth`): `303` to
+  `/settings/syndication?x=<connectionId>` or `?xError=<code>` with `DENIED`,
+  `EXPIRED`, `LIMIT`, `REJECTED` or `UNAVAILABLE`.
+- `SyndicationConnection.allowance` (`SyndicationWeeklyAllowance`: `limit`,
+  `remaining`, `period`, `renewsAt`), present when `kind` is `x`.
+- The documented attention code `REAUTHORIZE` and delivery failure code
+  `WEEKLY_ALLOWANCE_SPENT`.
+- The `settings/syndication` route in `docs/catalogs/app-routes.json` lists the
+  two new operations.
+
 ## [3.40.0] - 2026-11-05
 
 Three more syndication platforms: WordPress, Ghost and X. Additive;
@@ -4231,7 +4262,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.40.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.41.0...HEAD
+[3.41.0]: https://github.com/rathnasgala2/schema/compare/v3.40.0...v3.41.0
 [3.40.0]: https://github.com/rathnasgala2/schema/compare/v3.39.0...v3.40.0
 [3.39.0]: https://github.com/rathnasgala2/schema/compare/v3.38.0...v3.39.0
 [3.38.0]: https://github.com/rathnasgala2/schema/compare/v3.37.0...v3.38.0

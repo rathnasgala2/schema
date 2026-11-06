@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:d39cfe63299c7e04e2e4c4127130e6880cafca135cd0889124a849c469bb7a77",
+  "openApiDigest": "sha256:4a900ecbc6118116001779afb71afe88fce5c97b08f8a955c54c4359f57e5d4d",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -138,6 +138,19 @@
       "method": "POST",
       "path": "/v2/callbacks/stripe",
       "purpose": "accept an authenticated Stripe billing event",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "callbacks"
+    },
+    {
+      "operationId": "getCallbacksXOauth",
+      "method": "GET",
+      "path": "/v2/callbacks/x/oauth",
+      "purpose": "consume the exact X OAuth callback transaction",
       "capabilityKey": null,
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -2348,6 +2361,19 @@
       "sourceFragment": "syndication"
     },
     {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsXAuthorize",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/x:authorize",
+      "purpose": "start connecting X",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveries",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/syndication-deliveries",
@@ -3843,5 +3869,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:d11e92e7c9ce052e2ad9a46724c2c06954925864442076dea4612e8e85ea6ef8"
+  "digest": "sha256:1e95229acb1fc8413bba7472f5bfd5be3cb571c81488df439b389f061cde022d"
 }

@@ -604,6 +604,90 @@ paths:
         - NONE
       x-gala-success-category: oauth-callback
       x-gala-tenant-scope: NONE
+  /v2/callbacks/x/oauth:
+    get:
+      description: >
+        SCHEMA-3.41.0. The address X sends the person back to after the consent
+        screen. It never answers with a problem document for what the provider
+        sends: every outcome is a `303` to the App at
+        `/settings/syndication?x=<connectionId>` on success or
+        `/settings/syndication?xError=<code>` with `<code>` one of `DENIED` (the
+        person refused on x.com), `EXPIRED` (the state is unknown or older than
+        10 minutes), `LIMIT` (the publication is at its connection limit),
+        `REJECTED` (X refused the code or the account read) or `UNAVAILABLE` (X
+        could not be reached or is not configured). Reconnecting an X account
+        already connected to the same publication replaces its tokens in place
+        (same connection) and clears attention. `code`, `state`, `error` and
+        `error_description` are never logged or echoed. Only a value longer than
+        its limit is refused as `400 VALIDATION_FAILED`, before any connection
+        is touched.
+      operationId: getCallbacksXOauth
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: example
+          in: query
+          name: code
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: state
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: error
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+        - example: example
+          in: query
+          name: error_description
+          required: false
+          schema:
+            maxLength: 8192
+            minLength: 1
+            type: string
+      responses:
+        '303':
+          description: consume the exact X OAuth callback transaction succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+      security: []
+      summary: consume the exact X OAuth callback transaction
+      tags:
+        - callbacks
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: single-use-transaction
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: consume the exact X OAuth callback transaction
+      x-gala-reachable-problems:
+        - VALIDATION_FAILED
+      x-gala-replay-identity: oauth-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: oauth-callback
+      x-gala-tenant-scope: NONE
   /v2/callbacks/google/claim:
     get:
       description: |

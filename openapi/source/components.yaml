@@ -18035,43 +18035,6 @@ components:
         - siteUrl
         - adminApiKey
       type: object
-    SyndicationCredentialX:
-      additionalProperties: false
-      description:
-        SCHEMA-3.40.0. The author's own X developer app, OAuth 1.0a user context
-        with Read and Write. X bills the author's developer account for every
-        post.
-      properties:
-        kind:
-          const: x
-          type: string
-        apiKey:
-          maxLength: 200
-          minLength: 8
-          type: string
-          writeOnly: true
-        apiKeySecret:
-          maxLength: 200
-          minLength: 8
-          type: string
-          writeOnly: true
-        accessToken:
-          maxLength: 200
-          minLength: 8
-          type: string
-          writeOnly: true
-        accessTokenSecret:
-          maxLength: 200
-          minLength: 8
-          type: string
-          writeOnly: true
-      required:
-        - kind
-        - apiKey
-        - apiKeySecret
-        - accessToken
-        - accessTokenSecret
-      type: object
     SyndicationCredential:
       description:
         'SCHEMA-3.37.0. What a connection needs to post, one shape per kind,
@@ -18087,7 +18050,6 @@ components:
           discord: '#/components/schemas/SyndicationCredentialDiscord'
           wordpress: '#/components/schemas/SyndicationCredentialWordpress'
           ghost: '#/components/schemas/SyndicationCredentialGhost'
-          x: '#/components/schemas/SyndicationCredentialX'
         propertyName: kind
       oneOf:
         - $ref: '#/components/schemas/SyndicationCredentialDevto'
@@ -18098,7 +18060,6 @@ components:
         - $ref: '#/components/schemas/SyndicationCredentialDiscord'
         - $ref: '#/components/schemas/SyndicationCredentialWordpress'
         - $ref: '#/components/schemas/SyndicationCredentialGhost'
-        - $ref: '#/components/schemas/SyndicationCredentialX'
     SyndicationConnectionOptions:
       additionalProperties: false
       description:
@@ -18179,8 +18140,10 @@ components:
       properties:
         code:
           description:
-            A stable upper-case reason, for example `CREDENTIAL_REJECTED`. A
-            client shows a value it does not know as `message`.
+            'A stable upper-case reason, for example `CREDENTIAL_REJECTED`, or
+            `REAUTHORIZE` (SCHEMA-3.41.0: X refused the saved refresh token, so
+            the person must press Connect X again). A client shows a value it
+            does not know as `message`.'
           maxLength: 64
           minLength: 1
           pattern: ^[A-Z][A-Z0-9_]*$
@@ -18215,6 +18178,56 @@ components:
         - status
         - at
       type: object
+    SyndicationWeeklyAllowance:
+      additionalProperties: false
+      description:
+        SCHEMA-3.41.0. How many X posts the organization has left this UTC week.
+        The allowance follows the organization's plan (2 on Basic and 5 on Pro
+        by default, as the platform settings say) and is shared by every X
+        connection of the organization. Wording follows `InterviewPolicy.quota`.
+      properties:
+        limit:
+          format: int64
+          minimum: 0
+          type: integer
+        period:
+          description:
+            The UTC week the allowance counts in, as its Monday, `YYYY-MM-DD`
+          format: date
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
+          type: string
+        remaining:
+          format: int64
+          minimum: 0
+          type: integer
+        renewsAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+          description:
+            The first instant of the next UTC week (Monday 00:00Z), when the
+            allowance comes back
+      required:
+        - period
+        - renewsAt
+        - limit
+        - remaining
+      type: object
+    SyndicationXAuthorization:
+      additionalProperties: false
+      description:
+        SCHEMA-3.41.0. Where to send the person to let Galascribe's own X app
+        post for them. Open `authorizationUrl` (x.com); X brings the browser
+        back to `GET /v2/callbacks/x/oauth` within 10 minutes (`expiresAt`).
+      properties:
+        authorizationUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - authorizationUrl
+        - expiresAt
+      type: object
     SyndicationConnection:
       additionalProperties: false
       description:
@@ -18229,6 +18242,11 @@ components:
           maxLength: 200
           minLength: 1
           type: string
+        allowance:
+          $ref: '#/components/schemas/SyndicationWeeklyAllowance'
+          description:
+            SCHEMA-3.41.0. Present when `kind` is `x`, the organization's X
+            posts left this UTC week.
         attention:
           $ref: '#/components/schemas/SyndicationConnectionAttention'
         createdAt:
@@ -18276,8 +18294,11 @@ components:
         code:
           description:
             A stable upper-case reason, for example `CREDENTIAL_REJECTED`,
-            `PLATFORM_REJECTED` or `RETRIES_EXHAUSTED`. A client shows a value
-            it does not know as `message`.
+            `PLATFORM_REJECTED`, `RETRIES_EXHAUSTED` or, since SCHEMA-3.41.0,
+            `WEEKLY_ALLOWANCE_SPENT` (an X delivery, status `FAILED`, message "X
+            posts for this week are used. They come back on <Mon d>."; a manual
+            retry after the allowance renews works). A client shows a value it
+            does not know as `message`.
           maxLength: 64
           minLength: 1
           pattern: ^[A-Z][A-Z0-9_]*$
@@ -18427,6 +18448,9 @@ components:
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdResponse:
       allOf:
         - $ref: '#/components/schemas/SyndicationConnection'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsXAuthorizeResponse:
+      allOf:
+        - $ref: '#/components/schemas/SyndicationXAuthorization'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdPauseResponse:
       allOf:
         - $ref: '#/components/schemas/SyndicationConnection'

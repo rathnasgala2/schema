@@ -973,6 +973,310 @@ paths:
         - NONE
       x-gala-success-category: delete
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/x:authorize:
+    post:
+      description:
+        "SCHEMA-3.41.0. Starts connecting X. Galascribe's own X app posts on the
+        author's behalf: the author never handles keys, X bills Galascribe, and
+        the organization's plan sets a weekly allowance of X posts (2 on Basic,
+        5 on Pro by default; none on Free). The answer carries the address on
+        x.com to send the person to; X brings the browser back to `GET
+        /v2/callbacks/x/oauth` within 10 minutes, which saves the connection and
+        lands on the Syndication settings page. Needs
+        `publication.settings.manage`. `409 PLAN_REQUIRED` when the plan allows
+        no X posts, `409 SYNDICATION_CONNECTION_LIMIT` at 12 connections, `503
+        SYNDICATION_X_NOT_CONFIGURED` when the platform operator has not
+        configured the X app, `429 RATE_LIMITED` after too many attempts."
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsXAuthorize
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '201':
+          description: start connecting X succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    authorizationUrl: https://x.com/i/oauth2/authorize?response_type=code&client_id=example-client-id&state=example-state
+                    expiresAt: 2026-11-06T12:10:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsXAuthorizeResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
+                SYNDICATION_CONNECTION_LIMIT:
+                  summary: SYNDICATION_CONNECTION_LIMIT
+                  value:
+                    code: SYNDICATION_CONNECTION_LIMIT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: SYNDICATION_CONNECTION_LIMIT
+                    type: urn:gala:problem:syndication-connection-limit
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description:
+            COMMAND_REPLAY_CONFLICT, PLAN_REQUIRED, SYNDICATION_CONNECTION_LIMIT
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - PLAN_REQUIRED
+            - SYNDICATION_CONNECTION_LIMIT
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        '503':
+          content:
+            application/problem+json:
+              examples:
+                SYNDICATION_X_NOT_CONFIGURED:
+                  summary: SYNDICATION_X_NOT_CONFIGURED
+                  value:
+                    code: SYNDICATION_X_NOT_CONFIGURED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: SYNDICATION_X_NOT_CONFIGURED
+                    type: urn:gala:problem:syndication-x-not-configured
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: SYNDICATION_X_NOT_CONFIGURED
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+          x-gala-problem-codes:
+            - SYNDICATION_X_NOT_CONFIGURED
+      security:
+        - browserSession: []
+      summary: start connecting X
+      tags:
+        - syndication
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: start connecting X
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - PLAN_REQUIRED
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - SYNDICATION_CONNECTION_LIMIT
+        - SYNDICATION_X_NOT_CONFIGURED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/syndication-connections/{connectionId}:pause:
     post:
       description:
@@ -1871,7 +2175,10 @@ paths:
         credential is destroyed. The new `credential.kind` must equal the
         connection's kind. Same problems as connecting: `422
         SYNDICATION_CREDENTIAL_REJECTED` with the platform's message, `503
-        SYNDICATION_PLATFORM_UNAVAILABLE`. Needs `publication.settings.manage`."
+        SYNDICATION_PLATFORM_UNAVAILABLE`. Needs `publication.settings.manage`.
+        SCHEMA-3.41.0: an `x` connection takes no credential; it is reconnected
+        through `syndication-connections/x:authorize`, and this operation
+        refuses it."
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationConnectionsByConnectionIdReplaceCredential
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
