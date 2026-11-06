@@ -966,6 +966,75 @@
         "getPlatformSettingsByKey",
         "putPlatformSettingsByKey"
       ]
+    },
+    {
+      "pathTemplate": "/today",
+      "originClass": "APP",
+      "authenticationClass": "PUBLIC",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Today; Read the finite daily picks: a signed-in reader sees their own drop with a reason on every card and can open, save, dismiss or finish a pick and choose interests on the first visit; a visitor sees the public drop with the sign-in and start-a-site calls to action.",
+      "apiOperationIds": [
+        "getPublicToday",
+        "getPublicTodayTopics",
+        "getSelfToday",
+        "getSelfTodayProfile",
+        "postSelfTodayItemsByItemIdDismiss",
+        "postSelfTodayItemsByItemIdDone",
+        "postSelfTodayItemsByItemIdOpen",
+        "postSelfTodayItemsByItemIdSave",
+        "postSelfTodayMutes",
+        "putSelfTodayProfile"
+      ]
+    },
+    {
+      "pathTemplate": "/today/settings",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Today settings; Choose interests, languages, time zone and drop hour, switch reading telemetry and the daily email, manage muted sites and topics, and see saved posts.",
+      "apiOperationIds": [
+        "deleteSelfTodayMutesByMuteId",
+        "deleteSelfTodaySavedByItemId",
+        "getPublicTodayTopics",
+        "getSelfTodayMutes",
+        "getSelfTodayProfile",
+        "getSelfTodaySaved",
+        "postSelfTodayMutes",
+        "putSelfTodayProfile"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/settings/audience/today",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Today settings for the site; Keep the site's posts in Today or opt out, pick the one to three topics its posts inherit, and read the site's Today numbers (needs publication.settings.manage to change, publication.audience.read to read).",
+      "apiOperationIds": [
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettings",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdTodayStats",
+        "getPublicTodayTopics",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettings"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/today",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Platform Today; Operators read the Today metrics, manage the curated topic list and its aliases, and exclude a site from Today or let it back in (needs platform.today.manage to change, platform.today.view to read).",
+      "apiOperationIds": [
+        "deletePlatformTodayExclusionsByPublicationId",
+        "getPlatformTodayExclusions",
+        "getPlatformTodayMetrics",
+        "getPlatformTodayTopics",
+        "postPlatformTodayExclusions",
+        "postPlatformTodayTopics",
+        "putPlatformTodayTopicsByTopicId"
+      ]
     }
   ]
 }

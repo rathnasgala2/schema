@@ -8,6 +8,37 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.43.0] - 2026-11-06
+
+Today, Galascribe's finite daily feed: a signed-in reader gets at most
+`feed.itemsPerDay` picks once a day at their local drop hour, with a reason on
+every card; a visitor gets one network-wide public drop. Additive.
+
+### Added
+
+- `today.yaml`: reader routes under `/v2/self/today` (the drop, item actions
+  `:open` `:save` `:dismiss` `:done` answering `202`, saved posts, profile,
+  mutes), the public `GET /v2/public/today` and `/v2/public/today/topics`,
+  `POST /v2/reader/signals` (reader bearer; debounced, batched, idempotent
+  reading signals, `202`), the site's `today-settings` and `today-stats`
+  (`publication.settings.manage` / `publication.audience.read`) and the operator
+  `today-metrics`, `today-topics` and `today-exclusions` (`platform.today.view`
+  / `platform.today.manage`).
+- Components `TodayDrop`, `TodayItem`, `TodayPostCard`, `TodayReason`,
+  `TodayProfile`, `TodayMute`, `TodayTopic`, `PlatformTodayTopic`,
+  `PublicTodayDrop`, `ReaderSignalEvent`, `PublicationTodaySettings`,
+  `PublicationTodayStats`, `PublicationTodayExclusion`, `PlatformTodayMetrics`
+  and their enums.
+- Problem codes `TODAY_DISABLED` and `TODAY_NOT_PUBLIC` (404),
+  `SIGNALS_NOT_CONSENTED` (403), `TODAY_MUTE_DUPLICATE` (409),
+  `TODAY_TOPIC_UNKNOWN` (422).
+- App routes `today` (public), `today.settings`,
+  `sites.by-organization-id.by-publication-id.settings.audience.today` and
+  `platform.today`.
+- Platform settings the API defines for Today (`feed.*` and
+  `retention.readingSignalDays`) travel through the existing
+  `putPlatformSettingsByKey`; the contract names no new setting operation.
+
 ## [3.42.0] - 2026-11-05
 
 Operator plan grants: an operator moves an organization to Basic (`PRO`) or Pro
@@ -4280,7 +4311,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.42.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.43.0...HEAD
+[3.43.0]: https://github.com/rathnasgala2/schema/compare/v3.42.0...v3.43.0
 [3.42.0]: https://github.com/rathnasgala2/schema/compare/v3.41.0...v3.42.0
 [3.41.0]: https://github.com/rathnasgala2/schema/compare/v3.40.0...v3.41.0
 [3.40.0]: https://github.com/rathnasgala2/schema/compare/v3.39.0...v3.40.0

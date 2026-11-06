@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:d96aed78530af7047685d1117b7d70fdbc3f9921d99d5df311265398b8c721f2",
+  "openApiDigest": "sha256:c7f738c2ab658e466d32f46a37e25a105b7c68dcf38d8697d2b4c9d7c24762bb",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -2413,6 +2413,45 @@
       "sourceFragment": "syndication"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettings",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/today-settings",
+      "purpose": "read the site's Today settings",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettings",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/today-settings",
+      "purpose": "save the site's Today settings",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdTodayStats",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/today-stats",
+      "purpose": "read the site's Today numbers",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers",
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/transfers",
@@ -2959,6 +2998,97 @@
       "sourceFragment": "platform"
     },
     {
+      "operationId": "getPlatformTodayExclusions",
+      "method": "GET",
+      "path": "/v2/platform/today-exclusions",
+      "purpose": "list the sites excluded from Today",
+      "capabilityKey": "platform.today.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postPlatformTodayExclusions",
+      "method": "POST",
+      "path": "/v2/platform/today-exclusions",
+      "purpose": "exclude a site from Today",
+      "capabilityKey": "platform.today.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "deletePlatformTodayExclusionsByPublicationId",
+      "method": "DELETE",
+      "path": "/v2/platform/today-exclusions/{publicationId}",
+      "purpose": "let a site back into Today",
+      "capabilityKey": "platform.today.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getPlatformTodayMetrics",
+      "method": "GET",
+      "path": "/v2/platform/today-metrics",
+      "purpose": "read platform Today metrics",
+      "capabilityKey": "platform.today.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getPlatformTodayTopics",
+      "method": "GET",
+      "path": "/v2/platform/today-topics",
+      "purpose": "list every Today topic",
+      "capabilityKey": "platform.today.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postPlatformTodayTopics",
+      "method": "POST",
+      "path": "/v2/platform/today-topics",
+      "purpose": "add a Today topic",
+      "capabilityKey": "platform.today.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "putPlatformTodayTopicsByTopicId",
+      "method": "PUT",
+      "path": "/v2/platform/today-topics/{topicId}",
+      "purpose": "change a Today topic",
+      "capabilityKey": "platform.today.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
       "operationId": "getPlatformUsers",
       "method": "GET",
       "path": "/v2/platform/users",
@@ -3323,6 +3453,32 @@
       "sourceFragment": "audience"
     },
     {
+      "operationId": "getPublicToday",
+      "method": "GET",
+      "path": "/v2/public/today",
+      "purpose": "read the public Today drop",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getPublicTodayTopics",
+      "method": "GET",
+      "path": "/v2/public/today/topics",
+      "purpose": "list the active Today topics",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
       "operationId": "postReaderAuthorizations",
       "method": "POST",
       "path": "/v2/reader/authorizations",
@@ -3334,6 +3490,19 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "reader"
+    },
+    {
+      "operationId": "postReaderSignals",
+      "method": "POST",
+      "path": "/v2/reader/signals",
+      "purpose": "record a batch of reading signals",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
     },
     {
       "operationId": "postReaderTokens",
@@ -3830,6 +3999,162 @@
       "sourceFragment": "self"
     },
     {
+      "operationId": "getSelfToday",
+      "method": "GET",
+      "path": "/v2/self/today",
+      "purpose": "read the reader's drop for today",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postSelfTodayItemsByItemIdDismiss",
+      "method": "POST",
+      "path": "/v2/self/today/items/{itemId}:dismiss",
+      "purpose": "mark a Today item dismissed",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postSelfTodayItemsByItemIdDone",
+      "method": "POST",
+      "path": "/v2/self/today/items/{itemId}:done",
+      "purpose": "mark a Today item done",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postSelfTodayItemsByItemIdOpen",
+      "method": "POST",
+      "path": "/v2/self/today/items/{itemId}:open",
+      "purpose": "mark a Today item opened",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postSelfTodayItemsByItemIdSave",
+      "method": "POST",
+      "path": "/v2/self/today/items/{itemId}:save",
+      "purpose": "mark a Today item saved",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getSelfTodayMutes",
+      "method": "GET",
+      "path": "/v2/self/today/mutes",
+      "purpose": "list the reader's Today mutes",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "postSelfTodayMutes",
+      "method": "POST",
+      "path": "/v2/self/today/mutes",
+      "purpose": "mute a site or a topic in Today",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "deleteSelfTodayMutesByMuteId",
+      "method": "DELETE",
+      "path": "/v2/self/today/mutes/{muteId}",
+      "purpose": "remove a Today mute",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getSelfTodayProfile",
+      "method": "GET",
+      "path": "/v2/self/today/profile",
+      "purpose": "read the reader's Today settings",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "putSelfTodayProfile",
+      "method": "PUT",
+      "path": "/v2/self/today/profile",
+      "purpose": "save the reader's Today settings",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "getSelfTodaySaved",
+      "method": "GET",
+      "path": "/v2/self/today/saved",
+      "purpose": "list the posts the reader saved from Today",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
+      "operationId": "deleteSelfTodaySavedByItemId",
+      "method": "DELETE",
+      "path": "/v2/self/today/saved/{itemId}",
+      "purpose": "remove a saved Today post",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "today"
+    },
+    {
       "operationId": "deleteSession",
       "method": "DELETE",
       "path": "/v2/session",
@@ -3895,5 +4220,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:49c66f31171f05427178f92b4562bf72f751a532ea452e7b58cdad5f405f2403"
+  "digest": "sha256:b24e8862f60e9714e0d29d3d26d32aa01286878afde9add07949ba2cb2a49c88"
 }

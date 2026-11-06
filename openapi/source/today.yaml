@@ -1,0 +1,3148 @@
+paths:
+  /v2/organizations/{organizationId}/publications/{publicationId}/today-settings:
+    get:
+      description:
+        Whether the site takes part in Today and the topics its posts inherit. A
+        site that never saved settings is included with no topics.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettings
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - &a4
+          example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema: &a1
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - &a5
+          example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema: *a1
+      responses:
+        '200':
+          description: read the site's Today settings succeeded
+          headers:
+            Cache-Control: &a2
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id: &a3
+              $ref: '#/components/headers/XCorrelationId'
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    included: true
+                    topicIds:
+                      - startups
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read the site's Today settings
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the site's Today settings
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    put:
+      description:
+        Replaces the settings. Turning `included` off removes the site from
+        every drop computed from the next hour on; drops already computed keep
+        their cards. `422 TODAY_TOPIC_UNKNOWN` names a topic that is not active.
+      operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettings
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - *a4
+        - *a5
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  included: true
+                  topicIds:
+                    - startups
+                    - engineering
+            schema:
+              $ref: '#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsRequest'
+        required: true
+      responses:
+        '200':
+          description: save the site's Today settings succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    included: true
+                    topicIds:
+                      - startups
+                      - engineering
+              schema:
+                $ref: '#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+        '422':
+          content:
+            application/problem+json:
+              examples:
+                TODAY_TOPIC_UNKNOWN:
+                  summary: TODAY_TOPIC_UNKNOWN
+                  value:
+                    code: TODAY_TOPIC_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: TODAY_TOPIC_UNKNOWN
+                    type: urn:gala:problem:today-topic-unknown
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TODAY_TOPIC_UNKNOWN
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - TODAY_TOPIC_UNKNOWN
+      security:
+        - browserSession: []
+      summary: save the site's Today settings
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: save the site's Today settings
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - TODAY_TOPIC_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/today-stats:
+    get:
+      description:
+        'Per post and in total for the last 30 days: times shown in a drop,
+        opened from Today, follows gained from Today and reads. Aggregates only;
+        reads are withheld below five distinct readers.'
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdTodayStats
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - *a4
+        - *a5
+      responses:
+        '200':
+          description: read the site's Today numbers succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    posts:
+                      - contentId: posts/2026-11-05-why-finite-feeds
+                        follows: 3
+                        opened: 40
+                        reads: 25
+                        shown: 120
+                        title: Why finite feeds win
+                    readsSuppressed: false
+                    totals:
+                      follows: 3
+                      opened: 40
+                      reads: 25
+                      shown: 120
+                    window:
+                      from: 2026-10-07T00:00:00.000Z
+                      to: 2026-11-06T07:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdTodayStatsResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read the site's Today numbers
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the site's Today numbers
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/platform/today-exclusions:
+    get:
+      description:
+        Operators only. Every site an operator excluded from Today, newest
+        first, with the reason on record.
+      operationId: getPlatformTodayExclusions
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: list the sites excluded from Today succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - &a6
+                        excludedAt: 2026-11-06T07:00:00.000Z
+                        excludedBy: 018f0000-0000-7000-8000-000000000003
+                        publicationId: 018f0000-0000-7000-8000-000000000002
+                        reason: Repeated spam posts.
+              schema:
+                $ref: '#/components/schemas/GetPlatformTodayExclusionsResponse'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list the sites excluded from Today
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the sites excluded from Today
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    post:
+      description:
+        Operators only. Removes the site from every drop computed from now on
+        and records the reason; audited. Excluding an already excluded site
+        answers the existing exclusion.
+      operationId: postPlatformTodayExclusions
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  publicationId: 018f0000-0000-7000-8000-000000000002
+                  reason: Repeated spam posts.
+            schema:
+              $ref: '#/components/schemas/PostPlatformTodayExclusionsRequest'
+        required: true
+      responses:
+        '201':
+          description: exclude a site from Today succeeded
+          headers:
+            Cache-Control: *a2
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value: *a6
+              schema:
+                $ref: '#/components/schemas/PostPlatformTodayExclusionsResponse'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          $ref: '#/components/responses/CommandReplayConflict'
+      security:
+        - browserSession: []
+      summary: exclude a site from Today
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: exclude a site from Today
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/platform/today-exclusions/{publicationId}:
+    delete:
+      description:
+        Operators only. Ends the exclusion; the site is eligible again from the
+        next drop. Audited. `404 RESOURCE_NOT_FOUND` when the site is not
+        excluded.
+      operationId: deletePlatformTodayExclusionsByPublicationId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000002
+          in: path
+          name: publicationId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: let a site back into Today succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: let a site back into Today
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: let a site back into Today
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
+  /v2/platform/today-metrics:
+    get:
+      description:
+        'Operators only (`ADMIN` or `ROOT`). The Today counters for the last 7
+        or 30 days: readers, cards, opens per reason, the public page funnel,
+        exploration reach, email and worker health. Counts only, never a reader
+        identity.'
+      operationId: getPlatformTodayMetrics
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 7d
+          in: query
+          name: period
+          required: false
+          schema:
+            $ref: '#/components/schemas/PlatformTodayMetricsPeriod'
+      responses:
+        '200':
+          description: read platform Today metrics succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    email:
+                      clicked: 40
+                      sent: 120
+                      unsubscribed: 1
+                    exploration:
+                      publicationsSurfaced: 9
+                    items:
+                      dismissed: 12
+                      done: 90
+                      opened: 210
+                      saved: 30
+                      shown: 600
+                    openedByReason:
+                      EXPLORATION: 20
+                      FOLLOWED: 110
+                      POPULAR: 30
+                      RECENT: 5
+                      SERIES: 15
+                      TOPIC: 30
+                    period: 7d
+                    publicPage:
+                      signupsAttributed: 3
+                      sitesStartedAttributed: 1
+                      startSiteClicks: 8
+                      signInClicks: 25
+                      views: 400
+                    readers:
+                      followsFromToday: 14
+                      mutesCreated: 2
+                      openedToday: 75
+                      returning: 40
+                      withDropToday: 120
+                    worker:
+                      dropsComputedLastHour: 12
+                      failuresLastDay: 0
+                      latencyMsP95: 180
+              schema:
+                $ref: '#/components/schemas/GetPlatformTodayMetricsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: read platform Today metrics
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read platform Today metrics
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/today-topics:
+    get:
+      description:
+        Operators only. Every topic, active or not, with its aliases, in display
+        order.
+      operationId: getPlatformTodayTopics
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: list every Today topic succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - &a7
+                        active: true
+                        aliases:
+                          - startup
+                          - founders
+                        label: Startups
+                        position: 0
+                        topicId: startups
+              schema:
+                $ref: '#/components/schemas/GetPlatformTodayTopicsResponse'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list every Today topic
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list every Today topic
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    post:
+      description:
+        Operators only. Adds an active topic at the end of the list. `topicId`
+        is derived from the label and is stable afterwards.
+      operationId: postPlatformTodayTopics
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  aliases:
+                    - startup
+                    - founders
+                  label: Startups
+            schema:
+              $ref: '#/components/schemas/PostPlatformTodayTopicsRequest'
+        required: true
+      responses:
+        '201':
+          description: add a Today topic succeeded
+          headers:
+            Cache-Control: *a2
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value: *a7
+              schema:
+                $ref: '#/components/schemas/PostPlatformTodayTopicsResponse'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '409':
+          $ref: '#/components/responses/CommandReplayConflict'
+      security:
+        - browserSession: []
+      summary: add a Today topic
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: add a Today topic
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/platform/today-topics/{topicId}:
+    put:
+      description:
+        Operators only. Changes the label, aliases, position or `active` flag.
+        Deactivating keeps historical rows and removes the topic from pickers.
+      operationId: putPlatformTodayTopicsByTopicId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: startups
+          in: path
+          name: topicId
+          required: true
+          schema:
+            type: string
+            maxLength: 40
+            minLength: 1
+            pattern: ^[a-z][a-z0-9-]{0,39}$
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  active: true
+                  aliases:
+                    - startup
+                    - founders
+                  label: Startups
+                  position: 0
+            schema:
+              $ref: '#/components/schemas/PutPlatformTodayTopicsByTopicIdRequest'
+        required: true
+      responses:
+        '200':
+          description: change a Today topic succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value: *a7
+              schema:
+                $ref: '#/components/schemas/PutPlatformTodayTopicsByTopicIdResponse'
+        '400':
+          $ref: '#/components/responses/RequestInvalid'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        '409':
+          $ref: '#/components/responses/CommandReplayConflict'
+      security:
+        - browserSession: []
+      summary: change a Today topic
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.today.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: change a Today topic
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/public/today:
+    get:
+      description:
+        The network-wide drop for the current UTC day, identical for every
+        visitor and computed once at the platform drop hour. `404
+        TODAY_NOT_PUBLIC` while Today is off or fewer eligible publications have
+        posts in the window than the launch threshold.
+      operationId: getPublicToday
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: read the public Today drop succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    computedAt: 2026-11-06T06:00:00.000Z
+                    items:
+                      - position: 1
+                        post: &a8
+                          authorName: Ada Example
+                          contentId: posts/2026-11-05-why-finite-feeds
+                          hook: Five picks a day, and then the page ends.
+                          language: en
+                          publicationId: 018f0000-0000-7000-8000-000000000002
+                          publishedAt: 2026-11-05T09:00:00.000Z
+                          readMinutes: 6
+                          series: null
+                          siteFavicon: https://blog.example.com/favicon.ico
+                          siteTitle: Example Blog
+                          title: Why finite feeds win
+                          topicIds:
+                            - startups
+                          url: https://blog.example.com/posts/why-finite-feeds/
+                        reason:
+                          authorName: null
+                          kind: POPULAR
+                          series: null
+                          topicId: null
+                    utcDate: 2026-11-06
+              schema:
+                $ref: '#/components/schemas/GetPublicTodayResponse'
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                TODAY_NOT_PUBLIC:
+                  summary: TODAY_NOT_PUBLIC
+                  value:
+                    code: TODAY_NOT_PUBLIC
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_NOT_PUBLIC
+                    type: urn:gala:problem:today-not-public
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TODAY_NOT_PUBLIC
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - TODAY_NOT_PUBLIC
+      security: []
+      summary: read the public Today drop
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the public Today drop
+      x-gala-reachable-problems:
+        - TODAY_NOT_PUBLIC
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/public/today/topics:
+    get:
+      description:
+        The curated topic list readers pick interests from and sites choose
+        from, in display order. `404 TODAY_DISABLED` while Today is off.
+      operationId: getPublicTodayTopics
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: list the active Today topics succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - label: Startups
+                        position: 0
+                        topicId: startups
+              schema:
+                $ref: '#/components/schemas/GetPublicTodayTopicsResponse'
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                TODAY_DISABLED:
+                  summary: TODAY_DISABLED
+                  value:
+                    code: TODAY_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_DISABLED
+                    type: urn:gala:problem:today-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TODAY_DISABLED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - TODAY_DISABLED
+      security: []
+      summary: list the active Today topics
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the active Today topics
+      x-gala-reachable-problems:
+        - TODAY_DISABLED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/reader/signals:
+    post:
+      description:
+        'The site script sends debounced, batched reading signals for the
+        signed-in reader: at most 50 events per batch, flushed every 15 seconds
+        and on page hide. The API applies them now and may queue them later:
+        `202` with the count accepted, nothing to read back. A batch replayed
+        with the same `batchId`, or an event with a known `eventId`, is accepted
+        without a second write. `403 SIGNALS_NOT_CONSENTED` when the reader
+        turned telemetry off.'
+      operationId: postReaderSignals
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  batchId: 018f0000-0000-7000-8000-000000000001
+                  events:
+                    - at: 2026-11-06T07:00:00.000Z
+                      contentId: posts/2026-11-05-why-finite-feeds
+                      dwellSeconds: null
+                      eventId: 018f0000-0000-7000-8000-000000000002
+                      itemId: 018f0000-0000-7000-8000-000000000003
+                      kind: OPEN
+                      publicationId: 018f0000-0000-7000-8000-000000000002
+                      scrollPercent: null
+            schema:
+              $ref: '#/components/schemas/PostReaderSignalsRequest'
+        required: true
+      responses:
+        '202':
+          description: record a batch of reading signals succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    accepted: 1
+                    batchId: 018f0000-0000-7000-8000-000000000001
+              schema:
+                $ref: '#/components/schemas/PostReaderSignalsResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                READER_AUTHENTICATION_REQUIRED:
+                  summary: READER_AUTHENTICATION_REQUIRED
+                  value:
+                    code: READER_AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: READER_AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:reader-authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: READER_AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - READER_AUTHENTICATION_REQUIRED
+        '403':
+          content:
+            application/problem+json:
+              examples:
+                READER_RESTRICTED:
+                  summary: READER_RESTRICTED
+                  value:
+                    code: READER_RESTRICTED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_RESTRICTED
+                    type: urn:gala:problem:reader-restricted
+                READER_TOKEN_SCOPE:
+                  summary: READER_TOKEN_SCOPE
+                  value:
+                    code: READER_TOKEN_SCOPE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: READER_TOKEN_SCOPE
+                    type: urn:gala:problem:reader-token-scope
+                SIGNALS_NOT_CONSENTED:
+                  summary: SIGNALS_NOT_CONSENTED
+                  value:
+                    code: SIGNALS_NOT_CONSENTED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: SIGNALS_NOT_CONSENTED
+                    type: urn:gala:problem:signals-not-consented
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description:
+            READER_RESTRICTED, READER_TOKEN_SCOPE, SIGNALS_NOT_CONSENTED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - READER_RESTRICTED
+            - READER_TOKEN_SCOPE
+            - SIGNALS_NOT_CONSENTED
+        '429':
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RATE_LIMITED
+          headers:
+            Cache-Control: *a2
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RATE_LIMITED
+      security:
+        - readerBearer: []
+      summary: record a batch of reading signals
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: record a batch of reading signals
+      x-gala-reachable-problems:
+        - RATE_LIMITED
+        - READER_AUTHENTICATION_REQUIRED
+        - READER_RESTRICTED
+        - READER_TOKEN_SCOPE
+        - REQUEST_FIELD_UNKNOWN
+        - SIGNALS_NOT_CONSENTED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/today:
+    get:
+      description:
+        "The signed-in person's Today drop for their current local date: at most
+        `itemsPerDay` picks, computed once at their drop hour and unchanged
+        until `nextDropAt`. Before the first drop of a day the previous drop is
+        answered. `404 TODAY_DISABLED` while the platform setting `feed.enabled`
+        is 0."
+      operationId: getSelfToday
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: read the reader's drop for today succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    computedAt: 2026-11-06T07:00:00.000Z
+                    items:
+                      - itemId: 018f0000-0000-7000-8000-000000000001
+                        position: 1
+                        post: *a8
+                        reason:
+                          authorName: Ada Example
+                          kind: FOLLOWED
+                          series: null
+                          topicId: null
+                        state: SHOWN
+                        stateAt: null
+                    itemsPerDay: 5
+                    localDate: 2026-11-06
+                    nextDropAt: 2026-11-07T07:00:00.000Z
+                    rankerVersion: v1
+                    state: FRESH
+              schema:
+                $ref: '#/components/schemas/GetSelfTodayResponse'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                TODAY_DISABLED:
+                  summary: TODAY_DISABLED
+                  value:
+                    code: TODAY_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_DISABLED
+                    type: urn:gala:problem:today-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TODAY_DISABLED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - TODAY_DISABLED
+      security:
+        - browserSession: []
+      summary: read the reader's drop for today
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the reader's drop for today
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - TODAY_DISABLED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/today/items/{itemId}:dismiss:
+    post:
+      description:
+        Records that the reader marked the post not interested, a negative
+        signal for its site and topics. Accepted immediately (`202`); the API
+        applies it now and may queue it later, so nothing reads the state back
+        from this answer. A replay with the same Idempotency-Key answers the
+        same receipt. `404 TODAY_DISABLED` while Today is off.
+      operationId: postSelfTodayItemsByItemIdDismiss
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: itemId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '202':
+          description: mark a Today item dismissed succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    itemId: 018f0000-0000-7000-8000-000000000001
+                    state: DISMISSED
+                    stateAt: 2026-11-06T07:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostSelfTodayItemsByItemIdDismissResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+                TODAY_DISABLED:
+                  summary: TODAY_DISABLED
+                  value:
+                    code: TODAY_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_DISABLED
+                    type: urn:gala:problem:today-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND, TODAY_DISABLED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+            - TODAY_DISABLED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: mark a Today item dismissed
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mark a Today item dismissed
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - RESOURCE_NOT_FOUND
+        - TODAY_DISABLED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/today/items/{itemId}:done:
+    post:
+      description:
+        Records that the reader marked the post read. Accepted immediately
+        (`202`); the API applies it now and may queue it later, so nothing reads
+        the state back from this answer. A replay with the same Idempotency-Key
+        answers the same receipt. `404 TODAY_DISABLED` while Today is off.
+      operationId: postSelfTodayItemsByItemIdDone
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: itemId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '202':
+          description: mark a Today item done succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    itemId: 018f0000-0000-7000-8000-000000000001
+                    state: DONE
+                    stateAt: 2026-11-06T07:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostSelfTodayItemsByItemIdDoneResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+                TODAY_DISABLED:
+                  summary: TODAY_DISABLED
+                  value:
+                    code: TODAY_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_DISABLED
+                    type: urn:gala:problem:today-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND, TODAY_DISABLED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+            - TODAY_DISABLED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: mark a Today item done
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mark a Today item done
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - RESOURCE_NOT_FOUND
+        - TODAY_DISABLED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/today/items/{itemId}:open:
+    post:
+      description:
+        Records that the reader tapped the card; the post opens on the author's
+        site. Accepted immediately (`202`); the API applies it now and may queue
+        it later, so nothing reads the state back from this answer. A replay
+        with the same Idempotency-Key answers the same receipt. `404
+        TODAY_DISABLED` while Today is off.
+      operationId: postSelfTodayItemsByItemIdOpen
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: itemId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '202':
+          description: mark a Today item opened succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    itemId: 018f0000-0000-7000-8000-000000000001
+                    state: OPENED
+                    stateAt: 2026-11-06T07:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostSelfTodayItemsByItemIdOpenResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+                TODAY_DISABLED:
+                  summary: TODAY_DISABLED
+                  value:
+                    code: TODAY_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_DISABLED
+                    type: urn:gala:problem:today-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND, TODAY_DISABLED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+            - TODAY_DISABLED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: mark a Today item opened
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mark a Today item opened
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - RESOURCE_NOT_FOUND
+        - TODAY_DISABLED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/today/items/{itemId}:save:
+    post:
+      description:
+        Records that the reader saved the post for later. Accepted immediately
+        (`202`); the API applies it now and may queue it later, so nothing reads
+        the state back from this answer. A replay with the same Idempotency-Key
+        answers the same receipt. `404 TODAY_DISABLED` while Today is off.
+      operationId: postSelfTodayItemsByItemIdSave
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: itemId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '202':
+          description: mark a Today item saved succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    itemId: 018f0000-0000-7000-8000-000000000001
+                    state: SAVED
+                    stateAt: 2026-11-06T07:00:00.000Z
+              schema:
+                $ref: '#/components/schemas/PostSelfTodayItemsByItemIdSaveResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+                TODAY_DISABLED:
+                  summary: TODAY_DISABLED
+                  value:
+                    code: TODAY_DISABLED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: TODAY_DISABLED
+                    type: urn:gala:problem:today-disabled
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND, TODAY_DISABLED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+            - TODAY_DISABLED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: mark a Today item saved
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mark a Today item saved
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - RESOURCE_NOT_FOUND
+        - TODAY_DISABLED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/self/today/mutes:
+    get:
+      description:
+        'Every site and topic the reader muted, newest first. Not paged: a
+        reader holds at most 200 mutes.'
+      operationId: getSelfTodayMutes
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: list the reader's Today mutes succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - &a9
+                        createdAt: 2026-11-06T07:00:00.000Z
+                        kind: SITE
+                        muteId: 018f0000-0000-7000-8000-000000000003
+                        publicationId: 018f0000-0000-7000-8000-000000000002
+                        siteTitle: Example Blog
+                        topicId: null
+              schema:
+                $ref: '#/components/schemas/GetSelfTodayMutesResponse'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list the reader's Today mutes
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the reader's Today mutes
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    post:
+      description:
+        Hides a site or a topic from every future drop. `409
+        TODAY_MUTE_DUPLICATE` when the same target is already muted; `404
+        RESOURCE_NOT_FOUND` for an unknown publication; `422
+        TODAY_TOPIC_UNKNOWN` for an unknown topic.
+      operationId: postSelfTodayMutes
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  kind: SITE
+                  publicationId: 018f0000-0000-7000-8000-000000000002
+                  topicId: null
+            schema:
+              $ref: '#/components/schemas/PostSelfTodayMutesRequest'
+        required: true
+      responses:
+        '201':
+          description: mute a site or a topic in Today succeeded
+          headers:
+            Cache-Control: *a2
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value: *a9
+              schema:
+                $ref: '#/components/schemas/PostSelfTodayMutesResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                TODAY_MUTE_DUPLICATE:
+                  summary: TODAY_MUTE_DUPLICATE
+                  value:
+                    code: TODAY_MUTE_DUPLICATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TODAY_MUTE_DUPLICATE
+                    type: urn:gala:problem:today-mute-duplicate
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT, TODAY_MUTE_DUPLICATE
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - TODAY_MUTE_DUPLICATE
+        '422':
+          content:
+            application/problem+json:
+              examples:
+                TODAY_TOPIC_UNKNOWN:
+                  summary: TODAY_TOPIC_UNKNOWN
+                  value:
+                    code: TODAY_TOPIC_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: TODAY_TOPIC_UNKNOWN
+                    type: urn:gala:problem:today-topic-unknown
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TODAY_TOPIC_UNKNOWN
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - TODAY_TOPIC_UNKNOWN
+      security:
+        - browserSession: []
+      summary: mute a site or a topic in Today
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: mute a site or a topic in Today
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - TODAY_MUTE_DUPLICATE
+        - TODAY_TOPIC_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/self/today/mutes/{muteId}:
+    delete:
+      description:
+        Lets the site or topic back into future drops. Removing twice is
+        harmless.
+      operationId: deleteSelfTodayMutesByMuteId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000003
+          in: path
+          name: muteId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: remove a Today mute succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: remove a Today mute
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: remove a Today mute
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
+  /v2/self/today/profile:
+    get:
+      description:
+        Interests, languages, time zone, drop hour, telemetry consent and the
+        daily email switch. A person who never saved settings gets the defaults
+        with `onboarded` false.
+      operationId: getSelfTodayProfile
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          description: read the reader's Today settings succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value: &a10
+                    dropHour: 7
+                    emailDaily: true
+                    interests:
+                      - startups
+                      - engineering
+                    languages:
+                      - en
+                    onboarded: true
+                    telemetryConsent: true
+                    timeZone: America/Los_Angeles
+              schema:
+                $ref: '#/components/schemas/GetSelfTodayProfileResponse'
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: read the reader's Today settings
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the reader's Today settings
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    put:
+      description:
+        Replaces the settings; every field is optional and an absent field keeps
+        its value. Saving marks the reader `onboarded`. Turning
+        `telemetryConsent` off stops collection and deletes the reader's reading
+        signals within a day. `422 TODAY_TOPIC_UNKNOWN` names an interest that
+        is not an active topic.
+      operationId: putSelfTodayProfile
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XCsrfToken'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal request
+                value:
+                  dropHour: 7
+                  interests:
+                    - startups
+                    - engineering
+            schema:
+              $ref: '#/components/schemas/PutSelfTodayProfileRequest'
+        required: true
+      responses:
+        '200':
+          description: save the reader's Today settings succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value: *a10
+              schema:
+                $ref: '#/components/schemas/PutSelfTodayProfileResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '409':
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+        '422':
+          content:
+            application/problem+json:
+              examples:
+                TODAY_TOPIC_UNKNOWN:
+                  summary: TODAY_TOPIC_UNKNOWN
+                  value:
+                    code: TODAY_TOPIC_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: TODAY_TOPIC_UNKNOWN
+                    type: urn:gala:problem:today-topic-unknown
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: TODAY_TOPIC_UNKNOWN
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - TODAY_TOPIC_UNKNOWN
+      security:
+        - browserSession: []
+      summary: save the reader's Today settings
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: save the reader's Today settings
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - REQUEST_FIELD_UNKNOWN
+        - TODAY_TOPIC_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: NONE
+  /v2/self/today/saved:
+    get:
+      description:
+        Saved posts, newest first, one cursor page at a time. Saved posts keep
+        no age limit; they are the only way back to a past pick.
+      operationId: getSelfTodaySaved
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: list the posts the reader saved from Today succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - itemId: 018f0000-0000-7000-8000-000000000001
+                        post: *a8
+                        savedAt: 2026-11-06T07:00:00.000Z
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetSelfTodaySavedResponse'
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+      security:
+        - browserSession: []
+      summary: list the posts the reader saved from Today
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the posts the reader saved from Today
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/self/today/saved/{itemId}:
+    delete:
+      description:
+        Removes the post from the saved list. Removing twice is harmless.
+      operationId: deleteSelfTodaySavedByItemId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: itemId
+          required: true
+          schema: *a1
+        - $ref: '#/components/parameters/XCsrfToken'
+      responses:
+        '204':
+          description: remove a saved Today post succeeded
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+        '400':
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        '401':
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        '404':
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control: *a2
+            X-Correlation-Id: *a3
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: remove a saved Today post
+      tags:
+        - today
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: remove a saved Today post
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE

@@ -789,8 +789,9 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
   );
   // SCHEMA-3.7.0 adds keyset collections for platform users, abuse cases and
   // webhook events; SCHEMA-3.30.0 adds the platform assistance requests;
-  // SCHEMA-3.34.0 adds the Interview list.
-  assert.equal(collections.length, 27);
+  // SCHEMA-3.34.0 adds the Interview list; SCHEMA-3.43.0 the saved Today
+  // posts.
+  assert.equal(collections.length, 28);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),

@@ -18625,7 +18625,995 @@ components:
         - $ref: '#/components/schemas/SyndicationDeliveryList'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdSyndicationDeliveriesByDeliveryIdRetryResponse:
       allOf:
-        - $ref: '#/components/schemas/SyndicationDelivery'
+        - $ref: '#/components/schemas/SyndicationDelivery' # SCHEMA-3.43.0 Today (generated block start)
+    TodayDropState:
+      description:
+        "SCHEMA-3.43.0: where a reader stands with today's drop. FRESH: nothing
+        opened yet; PARTLY_READ: some items opened, saved or dismissed;
+        ALL_DONE: every item is opened, saved, dismissed or done; EMPTY: nothing
+        qualified today."
+      enum:
+        - FRESH
+        - PARTLY_READ
+        - ALL_DONE
+        - EMPTY
+      type: string
+    TodayItemState:
+      description:
+        "SCHEMA-3.43.0: one item's state in a reader's drop. REMOVED means the
+        post left the network after the drop was computed; the card is hidden."
+      enum:
+        - SHOWN
+        - OPENED
+        - SAVED
+        - DISMISSED
+        - DONE
+        - REMOVED
+      type: string
+    TodayReasonKind:
+      description:
+        'SCHEMA-3.43.0: why a post was picked, in the order the ranker applies
+        them. FOLLOWED: from an author the reader follows; SERIES: next unread
+        post of a series the reader opened; TOPIC: matches a declared interest;
+        POPULAR: popular this week on Galascribe; EXPLORATION: a new or
+        low-signal site; RECENT: nothing stronger applied.'
+      enum:
+        - FOLLOWED
+        - SERIES
+        - TOPIC
+        - POPULAR
+        - EXPLORATION
+        - RECENT
+      type: string
+    TodayReason:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: the reason line of one card. `authorName`, `topicId` and
+        `series` are set only when the kind uses them.'
+      properties:
+        authorName:
+          oneOf:
+            - type: string
+              maxLength: 120
+              minLength: 1
+            - type: 'null'
+        kind:
+          $ref: '#/components/schemas/TodayReasonKind'
+        series:
+          oneOf:
+            - type: string
+              maxLength: 160
+              minLength: 1
+            - type: 'null'
+        topicId:
+          oneOf:
+            - type: string
+              maxLength: 40
+              minLength: 1
+              pattern: ^[a-z][a-z0-9-]{0,39}$
+            - type: 'null'
+      required:
+        - kind
+        - authorName
+        - topicId
+        - series
+      type: object
+    TodayPostCard:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: what a Today card shows about one post. `url` is the
+        post on the author's own site; Galascribe never renders the post inline."
+      properties:
+        authorName:
+          type: string
+          maxLength: 120
+          minLength: 1
+        contentId:
+          type: string
+          maxLength: 512
+          minLength: 1
+        hook:
+          oneOf:
+            - type: string
+              maxLength: 400
+            - type: 'null'
+        language: &a3
+          $ref: ../schemas/content-frontmatter.schema.json#/$defs/bcp47
+        publicationId: &a1
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        publishedAt: &a2
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        readMinutes:
+          type: integer
+          minimum: 1
+          maximum: 600
+        series:
+          oneOf:
+            - type: string
+              maxLength: 160
+              minLength: 1
+            - type: 'null'
+        siteFavicon:
+          oneOf:
+            - type: string
+              format: uri
+              maxLength: 2048
+            - type: 'null'
+        siteTitle:
+          type: string
+          maxLength: 160
+          minLength: 1
+        title:
+          type: string
+          maxLength: 300
+          minLength: 1
+        topicIds:
+          items:
+            type: string
+            maxLength: 40
+            minLength: 1
+            pattern: ^[a-z][a-z0-9-]{0,39}$
+          maxItems: 3
+          type: array
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+      required:
+        - contentId
+        - publicationId
+        - siteTitle
+        - siteFavicon
+        - url
+        - title
+        - hook
+        - authorName
+        - language
+        - readMinutes
+        - publishedAt
+        - topicIds
+        - series
+      type: object
+    TodayItem:
+      additionalProperties: false
+      description: "SCHEMA-3.43.0: one of the reader's picks for the day."
+      properties:
+        itemId: *a1
+        position:
+          type: integer
+          minimum: 1
+          maximum: 10
+        post:
+          $ref: '#/components/schemas/TodayPostCard'
+        reason:
+          $ref: '#/components/schemas/TodayReason'
+        state:
+          $ref: '#/components/schemas/TodayItemState'
+        stateAt:
+          oneOf:
+            - *a2
+            - type: 'null'
+      required:
+        - itemId
+        - position
+        - post
+        - reason
+        - state
+        - stateAt
+      type: object
+    TodayDrop:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: a reader's drop for one local calendar day: at most
+        `itemsPerDay` items, computed once at the reader's drop hour, finite
+        until `nextDropAt`. `items` is empty with `state` EMPTY when nothing
+        qualified."
+      properties:
+        computedAt: *a2
+        items:
+          items:
+            $ref: '#/components/schemas/TodayItem'
+          maxItems: 10
+          type: array
+        itemsPerDay:
+          type: integer
+          minimum: 1
+          maximum: 10
+        localDate:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+        nextDropAt: *a2
+        rankerVersion:
+          type: string
+          maxLength: 40
+          minLength: 1
+        state:
+          $ref: '#/components/schemas/TodayDropState'
+      required:
+        - localDate
+        - computedAt
+        - rankerVersion
+        - itemsPerDay
+        - nextDropAt
+        - state
+        - items
+      type: object
+    TodayItemActionReceipt:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: the acknowledgement of a card action. The API applies
+        the action now and may queue it later; a replay with the same
+        Idempotency-Key answers the same receipt.'
+      properties:
+        itemId: *a1
+        state:
+          $ref: '#/components/schemas/TodayItemState'
+        stateAt: *a2
+      required:
+        - itemId
+        - state
+        - stateAt
+      type: object
+    TodaySavedItem:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: a post the reader saved from a drop.'
+      properties:
+        itemId: *a1
+        post:
+          $ref: '#/components/schemas/TodayPostCard'
+        savedAt: *a2
+      required:
+        - itemId
+        - post
+        - savedAt
+      type: object
+    TodayProfile:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: a reader's Today settings. `onboarded` is false until
+        the reader has seen the interest picker once; a person with no row gets
+        the defaults."
+      properties:
+        dropHour:
+          type: integer
+          minimum: 0
+          maximum: 23
+        emailDaily:
+          type: boolean
+        interests:
+          items: &a4
+            type: string
+            maxLength: 40
+            minLength: 1
+            pattern: ^[a-z][a-z0-9-]{0,39}$
+          maxItems: 5
+          type: array
+        languages:
+          items: *a3
+          maxItems: 5
+          type: array
+        onboarded:
+          type: boolean
+        telemetryConsent:
+          type: boolean
+        timeZone:
+          type: string
+          maxLength: 64
+          minLength: 1
+      required:
+        - onboarded
+        - interests
+        - languages
+        - timeZone
+        - dropHour
+        - telemetryConsent
+        - emailDaily
+      type: object
+    TodayMuteKind:
+      description: "SCHEMA-3.43.0: what a mute hides from the reader's drops."
+      enum:
+        - SITE
+        - TOPIC
+      type: string
+    TodayMute:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: a site or topic the reader never wants in a drop.
+        Exactly one of `publicationId` and `topicId` is set, by `kind`.'
+      properties:
+        createdAt: *a2
+        kind:
+          $ref: '#/components/schemas/TodayMuteKind'
+        muteId: *a1
+        publicationId:
+          oneOf:
+            - *a1
+            - type: 'null'
+        siteTitle:
+          oneOf:
+            - type: string
+              maxLength: 160
+              minLength: 1
+            - type: 'null'
+        topicId:
+          oneOf:
+            - *a4
+            - type: 'null'
+      required:
+        - muteId
+        - kind
+        - publicationId
+        - siteTitle
+        - topicId
+        - createdAt
+      type: object
+    TodayTopic:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: one entry of the curated topic list, as readers and
+        sites see it.'
+      properties:
+        label:
+          type: string
+          maxLength: 60
+          minLength: 1
+        position:
+          type: integer
+          minimum: 0
+          maximum: 1000
+        topicId: *a4
+      required:
+        - topicId
+        - label
+        - position
+      type: object
+    PlatformTodayTopic:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: a topic as operators manage it: the reader-facing fields
+        plus `active` and the tag aliases that map posts to it.'
+      properties:
+        active:
+          type: boolean
+        aliases:
+          items:
+            type: string
+            maxLength: 60
+            minLength: 1
+          maxItems: 50
+          type: array
+        label:
+          type: string
+          maxLength: 60
+          minLength: 1
+        position:
+          type: integer
+          minimum: 0
+          maximum: 1000
+        topicId: *a4
+      required:
+        - topicId
+        - label
+        - position
+        - active
+        - aliases
+      type: object
+    PublicTodayItem:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: one pick of the public drop.'
+      properties:
+        position:
+          type: integer
+          minimum: 1
+          maximum: 10
+        post:
+          $ref: '#/components/schemas/TodayPostCard'
+        reason:
+          $ref: '#/components/schemas/TodayReason'
+      required:
+        - position
+        - post
+        - reason
+      type: object
+    PublicTodayDrop:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: the network-wide drop for one UTC day, the same for
+        every visitor; no personal signal is used.'
+      properties:
+        computedAt: *a2
+        items:
+          items:
+            $ref: '#/components/schemas/PublicTodayItem'
+          maxItems: 10
+          type: array
+        utcDate:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+      required:
+        - utcDate
+        - computedAt
+        - items
+      type: object
+    ReaderSignalKind:
+      description:
+        'SCHEMA-3.43.0: a reading signal. OPEN: a Today card was tapped (carries
+        `itemId`); VIEW: a post page loaded; SCROLL: a scroll-depth milestone
+        (`scrollPercent`); DWELL: visible time (`dwellSeconds`).'
+      enum:
+        - OPEN
+        - VIEW
+        - SCROLL
+        - DWELL
+      type: string
+    ReaderSignalEvent:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: one reading signal from the site script. `eventId` makes
+        a replayed batch harmless.'
+      properties:
+        at: *a2
+        contentId:
+          type: string
+          maxLength: 512
+          minLength: 1
+        dwellSeconds:
+          oneOf:
+            - type: integer
+              minimum: 1
+              maximum: 1200
+            - type: 'null'
+        eventId: *a1
+        itemId:
+          oneOf:
+            - *a1
+            - type: 'null'
+        kind:
+          $ref: '#/components/schemas/ReaderSignalKind'
+        publicationId: *a1
+        scrollPercent:
+          oneOf:
+            - enum:
+                - 25
+                - 50
+                - 75
+                - 100
+              type: integer
+            - type: 'null'
+      required:
+        - eventId
+        - kind
+        - contentId
+        - publicationId
+        - at
+        - itemId
+        - scrollPercent
+        - dwellSeconds
+      type: object
+    PublicationTodaySettings:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: how a site takes part in Today: whether its posts may
+        appear (default on) and the one to three topics its posts inherit.'
+      properties:
+        included:
+          type: boolean
+        topicIds:
+          items: *a4
+          maxItems: 3
+          type: array
+      required:
+        - included
+        - topicIds
+      type: object
+    PublicationTodayPostStats:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: one post's Today numbers over the window. `reads` is
+        null while fewer than five distinct readers contributed (k-anonymity)."
+      properties:
+        contentId:
+          type: string
+          maxLength: 512
+          minLength: 1
+        follows:
+          type: integer
+          minimum: 0
+          maximum: 1000000000
+        opened:
+          type: integer
+          minimum: 0
+          maximum: 1000000000
+        reads:
+          oneOf:
+            - type: integer
+              minimum: 0
+              maximum: 1000000000
+            - type: 'null'
+        shown:
+          type: integer
+          minimum: 0
+          maximum: 1000000000
+        title:
+          type: string
+          maxLength: 300
+          minLength: 1
+      required:
+        - contentId
+        - title
+        - shown
+        - opened
+        - follows
+        - reads
+      type: object
+    PublicationTodayStats:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: a site's Today numbers for the last 30 days: aggregates
+        only, never a reader identity."
+      properties:
+        posts:
+          items:
+            $ref: '#/components/schemas/PublicationTodayPostStats'
+          maxItems: 200
+          type: array
+        readsSuppressed:
+          description:
+            True when the site total of reads is withheld for k-anonymity.
+          type: boolean
+        totals:
+          additionalProperties: false
+          description: Site totals over the window.
+          properties:
+            follows:
+              type: integer
+              minimum: 0
+              maximum: 1000000000
+            opened:
+              type: integer
+              minimum: 0
+              maximum: 1000000000
+            reads:
+              oneOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 1000000000
+                - type: 'null'
+            shown:
+              type: integer
+              minimum: 0
+              maximum: 1000000000
+          required:
+            - shown
+            - opened
+            - follows
+            - reads
+          type: object
+        window:
+          additionalProperties: false
+          description: The window the numbers cover.
+          properties:
+            from: *a2
+            to: *a2
+          required:
+            - from
+            - to
+          type: object
+      required:
+        - window
+        - totals
+        - readsSuppressed
+        - posts
+      type: object
+    PublicationTodayExclusion:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: an operator's exclusion of a site from Today, with the
+        reason on record."
+      properties:
+        excludedAt: *a2
+        excludedBy: *a1
+        publicationId: *a1
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 1
+      required:
+        - publicationId
+        - reason
+        - excludedBy
+        - excludedAt
+      type: object
+    PlatformTodayMetricsPeriod:
+      description: 'SCHEMA-3.43.0: the window a metrics read covers.'
+      enum:
+        - 7d
+        - 30d
+      type: string
+    PlatformTodayMetrics:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.43.0: the platform's Today counters for a period. The headline
+        is `readers.returning`: readers who opened a drop on three or more of
+        the last seven days."
+      properties:
+        email:
+          additionalProperties: false
+          description: Daily email counters.
+          properties:
+            clicked: &a5
+              type: integer
+              minimum: 0
+              maximum: 1000000000
+            sent: *a5
+            unsubscribed: *a5
+          required:
+            - sent
+            - clicked
+            - unsubscribed
+          type: object
+        exploration:
+          additionalProperties: false
+          description: Exploration reach.
+          properties:
+            publicationsSurfaced: *a5
+          required:
+            - publicationsSurfaced
+          type: object
+        items:
+          additionalProperties: false
+          description: Card counters.
+          properties:
+            dismissed: *a5
+            done: *a5
+            opened: *a5
+            saved: *a5
+            shown: *a5
+          required:
+            - shown
+            - opened
+            - saved
+            - dismissed
+            - done
+          type: object
+        openedByReason:
+          additionalProperties: false
+          description: Opens per reason kind.
+          properties:
+            EXPLORATION: *a5
+            FOLLOWED: *a5
+            POPULAR: *a5
+            RECENT: *a5
+            SERIES: *a5
+            TOPIC: *a5
+          required:
+            - FOLLOWED
+            - SERIES
+            - TOPIC
+            - POPULAR
+            - EXPLORATION
+            - RECENT
+          type: object
+        period:
+          $ref: '#/components/schemas/PlatformTodayMetricsPeriod'
+        publicPage:
+          additionalProperties: false
+          description: Public page funnel.
+          properties:
+            signupsAttributed: *a5
+            sitesStartedAttributed: *a5
+            startSiteClicks: *a5
+            signInClicks: *a5
+            views: *a5
+          required:
+            - views
+            - signInClicks
+            - startSiteClicks
+            - signupsAttributed
+            - sitesStartedAttributed
+          type: object
+        readers:
+          additionalProperties: false
+          description: Reader counters.
+          properties:
+            followsFromToday: *a5
+            mutesCreated: *a5
+            openedToday: *a5
+            returning: *a5
+            withDropToday: *a5
+          required:
+            - withDropToday
+            - openedToday
+            - returning
+            - followsFromToday
+            - mutesCreated
+          type: object
+        worker:
+          additionalProperties: false
+          description: Drop worker health.
+          properties:
+            dropsComputedLastHour: *a5
+            failuresLastDay: *a5
+            latencyMsP95: *a5
+          required:
+            - dropsComputedLastHour
+            - latencyMsP95
+            - failuresLastDay
+          type: object
+      required:
+        - period
+        - readers
+        - items
+        - openedByReason
+        - publicPage
+        - exploration
+        - email
+        - worker
+      type: object
+    GetSelfTodayResponse:
+      $ref: '#/components/schemas/TodayDrop'
+    PostSelfTodayItemsByItemIdOpenResponse:
+      $ref: '#/components/schemas/TodayItemActionReceipt'
+    PostSelfTodayItemsByItemIdSaveResponse:
+      $ref: '#/components/schemas/TodayItemActionReceipt'
+    PostSelfTodayItemsByItemIdDismissResponse:
+      $ref: '#/components/schemas/TodayItemActionReceipt'
+    PostSelfTodayItemsByItemIdDoneResponse:
+      $ref: '#/components/schemas/TodayItemActionReceipt'
+    GetSelfTodaySavedResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      description: 'SCHEMA-3.43.0: a page of saved Today posts.'
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/TodaySavedItem'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false. The
+            length bounds constrain the string branch only.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    GetSelfTodayProfileResponse:
+      $ref: '#/components/schemas/TodayProfile'
+    PutSelfTodayProfileResponse:
+      $ref: '#/components/schemas/TodayProfile'
+    PutSelfTodayProfileRequest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: the fields of a Today settings save; all optional.'
+      properties:
+        dropHour:
+          type: integer
+          minimum: 0
+          maximum: 23
+        emailDaily:
+          type: boolean
+        interests:
+          items: *a4
+          maxItems: 5
+          type: array
+        languages:
+          items: *a3
+          maxItems: 5
+          type: array
+        telemetryConsent:
+          type: boolean
+        timeZone:
+          type: string
+          maxLength: 64
+          minLength: 1
+      required: []
+      type: object
+      minProperties: 1
+    GetSelfTodayMutesResponse:
+      additionalProperties: false
+      description: "SCHEMA-3.43.0: the reader's mutes."
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TodayMute'
+          maxItems: 200
+          type: array
+      required:
+        - items
+      type: object
+    PostSelfTodayMutesResponse:
+      $ref: '#/components/schemas/TodayMute'
+    PostSelfTodayMutesRequest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.43.0: a mute to add. Exactly one of `publicationId` (kind
+        SITE) and `topicId` (kind TOPIC) is set.'
+      properties:
+        kind:
+          $ref: '#/components/schemas/TodayMuteKind'
+        publicationId:
+          oneOf:
+            - *a1
+            - type: 'null'
+        topicId:
+          oneOf:
+            - *a4
+            - type: 'null'
+      required:
+        - kind
+        - publicationId
+        - topicId
+      type: object
+    GetPublicTodayResponse:
+      $ref: '#/components/schemas/PublicTodayDrop'
+    GetPublicTodayTopicsResponse:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: the active topics in display order.'
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TodayTopic'
+          maxItems: 100
+          type: array
+      required:
+        - items
+      type: object
+    PostReaderSignalsResponse:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: the acknowledgement of a signal batch.'
+      properties:
+        accepted:
+          type: integer
+          minimum: 0
+          maximum: 50
+        batchId: *a1
+      required:
+        - batchId
+        - accepted
+      type: object
+    PostReaderSignalsRequest:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: one batch of reading signals.'
+      properties:
+        batchId: *a1
+        events:
+          items:
+            $ref: '#/components/schemas/ReaderSignalEvent'
+          maxItems: 50
+          type: array
+          minItems: 1
+      required:
+        - batchId
+        - events
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsResponse:
+      $ref: '#/components/schemas/PublicationTodaySettings'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsResponse:
+      $ref: '#/components/schemas/PublicationTodaySettings'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsRequest:
+      $ref: '#/components/schemas/PublicationTodaySettings'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdTodayStatsResponse:
+      $ref: '#/components/schemas/PublicationTodayStats'
+    GetPlatformTodayMetricsResponse:
+      $ref: '#/components/schemas/PlatformTodayMetrics'
+    GetPlatformTodayTopicsResponse:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: every topic, active or not.'
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformTodayTopic'
+          maxItems: 200
+          type: array
+      required:
+        - items
+      type: object
+    PostPlatformTodayTopicsResponse:
+      $ref: '#/components/schemas/PlatformTodayTopic'
+    PostPlatformTodayTopicsRequest:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: a topic to add.'
+      properties:
+        aliases:
+          items:
+            type: string
+            maxLength: 60
+            minLength: 1
+          maxItems: 50
+          type: array
+        label:
+          type: string
+          maxLength: 60
+          minLength: 1
+      required:
+        - label
+        - aliases
+      type: object
+    PutPlatformTodayTopicsByTopicIdResponse:
+      $ref: '#/components/schemas/PlatformTodayTopic'
+    PutPlatformTodayTopicsByTopicIdRequest:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: the editable fields of a topic.'
+      properties:
+        active:
+          type: boolean
+        aliases:
+          items:
+            type: string
+            maxLength: 60
+            minLength: 1
+          maxItems: 50
+          type: array
+        label:
+          type: string
+          maxLength: 60
+          minLength: 1
+        position:
+          type: integer
+          minimum: 0
+          maximum: 1000
+      required:
+        - label
+        - aliases
+        - active
+        - position
+      type: object
+    GetPlatformTodayExclusionsResponse:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: the excluded sites.'
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PublicationTodayExclusion'
+          maxItems: 1000
+          type: array
+      required:
+        - items
+      type: object
+    PostPlatformTodayExclusionsResponse:
+      $ref: '#/components/schemas/PublicationTodayExclusion'
+    PostPlatformTodayExclusionsRequest:
+      additionalProperties: false
+      description: 'SCHEMA-3.43.0: the site to exclude and why.'
+      properties:
+        publicationId: *a1
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 1
+      required:
+        - publicationId
+        - reason
+      type: object
+    # SCHEMA-3.43.0 Today (generated block end)
+
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)
