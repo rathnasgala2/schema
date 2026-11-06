@@ -57,7 +57,6 @@ toolchain pin moves.
 - The `settings/syndication` route in `docs/catalogs/app-routes.json` lists the
   two new operations.
 
-
 ## [3.40.0] - 2026-11-05
 
 Three more syndication platforms: WordPress, Ghost and X. Additive;

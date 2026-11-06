@@ -12781,8 +12781,8 @@ components:
     PlanGrant:
       additionalProperties: false
       description:
-        "SCHEMA-3.41.0: an operator plan grant, a complimentary Basic (`PRO`)
-        or Pro (`BUSINESS`) plan given without Stripe."
+        'SCHEMA-3.41.0: an operator plan grant, a complimentary Basic (`PRO`) or
+        Pro (`BUSINESS`) plan given without Stripe.'
       properties:
         expiresAt:
           oneOf:
@@ -12801,7 +12801,7 @@ components:
           type: string
         planTier:
           $ref: '#/components/schemas/PlatformPlanKey'
-          description: "`PRO` or `BUSINESS`."
+          description: '`PRO` or `BUSINESS`.'
         reasonCode:
           $ref: '#/components/schemas/PlatformOperatorReasonCode'
       required:
@@ -12815,8 +12815,8 @@ components:
     PlatformUserOrganization:
       additionalProperties: false
       description:
-        "SCHEMA-3.41.0: an organization a person owns, with its plan and the
-        active operator grant."
+        'SCHEMA-3.41.0: an organization a person owns, with its plan and the
+        active operator grant.'
       properties:
         grant:
           oneOf:
@@ -12850,7 +12850,7 @@ components:
             - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
             - type: 'null'
         planTier:
-          description: "`FREE` is not a grant tier; a DELETE ends the grant."
+          description: '`FREE` is not a grant tier; a DELETE ends the grant.'
           enum:
             - PRO
             - BUSINESS
@@ -12909,7 +12909,7 @@ components:
           uniqueItems: true
         organizations:
           description:
-            "SCHEMA-3.41.0: every organization the person owns, in name order."
+            'SCHEMA-3.41.0: every organization the person owns, in name order.'
           items:
             $ref: '#/components/schemas/PlatformUserOrganization'
           type: array
@@ -17103,8 +17103,8 @@ components:
           type: object
         grantExpiresAt:
           description:
-            "SCHEMA-3.41.0: when an operator grant ends, or null when it is
-            open-ended or the plan is not an operator grant."
+            'SCHEMA-3.41.0: when an operator grant ends, or null when it is
+            open-ended or the plan is not an operator grant.'
           oneOf:
             - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
             - type: 'null'
@@ -17120,10 +17120,10 @@ components:
         source:
           $ref: '#/components/schemas/PlanSource'
           description:
-            "SCHEMA-3.41.0: where the plan comes from. A `source` of OPERATOR
-            is a complimentary plan the Galascribe team granted; the App shows
-            it as 'Complimentary Basic/Pro' (until `grantExpiresAt` when set)
-            and keeps the upgrade action so the organization can subscribe."
+            "SCHEMA-3.41.0: where the plan comes from. A `source` of OPERATOR is
+            a complimentary plan the Galascribe team granted; the App shows it
+            as 'Complimentary Basic/Pro' (until `grantExpiresAt` when set) and
+            keeps the upgrade action so the organization can subscribe."
         tier:
           $ref: '#/components/schemas/PlatformPlanKey'
           description: The plan tier.
