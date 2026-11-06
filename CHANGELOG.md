@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.42.0] - 2026-11-05
+
+Operator plan grants: an operator moves an organization to Basic (`PRO`) or Pro
+(`BUSINESS`) without Stripe, with an optional end date. Additive; the new
+required properties have the API as their only producer.
+
+### Added
+
+- `PUT` and `DELETE /v2/platform/organizations/{organizationId}/plan-grant`
+  (`platform.billing.manage`), with `PlanGrant`, `PlanSource`,
+  `PlatformUserOrganization` and
+  `PutPlatformOrganizationsByOrganizationIdPlanGrantRequest`.
+- Problem codes `PLAN_SUBSCRIBED` and `PLAN_COLLABORATORS_PRESENT` (409).
+- `PlatformUser.organizations`; `OrganizationPlan.source` and
+  `OrganizationPlan.grantExpiresAt`.
+- The Users route lists the two operations, so `platform.billing.manage` is
+  reachable from it.
+
 ## [3.41.0] - 2026-11-06
 
 Connect X through OAuth 2.0 with Galascribe's own X app.
@@ -38,6 +56,7 @@ toolchain pin moves.
   `WEEKLY_ALLOWANCE_SPENT`.
 - The `settings/syndication` route in `docs/catalogs/app-routes.json` lists the
   two new operations.
+
 
 ## [3.40.0] - 2026-11-05
 
@@ -4262,7 +4281,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.41.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.42.0...HEAD
+[3.42.0]: https://github.com/rathnasgala2/schema/compare/v3.41.0...v3.42.0
 [3.41.0]: https://github.com/rathnasgala2/schema/compare/v3.40.0...v3.41.0
 [3.40.0]: https://github.com/rathnasgala2/schema/compare/v3.39.0...v3.40.0
 [3.39.0]: https://github.com/rathnasgala2/schema/compare/v3.38.0...v3.39.0

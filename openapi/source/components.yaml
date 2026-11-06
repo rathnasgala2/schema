@@ -12768,6 +12768,100 @@ components:
         - webhookProcessed7d
         - webhookQuarantined7d
       type: object
+    PlanSource:
+      description:
+        "SCHEMA-3.41.0: where an organization's plan comes from. `NONE` is Free
+        with no subscription and no grant; `STRIPE` is a Stripe subscription;
+        `OPERATOR` is a grant the Galascribe team made."
+      enum:
+        - NONE
+        - STRIPE
+        - OPERATOR
+      type: string
+    PlanGrant:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.41.0: an operator plan grant, a complimentary Basic (`PRO`)
+        or Pro (`BUSINESS`) plan given without Stripe."
+      properties:
+        expiresAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        grantedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        grantedBy:
+          description: The operator's person id.
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        planTier:
+          $ref: '#/components/schemas/PlatformPlanKey'
+          description: "`PRO` or `BUSINESS`."
+        reasonCode:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+      required:
+        - organizationId
+        - planTier
+        - expiresAt
+        - reasonCode
+        - grantedAt
+        - grantedBy
+      type: object
+    PlatformUserOrganization:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.41.0: an organization a person owns, with its plan and the
+        active operator grant."
+      properties:
+        grant:
+          oneOf:
+            - $ref: '#/components/schemas/PlanGrant'
+            - type: 'null'
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        planSource:
+          $ref: '#/components/schemas/PlanSource'
+        planTier:
+          $ref: '#/components/schemas/PlatformPlanKey'
+      required:
+        - organizationId
+        - name
+        - planTier
+        - planSource
+        - grant
+      type: object
+    PutPlatformOrganizationsByOrganizationIdPlanGrantRequest:
+      additionalProperties: false
+      properties:
+        expiresAt:
+          description: Null for open-ended; otherwise in the future.
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        planTier:
+          description: "`FREE` is not a grant tier; a DELETE ends the grant."
+          enum:
+            - PRO
+            - BUSINESS
+          type: string
+        reasonCode:
+          $ref: '#/components/schemas/PlatformOperatorReasonCode'
+      required:
+        - planTier
+        - expiresAt
+        - reasonCode
+      type: object
     PlatformUser:
       additionalProperties: false
       properties:
@@ -12813,6 +12907,12 @@ components:
           maxItems: 3
           type: array
           uniqueItems: true
+        organizations:
+          description:
+            "SCHEMA-3.41.0: every organization the person owns, in name order."
+          items:
+            $ref: '#/components/schemas/PlatformUserOrganization'
+          type: array
         publicationCount:
           format: int64
           minimum: 0
@@ -12828,6 +12928,7 @@ components:
         - lastSignInAt
         - publicationCount
         - planTiers
+        - organizations
         - contactEmailOnFile
         - contactEmail
       type: object
@@ -15409,6 +15510,8 @@ components:
       type: object
     PutPlatformSettingsByKeyResponse:
       $ref: '#/components/schemas/PlatformSetting'
+    PutPlatformOrganizationsByOrganizationIdPlanGrantResponse:
+      $ref: '#/components/schemas/PlanGrant'
     PutPlatformSettingsOverridesByKindByIdByKeyRequest:
       additionalProperties: false
       properties:
@@ -16998,6 +17101,13 @@ components:
             - includedDomain
             - galascribeHosting
           type: object
+        grantExpiresAt:
+          description:
+            "SCHEMA-3.41.0: when an operator grant ends, or null when it is
+            open-ended or the plan is not an operator grant."
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
         galascribeAddressZone:
           description:
             The zone Galascribe addresses are created in, for example
@@ -17007,11 +17117,20 @@ components:
           minLength: 1
           pattern: ^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$
           type: string
+        source:
+          $ref: '#/components/schemas/PlanSource'
+          description:
+            "SCHEMA-3.41.0: where the plan comes from. A `source` of OPERATOR
+            is a complimentary plan the Galascribe team granted; the App shows
+            it as 'Complimentary Basic/Pro' (until `grantExpiresAt` when set)
+            and keeps the upgrade action so the organization can subscribe."
         tier:
           $ref: '#/components/schemas/PlatformPlanKey'
           description: The plan tier.
       required:
         - tier
+        - source
+        - grantExpiresAt
         - collaborators
         - entitlements
       type: object

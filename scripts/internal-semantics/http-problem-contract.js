@@ -127,6 +127,9 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       FOLLOWS_DISABLED: { statuses: [409], retryable: false },
       NEWSLETTER_FULL: { statuses: [409], retryable: false },
       NEWSLETTER_UNAVAILABLE: { statuses: [409], retryable: false },
+      // SCHEMA-3.41.0: operator plan grants.
+      PLAN_COLLABORATORS_PRESENT: { statuses: [409], retryable: false },
+      PLAN_SUBSCRIBED: { statuses: [409], retryable: false },
       PLAN_REQUIRED: { statuses: [409], retryable: false },
       POSTAL_ADDRESS_REQUIRED: { statuses: [422], retryable: false },
       TOKEN_EXPIRED: { statuses: [410], retryable: false },
