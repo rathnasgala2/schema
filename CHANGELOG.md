@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.45.0] - 2026-11-07
+
+Back to the platform default: the sharing-settings endpoint can now remove a
+site's own share list. Additive.
+
+### Changed
+
+- `PUT .../sharing-settings`: request `targets` is required and nullable; `null`
+  removes the `sharing` member of `gala/publication.json` so the site follows
+  the platform default share set.
+- `GET .../sharing-settings`: response `targets` is nullable; `null` when the
+  site has no `sharing` member (platform default), the site's own list otherwise
+  (an explicit empty list stays `[]`). New `platformDefault` examples on both.
+
 ## [3.44.0] - 2026-11-07
 
 One sharing list: the platform keeps one catalogue of share targets and one
@@ -4342,7 +4356,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.44.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.45.0...HEAD
+[3.45.0]: https://github.com/rathnasgala2/schema/compare/v3.44.0...v3.45.0
 [3.44.0]: https://github.com/rathnasgala2/schema/compare/v3.43.0...v3.44.0
 [3.43.0]: https://github.com/rathnasgala2/schema/compare/v3.42.0...v3.43.0
 [3.42.0]: https://github.com/rathnasgala2/schema/compare/v3.41.0...v3.42.0

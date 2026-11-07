@@ -2708,10 +2708,11 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/sharing-settings:
     get:
       description:
-        Reads the `sharing` member of `gala/publication.json` at the linked
-        repository's current main branch head. A publication with no `sharing`
-        member reads the default, `["copy-link"]`; an explicit empty list reads
-        empty.
+        "Reads the `sharing` member of `gala/publication.json` at the linked
+        repository's current main branch head. SCHEMA-3.45.0: a publication with
+        no `sharing` member reads `targets: null` and follows the platform
+        default share set (`GET /v2/public/sharing`); an explicit empty list
+        reads `[]`."
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -2743,6 +2744,12 @@ paths:
                     setUp: true
                     targets:
                       - copy-link
+                platformDefault:
+                  summary: The site follows the platform default
+                  value:
+                    openChange: null
+                    setUp: true
+                    targets: null
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsResponse'
           description:
@@ -2887,12 +2894,13 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     put:
       description:
-        The server writes the `sharing` member of `gala/publication.json` as a
+        'The server writes the `sharing` member of `gala/publication.json` as a
         repository change, the way `interaction-settings` writes
         `gala/modules/interactions.json`. The order of `targets` is the order of
         the buttons; an empty list shows none. Publishing the change uses the
-        normal publish flow. `change` has the shape the theme-selection write
-        returns.
+        normal publish flow. SCHEMA-3.45.0: `targets: null` removes the
+        `sharing` member so the site follows the platform default share set.
+        `change` has the shape the theme-selection write returns.'
       operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettings
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -2926,6 +2934,10 @@ paths:
                     - x
                     - bluesky
                     - linkedin
+              platformDefault:
+                summary: Back to the platform default
+                value:
+                  targets: null
             schema:
               $ref: '#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdSharingSettingsRequest'
         required: true

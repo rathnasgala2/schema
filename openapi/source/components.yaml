@@ -16954,7 +16954,9 @@ components:
       additionalProperties: false
       properties:
         targets:
-          $ref: '#/components/schemas/SharingTargets'
+          oneOf:
+            - $ref: '#/components/schemas/SharingTargets'
+            - type: 'null'
       required:
         - targets
       type: object
@@ -17002,11 +17004,13 @@ components:
     SharingSettings:
       additionalProperties: false
       description:
-        'SCHEMA-3.23.0: the `sharing` member of `gala/publication.json` at the
-        linked repository''s main branch head. A publication that never chose
-        reads the default, `["copy-link"]`. `openChange` names an existing
+        "SCHEMA-3.23.0: the `sharing` member of `gala/publication.json` at the
+        linked repository's main branch head. SCHEMA-3.45.0: `targets` is `null`
+        when the site has no `sharing` member and so follows the platform
+        default share set; it is the site's own ordered list otherwise (an
+        explicit empty list stays `[]`). `openChange` names an existing
         not-yet-published change of this publication that touches the file, or
-        is null. `setUp` matches `GET .../repository/setup` `state`.'
+        is null. `setUp` matches `GET .../repository/setup` `state`."
       properties:
         openChange:
           oneOf:
@@ -17015,7 +17019,9 @@ components:
         setUp:
           type: boolean
         targets:
-          $ref: '#/components/schemas/SharingTargets'
+          oneOf:
+            - $ref: '#/components/schemas/SharingTargets'
+            - type: 'null'
       required:
         - targets
         - openChange
