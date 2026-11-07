@@ -17,6 +17,8 @@ import { runIfMain } from './run-if-main.mjs';
 const CACHE_CONTROL_REFERENCES = [
   '#/components/headers/CacheControlNoStore',
   '#/components/headers/CacheControlPrivateNoCache',
+  // SCHEMA-3.44.0: the public sharing document is cacheable for five minutes.
+  '#/components/headers/CacheControlPublicMaxAge300',
 ];
 
 const VERSION = '2.0.0';

@@ -21,6 +21,13 @@ components:
           - private, no-cache
           - no-cache, private
         type: string
+    CacheControlPublicMaxAge300:
+      description: "SCHEMA-3.44.0: `public, max-age=300` -- a shared cache or browser may reuse the body for five minutes."
+      required: true
+      schema:
+        pattern: ^public, max-age=300$
+        type: string
+        x-gala-const: public, max-age=300
     ContentDispositionAttachment:
       description: "The archive is a download: `attachment` with its file name."
       required: true
@@ -5667,6 +5674,8 @@ components:
         - origin
         - publicBaseUrl
       type: object
+    GetPublicSharingResponse:
+      $ref: "#/components/schemas/PublicSharingDocument"
     GetPublicTodayResponse:
       $ref: "#/components/schemas/PublicTodayDrop"
     GetPublicTodayTopicsResponse:
@@ -17773,7 +17782,7 @@ components:
         maximum: 512
     PortablePublicationSharing:
       additionalProperties: false
-      description: "SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 11 unique members of the closed target set. An absent `sharing` member means `[\"copy-link\"]` (the Copy link button only); an empty `targets` array means no share buttons. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service's documented share URL. Bookmark is not a share target and is unaffected."
+      description: "SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 12 unique members of the closed target set; an empty `targets` array means no share buttons. SCHEMA-3.44.0: an absent `sharing` member now means the platform's default share set, resolved at build time by the toolchain from `GET /v2/public/sharing` (it was the Copy link button only); a present `targets` is the site's own ordered list. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service's documented share URL. Bookmark is not a share target and is unaffected."
       properties:
         targets:
           items:
@@ -17782,6 +17791,7 @@ components:
               - native
               - x
               - bluesky
+              - threads
               - linkedin
               - facebook
               - hacker-news
@@ -17789,7 +17799,7 @@ components:
               - telegram
               - reddit
               - email
-          maxItems: 11
+          maxItems: 12
           minItems: 0
           type: array
           uniqueItems: true
@@ -21482,6 +21492,73 @@ components:
         - count
         - viewerActive
       type: object
+    PublicSharingDocument:
+      additionalProperties: false
+      description: "SCHEMA-3.44.0: the platform sharing document. `networks` is the ordered catalogue of share targets the platform offers; `defaults` is the subset an undecided site shows (a site with no `sharing` member); `reddit.community` is the subreddit name without `r/` (empty means plain submit); `x.via` is the X handle without `@` appended as `via=` (empty means none)."
+      properties:
+        defaults:
+          items:
+            enum:
+              - copy-link
+              - native
+              - x
+              - bluesky
+              - threads
+              - linkedin
+              - facebook
+              - hacker-news
+              - reddit
+              - whatsapp
+              - telegram
+              - email
+            type: string
+          maxItems: 12
+          type: array
+          uniqueItems: true
+        networks:
+          items:
+            enum:
+              - copy-link
+              - native
+              - x
+              - bluesky
+              - threads
+              - linkedin
+              - facebook
+              - hacker-news
+              - reddit
+              - whatsapp
+              - telegram
+              - email
+            type: string
+          maxItems: 12
+          minItems: 1
+          type: array
+          uniqueItems: true
+        reddit:
+          additionalProperties: false
+          properties:
+            community:
+              pattern: ^[A-Za-z0-9_]{0,21}$
+              type: string
+          required:
+            - community
+          type: object
+        x:
+          additionalProperties: false
+          properties:
+            via:
+              pattern: ^[A-Za-z0-9_]{0,15}$
+              type: string
+          required:
+            - via
+          type: object
+      required:
+        - networks
+        - defaults
+        - reddit
+        - x
+      type: object
     PublicTodayDrop:
       additionalProperties: false
       description: "SCHEMA-3.43.0: the network-wide drop for one UTC day, the same for every visitor; no personal signal is used."
@@ -24147,6 +24224,7 @@ components:
         - native
         - x
         - bluesky
+        - threads
         - linkedin
         - facebook
         - hacker-news
@@ -24156,10 +24234,10 @@ components:
         - email
       type: string
     SharingTargets:
-      description: "SCHEMA-3.23.0: the ordered share buttons, 0 to 11 distinct targets. An empty list shows no share buttons."
+      description: "SCHEMA-3.23.0: the ordered share buttons, 0 to 12 distinct targets. An empty list shows no share buttons."
       items:
         $ref: "#/components/schemas/SharingTarget"
-      maxItems: 11
+      maxItems: 12
       type: array
       uniqueItems: true
     SiteActor:
@@ -82280,6 +82358,76 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: async
+      x-gala-tenant-scope: NONE
+  /v2/public/sharing:
+    get:
+      description: "The platform sharing document, with no authentication: the share targets the platform offers, the default set for a site that has not chosen its own, and the Reddit community and X handle used in share links. The toolchain reads it at build time. Answered with `Cache-Control: public, max-age=300`."
+      operationId: getPublicSharing
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    defaults:
+                      - copy-link
+                      - x
+                      - bluesky
+                      - threads
+                      - linkedin
+                      - facebook
+                      - hacker-news
+                      - reddit
+                      - whatsapp
+                      - telegram
+                      - email
+                    networks:
+                      - copy-link
+                      - native
+                      - x
+                      - bluesky
+                      - threads
+                      - linkedin
+                      - facebook
+                      - hacker-news
+                      - reddit
+                      - whatsapp
+                      - telegram
+                      - email
+                    reddit:
+                      community: Galascribe
+                    x:
+                      via: ""
+              schema:
+                $ref: "#/components/schemas/GetPublicSharingResponse"
+          description: read the platform sharing document succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlPublicMaxAge300"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+      security: []
+      summary: read the platform sharing document
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the platform sharing document
+      x-gala-reachable-problems: []
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
       x-gala-tenant-scope: NONE
   /v2/public/today:
     get:

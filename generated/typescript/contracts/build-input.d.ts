@@ -405,7 +405,7 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly route: BuildInputCanonicalRoute;
   }>;
   readonly recommendations?: ReadonlyArray<BuildInputRecommendation>;
-  readonly sharing?: BuildInputSharing;
+  readonly sharing?: BuildInputResolvedSharing;
   readonly slug: BuildInputSlug;
   readonly socialLinks: ReadonlyArray<BuildInputSocialLink>;
   readonly sourceDigest: BuildInputDigest;
@@ -481,6 +481,29 @@ export type BuildInputResolvedMedia = Readonly<{
 }> &
   unknown;
 
+export type BuildInputResolvedSharing = Readonly<{
+  readonly reddit?: Readonly<{
+    readonly community: string;
+  }>;
+  readonly targets: ReadonlyArray<
+    | 'copy-link'
+    | 'native'
+    | 'x'
+    | 'bluesky'
+    | 'threads'
+    | 'linkedin'
+    | 'facebook'
+    | 'hacker-news'
+    | 'whatsapp'
+    | 'telegram'
+    | 'reddit'
+    | 'email'
+  >;
+  readonly x?: Readonly<{
+    readonly via: string;
+  }>;
+}>;
+
 export type BuildInputRfc3339 = string;
 
 export type BuildInputSemanticTokens = Readonly<{
@@ -501,22 +524,6 @@ export type BuildInputSemanticTokens = Readonly<{
 export type BuildInputSemver = string;
 
 export type BuildInputSemverRange = string;
-
-export type BuildInputSharing = Readonly<{
-  readonly targets: ReadonlyArray<
-    | 'copy-link'
-    | 'native'
-    | 'x'
-    | 'bluesky'
-    | 'linkedin'
-    | 'facebook'
-    | 'hacker-news'
-    | 'whatsapp'
-    | 'telegram'
-    | 'reddit'
-    | 'email'
-  >;
-}>;
 
 export type BuildInputSlug = string;
 

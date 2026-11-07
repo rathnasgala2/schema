@@ -303,6 +303,7 @@ export const SHARE_TARGETS = Object.freeze([
   'native',
   'x',
   'bluesky',
+  'threads',
   'linkedin',
   'facebook',
   'hacker-news',
@@ -325,12 +326,44 @@ export const SHARE_TARGETS = Object.freeze([
 export function createSharingDefinition({ arrayOf, closedObject }) {
   return closedObject(
     {
-      targets: arrayOf({ enum: [...SHARE_TARGETS] }, 0, 11, true),
+      targets: arrayOf({ enum: [...SHARE_TARGETS] }, 0, 12, true),
     },
     ['targets'],
     {
       description:
-        'SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 11 unique members of the closed target set. An absent `sharing` member means `["copy-link"]` (the Copy link button only); an empty `targets` array means no share buttons. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service\'s documented share URL. Bookmark is not a share target and is unaffected.',
+        "SCHEMA-3.22.0: the share buttons shown on each article. `targets` is the display order: 0 to 12 unique members of the closed target set; an empty `targets` array means no share buttons. SCHEMA-3.44.0: an absent `sharing` member now means the platform's default share set, resolved at build time by the toolchain from `GET /v2/public/sharing` (it was the Copy link button only); a present `targets` is the site's own ordered list. `native` is shown only where the browser offers the system share sheet; every other target is a plain link to that service's documented share URL. Bookmark is not a share target and is unaffected.",
+    },
+  );
+}
+
+/**
+ * SCHEMA-3.44.0: the share buttons in the normalized build input. `targets` is
+ * already resolved by the toolchain (the site's own list intersected with the
+ * platform catalogue, or the platform default set); `reddit` and `x` are
+ * copied from `GET /v2/public/sharing`.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.arrayOf bounded-array constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} closed resolved-sharing object schema
+ */
+export function createResolvedSharingDefinition({ arrayOf, closedObject }) {
+  return closedObject(
+    {
+      targets: arrayOf({ enum: [...SHARE_TARGETS] }, 0, 12, true),
+      reddit: closedObject(
+        { community: { type: 'string', pattern: '^[A-Za-z0-9_]{0,21}$' } },
+        ['community'],
+      ),
+      x: closedObject(
+        { via: { type: 'string', pattern: '^[A-Za-z0-9_]{0,15}$' } },
+        ['via'],
+      ),
+    },
+    ['targets'],
+    {
+      description:
+        "SCHEMA-3.44.0: the share buttons shown on each article. `targets` is the display order and is already resolved by the toolchain: the site's own list intersected with the platform catalogue, or the platform default share set when the site sets none (0 to 12 unique members of the closed target set). Optional `reddit.community` (subreddit name without `r/`; empty means plain submit) and `x.via` (X handle without `@`; empty means none) are copied from the platform.",
     },
   );
 }
@@ -1378,7 +1411,7 @@ export function createCompositionBuildSchemas(language) {
       aiRights: ref('aiRights'),
       performance: ref('performance'),
       newsletter: ref('newsletter'),
-      sharing: ref('sharing'),
+      sharing: ref('resolvedSharing'),
       contactForm: ref('contactFormNormalized'),
       listen: {
         ...ref('listen'),
@@ -2629,7 +2662,7 @@ export function createCompositionBuildSchemas(language) {
         localizedAuthor,
         publicationNormalized,
         newsletter: createNewsletterDefinition(language),
-        sharing: createSharingDefinition(language),
+        resolvedSharing: createResolvedSharingDefinition(language),
         listing: createListingDefinition(language),
         aiRights: createAiRightsDefinition(language),
         performance: createPerformanceDefinition(language),

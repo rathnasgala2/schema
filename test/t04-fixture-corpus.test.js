@@ -125,7 +125,12 @@ const T03_SCHEMA_HASHES = {
     // $defs/recommendation and the normalized publication's recommendations,
     // application/pdf in the content build media types (10 MiB bound) and
     // comments.likes in the embedded interactions configuration. Additive.
-    'bc61c3d2dd455d0de7d76f56734a39fbe329dc7c39db6a27a65bca2a09c25cd4',
+    //
+    // 3.44.0 (reviewed 2026-11-07): the normalized publication's sharing member
+    // becomes $defs/resolvedSharing (the share target `threads`, up to 12
+    // targets, optional reddit.community and x.via copied from the platform).
+    // Additive.
+    'c5b6ea935bce252193e4e30258abd7cd09dba35cce128f64affde7cafaf6e764',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -201,7 +206,11 @@ const T03_SCHEMA_HASHES = {
     // 3.32.0 (reviewed 2026-11-03): newsletter.welcome and afterSignupUrl, and
     // the top-level recommendations with $defs/recommendation (shared
     // byte-for-byte with build-input). Additive.
-    '833d80387d790dd5903aeaf311a6efc495e3b9d3152b25452d2e87594e931fe9',
+    //
+    // 3.44.0 (reviewed 2026-11-07): $defs/sharing admits the share target
+    // `threads` (12 targets at most) and says an absent member means the
+    // platform default share set. Additive.
+    '53ef8fbe85dd14e2a88596e1de0c96480223749c6a1ca95635350558a3b08574',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

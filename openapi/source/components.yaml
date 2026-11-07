@@ -22,6 +22,13 @@ components:
           - private, no-cache
           - no-cache, private
         type: string
+    CacheControlPublicMaxAge300:
+      description:
+        'SCHEMA-3.44.0: `public, max-age=300` -- a shared cache or browser may
+        reuse the body for five minutes.'
+      required: true
+      schema:
+        const: public, max-age=300
     ContentDispositionAttachment:
       description: 'The archive is a download: `attachment` with its file name.'
       required: true
@@ -17026,6 +17033,7 @@ components:
         - native
         - x
         - bluesky
+        - threads
         - linkedin
         - facebook
         - hacker-news
@@ -17036,11 +17044,11 @@ components:
       type: string
     SharingTargets:
       description:
-        'SCHEMA-3.23.0: the ordered share buttons, 0 to 11 distinct targets. An
+        'SCHEMA-3.23.0: the ordered share buttons, 0 to 12 distinct targets. An
         empty list shows no share buttons.'
       items:
         $ref: '#/components/schemas/SharingTarget'
-      maxItems: 11
+      maxItems: 12
       type: array
       uniqueItems: true
     OrganizationPlan:
@@ -19017,6 +19025,79 @@ components:
         - post
         - reason
       type: object
+    PublicSharingDocument:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.44.0: the platform sharing document. `networks` is the ordered
+        catalogue of share targets the platform offers; `defaults` is the subset
+        an undecided site shows (a site with no `sharing` member);
+        `reddit.community` is the subreddit name without `r/` (empty means plain
+        submit); `x.via` is the X handle without `@` appended as `via=` (empty
+        means none).'
+      properties:
+        defaults:
+          items:
+            enum:
+              - copy-link
+              - native
+              - x
+              - bluesky
+              - threads
+              - linkedin
+              - facebook
+              - hacker-news
+              - reddit
+              - whatsapp
+              - telegram
+              - email
+            type: string
+          maxItems: 12
+          type: array
+          uniqueItems: true
+        networks:
+          items:
+            enum:
+              - copy-link
+              - native
+              - x
+              - bluesky
+              - threads
+              - linkedin
+              - facebook
+              - hacker-news
+              - reddit
+              - whatsapp
+              - telegram
+              - email
+            type: string
+          maxItems: 12
+          minItems: 1
+          type: array
+          uniqueItems: true
+        reddit:
+          additionalProperties: false
+          properties:
+            community:
+              pattern: ^[A-Za-z0-9_]{0,21}$
+              type: string
+          required:
+            - community
+          type: object
+        x:
+          additionalProperties: false
+          properties:
+            via:
+              pattern: ^[A-Za-z0-9_]{0,15}$
+              type: string
+          required:
+            - via
+          type: object
+      required:
+        - networks
+        - defaults
+        - reddit
+        - x
+      type: object
     PublicTodayDrop:
       additionalProperties: false
       description:
@@ -19471,6 +19552,8 @@ components:
         - publicationId
         - topicId
       type: object
+    GetPublicSharingResponse:
+      $ref: '#/components/schemas/PublicSharingDocument'
     GetPublicTodayResponse:
       $ref: '#/components/schemas/PublicTodayDrop'
     GetPublicTodayTopicsResponse:

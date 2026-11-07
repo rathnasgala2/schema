@@ -124,6 +124,7 @@ export type PublicationSharing = Readonly<{
     | 'native'
     | 'x'
     | 'bluesky'
+    | 'threads'
     | 'linkedin'
     | 'facebook'
     | 'hacker-news'

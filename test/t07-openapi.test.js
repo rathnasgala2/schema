@@ -414,7 +414,9 @@ test('every operation uses mechanical unique naming and complete executable meta
     assert.equal(typeof operation['x-gala-concurrency'], 'string');
     assert.ok(
       operation['x-gala-reachable-problems'].length > 0 ||
-        row.path === '/internal/health',
+        row.path === '/internal/health' ||
+        // SCHEMA-3.44.0: the public sharing document has no failure case.
+        row.operationId === 'getPublicSharing',
     );
     assert.equal(
       operation['x-gala-nullability'],
@@ -716,7 +718,10 @@ test('success categories enforce statuses and required response headers', async 
         row.operationId,
       )
         ? '#/components/headers/CacheControlPrivateNoCache'
-        : '#/components/headers/CacheControlNoStore',
+        : // SCHEMA-3.44.0: the public sharing document is cacheable.
+          row.operationId === 'getPublicSharing'
+          ? '#/components/headers/CacheControlPublicMaxAge300'
+          : '#/components/headers/CacheControlNoStore',
     });
     assert.equal(
       response.headers.Location !== undefined,

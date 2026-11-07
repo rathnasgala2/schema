@@ -2282,3 +2282,78 @@ paths:
         - NONE
       x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
+  /v2/public/sharing:
+    get:
+      description:
+        'The platform sharing document, with no authentication: the share
+        targets the platform offers, the default set for a site that has not
+        chosen its own, and the Reddit community and X handle used in share
+        links. The toolchain reads it at build time. Answered with
+        `Cache-Control: public, max-age=300`.'
+      operationId: getPublicSharing
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    defaults:
+                      - copy-link
+                      - x
+                      - bluesky
+                      - threads
+                      - linkedin
+                      - facebook
+                      - hacker-news
+                      - reddit
+                      - whatsapp
+                      - telegram
+                      - email
+                    networks:
+                      - copy-link
+                      - native
+                      - x
+                      - bluesky
+                      - threads
+                      - linkedin
+                      - facebook
+                      - hacker-news
+                      - reddit
+                      - whatsapp
+                      - telegram
+                      - email
+                    reddit:
+                      community: Galascribe
+                    x:
+                      via: ''
+              schema:
+                $ref: '#/components/schemas/GetPublicSharingResponse'
+          description: read the platform sharing document succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlPublicMaxAge300'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+      security: []
+      summary: read the platform sharing document
+      tags:
+        - public-interactions
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the platform sharing document
+      x-gala-reachable-problems: []
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE

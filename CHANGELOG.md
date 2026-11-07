@@ -8,6 +8,37 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.44.0] - 2026-11-07
+
+One sharing list: the platform keeps one catalogue of share targets and one
+default set, every site starts on the platform default, and a site may choose
+its own list. Additive, except that an absent `publication.sharing` now means
+the platform default set instead of Copy link only.
+
+### Added
+
+- `GET /v2/public/sharing` (`getPublicSharing`, no authentication,
+  `Cache-Control: public, max-age=300`) answering `PublicSharingDocument`:
+  `networks` (the ordered catalogue), `defaults` (the set an undecided site
+  shows), `reddit.community` and `x.via`. New header component
+  `CacheControlPublicMaxAge300`.
+- The share target `threads` (after `bluesky`) in the `publication` and
+  `build-input` schemas and the `SharingTarget` component; `targets` holds up to
+  12 members.
+- `build-input` `publication.sharing` may carry `reddit.community` and `x.via`,
+  copied from the platform document. It is now `$defs/resolvedSharing`, because
+  `$defs/sharing` must stay byte-identical across roots.
+
+### Changed
+
+- An absent `publication.sharing` member means the platform's default share set,
+  resolved at build time by the toolchain from `GET /v2/public/sharing` (it was
+  Copy link only); `targets` present is the site's own ordered list.
+  `build-input` `targets` is already resolved.
+- The platform settings `sharing.networks`, `sharing.defaults`,
+  `sharing.redditCommunity` and `sharing.xVia` back the document; setting keys
+  are free-form strings in the contract, so no enumeration changes.
+
 ## [3.43.0] - 2026-11-06
 
 Today, Galascribe's finite daily feed: a signed-in reader gets at most
@@ -4311,7 +4342,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.43.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.44.0...HEAD
+[3.44.0]: https://github.com/rathnasgala2/schema/compare/v3.43.0...v3.44.0
 [3.43.0]: https://github.com/rathnasgala2/schema/compare/v3.42.0...v3.43.0
 [3.42.0]: https://github.com/rathnasgala2/schema/compare/v3.41.0...v3.42.0
 [3.41.0]: https://github.com/rathnasgala2/schema/compare/v3.40.0...v3.41.0

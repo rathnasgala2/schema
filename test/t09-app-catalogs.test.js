@@ -481,6 +481,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getPublicPublicationsByPublicationIdContentsByContentIdComments',
     'getPublicPublicationsByPublicationIdContentsByContentIdInteractions',
     'getPublicPublicationsByPublicationIdInteractionCounts',
+    'getPublicSharing',
     'getSelfExportsByExportId',
     'getSelfExportsByExportIdArchive',
     'postAuthenticationPasskeyAssertionOptions',
