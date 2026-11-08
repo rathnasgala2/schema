@@ -8,6 +8,31 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.46.0] - 2026-11-07
+
+The Interview expert panel, the question budget and the author's angle.
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves. Additive: no new routes, operations or problem codes.
+
+### Added
+
+- `Interview.panel` (`InterviewPanel`): after `DRAFT_READY` four or five
+  editors, chosen by post kind, each review the draft once (`reviews`: verdict,
+  strengths, up to five findings anchored on a verbatim quote, one lesson) and
+  one revised draft follows (`revision`, with every change named by its editor).
+  `state` is `PENDING`, `RUNNING`, `READY`, `SKIPPED` or `FAILED`; the original
+  draft stays usable when the panel fails.
+- `InterviewListItem.panel` (`InterviewPanelSummary`): the panel's state and the
+  editors' lessons.
+- `InterviewProgress.questionsAsked` and `questionBudget` (required): the
+  interviewer now works inside a question budget; RECAP and CLOSING turns do not
+  count.
+- `InterviewProfile.angle` (optional, up to 300 characters): what the author
+  says that nobody else in their niche says.
+- Enums `InterviewPanelState`, `InterviewPostKind`, `InterviewReviewerRole`,
+  `InterviewReviewVerdict`, `InterviewFindingSeverity`; objects
+  `InterviewFinding`, `InterviewPanelReview`, `InterviewRevision`.
+
 ## [3.45.0] - 2026-11-07
 
 Back to the platform default: the sharing-settings endpoint can now remove a
@@ -4356,7 +4381,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.45.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.46.0...HEAD
+[3.46.0]: https://github.com/rathnasgala2/schema/compare/v3.45.0...v3.46.0
 [3.45.0]: https://github.com/rathnasgala2/schema/compare/v3.44.0...v3.45.0
 [3.44.0]: https://github.com/rathnasgala2/schema/compare/v3.43.0...v3.44.0
 [3.43.0]: https://github.com/rathnasgala2/schema/compare/v3.42.0...v3.43.0

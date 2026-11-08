@@ -13725,7 +13725,8 @@ components:
         SCHEMA-3.34.0. `CAPTURED` (the material is saved, no question asked yet)
         -> `INTERVIEWING` (a quota unit is reserved) -> `WRITING` ->
         `DRAFT_READY` -> `ACCEPTED`; `CANCELLED` from any state before
-        `ACCEPTED`; `FAILED` and `EXPIRED` are terminal.
+        `ACCEPTED`; `FAILED` and `EXPIRED` are terminal. Since SCHEMA-3.46.0 the
+        expert panel runs in the background from `DRAFT_READY` (`panel`).
       enum:
         - CAPTURED
         - INTERVIEWING
@@ -13857,9 +13858,16 @@ components:
     InterviewProfile: &a7
       additionalProperties: false
       description:
-        SCHEMA-3.34.0. The two facts the interviewer keeps about the site
-        between interviews.
+        SCHEMA-3.34.0. The facts the interviewer keeps about the site between
+        interviews. `angle` was added in SCHEMA-3.46.0.
       properties:
+        angle:
+          maxLength: 300
+          minLength: 0
+          type: string
+          description:
+            SCHEMA-3.46.0. What the author says that nobody else in their niche
+            says, in their words. May be empty.
         niche:
           maxLength: 200
           minLength: 0
@@ -13961,6 +13969,20 @@ components:
           description: How many details the interviewer aims for (5).
         phase:
           $ref: '#/components/schemas/InterviewPhase'
+        questionBudget:
+          format: int64
+          minimum: 1
+          type: integer
+          description:
+            SCHEMA-3.46.0. How many questions the interviewer may ask in this
+            interview (the platform's question budget).
+        questionsAsked:
+          format: int64
+          minimum: 0
+          type: integer
+          description:
+            SCHEMA-3.46.0. Questions asked so far; RECAP and CLOSING turns do
+            not count.
         skepticRounds:
           format: int64
           minimum: 0
@@ -13972,6 +13994,8 @@ components:
         - beliefDone
         - skepticRounds
         - canFinish
+        - questionsAsked
+        - questionBudget
       type: object
     InterviewDraft:
       additionalProperties: false
@@ -14123,6 +14147,218 @@ components:
         - sources
         - pastPostsRead
       type: object
+    InterviewPanelState:
+      description:
+        SCHEMA-3.46.0. `PENDING` (the draft exists, the editors have not
+        started) -> `RUNNING` -> `READY`; `SKIPPED` when the platform's panel is
+        off; `FAILED` when the editors could not finish, with the original draft
+        still usable.
+      enum:
+        - PENDING
+        - RUNNING
+        - READY
+        - SKIPPED
+        - FAILED
+      type: string
+    InterviewPostKind:
+      description:
+        SCHEMA-3.46.0. The kind of post the panel judged the draft to be; it
+        decides which editors join the two that review every draft.
+      enum:
+        - HOW_TO
+        - OPINION
+        - FOUNDER_STORY
+        - ANNOUNCEMENT
+        - TECHNICAL_DEEP_DIVE
+        - LIST_ROUNDUP
+        - NEWS_REACTION
+      type: string
+    InterviewReviewerRole:
+      description:
+        SCHEMA-3.46.0. An editor on the panel, named by role. `CLARITY_EDITOR`
+        and `READER_FIT_REVIEWER` sit on every panel; the others join by post
+        kind.
+      enum:
+        - CLARITY_EDITOR
+        - READER_FIT_REVIEWER
+        - HOOK_STRUCTURE_EDITOR
+        - EVIDENCE_CHECKER
+        - POSITIONING_STRATEGIST
+        - STORY_PROCESS_REVIEWER
+        - EVERGREEN_EDITOR
+        - DISTRIBUTION_REVIEWER
+      type: string
+    InterviewReviewVerdict:
+      description:
+        SCHEMA-3.46.0. `READY` when the editor would publish the draft as it
+        stands; `NEEDS_WORK` when at least one finding should be fixed first.
+      enum:
+        - READY
+        - NEEDS_WORK
+      type: string
+    InterviewFindingSeverity:
+      description: SCHEMA-3.46.0. How much a finding matters to the reader.
+      enum:
+        - HIGH
+        - MEDIUM
+        - LOW
+      type: string
+    InterviewFinding:
+      additionalProperties: false
+      description:
+        SCHEMA-3.46.0. One thing an editor would change, anchored on a verbatim
+        quote from the draft, with the issue and, when the editor has one, the
+        fix.
+      properties:
+        fix:
+          maxLength: 600
+          minLength: 0
+          type: string
+          description: The editor's rewrite or instruction. May be empty.
+        issue:
+          maxLength: 400
+          minLength: 1
+          type: string
+        quote:
+          maxLength: 300
+          minLength: 1
+          type: string
+          description: Verbatim from the draft.
+        severity:
+          $ref: '#/components/schemas/InterviewFindingSeverity'
+      required:
+        - quote
+        - issue
+        - severity
+      type: object
+    InterviewPanelReview:
+      additionalProperties: false
+      description:
+        SCHEMA-3.46.0. One editor's review of the draft, with what is strong
+        first, then at most five findings, and the one lesson the author keeps.
+      properties:
+        drawsOn:
+          description: The books the role's checklist draws on.
+          items:
+            maxLength: 120
+            minLength: 1
+            type: string
+          maxItems: 4
+          minItems: 1
+          type: array
+        findings:
+          items:
+            $ref: '#/components/schemas/InterviewFinding'
+          maxItems: 5
+          type: array
+        lesson:
+          maxLength: 240
+          minLength: 1
+          type: string
+          description: The one thing the author should keep from this review.
+        reviewer:
+          $ref: '#/components/schemas/InterviewReviewerRole'
+        strengths:
+          items:
+            maxLength: 300
+            minLength: 1
+            type: string
+          maxItems: 2
+          minItems: 1
+          type: array
+        title:
+          maxLength: 80
+          minLength: 1
+          type: string
+          description:
+            The role as shown to the author, for example "Clarity editor".
+        verdict:
+          $ref: '#/components/schemas/InterviewReviewVerdict'
+      required:
+        - reviewer
+        - title
+        - drawsOn
+        - verdict
+        - strengths
+        - findings
+        - lesson
+      type: object
+    InterviewRevision:
+      additionalProperties: false
+      description:
+        SCHEMA-3.46.0. The draft after the panel's findings were applied, with
+        every change named by the editor who asked for it. The author's words
+        and facts are kept; nothing is added that the interview or the sources
+        did not carry.
+      properties:
+        changes:
+          items:
+            additionalProperties: false
+            properties:
+              change:
+                maxLength: 300
+                minLength: 1
+                type: string
+              reviewer:
+                $ref: '#/components/schemas/InterviewReviewerRole'
+            required:
+              - reviewer
+              - change
+            type: object
+          maxItems: 20
+          type: array
+        draft:
+          $ref: '#/components/schemas/InterviewDraft'
+      required:
+        - draft
+        - changes
+      type: object
+    InterviewPanel:
+      additionalProperties: false
+      description:
+        SCHEMA-3.46.0. The expert panel over the draft, four or five editors
+        chosen by post kind, each reviewing once, then one revised draft.
+        `reviews` and `revision` are present from `READY`; `failure` once
+        `FAILED`.
+      properties:
+        failure:
+          $ref: '#/components/schemas/InterviewFailure'
+        finishedAt: *a1
+        kind:
+          $ref: '#/components/schemas/InterviewPostKind'
+        reviews:
+          items:
+            $ref: '#/components/schemas/InterviewPanelReview'
+          maxItems: 5
+          type: array
+        revision:
+          $ref: '#/components/schemas/InterviewRevision'
+        startedAt: *a1
+        state:
+          $ref: '#/components/schemas/InterviewPanelState'
+      required:
+        - state
+        - reviews
+      type: object
+    InterviewPanelSummary:
+      additionalProperties: false
+      description:
+        SCHEMA-3.46.0. The panel as the list shows it, with its state and the
+        editors' lessons.
+      properties:
+        lessons:
+          items:
+            maxLength: 240
+            minLength: 1
+            type: string
+          maxItems: 5
+          type: array
+        state:
+          $ref: '#/components/schemas/InterviewPanelState'
+      required:
+        - state
+        - lessons
+      type: object
     InterviewFailure:
       additionalProperties: false
       properties:
@@ -14147,7 +14383,8 @@ components:
         'SCHEMA-3.34.0. One Interview: an AI interviewer asks the author about
         captured material and writes a draft in their words. `turns` is the
         conversation; `draft` and `review` are present from `DRAFT_READY`;
-        `failure` once `FAILED`.'
+        `failure` once `FAILED`. SCHEMA-3.46.0: `panel` is present from
+        `DRAFT_READY` too and carries the expert panel over the draft.'
       properties:
         capture: &a3
           $ref: '#/components/schemas/InterviewCapture'
@@ -14172,6 +14409,8 @@ components:
           $ref: '#/components/schemas/InterviewDraft'
         review:
           $ref: '#/components/schemas/InterviewReview'
+        panel:
+          $ref: '#/components/schemas/InterviewPanel'
         turns:
           items:
             $ref: '#/components/schemas/InterviewTurn'
@@ -14193,7 +14432,8 @@ components:
       additionalProperties: false
       description:
         'SCHEMA-3.34.0. An Interview as the list shows it: no turns, draft or
-        review, with `turnCount` and `hasDraft` instead.'
+        review, with `turnCount` and `hasDraft` instead. SCHEMA-3.46.0: `panel`
+        summarises the expert panel (state and lessons).'
       properties:
         capture: *a3
         createdAt: *a1
@@ -14209,6 +14449,8 @@ components:
         updatedAt: *a1
         hasDraft:
           type: boolean
+        panel:
+          $ref: '#/components/schemas/InterviewPanelSummary'
         turnCount:
           format: int64
           minimum: 0

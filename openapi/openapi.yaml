@@ -6619,7 +6619,7 @@ components:
       type: object
     Interview:
       additionalProperties: false
-      description: "SCHEMA-3.34.0. One Interview: an AI interviewer asks the author about captured material and writes a draft in their words. `turns` is the conversation; `draft` and `review` are present from `DRAFT_READY`; `failure` once `FAILED`."
+      description: "SCHEMA-3.34.0. One Interview: an AI interviewer asks the author about captured material and writes a draft in their words. `turns` is the conversation; `draft` and `review` are present from `DRAFT_READY`; `failure` once `FAILED`. SCHEMA-3.46.0: `panel` is present from `DRAFT_READY` too and carries the expert panel over the draft."
       properties:
         capture:
           $ref: "#/components/schemas/InterviewCapture"
@@ -6641,6 +6641,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        panel:
+          $ref: "#/components/schemas/InterviewPanel"
         progress:
           $ref: "#/components/schemas/InterviewProgress"
         publicationId:
@@ -6773,9 +6775,41 @@ components:
       required:
         - code
       type: object
+    InterviewFinding:
+      additionalProperties: false
+      description: SCHEMA-3.46.0. One thing an editor would change, anchored on a verbatim quote from the draft, with the issue and, when the editor has one, the fix.
+      properties:
+        fix:
+          description: The editor's rewrite or instruction. May be empty.
+          maxLength: 600
+          minLength: 0
+          type: string
+        issue:
+          maxLength: 400
+          minLength: 1
+          type: string
+        quote:
+          description: Verbatim from the draft.
+          maxLength: 300
+          minLength: 1
+          type: string
+        severity:
+          $ref: "#/components/schemas/InterviewFindingSeverity"
+      required:
+        - quote
+        - issue
+        - severity
+      type: object
+    InterviewFindingSeverity:
+      description: SCHEMA-3.46.0. How much a finding matters to the reader.
+      enum:
+        - HIGH
+        - MEDIUM
+        - LOW
+      type: string
     InterviewListItem:
       additionalProperties: false
-      description: "SCHEMA-3.34.0. An Interview as the list shows it: no turns, draft or review, with `turnCount` and `hasDraft` instead."
+      description: "SCHEMA-3.34.0. An Interview as the list shows it: no turns, draft or review, with `turnCount` and `hasDraft` instead. SCHEMA-3.46.0: `panel` summarises the expert panel (state and lessons)."
       properties:
         capture:
           $ref: "#/components/schemas/InterviewCapture"
@@ -6797,6 +6831,8 @@ components:
           format: uuid
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
+        panel:
+          $ref: "#/components/schemas/InterviewPanelSummary"
         progress:
           $ref: "#/components/schemas/InterviewProgress"
         publicationId:
@@ -6825,6 +6861,106 @@ components:
         - expiresAt
         - turnCount
         - hasDraft
+      type: object
+    InterviewPanel:
+      additionalProperties: false
+      description: SCHEMA-3.46.0. The expert panel over the draft, four or five editors chosen by post kind, each reviewing once, then one revised draft. `reviews` and `revision` are present from `READY`; `failure` once `FAILED`.
+      properties:
+        failure:
+          $ref: "#/components/schemas/InterviewFailure"
+        finishedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        kind:
+          $ref: "#/components/schemas/InterviewPostKind"
+        reviews:
+          items:
+            $ref: "#/components/schemas/InterviewPanelReview"
+          maxItems: 5
+          type: array
+        revision:
+          $ref: "#/components/schemas/InterviewRevision"
+        startedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        state:
+          $ref: "#/components/schemas/InterviewPanelState"
+      required:
+        - state
+        - reviews
+      type: object
+    InterviewPanelReview:
+      additionalProperties: false
+      description: SCHEMA-3.46.0. One editor's review of the draft, with what is strong first, then at most five findings, and the one lesson the author keeps.
+      properties:
+        drawsOn:
+          description: The books the role's checklist draws on.
+          items:
+            maxLength: 120
+            minLength: 1
+            type: string
+          maxItems: 4
+          minItems: 1
+          type: array
+        findings:
+          items:
+            $ref: "#/components/schemas/InterviewFinding"
+          maxItems: 5
+          type: array
+        lesson:
+          description: The one thing the author should keep from this review.
+          maxLength: 240
+          minLength: 1
+          type: string
+        reviewer:
+          $ref: "#/components/schemas/InterviewReviewerRole"
+        strengths:
+          items:
+            maxLength: 300
+            minLength: 1
+            type: string
+          maxItems: 2
+          minItems: 1
+          type: array
+        title:
+          description: The role as shown to the author, for example "Clarity editor".
+          maxLength: 80
+          minLength: 1
+          type: string
+        verdict:
+          $ref: "#/components/schemas/InterviewReviewVerdict"
+      required:
+        - reviewer
+        - title
+        - drawsOn
+        - verdict
+        - strengths
+        - findings
+        - lesson
+      type: object
+    InterviewPanelState:
+      description: SCHEMA-3.46.0. `PENDING` (the draft exists, the editors have not started) -> `RUNNING` -> `READY`; `SKIPPED` when the platform's panel is off; `FAILED` when the editors could not finish, with the original draft still usable.
+      enum:
+        - PENDING
+        - RUNNING
+        - READY
+        - SKIPPED
+        - FAILED
+      type: string
+    InterviewPanelSummary:
+      additionalProperties: false
+      description: SCHEMA-3.46.0. The panel as the list shows it, with its state and the editors' lessons.
+      properties:
+        lessons:
+          items:
+            maxLength: 240
+            minLength: 1
+            type: string
+          maxItems: 5
+          type: array
+        state:
+          $ref: "#/components/schemas/InterviewPanelState"
+      required:
+        - state
+        - lessons
       type: object
     InterviewPhase:
       description: "Where the interview is: asking for the author's own details (`OWNED`), pushing for a view (`INSIGHTFUL`), or finished asking (`DONE`)."
@@ -6900,10 +7036,26 @@ components:
         - quota
         - budget
       type: object
+    InterviewPostKind:
+      description: SCHEMA-3.46.0. The kind of post the panel judged the draft to be; it decides which editors join the two that review every draft.
+      enum:
+        - HOW_TO
+        - OPINION
+        - FOUNDER_STORY
+        - ANNOUNCEMENT
+        - TECHNICAL_DEEP_DIVE
+        - LIST_ROUNDUP
+        - NEWS_REACTION
+      type: string
     InterviewProfile:
       additionalProperties: false
-      description: SCHEMA-3.34.0. The two facts the interviewer keeps about the site between interviews.
+      description: SCHEMA-3.34.0. The facts the interviewer keeps about the site between interviews. `angle` was added in SCHEMA-3.46.0.
       properties:
+        angle:
+          description: SCHEMA-3.46.0. What the author says that nobody else in their niche says, in their words. May be empty.
+          maxLength: 300
+          minLength: 0
+          type: string
         niche:
           description: What the site is about, in the author's words. May be empty.
           maxLength: 200
@@ -6937,6 +7089,16 @@ components:
           type: integer
         phase:
           $ref: "#/components/schemas/InterviewPhase"
+        questionBudget:
+          description: SCHEMA-3.46.0. How many questions the interviewer may ask in this interview (the platform's question budget).
+          format: int64
+          minimum: 1
+          type: integer
+        questionsAsked:
+          description: SCHEMA-3.46.0. Questions asked so far; RECAP and CLOSING turns do not count.
+          format: int64
+          minimum: 0
+          type: integer
         skepticRounds:
           format: int64
           minimum: 0
@@ -6948,6 +7110,8 @@ components:
         - beliefDone
         - skepticRounds
         - canFinish
+        - questionsAsked
+        - questionBudget
       type: object
     InterviewReview:
       additionalProperties: false
@@ -7059,8 +7223,52 @@ components:
         - sources
         - pastPostsRead
       type: object
+    InterviewReviewVerdict:
+      description: SCHEMA-3.46.0. `READY` when the editor would publish the draft as it stands; `NEEDS_WORK` when at least one finding should be fixed first.
+      enum:
+        - READY
+        - NEEDS_WORK
+      type: string
+    InterviewReviewerRole:
+      description: SCHEMA-3.46.0. An editor on the panel, named by role. `CLARITY_EDITOR` and `READER_FIT_REVIEWER` sit on every panel; the others join by post kind.
+      enum:
+        - CLARITY_EDITOR
+        - READER_FIT_REVIEWER
+        - HOOK_STRUCTURE_EDITOR
+        - EVIDENCE_CHECKER
+        - POSITIONING_STRATEGIST
+        - STORY_PROCESS_REVIEWER
+        - EVERGREEN_EDITOR
+        - DISTRIBUTION_REVIEWER
+      type: string
+    InterviewRevision:
+      additionalProperties: false
+      description: SCHEMA-3.46.0. The draft after the panel's findings were applied, with every change named by the editor who asked for it. The author's words and facts are kept; nothing is added that the interview or the sources did not carry.
+      properties:
+        changes:
+          items:
+            additionalProperties: false
+            properties:
+              change:
+                maxLength: 300
+                minLength: 1
+                type: string
+              reviewer:
+                $ref: "#/components/schemas/InterviewReviewerRole"
+            required:
+              - reviewer
+              - change
+            type: object
+          maxItems: 20
+          type: array
+        draft:
+          $ref: "#/components/schemas/InterviewDraft"
+      required:
+        - draft
+        - changes
+      type: object
     InterviewState:
-      description: SCHEMA-3.34.0. `CAPTURED` (the material is saved, no question asked yet) -> `INTERVIEWING` (a quota unit is reserved) -> `WRITING` -> `DRAFT_READY` -> `ACCEPTED`; `CANCELLED` from any state before `ACCEPTED`; `FAILED` and `EXPIRED` are terminal.
+      description: SCHEMA-3.34.0. `CAPTURED` (the material is saved, no question asked yet) -> `INTERVIEWING` (a quota unit is reserved) -> `WRITING` -> `DRAFT_READY` -> `ACCEPTED`; `CANCELLED` from any state before `ACCEPTED`; `FAILED` and `EXPIRED` are terminal. Since SCHEMA-3.46.0 the expert panel runs in the background from `DRAFT_READY` (`panel`).
       enum:
         - CAPTURED
         - INTERVIEWING
@@ -22638,8 +22846,13 @@ components:
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewProfileRequest:
       additionalProperties: false
-      description: SCHEMA-3.34.0. The two facts the interviewer keeps about the site between interviews.
+      description: SCHEMA-3.34.0. The facts the interviewer keeps about the site between interviews. `angle` was added in SCHEMA-3.46.0.
       properties:
+        angle:
+          description: SCHEMA-3.46.0. What the author says that nobody else in their niche says, in their words. May be empty.
+          maxLength: 300
+          minLength: 0
+          type: string
         niche:
           description: What the site is about, in the author's words. May be empty.
           maxLength: 200
@@ -52620,6 +52833,8 @@ paths:
                           details: 0
                           detailsTarget: 5
                           phase: OWNED
+                          questionBudget: 8
+                          questionsAsked: 0
                           skepticRounds: 0
                         publicationId: 018f0000-0000-7000-8000-000000000002
                         state: CAPTURED
@@ -52823,6 +53038,8 @@ paths:
                       details: 0
                       detailsTarget: 5
                       phase: OWNED
+                      questionBudget: 8
+                      questionsAsked: 0
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: CAPTURED
@@ -53074,7 +53291,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:
     get:
       description: |
-        One interview with its conversation (`turns`), and from `DRAFT_READY` its `draft` and `review`. Poll it while `state` is `WRITING`.
+        One interview with its conversation (`turns`), and from `DRAFT_READY` its `draft`, `review` and `panel`. Poll it while `state` is `WRITING`, and while `panel.state` is `PENDING` or `RUNNING` (SCHEMA-3.46.0).
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewId
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -53127,12 +53344,47 @@ paths:
                     finishedAt: "2026-11-04T12:00:00.000Z"
                     interviewId: 018f0000-0000-7000-8000-000000000001
                     organizationId: 018f0000-0000-7000-8000-000000000003
+                    panel:
+                      finishedAt: "2026-11-04T12:04:00.000Z"
+                      kind: FOUNDER_STORY
+                      reviews:
+                        - drawsOn:
+                            - On Writing Well
+                            - Everybody Writes
+                          findings:
+                            - fix: Name the step and say what it did.
+                              issue: The reader has to guess which step is meant.
+                              quote: The first step to go was the account type.
+                              severity: MEDIUM
+                          lesson: Cut every word that does no new work.
+                          reviewer: CLARITY_EDITOR
+                          strengths:
+                            - Short sentences a reader follows at one pass.
+                          title: Clarity editor
+                          verdict: NEEDS_WORK
+                      revision:
+                        changes:
+                          - change: Named the account-type step in the first line.
+                            reviewer: CLARITY_EDITOR
+                        draft:
+                          body: |-
+                            We cut onboarding from nine steps to four.
+
+                            The account-type step went first.
+                          description: How cutting onboarding steps doubled signups.
+                          language: en
+                          title: Nine steps to four
+                          tldr: Fewer steps, twice the signups.
+                      startedAt: "2026-11-04T12:01:00.000Z"
+                      state: READY
                     progress:
                       beliefDone: false
                       canFinish: true
                       details: 3
                       detailsTarget: 5
                       phase: DONE
+                      questionBudget: 8
+                      questionsAsked: 6
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     review:
@@ -53369,6 +53621,8 @@ paths:
                       details: 1
                       detailsTarget: 5
                       phase: OWNED
+                      questionBudget: 8
+                      questionsAsked: 2
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     startedAt: "2026-11-04T12:00:00.000Z"
@@ -53755,6 +54009,8 @@ paths:
                       details: 3
                       detailsTarget: 5
                       phase: DONE
+                      questionBudget: 8
+                      questionsAsked: 6
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     review:
@@ -54038,6 +54294,8 @@ paths:
                       details: 0
                       detailsTarget: 5
                       phase: OWNED
+                      questionBudget: 8
+                      questionsAsked: 0
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: CANCELLED
@@ -54244,7 +54502,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:finish:
     post:
       description: |
-        Ends the questions and starts writing the draft. Only while `INTERVIEWING`, and only once at least three details are on record (`progress.canFinish`); otherwise `409 INTERVIEW_TOO_THIN`. `202` with the interview in `WRITING`; poll `GET .../interviews/{interviewId}` until `DRAFT_READY` or `FAILED`.
+        Ends the questions and starts writing the draft. Only while `INTERVIEWING`, and only once at least three details are on record (`progress.canFinish`); otherwise `409 INTERVIEW_TOO_THIN`. `202` with the interview in `WRITING`; poll `GET .../interviews/{interviewId}` until `DRAFT_READY` or `FAILED`. From `DRAFT_READY` the expert panel fills `panel` in the background (SCHEMA-3.46.0).
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdFinish
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -54296,6 +54554,8 @@ paths:
                       details: 3
                       detailsTarget: 5
                       phase: DONE
+                      questionBudget: 8
+                      questionsAsked: 6
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     startedAt: "2026-11-04T12:00:00.000Z"
@@ -54637,6 +54897,8 @@ paths:
                       details: 1
                       detailsTarget: 5
                       phase: OWNED
+                      questionBudget: 8
+                      questionsAsked: 1
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     startedAt: "2026-11-04T12:00:00.000Z"

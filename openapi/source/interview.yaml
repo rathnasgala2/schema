@@ -683,6 +683,8 @@ paths:
                           details: 0
                           detailsTarget: 5
                           phase: OWNED
+                          questionBudget: 8
+                          questionsAsked: 0
                           skepticRounds: 0
                         publicationId: 018f0000-0000-7000-8000-000000000002
                         state: CAPTURED
@@ -1140,7 +1142,8 @@ paths:
     get:
       description: >
         One interview with its conversation (`turns`), and from `DRAFT_READY`
-        its `draft` and `review`. Poll it while `state` is `WRITING`.
+        its `draft`, `review` and `panel`. Poll it while `state` is `WRITING`,
+        and while `panel.state` is `PENDING` or `RUNNING` (SCHEMA-3.46.0).
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewId
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1188,6 +1191,8 @@ paths:
                       details: 3
                       detailsTarget: 5
                       phase: DONE
+                      questionBudget: 8
+                      questionsAsked: 6
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: DRAFT_READY
@@ -1234,6 +1239,42 @@ paths:
                       pastPostsRead:
                         - content/my-post.md
                       sources: []
+                    panel:
+                      finishedAt: 2026-11-04T12:04:00.000Z
+                      kind: FOUNDER_STORY
+                      reviews:
+                        - drawsOn:
+                            - On Writing Well
+                            - Everybody Writes
+                          findings:
+                            - fix: Name the step and say what it did.
+                              issue:
+                                The reader has to guess which step is meant.
+                              quote: The first step to go was the account type.
+                              severity: MEDIUM
+                          lesson: Cut every word that does no new work.
+                          reviewer: CLARITY_EDITOR
+                          strengths:
+                            - Short sentences a reader follows at one pass.
+                          title: Clarity editor
+                          verdict: NEEDS_WORK
+                      revision:
+                        changes:
+                          - change:
+                              Named the account-type step in the first line.
+                            reviewer: CLARITY_EDITOR
+                        draft:
+                          body: |-
+                            We cut onboarding from nine steps to four.
+
+                            The account-type step went first.
+                          description:
+                            How cutting onboarding steps doubled signups.
+                          language: en
+                          title: Nine steps to four
+                          tldr: Fewer steps, twice the signups.
+                      startedAt: 2026-11-04T12:01:00.000Z
+                      state: READY
               schema:
                 $ref:
                   "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPubli\
@@ -1427,6 +1468,8 @@ paths:
                       details: 1
                       detailsTarget: 5
                       phase: OWNED
+                      questionBudget: 8
+                      questionsAsked: 1
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: INTERVIEWING
@@ -1804,6 +1847,8 @@ paths:
                       details: 1
                       detailsTarget: 5
                       phase: OWNED
+                      questionBudget: 8
+                      questionsAsked: 2
                       skepticRounds: 0
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: INTERVIEWING
@@ -2142,7 +2187,8 @@ paths:
         `INTERVIEWING`, and only once at least three details are on record
         (`progress.canFinish`); otherwise `409 INTERVIEW_TOO_THIN`. `202` with
         the interview in `WRITING`; poll `GET .../interviews/{interviewId}`
-        until `DRAFT_READY` or `FAILED`.
+        until `DRAFT_READY` or `FAILED`. From `DRAFT_READY` the expert panel
+        fills `panel` in the background (SCHEMA-3.46.0).
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdFinish
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
