@@ -14359,6 +14359,127 @@ components:
         - state
         - lessons
       type: object
+    InterviewPointKind:
+      description:
+        'SCHEMA-3.47.0. What one point asks of the author: `EDIT` (a passage an
+        editor would change, with ready replacements), `QUESTION` (a fact only
+        the author knows, left in the draft as `[Author: …]`), `CLAIM` (a fact
+        nobody could check: keep it, cut it or soften it).'
+      enum:
+        - EDIT
+        - QUESTION
+        - CLAIM
+      type: string
+    InterviewPointState:
+      description:
+        SCHEMA-3.47.0. `OPEN` waits for the author; `APPLIED` once an option or
+        the author's words went into the draft; `DISMISSED` once the author kept
+        the passage; `STALE` once the passage changed under another decision, so
+        nothing is left to do.
+      enum:
+        - OPEN
+        - APPLIED
+        - DISMISSED
+        - STALE
+      type: string
+    InterviewPoint:
+      additionalProperties: false
+      description:
+        SCHEMA-3.47.0. One decision only the author can make about the draft,
+        anchored on a passage that is verbatim in `Interview.working.body` while
+        `OPEN`, with the ready replacements (none for a `QUESTION`, whose answer
+        the author writes; a `CLAIM` offers the softer sentence).
+      properties:
+        id:
+          maxLength: 40
+          minLength: 1
+          type: string
+        issue:
+          maxLength: 400
+          minLength: 1
+          type: string
+        kind:
+          $ref: '#/components/schemas/InterviewPointKind'
+        options:
+          items:
+            maxLength: 800
+            minLength: 1
+            type: string
+          maxItems: 3
+          type: array
+        quote:
+          maxLength: 400
+          minLength: 1
+          type: string
+          description: Verbatim from `working.body` while the point is `OPEN`.
+        reviewer:
+          $ref: '#/components/schemas/InterviewReviewerRole'
+        severity:
+          $ref: '#/components/schemas/InterviewFindingSeverity'
+        state:
+          $ref: '#/components/schemas/InterviewPointState'
+      required:
+        - id
+        - kind
+        - state
+        - quote
+        - issue
+        - options
+      type: object
+    InterviewReadiness:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.47.0. Where the author's work on the draft stands: how many
+        points are open, how many final reads were made, and whether the last
+        read found nothing more."
+      properties:
+        finalReads:
+          minimum: 0
+          type: integer
+        open:
+          minimum: 0
+          type: integer
+        ready:
+          type: boolean
+      required:
+        - open
+        - finalReads
+        - ready
+      type: object
+    InterviewDecisionAction:
+      description:
+        SCHEMA-3.47.0. `APPLY` puts the chosen option in the passage's place;
+        `CUSTOM` puts the author's own text there (an empty text cuts the
+        passage); `DISMISS` keeps the draft as it is.
+      enum:
+        - APPLY
+        - DISMISS
+        - CUSTOM
+      type: string
+    InterviewDecision: &a10
+      additionalProperties: false
+      description:
+        SCHEMA-3.47.0. The author's decision on one `OPEN` point. `option` is
+        required with `APPLY`; `text` with `CUSTOM`.
+      properties:
+        action:
+          $ref: '#/components/schemas/InterviewDecisionAction'
+        option:
+          maximum: 2
+          minimum: 0
+          type: integer
+        pointId:
+          maxLength: 40
+          minLength: 1
+          type: string
+        text:
+          maxLength: 2000
+          minLength: 0
+          type: string
+      required:
+        - pointId
+        - action
+      type: object
     InterviewFailure:
       additionalProperties: false
       properties:
@@ -14384,7 +14505,10 @@ components:
         captured material and writes a draft in their words. `turns` is the
         conversation; `draft` and `review` are present from `DRAFT_READY`;
         `failure` once `FAILED`. SCHEMA-3.46.0: `panel` is present from
-        `DRAFT_READY` too and carries the expert panel over the draft.'
+        `DRAFT_READY` too and carries the expert panel over the draft.
+        SCHEMA-3.47.0: from `DRAFT_READY`, `working` is the draft as the author
+        is finishing it, `points` the decisions only they can make about it and
+        `readiness` where that work stands; `POST .../decisions` moves them.'
       properties:
         capture: &a3
           $ref: '#/components/schemas/InterviewCapture'
@@ -14411,11 +14535,20 @@ components:
           $ref: '#/components/schemas/InterviewReview'
         panel:
           $ref: '#/components/schemas/InterviewPanel'
+        points:
+          items:
+            $ref: '#/components/schemas/InterviewPoint'
+          maxItems: 40
+          type: array
+        readiness:
+          $ref: '#/components/schemas/InterviewReadiness'
         turns:
           items:
             $ref: '#/components/schemas/InterviewTurn'
           maxItems: 400
           type: array
+        working:
+          $ref: '#/components/schemas/InterviewDraft'
       required:
         - interviewId
         - organizationId
@@ -14576,6 +14709,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/Interview'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdAcceptResponse:
+      allOf:
+        - $ref: '#/components/schemas/Interview'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdDecisionsRequest: *a10
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdDecisionsResponse:
       allOf:
         - $ref: '#/components/schemas/Interview'
     GetPlatformInterviewUsageResponse:

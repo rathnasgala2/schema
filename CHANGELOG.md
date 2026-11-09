@@ -8,6 +8,28 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.47.0] - 2026-11-08
+
+The author's decisions on a ready draft. `schemas/publication.schema.json` is
+untouched, so no template or publish toolchain pin moves. Additive: one new
+operation, no new problem codes.
+
+### Added
+
+- `POST .../interviews/{interviewId}/decisions` (`InterviewDecision`): the
+  author's decision on one open point of the draft, `APPLY` (an option in the
+  passage's place), `CUSTOM` (their own words; empty cuts the passage) or
+  `DISMISS`. Only while `DRAFT_READY`; idempotent per `Idempotency-Key`.
+- `Interview.working` (`InterviewDraft`): the draft as the author is finishing
+  it, from `DRAFT_READY`; `Interview.points` (`InterviewPoint`): the decisions
+  only the author can make, each anchored on a verbatim passage of
+  `working.body` while `OPEN`, with up to three ready replacements;
+  `Interview.readiness` (`InterviewReadiness`): open points, final reads made,
+  and whether the last read found nothing more.
+- Enums `InterviewPointKind` (`EDIT`, `QUESTION`, `CLAIM`),
+  `InterviewPointState` (`OPEN`, `APPLIED`, `DISMISSED`, `STALE`) and
+  `InterviewDecisionAction`.
+
 ## [3.46.0] - 2026-11-07
 
 The Interview expert panel, the question budget and the author's angle.
@@ -4381,7 +4403,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.46.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.47.0...HEAD
+[3.47.0]: https://github.com/rathnasgala2/schema/compare/v3.46.0...v3.47.0
 [3.46.0]: https://github.com/rathnasgala2/schema/compare/v3.45.0...v3.46.0
 [3.45.0]: https://github.com/rathnasgala2/schema/compare/v3.44.0...v3.45.0
 [3.44.0]: https://github.com/rathnasgala2/schema/compare/v3.43.0...v3.44.0
