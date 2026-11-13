@@ -851,12 +851,11 @@ paths:
         Saves the material (a note, a voice transcript or a link with its text)
         as an interview in `CAPTURED`. SCHEMA-3.49.0: `kind: ARTICLE` captures
         one of the site's own posts instead (`capture.articlePath`, with
-        `capture.text` empty); `text` is required unless `kind` is `ARTICLE`
-        and `articlePath` is given. Nothing is asked and no quota unit is
-        used yet; `POST .../interviews/{interviewId}:start` begins the
-        conversation. The plan must be `PRO` (sold as Basic) or above: `409
-        PLAN_REQUIRED` below `PRO`. `503 CAPABILITY_UNAVAILABLE` when Interview
-        is off. `201`.
+        `capture.text` empty); `text` is required unless `kind` is `ARTICLE` and
+        `articlePath` is given. Nothing is asked and no quota unit is used yet;
+        `POST .../interviews/{interviewId}:start` begins the conversation. The
+        plan must be `PRO` (sold as Basic) or above: `409 PLAN_REQUIRED` below
+        `PRO`. `503 CAPABILITY_UNAVAILABLE` when Interview is off. `201`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1444,10 +1443,10 @@ paths:
         when no unit is left this period; `503 BUDGET_EXHAUSTED` when the
         platform's optional monthly spend cap is reached; `503
         PROVIDER_UNAVAILABLE` when the question could not be asked (nothing is
-        stored and no unit is used; retry).
-        SCHEMA-3.49.0: an `ARTICLE` room has no question stage. It spends an
-        `EDITOR` unit (the `editorQuota` allowance, counted apart from
-        interviews) and moves from `CAPTURED` straight to `WRITING`.
+        stored and no unit is used; retry). SCHEMA-3.49.0: an `ARTICLE` room has
+        no question stage. It spends an `EDITOR` unit (the `editorQuota`
+        allowance, counted apart from interviews) and moves from `CAPTURED`
+        straight to `WRITING`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
