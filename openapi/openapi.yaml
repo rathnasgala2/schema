@@ -4104,40 +4104,6 @@ components:
         - nextCursor
         - total
       type: object
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicyResponse:
-      additionalProperties: false
-      properties:
-        editionKinds:
-          items:
-            $ref: "#/components/schemas/PrismEditionKind"
-          maxItems: 3
-          minItems: 0
-          type: array
-          uniqueItems: true
-        enabled:
-          type: boolean
-        periodEndsAt:
-          $ref: "#/components/schemas/PortableProblemRfc3339"
-        unitsPerPeriod:
-          format: int64
-          minimum: 0
-          type: integer
-        unitsRemaining:
-          format: int64
-          minimum: 0
-          type: integer
-        unitsUsed:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - enabled
-        - unitsPerPeriod
-        - unitsUsed
-        - unitsRemaining
-        - periodEndsAt
-        - editionKinds
-      type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdHandoverClaimsResponse:
       additionalProperties: false
       properties:
@@ -4454,51 +4420,6 @@ components:
         - source
         - openChange
         - setUp
-      type: object
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdResponse:
-      allOf:
-        - $ref: "#/components/schemas/PrismGeneration"
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse:
-      additionalProperties: false
-      allOf:
-        - else:
-            properties:
-              nextCursor:
-                type: "null"
-          if:
-            properties:
-              hasMore:
-                not:
-                  enum:
-                    - false
-                type: boolean
-                x-gala-const: true
-            required:
-              - hasMore
-          then:
-            properties:
-              nextCursor:
-                type: string
-            required:
-              - nextCursor
-      properties:
-        hasMore:
-          type: boolean
-        items:
-          items:
-            $ref: "#/components/schemas/PrismGeneration"
-          maxItems: 100
-          type: array
-        nextCursor:
-          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false. The length bounds constrain the string branch only.
-          maxLength: 2048
-          minLength: 1
-          type:
-            - string
-            - "null"
-      required:
-        - items
-        - hasMore
       type: object
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrentResponse:
       additionalProperties: false
@@ -5467,48 +5388,6 @@ components:
       type: object
     GetPlatformPlansResponse:
       $ref: "#/components/schemas/PlatformPlanCapacityRelease"
-    GetPlatformPrismGenerationsResponse:
-      additionalProperties: false
-      allOf:
-        - else:
-            properties:
-              nextCursor:
-                type: "null"
-          if:
-            properties:
-              hasMore:
-                not:
-                  enum:
-                    - false
-                type: boolean
-                x-gala-const: true
-            required:
-              - hasMore
-          then:
-            properties:
-              nextCursor:
-                type: string
-            required:
-              - nextCursor
-      properties:
-        hasMore:
-          type: boolean
-        items:
-          items:
-            $ref: "#/components/schemas/PlatformPrismGeneration"
-          maxItems: 100
-          type: array
-        nextCursor:
-          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false.
-          maxLength: 2048
-          minLength: 1
-          type:
-            - string
-            - "null"
-      required:
-        - items
-        - hasMore
-      type: object
     GetPlatformSettingsByKeyResponse:
       $ref: "#/components/schemas/PlatformSetting"
     GetPlatformSettingsOverridesByKindByIdByKeyResponse:
@@ -6735,11 +6614,14 @@ components:
             $ref: "#/components/schemas/InterviewTurn"
           maxItems: 400
           type: array
+        unitKind:
+          $ref: "#/components/schemas/InterviewUnitKind"
         updatedAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
         working:
           $ref: "#/components/schemas/InterviewDraft"
       required:
+        - unitKind
         - interviewId
         - organizationId
         - publicationId
@@ -6766,6 +6648,11 @@ components:
       additionalProperties: false
       description: SCHEMA-3.34.0. The material an interview starts from.
       properties:
+        articlePath:
+          description: SCHEMA-3.49.0. The site's own post path (for example `content/posts/hello.md`), used when `kind` is `ARTICLE` and `text` is empty. The service reads the post from the repository.
+          maxLength: 1024
+          minLength: 1
+          type: string
         kind:
           $ref: "#/components/schemas/InterviewCaptureKind"
         sourceTitle:
@@ -6778,20 +6665,20 @@ components:
           minLength: 1
           type: string
         text:
-          description: The note or the transcript.
+          description: The note or the transcript. Required unless `kind` is `ARTICLE` and `articlePath` is given (SCHEMA-3.49.0).
           maxLength: 20000
           minLength: 1
           type: string
       required:
         - kind
-        - text
       type: object
     InterviewCaptureKind:
-      description: "How the material was captured: a typed `NOTE`, a `VOICE` transcript or a `LINK` with its text."
+      description: "How the material was captured: a typed `NOTE`, a `VOICE` transcript, a `LINK` with its text, or (SCHEMA-3.49.0) an `ARTICLE`, a post already on the site that the Editor reviews and tightens. An `ARTICLE` room skips the question stage: it moves from `CAPTURED` straight to `WRITING` on `:start` and spends an `EDITOR` unit."
       enum:
         - NOTE
         - VOICE
         - LINK
+        - ARTICLE
       type: string
     InterviewCreate:
       additionalProperties: false
@@ -6953,9 +6840,12 @@ components:
           format: int64
           minimum: 0
           type: integer
+        unitKind:
+          $ref: "#/components/schemas/InterviewUnitKind"
         updatedAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
       required:
+        - unitKind
         - interviewId
         - organizationId
         - publicationId
@@ -7143,6 +7033,36 @@ components:
           required:
             - available
           type: object
+        editorQuota:
+          additionalProperties: false
+          description: SCHEMA-3.49.0. The same shape as `quota`, for Editor runs (the `EDITOR` unit kind), which are counted separately from interviews.
+          properties:
+            limit:
+              format: int64
+              minimum: 0
+              type: integer
+            period:
+              description: The UTC week the Editor allowance counts in, as its Monday, `YYYY-MM-DD`
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
+              type: string
+            remaining:
+              format: int64
+              minimum: 0
+              type: integer
+            renewsAt:
+              $ref: "#/components/schemas/PortableProblemRfc3339"
+              description: The first instant of the next UTC week (Monday 00:00Z), when the allowance comes back
+            used:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - period
+            - renewsAt
+            - limit
+            - used
+            - remaining
+          type: object
         enabled:
           description: False when the platform switch is off or the provider is not configured.
           type: boolean
@@ -7195,6 +7115,7 @@ components:
         - enabled
         - plan
         - quota
+        - editorQuota
         - budget
       type: object
     InterviewPostKind:
@@ -7495,6 +7416,12 @@ components:
       enum:
         - INTERVIEWER
         - AUTHOR
+      type: string
+    InterviewUnitKind:
+      description: "SCHEMA-3.49.0. Which allowance the room spends: `INTERVIEW` for a room that asks questions, `EDITOR` for an `ARTICLE` room."
+      enum:
+        - INTERVIEW
+        - EDITOR
       type: string
     KernelAttemptSubmission:
       additionalProperties: false
@@ -9601,9 +9528,30 @@ components:
           oneOf:
             - $ref: "#/components/schemas/PortableProblemRfc3339"
             - type: "null"
+        siteCount:
+          description: SCHEMA-3.49.0. How many sites the organization has now.
+          format: int64
+          minimum: 0
+          type: integer
+        siteLimit:
+          description: "SCHEMA-3.49.0. How many sites the organization may have: the plan limit, or the operator override when `siteLimitSource` is OVERRIDE."
+          format: int64
+          minimum: 0
+          type: integer
+        siteLimitSource:
+          description: SCHEMA-3.49.0. `PLAN` when `siteLimit` is the plan default, `OVERRIDE` when an operator set an organization-level limit.
+          enum:
+            - PLAN
+            - OVERRIDE
+          type: string
         source:
           $ref: "#/components/schemas/PlanSource"
           description: "SCHEMA-3.41.0: where the plan comes from. A `source` of OPERATOR is a complimentary plan the Galascribe team granted; the App shows it as 'Complimentary Basic/Pro' (until `grantExpiresAt` when set) and keeps the upgrade action so the organization can subscribe."
+        supportUrl:
+          description: SCHEMA-3.49.0. Where to ask for a higher limit or other help.
+          format: uri
+          maxLength: 2048
+          type: string
         tier:
           $ref: "#/components/schemas/PlatformPlanKey"
           description: The plan tier.
@@ -9613,6 +9561,10 @@ components:
         - grantExpiresAt
         - collaborators
         - entitlements
+        - siteLimit
+        - siteCount
+        - siteLimitSource
+        - supportUrl
       type: object
     OrganizationState:
       enum:
@@ -10932,36 +10884,6 @@ components:
         - PRO
         - BUSINESS
       type: string
-    PlatformPrismGeneration:
-      additionalProperties: false
-      description: SCHEMA-3.25.0. One Prism generation as the operator list shows it, ownership and state only, never article text or the candidate body.
-      properties:
-        createdAt:
-          $ref: "#/components/schemas/PortableProblemRfc3339"
-        editionKind:
-          $ref: "#/components/schemas/PrismEditionKind"
-        generationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        organizationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        publicationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        state:
-          $ref: "#/components/schemas/PrismGenerationState"
-      required:
-        - generationId
-        - organizationId
-        - publicationId
-        - editionKind
-        - state
-        - createdAt
-      type: object
     PlatformSetting:
       additionalProperties: false
       description: "An app-wide setting: the active release value, or the default when none is released."
@@ -19719,87 +19641,6 @@ components:
         - consequences
         - expiresAt
       type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAcceptResponse:
-      additionalProperties: false
-      properties:
-        edition:
-          additionalProperties: false
-          properties:
-            path:
-              maxLength: 512
-              minLength: 1
-              pattern: ^content/(?:[^/\x00-\x1f]+/)*[a-z0-9]+(?:-[a-z0-9]+)*\.edition\.(?:quick-read|standard|deep-dive)\.md$
-              type: string
-            text:
-              maxLength: 1048576
-              minLength: 1
-              type: string
-          required:
-            - path
-            - text
-          type: object
-        generation:
-          $ref: "#/components/schemas/PrismGeneration"
-      required:
-        - generation
-        - edition
-      type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancelResponse:
-      allOf:
-        - $ref: "#/components/schemas/PrismGeneration"
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdRejectResponse:
-      allOf:
-        - $ref: "#/components/schemas/PrismGeneration"
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsRequest:
-      additionalProperties: false
-      properties:
-        contentPath:
-          maxLength: 512
-          minLength: 1
-          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
-          type: string
-        editionKind:
-          $ref: "#/components/schemas/PrismEditionKind"
-        language:
-          maxLength: 35
-          minLength: 2
-          pattern: ^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$
-          type: string
-        sourceDigest:
-          pattern: ^sha256:[0-9a-f]{64}$
-          type: string
-        sourceRevision:
-          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
-          type: string
-      required:
-        - contentPath
-        - editionKind
-        - sourceRevision
-        - sourceDigest
-      type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse:
-      additionalProperties: false
-      properties:
-        generationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        operationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        state:
-          $ref: "#/components/schemas/PrismGenerationState"
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - generationId
-        - version
-        - state
-        - operationId
-      type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPublishesByPublishIdCancelRequest:
       additionalProperties: false
       properties:
@@ -21881,100 +21722,6 @@ components:
       required:
         - login
       type: object
-    PrismEditionKind:
-      description: "The depth of a generated edition: `QUICK_READ`, `STANDARD` or `DEEP_DIVE`."
-      enum:
-        - QUICK_READ
-        - STANDARD
-        - DEEP_DIVE
-      type: string
-    PrismGeneration:
-      additionalProperties: false
-      description: One Prism edition generation for one article (SCHEMA-3.3.0). The article text is sent to the AI provider; the result is a candidate the author accepts into a draft or discards. Nothing is published by a generation. `candidate` is present from `CANDIDATE_READY`; `failure` once `FAILED`.
-      properties:
-        candidate:
-          additionalProperties: false
-          properties:
-            body:
-              description: The generated edition body, Markdown.
-              maxLength: 65536
-              minLength: 1
-              type: string
-            generatedAt:
-              $ref: "#/components/schemas/PortableProblemRfc3339"
-            model:
-              maxLength: 120
-              minLength: 1
-              type: string
-          required:
-            - body
-            - generatedAt
-            - model
-          type: object
-        contentPath:
-          maxLength: 512
-          minLength: 1
-          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
-          type: string
-        createdAt:
-          $ref: "#/components/schemas/PortableProblemRfc3339"
-        editionKind:
-          $ref: "#/components/schemas/PrismEditionKind"
-        expiresAt:
-          $ref: "#/components/schemas/PortableProblemRfc3339"
-        failure:
-          additionalProperties: false
-          properties:
-            code:
-              maxLength: 80
-              minLength: 1
-              pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
-              type: string
-            detail:
-              maxLength: 500
-              minLength: 1
-              type: string
-          required:
-            - code
-            - detail
-          type: object
-        generationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        sourceDigest:
-          pattern: ^sha256:[0-9a-f]{64}$
-          type: string
-        state:
-          $ref: "#/components/schemas/PrismGenerationState"
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - generationId
-        - version
-        - state
-        - editionKind
-        - contentPath
-        - sourceDigest
-        - createdAt
-        - expiresAt
-      type: object
-    PrismGenerationState:
-      description: "`REQUESTED` -> `RESERVED` (a unit is reserved) -> `RUNNING` -> `CANDIDATE_READY` (the unit is spent) -> `ACCEPTED` | `REJECTED`; `PROVIDER_UNKNOWN` while the provider's answer is being reconciled; `CANCELLED`, `EXPIRED` (7 days after the candidate) and `FAILED` are terminal."
-      enum:
-        - REQUESTED
-        - RESERVED
-        - RUNNING
-        - PROVIDER_UNKNOWN
-        - CANDIDATE_READY
-        - ACCEPTED
-        - REJECTED
-        - CANCELLED
-        - EXPIRED
-        - FAILED
-      type: string
     Problem:
       $ref: "#/components/schemas/PortableProblemDocument"
     PublicCount:
@@ -35588,7 +35335,11 @@ paths:
                       includedDomain: false
                     galascribeAddressZone: galascribe.com
                     grantExpiresAt: null
+                    siteCount: 2
+                    siteLimit: 10
+                    siteLimitSource: PLAN
                     source: STRIPE
+                    supportUrl: https://github.com/galascribe/support/issues
                     tier: PRO
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPlanResponse"
@@ -38590,6 +38341,19 @@ paths:
           content:
             application/problem+json:
               examples:
+                PUBLICATION_CAP_EXCEEDED:
+                  summary: PUBLICATION_CAP_EXCEEDED
+                  value:
+                    code: PUBLICATION_CAP_EXCEEDED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: This organization has reached its limit of 10 active publications.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: PUBLICATION_CAP_EXCEEDED
+                    type: urn:gala:problem:publication-cap-exceeded
                 VALIDATION_FAILED:
                   summary: VALIDATION_FAILED
                   value:
@@ -38605,13 +38369,14 @@ paths:
                     type: urn:gala:problem:validation-failed
               schema:
                 $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
+          description: PUBLICATION_CAP_EXCEEDED, VALIDATION_FAILED
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
             X-Correlation-Id:
               $ref: "#/components/headers/XCorrelationId"
           x-gala-problem-codes:
+            - PUBLICATION_CAP_EXCEEDED
             - VALIDATION_FAILED
         "503":
           content:
@@ -38660,6 +38425,7 @@ paths:
         - CAPABILITY_UNAVAILABLE
         - COMMAND_REPLAY_CONFLICT
         - INVALID_SOURCE_STATE
+        - PUBLICATION_CAP_EXCEEDED
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
         - STALE_AGGREGATE_VERSION
@@ -49883,188 +49649,6 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-  /v2/organizations/{organizationId}/publications/{publicationId}/generation-policy:
-    get:
-      description: |
-        Whether Prism can generate editions for this publication and how many
-        units are left this period (UTC month). `enabled: false` means
-        generation is off; the editor says so and stays usable.
-      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    editionKinds:
-                      - QUICK_READ
-                      - STANDARD
-                      - DEEP_DIVE
-                    enabled: true
-                    periodEndsAt: "2026-11-01T00:00:00.000Z"
-                    unitsPerPeriod: 20
-                    unitsRemaining: 12
-                    unitsUsed: 8
-              schema:
-                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicyResponse"
-          description: read the Prism generation policy succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-      security:
-        - browserSession: []
-      summary: read the Prism generation policy
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: authorization-and-publication-epochs
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: read the Prism generation policy
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - RESOURCE_NOT_FOUND
-        - VALIDATION_FAILED
-      x-gala-replay-identity: safe-query
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: query
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/handover:
     get:
       description: |
@@ -52548,6 +52132,12 @@ paths:
                   value:
                     budget:
                       available: true
+                    editorQuota:
+                      limit: 2
+                      period: "2026-11-02"
+                      remaining: 2
+                      renewsAt: "2026-11-09T00:00:00Z"
+                      used: 0
                     enabled: true
                     plan:
                       allowed: true
@@ -52563,6 +52153,12 @@ paths:
                   value:
                     budget:
                       available: true
+                    editorQuota:
+                      limit: 2
+                      period: "2026-11-02"
+                      remaining: 2
+                      renewsAt: "2026-11-09T00:00:00Z"
+                      used: 0
                     enabled: true
                     plan:
                       allowed: true
@@ -53185,6 +52781,7 @@ paths:
                         publicationId: 018f0000-0000-7000-8000-000000000002
                         state: CAPTURED
                         turnCount: 0
+                        unitKind: INTERVIEW
                         updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsResponse"
@@ -53328,7 +52925,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     post:
       description: |
-        Saves the material (a note, a voice transcript or a link with its text) as an interview in `CAPTURED`. Nothing is asked and no quota unit is used yet; `POST .../interviews/{interviewId}:start` begins the conversation. The plan must be `PRO` (sold as Basic) or above: `409 PLAN_REQUIRED` below `PRO`. `503 CAPABILITY_UNAVAILABLE` when Interview is off. `201`.
+        Saves the material (a note, a voice transcript or a link with its text) as an interview in `CAPTURED`. SCHEMA-3.49.0: `kind: ARTICLE` captures one of the site's own posts instead (`capture.articlePath`, with `capture.text` empty); `text` is required unless `kind` is `ARTICLE` and `articlePath` is given. Nothing is asked and no quota unit is used yet; `POST .../interviews/{interviewId}:start` begins the conversation. The plan must be `PRO` (sold as Basic) or above: `409 PLAN_REQUIRED` below `PRO`. `503 CAPABILITY_UNAVAILABLE` when Interview is off. `201`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviews
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -53390,6 +52987,7 @@ paths:
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: CAPTURED
                     turns: []
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsResponse"
@@ -53761,6 +53359,7 @@ paths:
                         role: AUTHOR
                         seq: 2
                         text: The account-type step. I expected no one to notice.
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdResponse"
@@ -54026,6 +53625,7 @@ paths:
                         role: AUTHOR
                         seq: 2
                         text: The account-type step. I expected no one to notice.
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
                     working:
                       body: |-
@@ -54336,6 +53936,7 @@ paths:
                         role: INTERVIEWER
                         seq: 3
                         text: Who noticed first?
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdTurnsResponse"
@@ -54734,6 +54335,7 @@ paths:
                         role: AUTHOR
                         seq: 2
                         text: The account-type step. I expected no one to notice.
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdAcceptResponse"
@@ -54993,6 +54595,7 @@ paths:
                     publicationId: 018f0000-0000-7000-8000-000000000002
                     state: CANCELLED
                     turns: []
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdCancelResponse"
@@ -55264,6 +54867,7 @@ paths:
                         role: AUTHOR
                         seq: 2
                         text: The account-type step. I expected no one to notice.
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdFinishResponse"
@@ -55539,7 +55143,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/interviews/{interviewId}:start:
     post:
       description: |
-        Reserves one unit of the organization's weekly allowance (the UTC week starting Monday; 2 on Basic, 5 on Pro by default) and asks the first question. Only from `CAPTURED`. `429 QUOTA_EXHAUSTED` with `Retry-After` when no unit is left this period; `503 BUDGET_EXHAUSTED` when the platform's optional monthly spend cap is reached; `503 PROVIDER_UNAVAILABLE` when the question could not be asked (nothing is stored and no unit is used; retry).
+        Reserves one unit of the organization's weekly allowance (the UTC week starting Monday; 2 on Basic, 5 on Pro by default) and asks the first question. Only from `CAPTURED`. `429 QUOTA_EXHAUSTED` with `Retry-After` when no unit is left this period; `503 BUDGET_EXHAUSTED` when the platform's optional monthly spend cap is reached; `503 PROVIDER_UNAVAILABLE` when the question could not be asked (nothing is stored and no unit is used; retry). SCHEMA-3.49.0: an `ARTICLE` room has no question stage. It spends an `EDITOR` unit (the `editorQuota` allowance, counted apart from interviews) and moves from `CAPTURED` straight to `WRITING`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -55602,6 +55206,7 @@ paths:
                         role: INTERVIEWER
                         seq: 1
                         text: What did you cut first, and what did you expect to happen?
+                    unitKind: INTERVIEW
                     updatedAt: "2026-11-04T12:00:00.000Z"
               schema:
                 $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStartResponse"
@@ -58748,1531 +58353,6 @@ paths:
         - RepositoryBinding:ACTIVE
         - RepositoryChange:REQUESTED -> PLANNED
       x-gala-success-category: protocol
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-  /v2/organizations/{organizationId}/publications/{publicationId}/prism-generations:
-    get:
-      description: |
-        This publication's generations, newest first, optionally for one
-        article.
-      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - description: Only generations of this article.
-          example: content/my-post.md
-          in: query
-          name: contentPath
-          required: false
-          schema:
-            maxLength: 512
-            minLength: 1
-            pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
-            type: string
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    hasMore: false
-                    items:
-                      - candidate:
-                          body: The short version of the post.
-                          generatedAt: "2026-10-09T12:00:00.000Z"
-                          model: claude-sonnet-5-5
-                        contentPath: content/my-post.md
-                        createdAt: "2026-10-09T12:00:00.000Z"
-                        editionKind: QUICK_READ
-                        expiresAt: "2026-10-16T12:00:00.000Z"
-                        generationId: 018f0000-0000-7000-8000-000000000001
-                        sourceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-                        state: CANDIDATE_READY
-                        version: 3
-              schema:
-                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse"
-          description: list Prism generations succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-      security:
-        - browserSession: []
-      summary: list Prism generations
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: authorization-and-publication-epochs
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: list Prism generations
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - RESOURCE_NOT_FOUND
-        - VALIDATION_FAILED
-      x-gala-replay-identity: safe-query
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: query
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-    post:
-      description: |
-        Starts generating one edition of the article at `contentPath` as it is
-        at `sourceRevision` (`sourceDigest` is that article body's digest). Uses
-        one unit of the organization's monthly allowance. `503
-        CAPABILITY_UNAVAILABLE` when Prism is off; `429 QUOTA_EXHAUSTED` with
-        `Retry-After` when no unit is left this period. `202`; poll `GET
-        .../prism-generations/{generationId}`.
-      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - $ref: "#/components/parameters/IdempotencyKey"
-        - $ref: "#/components/parameters/XCsrfToken"
-      requestBody:
-        content:
-          application/json:
-            examples:
-              nominal:
-                summary: Nominal valid request
-                value:
-                  contentPath: content/my-post.md
-                  editionKind: QUICK_READ
-                  sourceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-                  sourceRevision: sha1:0000000000000000000000000000000000000000
-            schema:
-              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsRequest"
-        required: true
-      responses:
-        "202":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    generationId: 018f0000-0000-7000-8000-000000000001
-                    operationId: 018f0000-0000-7000-8000-000000000002
-                    state: REQUESTED
-                    version: 0
-              schema:
-                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse"
-          description: generate a Prism edition of an article succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                REQUEST_FIELD_UNKNOWN:
-                  summary: REQUEST_FIELD_UNKNOWN
-                  value:
-                    code: REQUEST_FIELD_UNKNOWN
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: REQUEST_FIELD_UNKNOWN
-                    type: urn:gala:problem:request-field-unknown
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - REQUEST_FIELD_UNKNOWN
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-        "409":
-          content:
-            application/problem+json:
-              examples:
-                COMMAND_REPLAY_CONFLICT:
-                  summary: COMMAND_REPLAY_CONFLICT
-                  value:
-                    code: COMMAND_REPLAY_CONFLICT
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: COMMAND_REPLAY_CONFLICT
-                    type: urn:gala:problem:command-replay-conflict
-                TRANSFER_PENDING:
-                  summary: TRANSFER_PENDING
-                  value:
-                    code: TRANSFER_PENDING
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: TRANSFER_PENDING
-                    type: urn:gala:problem:transfer-pending
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: COMMAND_REPLAY_CONFLICT, TRANSFER_PENDING
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - COMMAND_REPLAY_CONFLICT
-            - TRANSFER_PENDING
-        "429":
-          content:
-            application/problem+json:
-              examples:
-                QUOTA_EXHAUSTED:
-                  summary: QUOTA_EXHAUSTED
-                  value:
-                    code: QUOTA_EXHAUSTED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 429
-                    title: QUOTA_EXHAUSTED
-                    type: urn:gala:problem:quota-exhausted
-                RATE_LIMITED:
-                  summary: RATE_LIMITED
-                  value:
-                    code: RATE_LIMITED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: true
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 429
-                    title: RATE_LIMITED
-                    type: urn:gala:problem:rate-limited
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: QUOTA_EXHAUSTED, RATE_LIMITED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            Retry-After:
-              $ref: "#/components/headers/RetryAfter"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - QUOTA_EXHAUSTED
-            - RATE_LIMITED
-        "503":
-          content:
-            application/problem+json:
-              examples:
-                CAPABILITY_UNAVAILABLE:
-                  summary: CAPABILITY_UNAVAILABLE
-                  value:
-                    code: CAPABILITY_UNAVAILABLE
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 503
-                    title: CAPABILITY_UNAVAILABLE
-                    type: urn:gala:problem:capability-unavailable
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: CAPABILITY_UNAVAILABLE
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - CAPABILITY_UNAVAILABLE
-      security:
-        - browserSession: []
-      summary: generate a Prism edition of an article
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - Prism generation enabled for this deployment and publication
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: binding-epoch
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: generate a Prism edition of an article
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - CAPABILITY_UNAVAILABLE
-        - COMMAND_REPLAY_CONFLICT
-        - QUOTA_EXHAUSTED
-        - RATE_LIMITED
-        - REQUEST_FIELD_UNKNOWN
-        - RESOURCE_NOT_FOUND
-        - TRANSFER_PENDING
-        - VALIDATION_FAILED
-      x-gala-replay-identity: idempotency-key
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: async
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-  /v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:
-    get:
-      description: |
-        One generation; the editor polls it while it runs.
-      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: generationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    candidate:
-                      body: The short version of the post.
-                      generatedAt: "2026-10-09T12:00:00.000Z"
-                      model: claude-sonnet-5-5
-                    contentPath: content/my-post.md
-                    createdAt: "2026-10-09T12:00:00.000Z"
-                    editionKind: QUICK_READ
-                    expiresAt: "2026-10-16T12:00:00.000Z"
-                    generationId: 018f0000-0000-7000-8000-000000000001
-                    sourceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-                    state: CANDIDATE_READY
-                    version: 3
-              schema:
-                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdResponse"
-          description: read a Prism generation succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-      security:
-        - browserSession: []
-      summary: read a Prism generation
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: prism-generation-version
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: read a Prism generation
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - RESOURCE_NOT_FOUND
-        - VALIDATION_FAILED
-      x-gala-replay-identity: safe-query
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: query
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-  /v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:accept:
-    post:
-      description: |
-        Accepts a `CANDIDATE_READY` candidate ("Use this edition") and returns
-        the edition document ready to be put in a change: `edition.path` is
-        `content/<slug>.edition.<quick-read|standard|deep-dive>.md` and
-        `edition.text` its full text with front matter (`kind: edition` and the
-        `edition` block, `sourceDigest` the article body digest the candidate
-        was generated from). Nothing is written to the repository by this. `409
-        GENERATION_NOT_READY` unless the candidate is ready; `409
-        SOURCE_CHANGED` when the article changed since.
-      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: generationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - $ref: "#/components/parameters/IdempotencyKey"
-        - $ref: "#/components/parameters/XCsrfToken"
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    edition:
-                      path: content/my-post.edition.quick-read.md
-                      text: |
-                        ---
-                        kind: edition
-                        ---
-                        The short version of the post.
-                    generation:
-                      candidate:
-                        body: The short version of the post.
-                        generatedAt: "2026-10-09T12:00:00.000Z"
-                        model: claude-sonnet-5-5
-                      contentPath: content/my-post.md
-                      createdAt: "2026-10-09T12:00:00.000Z"
-                      editionKind: QUICK_READ
-                      expiresAt: "2026-10-16T12:00:00.000Z"
-                      generationId: 018f0000-0000-7000-8000-000000000001
-                      sourceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-                      state: ACCEPTED
-                      version: 4
-              schema:
-                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAcceptResponse"
-          description: accept a Prism candidate as an edition succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-        "409":
-          content:
-            application/problem+json:
-              examples:
-                COMMAND_REPLAY_CONFLICT:
-                  summary: COMMAND_REPLAY_CONFLICT
-                  value:
-                    code: COMMAND_REPLAY_CONFLICT
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: COMMAND_REPLAY_CONFLICT
-                    type: urn:gala:problem:command-replay-conflict
-                GENERATION_NOT_READY:
-                  summary: GENERATION_NOT_READY
-                  value:
-                    code: GENERATION_NOT_READY
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: GENERATION_NOT_READY
-                    type: urn:gala:problem:generation-not-ready
-                SOURCE_CHANGED:
-                  summary: SOURCE_CHANGED
-                  value:
-                    code: SOURCE_CHANGED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: SOURCE_CHANGED
-                    type: urn:gala:problem:source-changed
-                TRANSFER_PENDING:
-                  summary: TRANSFER_PENDING
-                  value:
-                    code: TRANSFER_PENDING
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: TRANSFER_PENDING
-                    type: urn:gala:problem:transfer-pending
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: COMMAND_REPLAY_CONFLICT, GENERATION_NOT_READY, SOURCE_CHANGED, TRANSFER_PENDING
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - COMMAND_REPLAY_CONFLICT
-            - GENERATION_NOT_READY
-            - SOURCE_CHANGED
-            - TRANSFER_PENDING
-        "503":
-          content:
-            application/problem+json:
-              examples:
-                DEPENDENCY_UNAVAILABLE:
-                  summary: DEPENDENCY_UNAVAILABLE
-                  value:
-                    code: DEPENDENCY_UNAVAILABLE
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: true
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 503
-                    title: DEPENDENCY_UNAVAILABLE
-                    type: urn:gala:problem:dependency-unavailable
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: DEPENDENCY_UNAVAILABLE
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - DEPENDENCY_UNAVAILABLE
-      security:
-        - browserSession: []
-      summary: accept a Prism candidate as an edition
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: prism-generation-version
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: accept a Prism candidate as an edition
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - COMMAND_REPLAY_CONFLICT
-        - DEPENDENCY_UNAVAILABLE
-        - GENERATION_NOT_READY
-        - RESOURCE_NOT_FOUND
-        - SOURCE_CHANGED
-        - TRANSFER_PENDING
-        - VALIDATION_FAILED
-      x-gala-replay-identity: idempotency-key
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: protocol
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-  /v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:cancel:
-    post:
-      description: |
-        Stops a generation that has no candidate yet; a reserved unit is
-        released. `409 INVALID_SOURCE_STATE` once a candidate exists or it is
-        settled.
-      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: generationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - $ref: "#/components/parameters/IdempotencyKey"
-        - $ref: "#/components/parameters/XCsrfToken"
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    contentPath: content/my-post.md
-                    createdAt: "2026-10-09T12:00:00.000Z"
-                    editionKind: QUICK_READ
-                    expiresAt: "2026-10-16T12:00:00.000Z"
-                    generationId: 018f0000-0000-7000-8000-000000000001
-                    sourceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-                    state: CANCELLED
-                    version: 2
-              schema:
-                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancelResponse"
-          description: cancel a Prism generation succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            ETag:
-              $ref: "#/components/headers/ETag"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-        "409":
-          content:
-            application/problem+json:
-              examples:
-                COMMAND_REPLAY_CONFLICT:
-                  summary: COMMAND_REPLAY_CONFLICT
-                  value:
-                    code: COMMAND_REPLAY_CONFLICT
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: COMMAND_REPLAY_CONFLICT
-                    type: urn:gala:problem:command-replay-conflict
-                INVALID_SOURCE_STATE:
-                  summary: INVALID_SOURCE_STATE
-                  value:
-                    code: INVALID_SOURCE_STATE
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: INVALID_SOURCE_STATE
-                    type: urn:gala:problem:invalid-source-state
-                TRANSFER_PENDING:
-                  summary: TRANSFER_PENDING
-                  value:
-                    code: TRANSFER_PENDING
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: TRANSFER_PENDING
-                    type: urn:gala:problem:transfer-pending
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE, TRANSFER_PENDING
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - COMMAND_REPLAY_CONFLICT
-            - INVALID_SOURCE_STATE
-            - TRANSFER_PENDING
-      security:
-        - browserSession: []
-      summary: cancel a Prism generation
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: prism-generation-version
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: cancel a Prism generation
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - COMMAND_REPLAY_CONFLICT
-        - INVALID_SOURCE_STATE
-        - RESOURCE_NOT_FOUND
-        - TRANSFER_PENDING
-        - VALIDATION_FAILED
-      x-gala-replay-identity: idempotency-key
-      x-gala-state-guards:
-        - PrismGeneration:REQUESTED|RESERVED|RUNNING|PROVIDER_UNKNOWN -> CANCELLED
-      x-gala-success-category: update
-      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
-  /v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:reject:
-    post:
-      description: |
-        Discards a `CANDIDATE_READY` candidate ("Discard"); the spent unit is
-        not returned. `409 GENERATION_NOT_READY` otherwise.
-      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: organizationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: publicationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - example: 018f0000-0000-7000-8000-000000000001
-          in: path
-          name: generationId
-          required: true
-          schema:
-            format: uuid
-            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-            type: string
-        - $ref: "#/components/parameters/IdempotencyKey"
-        - $ref: "#/components/parameters/XCsrfToken"
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    contentPath: content/my-post.md
-                    createdAt: "2026-10-09T12:00:00.000Z"
-                    editionKind: QUICK_READ
-                    expiresAt: "2026-10-16T12:00:00.000Z"
-                    generationId: 018f0000-0000-7000-8000-000000000001
-                    sourceDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-                    state: REJECTED
-                    version: 4
-              schema:
-                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdRejectResponse"
-          description: discard a Prism candidate succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            ETag:
-              $ref: "#/components/headers/ETag"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          content:
-            application/problem+json:
-              examples:
-                VALIDATION_FAILED:
-                  summary: VALIDATION_FAILED
-                  value:
-                    code: VALIDATION_FAILED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 400
-                    title: VALIDATION_FAILED
-                    type: urn:gala:problem:validation-failed
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: VALIDATION_FAILED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - VALIDATION_FAILED
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-        "403":
-          content:
-            application/problem+json:
-              examples:
-                AUTHORIZATION_DENIED:
-                  summary: AUTHORIZATION_DENIED
-                  value:
-                    code: AUTHORIZATION_DENIED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 403
-                    title: AUTHORIZATION_DENIED
-                    type: urn:gala:problem:authorization-denied
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHORIZATION_DENIED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHORIZATION_DENIED
-        "404":
-          content:
-            application/problem+json:
-              examples:
-                RESOURCE_NOT_FOUND:
-                  summary: RESOURCE_NOT_FOUND
-                  value:
-                    code: RESOURCE_NOT_FOUND
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 404
-                    title: RESOURCE_NOT_FOUND
-                    type: urn:gala:problem:resource-not-found
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: RESOURCE_NOT_FOUND
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - RESOURCE_NOT_FOUND
-        "409":
-          content:
-            application/problem+json:
-              examples:
-                COMMAND_REPLAY_CONFLICT:
-                  summary: COMMAND_REPLAY_CONFLICT
-                  value:
-                    code: COMMAND_REPLAY_CONFLICT
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: COMMAND_REPLAY_CONFLICT
-                    type: urn:gala:problem:command-replay-conflict
-                GENERATION_NOT_READY:
-                  summary: GENERATION_NOT_READY
-                  value:
-                    code: GENERATION_NOT_READY
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: GENERATION_NOT_READY
-                    type: urn:gala:problem:generation-not-ready
-                TRANSFER_PENDING:
-                  summary: TRANSFER_PENDING
-                  value:
-                    code: TRANSFER_PENDING
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: TRANSFER_PENDING
-                    type: urn:gala:problem:transfer-pending
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: COMMAND_REPLAY_CONFLICT, GENERATION_NOT_READY, TRANSFER_PENDING
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - COMMAND_REPLAY_CONFLICT
-            - GENERATION_NOT_READY
-            - TRANSFER_PENDING
-      security:
-        - browserSession: []
-      summary: discard a Prism candidate
-      tags:
-        - prism
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: publication.source.write
-      x-gala-concurrency: prism-generation-version
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: discard a Prism candidate
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - COMMAND_REPLAY_CONFLICT
-        - GENERATION_NOT_READY
-        - RESOURCE_NOT_FOUND
-        - TRANSFER_PENDING
-        - VALIDATION_FAILED
-      x-gala-replay-identity: idempotency-key
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: update
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/publishes:
     post:
@@ -75391,12 +73471,12 @@ paths:
                   summary: Nominal successful response
                   value:
                     families:
-                      - family: prism
+                      - family: editor
                         keys:
                           - defaultValue: "20"
-                            description: Free Prism units per organization per month.
+                            description: Editor runs per Basic organization per week.
                             effectiveValue: "20"
-                            key: prism.generation.freeMonthlyUnits
+                            key: editor.weeklyUnitsPerBasicOrganization
                             maximum: null
                             minimum: "0"
                             source: CATALOG
@@ -76193,6 +74273,7 @@ paths:
                           startedAt: "2026-11-04T12:00:00.000Z"
                           state: DRAFT_READY
                           turnCount: 12
+                          unitKind: INTERVIEW
                           updatedAt: "2026-11-04T12:04:00.000Z"
                         requestedByPersonId: 018f0000-0000-7000-8000-000000000004
                         usdMicros: 812345
@@ -76333,6 +74414,7 @@ paths:
                           role: AUTHOR
                           seq: 2
                           text: The account-type step. I expected no one to notice.
+                      unitKind: INTERVIEW
                       updatedAt: "2026-11-04T12:04:00.000Z"
                     requestedByPersonId: 018f0000-0000-7000-8000-000000000004
               schema:
@@ -77458,175 +75540,6 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: update
-      x-gala-tenant-scope: NONE
-  /v2/platform/prism-generations:
-    get:
-      description: |
-        Operators only (`ADMIN` or `ROOT`). Every Prism edition generation on
-        the platform across all organizations, newest first, one keyset page at
-        a time. Article text and candidate bodies are never exposed, only the
-        generation's state, size and ownership.
-      operationId: getPlatformPrismGenerations
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - description: Only generations in this state.
-          example: CANDIDATE_READY
-          in: query
-          name: state
-          required: false
-          schema:
-            $ref: "#/components/schemas/PrismGenerationState"
-        - $ref: "#/components/parameters/Cursor"
-        - $ref: "#/components/parameters/Limit"
-      responses:
-        "200":
-          content:
-            application/json:
-              examples:
-                nominal:
-                  summary: Nominal successful response
-                  value:
-                    hasMore: false
-                    items:
-                      - createdAt: "2026-10-10T12:00:00.000Z"
-                        editionKind: QUICK_READ
-                        generationId: 018f0000-0000-7000-8000-000000000001
-                        organizationId: 018f0000-0000-7000-8000-000000000003
-                        publicationId: 018f0000-0000-7000-8000-000000000002
-                        state: CANDIDATE_READY
-                    nextCursor: null
-              schema:
-                $ref: "#/components/schemas/GetPlatformPrismGenerationsResponse"
-          description: list platform Prism generations succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          $ref: "#/components/responses/ValidationFailed"
-        "401":
-          $ref: "#/components/responses/PlatformAuthenticationRequired"
-        "403":
-          $ref: "#/components/responses/AuthorizationDenied"
-      security:
-        - browserSession: []
-      summary: list platform Prism generations
-      tags:
-        - platform
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-capability-key: platform.prism.view
-      x-gala-concurrency: none
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: list platform Prism generations
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - REAUTH_REQUIRED
-        - VALIDATION_FAILED
-      x-gala-replay-identity: safe-query
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: query
-      x-gala-tenant-scope: NONE
-  /v2/platform/prism-generations:export:
-    post:
-      description: Operators only (`ADMIN` or `ROOT`), with recent authentication (`401 REAUTH_REQUIRED` when the session is stale). The answer is a UTF-8 CSV file with a header row (`generationId,organizationId,publicationId,editionKind,state,createdAt`) that the operator App saves as a download. A cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return is prefixed with an apostrophe so a spreadsheet does not run it as a formula.
-      operationId: postPlatformPrismGenerationsExport
-      parameters:
-        - $ref: "#/components/parameters/XCorrelationId"
-        - $ref: "#/components/parameters/XCsrfToken"
-      responses:
-        "200":
-          content:
-            text/csv:
-              schema:
-                format: binary
-                type: string
-          description: export platform Prism generations as CSV succeeded
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            Content-Disposition:
-              $ref: "#/components/headers/ContentDispositionAttachment"
-            X-Content-Type-Options:
-              $ref: "#/components/headers/XContentTypeOptionsNosniff"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-        "400":
-          $ref: "#/components/responses/ValidationFailed"
-        "401":
-          content:
-            application/problem+json:
-              examples:
-                AUTHENTICATION_REQUIRED:
-                  summary: AUTHENTICATION_REQUIRED
-                  value:
-                    code: AUTHENTICATION_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: AUTHENTICATION_REQUIRED
-                    type: urn:gala:problem:authentication-required
-                REAUTH_REQUIRED:
-                  summary: REAUTH_REQUIRED
-                  value:
-                    code: REAUTH_REQUIRED
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 401
-                    title: REAUTH_REQUIRED
-                    type: urn:gala:problem:reauth-required
-              schema:
-                $ref: "#/components/schemas/Problem"
-          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
-          headers:
-            Cache-Control:
-              $ref: "#/components/headers/CacheControlNoStore"
-            X-Correlation-Id:
-              $ref: "#/components/headers/XCorrelationId"
-          x-gala-problem-codes:
-            - AUTHENTICATION_REQUIRED
-            - REAUTH_REQUIRED
-        "403":
-          $ref: "#/components/responses/AuthorizationDenied"
-      security:
-        - browserSession: []
-      summary: export platform Prism generations as CSV
-      tags:
-        - platform
-      x-gala-action-grant: none
-      x-gala-activation-gate: MVP
-      x-gala-activation-guards:
-        - NONE
-      x-gala-assurance-class: RECENT_AUTHENTICATION
-      x-gala-capability-key: platform.prism.export
-      x-gala-concurrency: none
-      x-gala-conditional-capabilities: []
-      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
-      x-gala-nullability: required-and-nullable-are-explicit
-      x-gala-purpose: export platform Prism generations as CSV
-      x-gala-reachable-problems:
-        - AUTHENTICATION_REQUIRED
-        - AUTHORIZATION_DENIED
-        - REAUTH_REQUIRED
-        - VALIDATION_FAILED
-      x-gala-replay-identity: natural-idempotent-state
-      x-gala-state-guards:
-        - NONE
-      x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
   /v2/platform/settings/overrides/{kind}/{id}/{key}:
     delete:
@@ -91694,7 +89607,6 @@ tags:
   - name: notifications
   - name: organizations
   - name: platform
-  - name: prism
   - name: public-interactions
   - name: publication-transfers
   - name: reader

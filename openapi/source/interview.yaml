@@ -47,6 +47,12 @@ paths:
                       remaining: 2
                       renewsAt: 2026-11-09T00:00:00Z
                       used: 3
+                    editorQuota:
+                      limit: 2
+                      period: 2026-11-02
+                      remaining: 2
+                      renewsAt: 2026-11-09T00:00:00Z
+                      used: 0
                 basic:
                   summary: A Basic site
                   value:
@@ -62,6 +68,12 @@ paths:
                       remaining: 1
                       renewsAt: 2026-11-09T00:00:00Z
                       used: 1
+                    editorQuota:
+                      limit: 2
+                      period: 2026-11-02
+                      remaining: 2
+                      renewsAt: 2026-11-09T00:00:00Z
+                      used: 0
               schema:
                 $ref:
                   "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPubli\
@@ -676,6 +688,7 @@ paths:
                         createdAt: 2026-11-04T12:00:00.000Z
                         expiresAt: 2026-11-11T12:00:00.000Z
                         interviewId: 018f0000-0000-7000-8000-000000000001
+                        unitKind: INTERVIEW
                         organizationId: 018f0000-0000-7000-8000-000000000003
                         progress: &a2
                           beliefDone: false
@@ -836,7 +849,10 @@ paths:
     post:
       description: >
         Saves the material (a note, a voice transcript or a link with its text)
-        as an interview in `CAPTURED`. Nothing is asked and no quota unit is
+        as an interview in `CAPTURED`. SCHEMA-3.49.0: `kind: ARTICLE` captures
+        one of the site's own posts instead (`capture.articlePath`, with
+        `capture.text` empty); `text` is required unless `kind` is `ARTICLE`
+        and `articlePath` is given. Nothing is asked and no quota unit is
         used yet; `POST .../interviews/{interviewId}:start` begins the
         conversation. The plan must be `PRO` (sold as Basic) or above: `409
         PLAN_REQUIRED` below `PRO`. `503 CAPABILITY_UNAVAILABLE` when Interview
@@ -874,6 +890,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress: *a2
                     publicationId: 018f0000-0000-7000-8000-000000000002
@@ -1184,6 +1201,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress: &a6
                       beliefDone: false
@@ -1427,6 +1445,9 @@ paths:
         platform's optional monthly spend cap is reached; `503
         PROVIDER_UNAVAILABLE` when the question could not be asked (nothing is
         stored and no unit is used; retry).
+        SCHEMA-3.49.0: an `ARTICLE` room has no question stage. It spends an
+        `EDITOR` unit (the `editorQuota` allowance, counted apart from
+        interviews) and moves from `CAPTURED` straight to `WRITING`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdInterviewsByInterviewIdStart
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1461,6 +1482,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress:
                       beliefDone: false
@@ -1840,6 +1862,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress:
                       beliefDone: false
@@ -2223,6 +2246,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress: *a6
                     publicationId: 018f0000-0000-7000-8000-000000000002
@@ -2548,6 +2572,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress: *a2
                     publicationId: 018f0000-0000-7000-8000-000000000002
@@ -2795,6 +2820,7 @@ paths:
                     createdAt: 2026-11-04T12:00:00.000Z
                     expiresAt: 2026-11-11T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     progress: *a6
                     publicationId: 018f0000-0000-7000-8000-000000000002
@@ -3054,6 +3080,7 @@ paths:
                     expiresAt: 2026-11-11T12:00:00.000Z
                     finishedAt: 2026-11-04T12:00:00.000Z
                     interviewId: 018f0000-0000-7000-8000-000000000001
+                    unitKind: INTERVIEW
                     organizationId: 018f0000-0000-7000-8000-000000000003
                     points:
                       - id: p1

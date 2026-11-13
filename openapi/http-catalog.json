@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:b172efb3880134b16a0f08c95c9e575c7fa9666a8163e36cb4896b5203580a81",
+  "openApiDigest": "sha256:eb213bf37796bef04ca3a3e913002906a751ef6d3357cc822bf9e38b7265cbac",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1363,19 +1363,6 @@
       "sourceFragment": "audience"
     },
     {
-      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicy",
-      "method": "GET",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/generation-policy",
-      "purpose": "read the Prism generation policy",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
-    },
-    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdHandover",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/handover",
@@ -1855,84 +1842,6 @@
       "actionGrant": "none",
       "apiKeyScope": "content:write",
       "sourceFragment": "interaction-settings"
-    },
-    {
-      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
-      "method": "GET",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations",
-      "purpose": "list Prism generations",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
-    },
-    {
-      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerations",
-      "method": "POST",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations",
-      "purpose": "generate a Prism edition of an article",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
-    },
-    {
-      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationId",
-      "method": "GET",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}",
-      "purpose": "read a Prism generation",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
-    },
-    {
-      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept",
-      "method": "POST",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:accept",
-      "purpose": "accept a Prism candidate as an edition",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
-    },
-    {
-      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancel",
-      "method": "POST",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:cancel",
-      "purpose": "cancel a Prism generation",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
-    },
-    {
-      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdReject",
-      "method": "POST",
-      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations/{generationId}:reject",
-      "purpose": "discard a Prism candidate",
-      "capabilityKey": "publication.source.write",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "prism"
     },
     {
       "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdPublishes",
@@ -2941,32 +2850,6 @@
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "platform"
-    },
-    {
-      "operationId": "getPlatformPrismGenerations",
-      "method": "GET",
-      "path": "/v2/platform/prism-generations",
-      "purpose": "list platform Prism generations",
-      "capabilityKey": "platform.prism.view",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "SESSION",
-      "actionGrant": "none",
-      "apiKeyScope": null,
-      "sourceFragment": "platform"
-    },
-    {
-      "operationId": "postPlatformPrismGenerationsExport",
-      "method": "POST",
-      "path": "/v2/platform/prism-generations:export",
-      "purpose": "export platform Prism generations as CSV",
-      "capabilityKey": "platform.prism.export",
-      "conditionalCapabilityKeys": [],
-      "activationGate": "MVP",
-      "assuranceClass": "RECENT_AUTHENTICATION",
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "platform"
@@ -4272,5 +4155,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:a4a37f790487fbb69fd8d1c267588e03b82827d38e76f3e0b694cbd3ed6c6502"
+  "digest": "sha256:f420fa4b4c9042fe78a0073d44f4ca1d72e7c34470ab3ffc18a0adde11086c44"
 }

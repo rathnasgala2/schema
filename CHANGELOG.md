@@ -8,6 +8,48 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.49.0] - 2026-11-13
+
+The Editor arrives and Prism retires. `schemas/publication.schema.json` is
+untouched, so no template or publish toolchain pin moves. Saved Prism editions
+still validate: `PortableContentFrontmatterContentEdition` and `kind: edition`
+stay in the content front-matter schema.
+
+### Removed (breaking)
+
+- Every Prism operation: the five publication operations under
+  `/v2/organizations/{organizationId}/publications/{publicationId}/prism-generations`
+  (create, list, read, `:accept`, `:cancel`, `:reject`),
+  `GET .../generation-policy`, `GET /v2/platform/prism-generations` and
+  `POST /v2/platform/prism-generations:export`; the `prism` tag and
+  `openapi/source/prism.yaml`.
+- The schemas `PrismEditionKind`, `PrismGenerationState`, `PrismGeneration`,
+  `PlatformPrismGeneration`, `GetPlatformPrismGenerationsResponse` and the
+  `Prism*` request and response schemas of the removed operations, including
+  `GetOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicyResponse`.
+- The `platform.prism` app route and its content keys; the platform setting keys
+  `prism.generationModel` and `prism.monthlyUnits`.
+
+### Added
+
+- `InterviewCaptureKind` gains `ARTICLE`: a post already on the site that the
+  Editor reviews. `InterviewCapture.articlePath` names the post when `text` is
+  empty; `text` is now required unless `kind` is `ARTICLE` with an
+  `articlePath`. An `ARTICLE` room skips the question stage and moves from
+  `CAPTURED` straight to `WRITING` on `:start`.
+- `Interview` and `InterviewListItem` carry a required `unitKind`
+  (`InterviewUnitKind`: `INTERVIEW` or `EDITOR`).
+- `InterviewPolicy` carries a required `editorQuota` with the shape of `quota`.
+- `OrganizationPlan` carries required `siteLimit`, `siteCount`,
+  `siteLimitSource` (`PLAN` or `OVERRIDE`) and `supportUrl`.
+- Problem code `PUBLICATION_CAP_EXCEEDED` (HTTP 422, detail text unchanged:
+  "This organization has reached its limit of N active publications..."),
+  attached to `POST /v2/organizations/{organizationId}/publications`. It
+  replaces the generic `VALIDATION_FAILED` for the site cap.
+- Platform settings: `editor.weeklyUnitsPerBasicOrganization`,
+  `editor.weeklyUnitsPerProOrganization` and
+  `publication.organizationSiteLimit`.
+
 ## [3.48.0] - 2026-11-13
 
 Operators read interviews. `schemas/publication.schema.json` is untouched, so no
@@ -4425,7 +4467,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.47.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.49.0...HEAD
+[3.49.0]: https://github.com/rathnasgala2/schema/compare/v3.48.0...v3.49.0
 [3.48.0]: https://github.com/rathnasgala2/schema/compare/v3.47.0...v3.48.0
 [3.47.0]: https://github.com/rathnasgala2/schema/compare/v3.46.0...v3.47.0
 [3.46.0]: https://github.com/rathnasgala2/schema/compare/v3.45.0...v3.46.0

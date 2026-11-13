@@ -12077,270 +12077,6 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdDetachResponse:
       allOf:
         - $ref: '#/components/schemas/DomainBinding'
-    PrismEditionKind:
-      description:
-        'The depth of a generated edition: `QUICK_READ`, `STANDARD` or
-        `DEEP_DIVE`.'
-      enum:
-        - QUICK_READ
-        - STANDARD
-        - DEEP_DIVE
-      type: string
-    PrismGenerationState:
-      description:
-        "`REQUESTED` -> `RESERVED` (a unit is reserved) -> `RUNNING` ->
-        `CANDIDATE_READY` (the unit is spent) -> `ACCEPTED` | `REJECTED`;
-        `PROVIDER_UNKNOWN` while the provider's answer is being reconciled;
-        `CANCELLED`, `EXPIRED` (7 days after the candidate) and `FAILED` are
-        terminal."
-      enum:
-        - REQUESTED
-        - RESERVED
-        - RUNNING
-        - PROVIDER_UNKNOWN
-        - CANDIDATE_READY
-        - ACCEPTED
-        - REJECTED
-        - CANCELLED
-        - EXPIRED
-        - FAILED
-      type: string
-    PrismGeneration:
-      additionalProperties: false
-      description:
-        One Prism edition generation for one article (SCHEMA-3.3.0). The article
-        text is sent to the AI provider; the result is a candidate the author
-        accepts into a draft or discards. Nothing is published by a generation.
-        `candidate` is present from `CANDIDATE_READY`; `failure` once `FAILED`.
-      properties:
-        candidate:
-          additionalProperties: false
-          properties:
-            body:
-              description: The generated edition body, Markdown.
-              maxLength: 65536
-              minLength: 1
-              type: string
-            generatedAt:
-              $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-            model:
-              maxLength: 120
-              minLength: 1
-              type: string
-          required:
-            - body
-            - generatedAt
-            - model
-          type: object
-        contentPath:
-          maxLength: 512
-          minLength: 1
-          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
-          type: string
-        createdAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        editionKind:
-          $ref: '#/components/schemas/PrismEditionKind'
-        expiresAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        failure:
-          additionalProperties: false
-          properties:
-            code:
-              maxLength: 80
-              minLength: 1
-              pattern: ^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$
-              type: string
-            detail:
-              maxLength: 500
-              minLength: 1
-              type: string
-          required:
-            - code
-            - detail
-          type: object
-        generationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        sourceDigest:
-          pattern: ^sha256:[0-9a-f]{64}$
-          type: string
-        state:
-          $ref: '#/components/schemas/PrismGenerationState'
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - generationId
-        - version
-        - state
-        - editionKind
-        - contentPath
-        - sourceDigest
-        - createdAt
-        - expiresAt
-      type: object
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdGenerationPolicyResponse:
-      additionalProperties: false
-      properties:
-        editionKinds:
-          items:
-            $ref: '#/components/schemas/PrismEditionKind'
-          maxItems: 3
-          minItems: 0
-          type: array
-          uniqueItems: true
-        enabled:
-          type: boolean
-        periodEndsAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        unitsPerPeriod:
-          format: int64
-          minimum: 0
-          type: integer
-        unitsRemaining:
-          format: int64
-          minimum: 0
-          type: integer
-        unitsUsed:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - enabled
-        - unitsPerPeriod
-        - unitsUsed
-        - unitsRemaining
-        - periodEndsAt
-        - editionKinds
-      type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsRequest:
-      additionalProperties: false
-      properties:
-        contentPath:
-          maxLength: 512
-          minLength: 1
-          pattern: ^(?!/)(?!.*(?:^|/)\.)(?!gala(?:/|$))(?!gala\.lock\.json$)[^\x00-\x1f\x7f\\]+$
-          type: string
-        editionKind:
-          $ref: '#/components/schemas/PrismEditionKind'
-        language:
-          maxLength: 35
-          minLength: 2
-          pattern: ^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$
-          type: string
-        sourceDigest:
-          pattern: ^sha256:[0-9a-f]{64}$
-          type: string
-        sourceRevision:
-          pattern: ^(?:sha1:[0-9a-f]{40}|sha256:[0-9a-f]{64})$
-          type: string
-      required:
-        - contentPath
-        - editionKind
-        - sourceRevision
-        - sourceDigest
-      type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse:
-      additionalProperties: false
-      properties:
-        generationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        operationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        state:
-          $ref: '#/components/schemas/PrismGenerationState'
-        version:
-          format: int64
-          minimum: 0
-          type: integer
-      required:
-        - generationId
-        - version
-        - state
-        - operationId
-      type: object
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsResponse:
-      additionalProperties: false
-      allOf:
-        - else:
-            properties:
-              nextCursor:
-                type: 'null'
-          if:
-            properties:
-              hasMore:
-                const: true
-            required:
-              - hasMore
-          then:
-            properties:
-              nextCursor:
-                type: string
-            required:
-              - nextCursor
-      properties:
-        hasMore:
-          type: boolean
-        items:
-          items:
-            $ref: '#/components/schemas/PrismGeneration'
-          maxItems: 100
-          type: array
-        nextCursor:
-          description:
-            Opaque cursor for the next page. Present and non-null exactly when
-            `hasMore` is true; absent or null when `hasMore` is false. The
-            length bounds constrain the string branch only.
-          maxLength: 2048
-          minLength: 1
-          type:
-            - string
-            - 'null'
-      required:
-        - items
-        - hasMore
-      type: object
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdResponse:
-      allOf:
-        - $ref: '#/components/schemas/PrismGeneration'
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdCancelResponse:
-      allOf:
-        - $ref: '#/components/schemas/PrismGeneration'
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdRejectResponse:
-      allOf:
-        - $ref: '#/components/schemas/PrismGeneration'
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAcceptResponse:
-      additionalProperties: false
-      properties:
-        edition:
-          additionalProperties: false
-          properties:
-            path:
-              maxLength: 512
-              minLength: 1
-              pattern: ^content/(?:[^/\x00-\x1f]+/)*[a-z0-9]+(?:-[a-z0-9]+)*\.edition\.(?:quick-read|standard|deep-dive)\.md$
-              type: string
-            text:
-              maxLength: 1048576
-              minLength: 1
-              type: string
-          required:
-            - path
-            - text
-          type: object
-        generation:
-          $ref: '#/components/schemas/PrismGeneration'
-      required:
-        - generation
-        - edition
-      type: object
     PlatformAuditEvent:
       additionalProperties: false
       description:
@@ -13748,12 +13484,24 @@ components:
       type: string
     InterviewCaptureKind:
       description:
-        'How the material was captured: a typed `NOTE`, a `VOICE` transcript or
-        a `LINK` with its text.'
+        'How the material was captured: a typed `NOTE`, a `VOICE` transcript, a
+        `LINK` with its text, or (SCHEMA-3.49.0) an `ARTICLE`, a post already on
+        the site that the Editor reviews and tightens. An `ARTICLE` room skips
+        the question stage: it moves from `CAPTURED` straight to `WRITING` on
+        `:start` and spends an `EDITOR` unit.'
       enum:
         - NOTE
         - VOICE
         - LINK
+        - ARTICLE
+      type: string
+    InterviewUnitKind:
+      description:
+        'SCHEMA-3.49.0. Which allowance the room spends: `INTERVIEW` for a room
+        that asks questions, `EDITOR` for an `ARTICLE` room.'
+      enum:
+        - INTERVIEW
+        - EDITOR
       type: string
     InterviewTurnRole:
       description: Who spoke.
@@ -13849,10 +13597,47 @@ components:
             - used
             - remaining
           type: object
+        editorQuota:
+          description:
+            'SCHEMA-3.49.0. The same shape as `quota`, for Editor runs (the
+            `EDITOR` unit kind), which are counted separately from interviews.'
+          additionalProperties: false
+          properties:
+            limit:
+              format: int64
+              minimum: 0
+              type: integer
+            period:
+              description:
+                The UTC week the Editor allowance counts in, as its Monday,
+                `YYYY-MM-DD`
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
+              type: string
+            remaining:
+              format: int64
+              minimum: 0
+              type: integer
+            renewsAt:
+              $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+              description:
+                The first instant of the next UTC week (Monday 00:00Z), when the
+                allowance comes back
+            used:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - period
+            - renewsAt
+            - limit
+            - used
+            - remaining
+          type: object
       required:
         - enabled
         - plan
         - quota
+        - editorQuota
         - budget
       type: object
     InterviewProfile: &a7
@@ -13893,6 +13678,14 @@ components:
           maxLength: 300
           minLength: 1
           type: string
+        articlePath:
+          description:
+            "SCHEMA-3.49.0. The site's own post path (for example
+            `content/posts/hello.md`), used when `kind` is `ARTICLE` and `text`
+            is empty. The service reads the post from the repository."
+          maxLength: 1024
+          minLength: 1
+          type: string
         sourceUrl:
           maxLength: 2048
           minLength: 1
@@ -13902,10 +13695,11 @@ components:
           maxLength: 20000
           minLength: 1
           type: string
-          description: The note or the transcript.
+          description:
+            'The note or the transcript. Required unless `kind` is `ARTICLE`
+            and `articlePath` is given (SCHEMA-3.49.0).'
       required:
         - kind
-        - text
       type: object
     InterviewCreate: &a8
       additionalProperties: false
@@ -14547,9 +14341,12 @@ components:
             $ref: '#/components/schemas/InterviewTurn'
           maxItems: 400
           type: array
+        unitKind:
+          $ref: '#/components/schemas/InterviewUnitKind'
         working:
           $ref: '#/components/schemas/InterviewDraft'
       required:
+        - unitKind
         - interviewId
         - organizationId
         - publicationId
@@ -14584,11 +14381,14 @@ components:
           type: boolean
         panel:
           $ref: '#/components/schemas/InterviewPanelSummary'
+        unitKind:
+          $ref: '#/components/schemas/InterviewUnitKind'
         turnCount:
           format: int64
           minimum: 0
           type: integer
       required:
+        - unitKind
         - interviewId
         - organizationId
         - publicationId
@@ -14718,78 +14518,6 @@ components:
     GetPlatformInterviewUsageResponse:
       allOf:
         - $ref: '#/components/schemas/PlatformInterviewUsage'
-    PlatformPrismGeneration:
-      additionalProperties: false
-      description:
-        SCHEMA-3.25.0. One Prism generation as the operator list shows it,
-        ownership and state only, never article text or the candidate body.
-      properties:
-        createdAt:
-          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-        editionKind:
-          $ref: '#/components/schemas/PrismEditionKind'
-        generationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        organizationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        publicationId:
-          format: uuid
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-          type: string
-        state:
-          $ref: '#/components/schemas/PrismGenerationState'
-      required:
-        - generationId
-        - organizationId
-        - publicationId
-        - editionKind
-        - state
-        - createdAt
-      type: object
-    GetPlatformPrismGenerationsResponse:
-      additionalProperties: false
-      allOf:
-        - else:
-            properties:
-              nextCursor:
-                type: 'null'
-          if:
-            properties:
-              hasMore:
-                const: true
-            required:
-              - hasMore
-          then:
-            properties:
-              nextCursor:
-                type: string
-            required:
-              - nextCursor
-      properties:
-        hasMore:
-          type: boolean
-        items:
-          items:
-            $ref: '#/components/schemas/PlatformPrismGeneration'
-          maxItems: 100
-          type: array
-        nextCursor:
-          description:
-            Opaque cursor for the next page. Present and non-null exactly when
-            `hasMore` is true; absent or null when `hasMore` is false.
-          maxLength: 2048
-          minLength: 1
-          type:
-            - string
-            - 'null'
-      required:
-        - items
-        - hasMore
-      type: object
     PlatformInterviewListItem:
       additionalProperties: false
       description: >-
@@ -17729,6 +17457,32 @@ components:
           oneOf:
             - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
             - type: 'null'
+        siteLimit:
+          description:
+            'SCHEMA-3.49.0. How many sites the organization may have: the plan
+            limit, or the operator override when `siteLimitSource` is OVERRIDE.'
+          format: int64
+          minimum: 0
+          type: integer
+        siteCount:
+          description: SCHEMA-3.49.0. How many sites the organization has now.
+          format: int64
+          minimum: 0
+          type: integer
+        siteLimitSource:
+          description:
+            'SCHEMA-3.49.0. `PLAN` when `siteLimit` is the plan default,
+            `OVERRIDE` when an operator set an organization-level limit.'
+          enum:
+            - PLAN
+            - OVERRIDE
+          type: string
+        supportUrl:
+          description:
+            'SCHEMA-3.49.0. Where to ask for a higher limit or other help.'
+          format: uri
+          maxLength: 2048
+          type: string
         galascribeAddressZone:
           description:
             The zone Galascribe addresses are created in, for example
@@ -17754,6 +17508,10 @@ components:
         - grantExpiresAt
         - collaborators
         - entitlements
+        - siteLimit
+        - siteCount
+        - siteLimitSource
+        - supportUrl
       type: object
     HostingFindingCode:
       description:

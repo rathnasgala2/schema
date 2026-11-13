@@ -132,6 +132,8 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       PLAN_SUBSCRIBED: { statuses: [409], retryable: false },
       PLAN_REQUIRED: { statuses: [409], retryable: false },
       POSTAL_ADDRESS_REQUIRED: { statuses: [422], retryable: false },
+      // SCHEMA-3.49.0: the site cap has its own code (still 422).
+      PUBLICATION_CAP_EXCEEDED: { statuses: [422], retryable: false },
       TOKEN_EXPIRED: { statuses: [410], retryable: false },
       // SCHEMA-3.24.0: publish the update (site:publish-update).
       ALREADY_LIVE: { statuses: [409], retryable: false },

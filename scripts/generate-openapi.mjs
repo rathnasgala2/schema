@@ -60,8 +60,6 @@ export const BINARY_RESPONSE_CONTENT_TYPES =
         Object.freeze(['text/csv']),
       postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport:
         Object.freeze(['text/csv']),
-      // SCHEMA-3.25.0: the operator Prism generation export is a CSV download.
-      postPlatformPrismGenerationsExport: Object.freeze(['text/csv']),
     })
   );
 export const BINARY_RESPONSE_OPERATIONS = Object.freeze(
@@ -765,15 +763,13 @@ function validateContractClosure(records, components) {
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdRepositorySetUp',
         'postWorkloadsGithubReceiptExchanges',
         // SCHEMA-3.3.0: GitHub is called synchronously to look up the Pages
-        // site, to check a custom domain now, and to read the article an
-        // accepted Prism candidate was generated from.
+        // site and to check a custom domain now.
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomains',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainIdCheck',
         // SCHEMA-3.13.0: the YouTube Data API is read synchronously to check a
         // channel description code, and GitHub to look up a handover target.
         'postClaimsByTokenDescriptionCodeCheck',
         'postOrganizationsByOrganizationIdPublicationsByPublicationIdHandover',
-        'postOrganizationsByOrganizationIdPublicationsByPublicationIdPrismGenerationsByGenerationIdAccept',
         // SCHEMA-3.18.0: the Stripe webhook answers 503 while billing is not
         // configured on the deployment (no webhook signing secret).
         'postCallbacksStripe',

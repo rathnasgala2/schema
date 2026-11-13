@@ -5361,6 +5361,21 @@ paths:
           content:
             application/problem+json:
               examples:
+                PUBLICATION_CAP_EXCEEDED:
+                  summary: PUBLICATION_CAP_EXCEEDED
+                  value:
+                    code: PUBLICATION_CAP_EXCEEDED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail:
+                      This organization has reached its limit of 10 active
+                      publications.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: PUBLICATION_CAP_EXCEEDED
+                    type: urn:gala:problem:publication-cap-exceeded
                 VALIDATION_FAILED:
                   summary: VALIDATION_FAILED
                   value:
@@ -5376,13 +5391,14 @@ paths:
                     type: urn:gala:problem:validation-failed
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: VALIDATION_FAILED
+          description: PUBLICATION_CAP_EXCEEDED, VALIDATION_FAILED
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
             X-Correlation-Id:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
+            - PUBLICATION_CAP_EXCEEDED
             - VALIDATION_FAILED
         '503':
           content:
@@ -5432,6 +5448,7 @@ paths:
         - CAPABILITY_UNAVAILABLE
         - COMMAND_REPLAY_CONFLICT
         - INVALID_SOURCE_STATE
+        - PUBLICATION_CAP_EXCEEDED
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
         - STALE_AGGREGATE_VERSION
@@ -23220,7 +23237,11 @@ paths:
                       includedDomain: false
                     galascribeAddressZone: galascribe.com
                     grantExpiresAt: null
+                    siteCount: 2
+                    siteLimit: 10
+                    siteLimitSource: PLAN
                     source: STRIPE
+                    supportUrl: https://github.com/galascribe/support/issues
                     tier: PRO
               schema:
                 $ref: '#/components/schemas/GetOrganizationsByOrganizationIdPlanResponse'
