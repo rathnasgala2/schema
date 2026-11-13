@@ -5216,6 +5216,74 @@ components:
     GetPlatformInterviewUsageResponse:
       allOf:
         - $ref: "#/components/schemas/PlatformInterviewUsage"
+    GetPlatformInterviewsByInterviewIdResponse:
+      additionalProperties: false
+      description: "SCHEMA-3.48.0. One Interview end to end for an operator, whatever its organization: the author's `Interview` with its turns, draft and panel, the person who asked for it, the author's decisions oldest first and every model call oldest first."
+      properties:
+        calls:
+          items:
+            $ref: "#/components/schemas/PlatformInterviewModelCall"
+          maxItems: 400
+          type: array
+        decisions:
+          items:
+            $ref: "#/components/schemas/PlatformInterviewDecision"
+          maxItems: 400
+          type: array
+        interview:
+          $ref: "#/components/schemas/Interview"
+        requestedByPersonId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - interview
+        - requestedByPersonId
+        - decisions
+        - calls
+      type: object
+    GetPlatformInterviewsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: "null"
+          if:
+            properties:
+              hasMore:
+                not:
+                  enum:
+                    - false
+                type: boolean
+                x-gala-const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: "#/components/schemas/PlatformInterviewListItem"
+          maxItems: 100
+          type: array
+        nextCursor:
+          description: Opaque cursor for the next page. Present and non-null exactly when `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - "null"
+      required:
+        - items
+        - hasMore
+      type: object
     GetPlatformOauthClientsResponse:
       additionalProperties: false
       properties:
@@ -10441,6 +10509,149 @@ components:
         - maximum
         - source
         - description
+      type: object
+    PlatformInterviewDecision:
+      additionalProperties: false
+      description: "SCHEMA-3.48.0. One decision the author made on a point of their draft, as the operator sees it: which point, what they chose and when."
+      properties:
+        action:
+          $ref: "#/components/schemas/InterviewDecisionAction"
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        personId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        pointId:
+          maxLength: 40
+          minLength: 1
+          type: string
+      required:
+        - pointId
+        - action
+        - personId
+        - createdAt
+      type: object
+    PlatformInterviewListItem:
+      additionalProperties: false
+      description: "SCHEMA-3.48.0. One Interview as the operator list shows it: the author's own list item, the person who asked for it, how many model calls it made (failed ones included), what it cost in millionths of a US dollar and how many decisions the author made on its points."
+      properties:
+        calls:
+          format: int32
+          minimum: 0
+          type: integer
+        decisions:
+          format: int32
+          minimum: 0
+          type: integer
+        interview:
+          $ref: "#/components/schemas/InterviewListItem"
+        requestedByPersonId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        usdMicros:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - interview
+        - requestedByPersonId
+        - calls
+        - usdMicros
+        - decisions
+      type: object
+    PlatformInterviewModelCall:
+      additionalProperties: false
+      description: "SCHEMA-3.48.0. One exchange with the model provider during an Interview: what it was for, which model answered, how it ended, what it used and cost, and how long it took. `outcome` ANSWERED is a usable answer; REJECTED is the provider refusing the request, UNAVAILABLE an outage or overload, UNANSWERED no answer in time, REFUSED the model declining to write, MALFORMED an answer that could not be read. A failed exchange has zero usage and cost. `latencyMs` is null for calls recorded before latency was kept; `httpStatus` is null when no response came; `detail` is the provider's error text, clipped, null when there is none."
+      properties:
+        cacheReadTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        cacheWriteTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        callId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        detail:
+          maxLength: 300
+          type:
+            - string
+            - "null"
+        httpStatus:
+          format: int32
+          maximum: 599
+          minimum: 100
+          type:
+            - integer
+            - "null"
+        inputTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        latencyMs:
+          format: int32
+          minimum: 0
+          type:
+            - integer
+            - "null"
+        model:
+          maxLength: 120
+          minLength: 1
+          type: string
+        outcome:
+          enum:
+            - ANSWERED
+            - REJECTED
+            - UNAVAILABLE
+            - UNANSWERED
+            - REFUSED
+            - MALFORMED
+          type: string
+        outputTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        purpose:
+          enum:
+            - TURN
+            - PICK
+            - DRAFT
+            - PANEL_PICK
+            - REVIEW
+            - REVISE
+            - RECHECK
+            - FINAL_READ
+          type: string
+        usdMicros:
+          format: int64
+          minimum: 0
+          type: integer
+        webSearches:
+          format: int32
+          minimum: 0
+          type: integer
+      required:
+        - callId
+        - purpose
+        - model
+        - outcome
+        - inputTokens
+        - cacheReadTokens
+        - cacheWriteTokens
+        - outputTokens
+        - webSearches
+        - usdMicros
+        - latencyMs
+        - httpStatus
+        - detail
+        - createdAt
       type: object
     PlatformInterviewUsage:
       additionalProperties: false
@@ -75916,6 +76127,249 @@ paths:
         - AUTHENTICATION_REQUIRED
         - AUTHORIZATION_DENIED
         - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/interviews:
+    get:
+      description: |
+        Operators only (`ADMIN` or `ROOT`). Every Interview on the platform across all organizations, newest first, one keyset page at a time, each with the person who asked for it, its model-call count and its spend. The conversation, the draft and the model calls themselves are in the single-interview read.
+      operationId: getPlatformInterviews
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - description: Only interviews in this state.
+          example: DRAFT_READY
+          in: query
+          name: state
+          required: false
+          schema:
+            $ref: "#/components/schemas/InterviewState"
+        - description: Only one organization's interviews.
+          example: 018f0000-0000-7000-8000-000000000003
+          in: query
+          name: organizationId
+          required: false
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - calls: 19
+                        decisions: 4
+                        interview:
+                          capture:
+                            kind: NOTE
+                            text: We cut our onboarding from nine steps to four and signups doubled.
+                          createdAt: "2026-11-04T12:00:00.000Z"
+                          expiresAt: "2026-11-18T12:00:00.000Z"
+                          finishedAt: "2026-11-04T12:04:00.000Z"
+                          hasDraft: true
+                          interviewId: 018f0000-0000-7000-8000-000000000001
+                          organizationId: 018f0000-0000-7000-8000-000000000003
+                          progress:
+                            beliefDone: false
+                            canFinish: true
+                            details: 3
+                            detailsTarget: 5
+                            phase: DONE
+                            questionBudget: 8
+                            questionsAsked: 6
+                            skepticRounds: 0
+                          publicationId: 018f0000-0000-7000-8000-000000000002
+                          startedAt: "2026-11-04T12:00:00.000Z"
+                          state: DRAFT_READY
+                          turnCount: 12
+                          updatedAt: "2026-11-04T12:04:00.000Z"
+                        requestedByPersonId: 018f0000-0000-7000-8000-000000000004
+                        usdMicros: 812345
+                    nextCursor: null
+              schema:
+                $ref: "#/components/schemas/GetPlatformInterviewsResponse"
+          description: list platform interviews succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/PlatformAuthenticationRequired"
+        "403":
+          $ref: "#/components/responses/AuthorizationDenied"
+      security:
+        - browserSession: []
+      summary: list platform interviews
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.interview.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform interviews
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/interviews/{interviewId}:
+    get:
+      description: |
+        Operators only (`ADMIN` or `ROOT`). One Interview end to end, whatever its organization: the capture, every question and answer, the draft, the panel, the author's decisions on each point and every model call with its latency, outcome and cost.
+      operationId: getPlatformInterviewsByInterviewId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: interviewId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    calls:
+                      - cacheReadTokens: 0
+                        cacheWriteTokens: 0
+                        callId: 018f0000-0000-7000-8000-000000000011
+                        createdAt: "2026-11-04T12:00:03.000Z"
+                        detail: null
+                        httpStatus: 200
+                        inputTokens: 1840
+                        latencyMs: 2950
+                        model: claude-sonnet-5-5
+                        outcome: ANSWERED
+                        outputTokens: 92
+                        purpose: TURN
+                        usdMicros: 4600
+                        webSearches: 0
+                      - cacheReadTokens: 0
+                        cacheWriteTokens: 0
+                        callId: 018f0000-0000-7000-8000-000000000012
+                        createdAt: "2026-11-04T12:05:10.000Z"
+                        detail: "overloaded_error: Overloaded"
+                        httpStatus: 529
+                        inputTokens: 0
+                        latencyMs: 1210
+                        model: claude-haiku-5-5
+                        outcome: UNAVAILABLE
+                        outputTokens: 0
+                        purpose: RECHECK
+                        usdMicros: 0
+                        webSearches: 0
+                    decisions:
+                      - action: CUSTOM
+                        createdAt: "2026-11-04T12:05:00.000Z"
+                        personId: 018f0000-0000-7000-8000-000000000004
+                        pointId: "e1"
+                    interview:
+                      capture:
+                        kind: NOTE
+                        text: We cut our onboarding from nine steps to four and signups doubled.
+                      createdAt: "2026-11-04T12:00:00.000Z"
+                      draft:
+                        body: |-
+                          We cut onboarding from nine steps to four.
+
+                          The first step to go was the account type.
+                        description: How cutting onboarding steps doubled signups.
+                        language: en
+                        title: Nine steps to four
+                        tldr: Fewer steps, twice the signups.
+                      expiresAt: "2026-11-18T12:00:00.000Z"
+                      finishedAt: "2026-11-04T12:04:00.000Z"
+                      interviewId: 018f0000-0000-7000-8000-000000000001
+                      organizationId: 018f0000-0000-7000-8000-000000000003
+                      progress:
+                        beliefDone: false
+                        canFinish: true
+                        details: 3
+                        detailsTarget: 5
+                        phase: DONE
+                        questionBudget: 8
+                        questionsAsked: 6
+                        skepticRounds: 0
+                      publicationId: 018f0000-0000-7000-8000-000000000002
+                      startedAt: "2026-11-04T12:00:00.000Z"
+                      state: DRAFT_READY
+                      turns:
+                        - at: "2026-11-04T12:00:00.000Z"
+                          kind: QUESTION
+                          role: INTERVIEWER
+                          seq: 1
+                          text: What did you cut first, and what did you expect to happen?
+                        - at: "2026-11-04T12:00:40.000Z"
+                          kind: ANSWER
+                          role: AUTHOR
+                          seq: 2
+                          text: The account-type step. I expected no one to notice.
+                      updatedAt: "2026-11-04T12:04:00.000Z"
+                    requestedByPersonId: 018f0000-0000-7000-8000-000000000004
+              schema:
+                $ref: "#/components/schemas/GetPlatformInterviewsByInterviewIdResponse"
+          description: read platform interview succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/PlatformAuthenticationRequired"
+        "403":
+          $ref: "#/components/responses/AuthorizationDenied"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+      security:
+        - browserSession: []
+      summary: read platform interview
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.interview.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read platform interview
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
         - VALIDATION_FAILED
       x-gala-replay-identity: safe-query
       x-gala-state-guards:

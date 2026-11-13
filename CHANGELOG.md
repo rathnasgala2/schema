@@ -8,6 +8,28 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.48.0] - 2026-11-13
+
+Operators read interviews. `schemas/publication.schema.json` is untouched, so no
+template or publish toolchain pin moves. Additive: two new operations, no new
+problem codes.
+
+### Added
+
+- `GET /v2/platform/interviews` (`GetPlatformInterviewsResponse`,
+  `PlatformInterviewListItem`): every Interview on the platform, newest first,
+  one keyset page at a time, with the person who asked for it, its model-call
+  count (failed calls included) and its spend; filters `state` and
+  `organizationId`. Capability `platform.interview.view`.
+- `GET /v2/platform/interviews/{interviewId}`
+  (`GetPlatformInterviewsByInterviewIdResponse`, `PlatformInterviewDecision`,
+  `PlatformInterviewModelCall`): one Interview end to end whatever its
+  organization: the author's `Interview` with its turns, draft and panel, the
+  author's decisions on its points, and every model call with purpose, model,
+  outcome, tokens, cost, latency, HTTP status and clipped error detail.
+  `404 RESOURCE_NOT_FOUND` for an unknown id.
+- App routes `/platform/interviews` and `/platform/interviews/{interviewId}`.
+
 ## [3.47.0] - 2026-11-08
 
 The author's decisions on a ready draft. `schemas/publication.schema.json` is
@@ -4404,6 +4426,7 @@ with independently verifiable dates.
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
 [Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.47.0...HEAD
+[3.48.0]: https://github.com/rathnasgala2/schema/compare/v3.47.0...v3.48.0
 [3.47.0]: https://github.com/rathnasgala2/schema/compare/v3.46.0...v3.47.0
 [3.46.0]: https://github.com/rathnasgala2/schema/compare/v3.45.0...v3.46.0
 [3.45.0]: https://github.com/rathnasgala2/schema/compare/v3.44.0...v3.45.0

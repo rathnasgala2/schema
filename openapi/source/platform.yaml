@@ -1984,6 +1984,264 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
+  /v2/platform/interviews:
+    get:
+      description: >
+        Operators only (`ADMIN` or `ROOT`). Every Interview on the platform
+        across all organizations, newest first, one keyset page at a time, each
+        with the person who asked for it, its model-call count and its spend.
+        The conversation, the draft and the model calls themselves are in the
+        single-interview read.
+      operationId: getPlatformInterviews
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - description: Only interviews in this state.
+          example: DRAFT_READY
+          in: query
+          name: state
+          required: false
+          schema:
+            $ref: '#/components/schemas/InterviewState'
+        - description: Only one organization's interviews.
+          example: 018f0000-0000-7000-8000-000000000003
+          in: query
+          name: organizationId
+          required: false
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - calls: 19
+                        decisions: 4
+                        interview:
+                          capture:
+                            kind: NOTE
+                            text:
+                              We cut our onboarding from nine steps to four and
+                              signups doubled.
+                          createdAt: 2026-11-04T12:00:00.000Z
+                          expiresAt: 2026-11-18T12:00:00.000Z
+                          interviewId: 018f0000-0000-7000-8000-000000000001
+                          organizationId: 018f0000-0000-7000-8000-000000000003
+                          progress:
+                            beliefDone: false
+                            canFinish: true
+                            details: 3
+                            detailsTarget: 5
+                            phase: DONE
+                            questionBudget: 8
+                            questionsAsked: 6
+                            skepticRounds: 0
+                          publicationId: 018f0000-0000-7000-8000-000000000002
+                          state: DRAFT_READY
+                          updatedAt: 2026-11-04T12:04:00.000Z
+                          finishedAt: 2026-11-04T12:04:00.000Z
+                          startedAt: 2026-11-04T12:00:00.000Z
+                          hasDraft: true
+                          turnCount: 12
+                        requestedByPersonId: 018f0000-0000-7000-8000-000000000004
+                        usdMicros: 812345
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetPlatformInterviewsResponse'
+          description: list platform interviews succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list platform interviews
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.interview.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list platform interviews
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+  /v2/platform/interviews/{interviewId}:
+    get:
+      description: >
+        Operators only (`ADMIN` or `ROOT`). One Interview end to end, whatever
+        its organization: the capture, every question and answer, the draft, the
+        panel, the author's decisions on each point and every model call with
+        its latency, outcome and cost.
+      operationId: getPlatformInterviewsByInterviewId
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: interviewId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    calls:
+                      - cacheReadTokens: 0
+                        cacheWriteTokens: 0
+                        callId: 018f0000-0000-7000-8000-000000000011
+                        createdAt: 2026-11-04T12:00:03.000Z
+                        detail: null
+                        httpStatus: 200
+                        inputTokens: 1840
+                        latencyMs: 2950
+                        model: claude-sonnet-5-5
+                        outcome: ANSWERED
+                        outputTokens: 92
+                        purpose: TURN
+                        usdMicros: 4600
+                        webSearches: 0
+                      - cacheReadTokens: 0
+                        cacheWriteTokens: 0
+                        callId: 018f0000-0000-7000-8000-000000000012
+                        createdAt: 2026-11-04T12:05:10.000Z
+                        detail: 'overloaded_error: Overloaded'
+                        httpStatus: 529
+                        inputTokens: 0
+                        latencyMs: 1210
+                        model: claude-haiku-5-5
+                        outcome: UNAVAILABLE
+                        outputTokens: 0
+                        purpose: RECHECK
+                        usdMicros: 0
+                        webSearches: 0
+                    decisions:
+                      - action: CUSTOM
+                        createdAt: 2026-11-04T12:05:00.000Z
+                        personId: 018f0000-0000-7000-8000-000000000004
+                        pointId: e1
+                    interview:
+                      capture:
+                        kind: NOTE
+                        text:
+                          We cut our onboarding from nine steps to four and
+                          signups doubled.
+                      createdAt: 2026-11-04T12:00:00.000Z
+                      expiresAt: 2026-11-18T12:00:00.000Z
+                      interviewId: 018f0000-0000-7000-8000-000000000001
+                      organizationId: 018f0000-0000-7000-8000-000000000003
+                      progress:
+                        beliefDone: false
+                        canFinish: true
+                        details: 3
+                        detailsTarget: 5
+                        phase: DONE
+                        questionBudget: 8
+                        questionsAsked: 6
+                        skepticRounds: 0
+                      publicationId: 018f0000-0000-7000-8000-000000000002
+                      state: DRAFT_READY
+                      updatedAt: 2026-11-04T12:04:00.000Z
+                      finishedAt: 2026-11-04T12:04:00.000Z
+                      startedAt: 2026-11-04T12:00:00.000Z
+                      turns:
+                        - at: 2026-11-04T12:00:00.000Z
+                          kind: QUESTION
+                          role: INTERVIEWER
+                          seq: 1
+                          text:
+                            What did you cut first, and what did you expect to
+                            happen?
+                        - at: 2026-11-04T12:00:40.000Z
+                          kind: ANSWER
+                          role: AUTHOR
+                          seq: 2
+                          text:
+                            The account-type step. I expected no one to notice.
+                      draft:
+                        body: |-
+                          We cut onboarding from nine steps to four.
+
+                          The first step to go was the account type.
+                        description:
+                          How cutting onboarding steps doubled signups.
+                        language: en
+                        title: Nine steps to four
+                        tldr: Fewer steps, twice the signups.
+                    requestedByPersonId: 018f0000-0000-7000-8000-000000000004
+              schema:
+                $ref: '#/components/schemas/GetPlatformInterviewsByInterviewIdResponse'
+          description: read platform interview succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+      security:
+        - browserSession: []
+      summary: read platform interview
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.interview.view
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read platform interview
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
   /v2/platform/prism-generations:export:
     post:
       description:

@@ -14790,6 +14790,234 @@ components:
         - items
         - hasMore
       type: object
+    PlatformInterviewListItem:
+      additionalProperties: false
+      description: >-
+        SCHEMA-3.48.0. One Interview as the operator list shows it: the author's
+        own list item, the person who asked for it, how many model calls it made
+        (failed ones included), what it cost in millionths of a US dollar and
+        how many decisions the author made on its points.
+      properties:
+        calls:
+          format: int32
+          minimum: 0
+          type: integer
+        decisions:
+          format: int32
+          minimum: 0
+          type: integer
+        interview:
+          $ref: '#/components/schemas/InterviewListItem'
+        requestedByPersonId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        usdMicros:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - interview
+        - requestedByPersonId
+        - calls
+        - usdMicros
+        - decisions
+      type: object
+    GetPlatformInterviewsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformInterviewListItem'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
+      type: object
+    PlatformInterviewDecision:
+      additionalProperties: false
+      description: >-
+        SCHEMA-3.48.0. One decision the author made on a point of their draft,
+        as the operator sees it: which point, what they chose and when.
+      properties:
+        action:
+          $ref: '#/components/schemas/InterviewDecisionAction'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        personId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        pointId:
+          maxLength: 40
+          minLength: 1
+          type: string
+      required:
+        - pointId
+        - action
+        - personId
+        - createdAt
+      type: object
+    PlatformInterviewModelCall:
+      additionalProperties: false
+      description: >-
+        SCHEMA-3.48.0. One exchange with the model provider during an Interview:
+        what it was for, which model answered, how it ended, what it used and
+        cost, and how long it took. `outcome` ANSWERED is a usable answer;
+        REJECTED is the provider refusing the request, UNAVAILABLE an outage or
+        overload, UNANSWERED no answer in time, REFUSED the model declining to
+        write, MALFORMED an answer that could not be read. A failed exchange has
+        zero usage and cost. `latencyMs` is null for calls recorded before
+        latency was kept; `httpStatus` is null when no response came; `detail`
+        is the provider's error text, clipped, null when there is none.
+      properties:
+        cacheReadTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        cacheWriteTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        callId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        detail:
+          maxLength: 300
+          type:
+            - string
+            - 'null'
+        httpStatus:
+          format: int32
+          maximum: 599
+          minimum: 100
+          type:
+            - integer
+            - 'null'
+        inputTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        latencyMs:
+          format: int32
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        model:
+          maxLength: 120
+          minLength: 1
+          type: string
+        outcome:
+          enum:
+            - ANSWERED
+            - REJECTED
+            - UNAVAILABLE
+            - UNANSWERED
+            - REFUSED
+            - MALFORMED
+          type: string
+        outputTokens:
+          format: int32
+          minimum: 0
+          type: integer
+        purpose:
+          enum:
+            - TURN
+            - PICK
+            - DRAFT
+            - PANEL_PICK
+            - REVIEW
+            - REVISE
+            - RECHECK
+            - FINAL_READ
+          type: string
+        usdMicros:
+          format: int64
+          minimum: 0
+          type: integer
+        webSearches:
+          format: int32
+          minimum: 0
+          type: integer
+      required:
+        - callId
+        - purpose
+        - model
+        - outcome
+        - inputTokens
+        - cacheReadTokens
+        - cacheWriteTokens
+        - outputTokens
+        - webSearches
+        - usdMicros
+        - latencyMs
+        - httpStatus
+        - detail
+        - createdAt
+      type: object
+    GetPlatformInterviewsByInterviewIdResponse:
+      additionalProperties: false
+      description: >-
+        SCHEMA-3.48.0. One Interview end to end for an operator, whatever its
+        organization: the author's `Interview` with its turns, draft and panel,
+        the person who asked for it, the author's decisions oldest first and
+        every model call oldest first.
+      properties:
+        calls:
+          items:
+            $ref: '#/components/schemas/PlatformInterviewModelCall'
+          maxItems: 400
+          type: array
+        decisions:
+          items:
+            $ref: '#/components/schemas/PlatformInterviewDecision'
+          maxItems: 400
+          type: array
+        interview:
+          $ref: '#/components/schemas/Interview'
+        requestedByPersonId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - interview
+        - requestedByPersonId
+        - decisions
+        - calls
+      type: object
     GetPlatformWebhookEventsResponse:
       additionalProperties: false
       allOf:
