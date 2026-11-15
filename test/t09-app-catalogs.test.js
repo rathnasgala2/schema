@@ -455,12 +455,14 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // Since 3.32.0 also the Brevo webhook, the subscriber import, the document
   // history, the link preview and the comment like until the App binds them.
   // Since 3.35.0 also the change discard until the App binds it.
+  // Since 3.50.0 also the GitHub account-by-name read until the App binds it.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
     'deletePublicCommentsByCommentIdLike',
     'deletePublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey',
     'deleteReaderTokensCurrent',
+    'getGithubAccountsByAccountLogin',
     'getInternalHealth',
     'getOrganizationsByOrganizationIdMembershipInvitationsByInvitationId',
     'getOrganizationsByOrganizationIdPlan',

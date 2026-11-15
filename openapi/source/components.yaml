@@ -740,6 +740,23 @@ components:
         - artifactDigest
         - sourceCommit
       type: object
+    GetGithubAccountsByAccountLoginResponse:
+      additionalProperties: false
+      properties:
+        accountId:
+          pattern: ^[1-9][0-9]{0,19}$
+          type: string
+        accountLogin:
+          maxLength: 80
+          minLength: 1
+          type: string
+        accountType:
+          $ref: '#/components/schemas/GithubAccountType'
+      required:
+        - accountId
+        - accountLogin
+        - accountType
+      type: object
     GetGithubAppResponse:
       additionalProperties: false
       description:
@@ -1891,6 +1908,11 @@ components:
         - organizations
         - capabilities
       type: object
+    GithubAccountType:
+      enum:
+        - ORGANIZATION
+        - USER
+      type: string
     GithubInstallationAccess:
       enum:
         - GRANTED

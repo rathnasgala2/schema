@@ -292,6 +292,7 @@ async function materializeReferences(
  * user token rather than an organization capability key.
  */
 const GITHUB_PRINCIPAL_AUTHORITY_PATHS = new Set([
+  '/v2/github/accounts/{accountLogin}',
   '/v2/github/app',
   '/v2/github/installations',
   '/v2/github/installations/{installationId}/repositories',

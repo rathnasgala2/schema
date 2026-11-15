@@ -8,6 +8,19 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.50.0] - 2026-11-15
+
+### Added
+
+- `GET /v2/github/accounts/{accountLogin}` (`getGithubAccountsByAccountLogin`)
+  resolves a GitHub account name to its numeric id and whether it is an
+  organization or a personal account (`GetGithubAccountsByAccountLoginResponse`,
+  `GithubAccountType`), read with the caller's stored GitHub user access token.
+  It is a safe, replayable query that writes nothing, used to open GitHub's
+  installation page for one named organization. An unknown name is
+  `404 RESOURCE_NOT_FOUND`; a token GitHub no longer accepts is
+  `401 REAUTH_REQUIRED`.
+
 ## [3.49.0] - 2026-11-13
 
 The Editor arrives and Prism retires. `schemas/publication.schema.json` is
@@ -4467,7 +4480,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.49.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.50.0...HEAD
+[3.50.0]: https://github.com/rathnasgala2/schema/compare/v3.49.0...v3.50.0
 [3.49.0]: https://github.com/rathnasgala2/schema/compare/v3.48.0...v3.49.0
 [3.48.0]: https://github.com/rathnasgala2/schema/compare/v3.47.0...v3.48.0
 [3.47.0]: https://github.com/rathnasgala2/schema/compare/v3.46.0...v3.47.0
