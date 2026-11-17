@@ -145,6 +145,10 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       INTERVIEW_STATE_CONFLICT: { statuses: [409], retryable: false },
       INTERVIEW_TOO_THIN: { statuses: [409], retryable: false },
       PROVIDER_UNAVAILABLE: { statuses: [503], retryable: true },
+      // SCHEMA-3.51.0: Video.
+      VIDEO_ALREADY_RUNNING: { statuses: [409], retryable: false },
+      VIDEO_POST_NOT_LIVE: { statuses: [409], retryable: false },
+      VIDEO_STATE_CONFLICT: { statuses: [409], retryable: false },
       // SCHEMA-3.37.0: syndication.
       SYNDICATION_CONNECTION_LIMIT: { statuses: [409], retryable: false },
       // SCHEMA-3.43.0: Today, the finite daily feed.

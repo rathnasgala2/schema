@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:c247a2ca9b9b68d63a34db9e2903c5f3a2262c181b4923e6824df3730726e19d",
+  "openApiDigest": "sha256:c09e1f46d256ff785177f40bd7cded8df7b458988a59825a5c40011be69afbe2",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -2439,6 +2439,71 @@
       "sourceFragment": "publication-transfers"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdVideoPolicy",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/video-policy",
+      "purpose": "read the Video policy",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "video"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdVideos",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/videos",
+      "purpose": "list the site's videos",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "video"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdVideos",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/videos",
+      "purpose": "make a video of a live post",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "video"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/videos/{videoId}",
+      "purpose": "read a video",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "video"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdCancel",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/videos/{videoId}:cancel",
+      "purpose": "cancel a video",
+      "capabilityKey": "publication.source.write",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "video"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdRoles",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/roles",
@@ -4166,7 +4231,59 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "workloads"
+    },
+    {
+      "operationId": "postWorkloadsVideoRendersClaim",
+      "method": "POST",
+      "path": "/v2/workloads/video-renders:claim",
+      "purpose": "claim the next video to make",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "workloads"
+    },
+    {
+      "operationId": "postWorkloadsVideoRendersByVideoIdComplete",
+      "method": "POST",
+      "path": "/v2/workloads/video-renders/{videoId}:complete",
+      "purpose": "report a video made",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "workloads"
+    },
+    {
+      "operationId": "postWorkloadsVideoRendersByVideoIdFail",
+      "method": "POST",
+      "path": "/v2/workloads/video-renders/{videoId}:fail",
+      "purpose": "report a video that could not be made",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "workloads"
+    },
+    {
+      "operationId": "postWorkloadsVideoRendersByVideoIdHeartbeat",
+      "method": "POST",
+      "path": "/v2/workloads/video-renders/{videoId}:heartbeat",
+      "purpose": "extend the lease on a video being made",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:43a9a4319fb5179fbdda4cd9820324f4d4da5c3748c599758f81d8b08ed54f74"
+  "digest": "sha256:6b3f36dc9349290bb82c6a0d7cb6c4de7ad683da47360a01808a863b44df37e8"
 }

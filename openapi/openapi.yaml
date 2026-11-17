@@ -4728,6 +4728,15 @@ components:
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferIdResponse:
       allOf:
         - $ref: "#/components/schemas/PublicationTransfer"
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideoPolicyResponse:
+      allOf:
+        - $ref: "#/components/schemas/VideoPolicy"
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdResponse:
+      allOf:
+        - $ref: "#/components/schemas/Video"
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideosResponse:
+      allOf:
+        - $ref: "#/components/schemas/VideoList"
     GetOrganizationsByOrganizationIdPublicationsResponse:
       additionalProperties: false
       allOf:
@@ -8966,7 +8975,7 @@ components:
       type: string
     NotificationItem:
       additionalProperties: false
-      description: "SCHEMA-3.23.0: one inbox row. It carries a minimal display payload only: no email address and no comment body beyond a 140-character `excerpt`. `kind` is the specific event (for example `comment-created`, `comment-held`, `report-filed`, `contact-message-received`, `publish-failed`, `release-live`, `review-requested`, `review-approved`, `audience-summary`, `following-post`) as a lowercase slug; a client treats a `kind` it does not know as its `category`. `publication` is null for a row that belongs to no site (a reply to a comment on a deleted site, for instance)."
+      description: "SCHEMA-3.23.0: one inbox row. It carries a minimal display payload only: no email address and no comment body beyond a 140-character `excerpt`. `kind` is the specific event (for example `comment-created`, `comment-held`, `report-filed`, `contact-message-received`, `publish-failed`, `release-live`, `review-requested`, `review-approved`, `audience-summary`, `following-post`, and from SCHEMA-3.51.0 `video-ready` and `video-failed`, in the `publishing` category) as a lowercase slug; a client treats a `kind` it does not know as its `category`. `publication` is null for a row that belongs to no site (a reply to a comment on a deleted site, for instance)."
       properties:
         category:
           $ref: "#/components/schemas/NotificationCategory"
@@ -20334,6 +20343,23 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersResponse:
       allOf:
         - $ref: "#/components/schemas/PublicationTransfer"
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdCancelResponse:
+      allOf:
+        - $ref: "#/components/schemas/Video"
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The live post to make a video of.
+      properties:
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - contentId
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosResponse:
+      allOf:
+        - $ref: "#/components/schemas/Video"
     PostOrganizationsByOrganizationIdPublicationsRequest:
       additionalProperties: false
       description: |
@@ -21714,6 +21740,98 @@ components:
         - $ref: "#/components/schemas/ReceiptExchangeDeploymentIntentResponse"
         - $ref: "#/components/schemas/ReceiptExchangeCapabilityIssuedResponse"
         - $ref: "#/components/schemas/ReceiptExchangeSubmissionRecordedResponse"
+    PostWorkloadsVideoRendersByVideoIdCompleteRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio reporting a finished video. `objectKey` and `posterKey` must equal the job's `objectPrefix` plus `.mp4` and `.jpg`.
+      properties:
+        bytes:
+          format: int64
+          minimum: 1
+          type: integer
+        durationSeconds:
+          exclusiveMinimum: 0
+          type: number
+        height:
+          format: int64
+          minimum: 1
+          type: integer
+        objectKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.mp4$
+          type: string
+        posterKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.jpg$
+          type: string
+        sha256:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        width:
+          format: int64
+          minimum: 1
+          type: integer
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - objectKey
+        - posterKey
+        - bytes
+        - durationSeconds
+        - width
+        - height
+        - sha256
+      type: object
+    PostWorkloadsVideoRendersByVideoIdFailRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio reporting a video it could not make.
+      properties:
+        code:
+          $ref: "#/components/schemas/VideoFailureCode"
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - code
+        - detail
+      type: object
+    PostWorkloadsVideoRendersByVideoIdHeartbeatRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio extending its lease on a video.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    PostWorkloadsVideoRendersClaimRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio asking for the next video to make.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    PostWorkloadsVideoRendersClaimResponse:
+      allOf:
+        - $ref: "#/components/schemas/VideoRenderJob"
     PostalAddress:
       description: "SCHEMA-3.23.0: a person's postal address as plain text, one to five lines separated by a line feed, at most 300 characters in all. It is the footer address of the newsletter emails of every site the person owns."
       maxLength: 300
@@ -26061,6 +26179,464 @@ components:
         - requiredVerificationEntryCount
         - canonicalFitRequestByteCount
       type: object
+    Video:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. One video made from a live post. `claimed` is true once the studio holds a `RENDERING` video (it can no longer be cancelled). `script` is present once written, `file`, `readyAt` and `expiresAt` once `READY`, `failure` once `FAILED`.
+      properties:
+        claimed:
+          type: boolean
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        expiresAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        failure:
+          $ref: "#/components/schemas/VideoFailure"
+        file:
+          $ref: "#/components/schemas/VideoFile"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        postTitle:
+          maxLength: 300
+          type: string
+        postUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        readyAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        script:
+          $ref: "#/components/schemas/VideoScript"
+        state:
+          $ref: "#/components/schemas/VideoState"
+        updatedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+      required:
+        - id
+        - contentId
+        - postTitle
+        - postUrl
+        - state
+        - claimed
+        - createdAt
+        - updatedAt
+      type: object
+    VideoCreate:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The live post to make a video of.
+      properties:
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - contentId
+      type: object
+    VideoFailure:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. Why a `FAILED` video failed. Its unit was released.
+      properties:
+        code:
+          $ref: "#/components/schemas/VideoFailureCode"
+      required:
+        - code
+      type: object
+    VideoFailureCode:
+      description: "SCHEMA-3.51.0. Why a video could not be made: `SCRIPT_FAILED`, `POST_UNREADABLE`, `RENDER_FAILED`, or `RENDER_UNAVAILABLE` (nobody made it in time)."
+      enum:
+        - SCRIPT_FAILED
+        - POST_UNREADABLE
+        - RENDER_FAILED
+        - RENDER_UNAVAILABLE
+      type: string
+    VideoFile:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The finished video and its poster image, publicly readable until `Video.expiresAt`.
+      properties:
+        bytes:
+          format: int64
+          minimum: 1
+          type: integer
+        durationSeconds:
+          minimum: 0
+          type: number
+        height:
+          format: int64
+          minimum: 1
+          type: integer
+        mediaType:
+          pattern: ^video/mp4$
+          type: string
+          x-gala-const: video/mp4
+        posterUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        url:
+          format: uri
+          maxLength: 2048
+          type: string
+        width:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - url
+        - posterUrl
+        - mediaType
+        - bytes
+        - durationSeconds
+        - width
+        - height
+      type: object
+    VideoList:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. A site's videos, newest first, at most 50.
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/Video"
+          maxItems: 50
+          type: array
+      required:
+        - items
+      type: object
+    VideoPolicy:
+      additionalProperties: false
+      description: "SCHEMA-3.51.0. Whether Video is available to this publication and how many videos are left this period (the UTC week starting Monday). `enabled: false` means the feature is off. `plan` and `quota` have the shapes `InterviewPolicy` uses."
+      properties:
+        budget:
+          additionalProperties: false
+          description: "`available` is false when the platform's optional monthly spend cap is reached."
+          properties:
+            available:
+              type: boolean
+          required:
+            - available
+          type: object
+        enabled:
+          description: False when the platform switch is off.
+          type: boolean
+        plan:
+          additionalProperties: false
+          properties:
+            allowed:
+              type: boolean
+            requiredTier:
+              description: "The lowest API tier that includes Video: `PRO` (sold as Basic). Basic sites get 2 videos a week and Pro sites (`BUSINESS`) 5, as the platform settings say."
+              enum:
+                - FREE
+                - PRO
+                - BUSINESS
+              type: string
+          required:
+            - allowed
+            - requiredTier
+          type: object
+        quota:
+          additionalProperties: false
+          properties:
+            limit:
+              format: int64
+              minimum: 0
+              type: integer
+            period:
+              description: The UTC week the allowance counts in, as its Monday, `YYYY-MM-DD`
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
+              type: string
+            remaining:
+              format: int64
+              minimum: 0
+              type: integer
+            renewsAt:
+              $ref: "#/components/schemas/PortableProblemRfc3339"
+              description: The first instant of the next UTC week (Monday 00:00Z), when the allowance comes back
+            used:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - period
+            - renewsAt
+            - limit
+            - used
+            - remaining
+          type: object
+        retentionDays:
+          description: How many days a finished video is kept.
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - enabled
+        - plan
+        - quota
+        - retentionDays
+        - budget
+      type: object
+    VideoRenderClaim:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio asking for the next video to make.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    VideoRenderComplete:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio reporting a finished video. `objectKey` and `posterKey` must equal the job's `objectPrefix` plus `.mp4` and `.jpg`.
+      properties:
+        bytes:
+          format: int64
+          minimum: 1
+          type: integer
+        durationSeconds:
+          exclusiveMinimum: 0
+          type: number
+        height:
+          format: int64
+          minimum: 1
+          type: integer
+        objectKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.mp4$
+          type: string
+        posterKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.jpg$
+          type: string
+        sha256:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        width:
+          format: int64
+          minimum: 1
+          type: integer
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - objectKey
+        - posterKey
+        - bytes
+        - durationSeconds
+        - width
+        - height
+        - sha256
+      type: object
+    VideoRenderFail:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio reporting a video it could not make.
+      properties:
+        code:
+          $ref: "#/components/schemas/VideoFailureCode"
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - code
+        - detail
+      type: object
+    VideoRenderHeartbeat:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio extending its lease on a video.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    VideoRenderJob:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. One video for the studio to make. The studio uploads `<objectPrefix>.mp4` and `<objectPrefix>.jpg`, then reports them; the public address is the deployment's video base URL plus `/` plus the key.
+      properties:
+        leaseSeconds:
+          format: int64
+          minimum: 1
+          type: integer
+        objectPrefix:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}$
+          type: string
+        post:
+          additionalProperties: false
+          description: The post the video is of.
+          properties:
+            title:
+              maxLength: 300
+              type: string
+            url:
+              format: uri
+              maxLength: 2048
+              type: string
+          required:
+            - title
+            - url
+          type: object
+        script:
+          $ref: "#/components/schemas/VideoScript"
+        site:
+          additionalProperties: false
+          description: The site the post is on.
+          properties:
+            host:
+              maxLength: 253
+              minLength: 1
+              type: string
+            title:
+              maxLength: 300
+              type: string
+          required:
+            - title
+            - host
+          type: object
+        spec:
+          additionalProperties: false
+          description: The output to make.
+          properties:
+            fps:
+              format: int64
+              minimum: 1
+              type: integer
+            height:
+              format: int64
+              minimum: 1
+              type: integer
+            maxSeconds:
+              format: int64
+              minimum: 1
+              type: integer
+            width:
+              format: int64
+              minimum: 1
+              type: integer
+          required:
+            - width
+            - height
+            - fps
+            - maxSeconds
+          type: object
+        videoId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        voice:
+          additionalProperties: false
+          description: The narrator voice.
+          properties:
+            id:
+              maxLength: 64
+              minLength: 1
+              type: string
+            speed:
+              exclusiveMinimum: 0
+              type: number
+          required:
+            - id
+            - speed
+          type: object
+      required:
+        - videoId
+        - leaseSeconds
+        - objectPrefix
+        - site
+        - post
+        - script
+        - voice
+        - spec
+      type: object
+    VideoScript:
+      additionalProperties: false
+      description: "SCHEMA-3.51.0. The script of a video, written from the live post: a `hook` for the first frame, 4 to 6 `beats` (a short headline and what is said), a `close` that names the site, the `caption` to post with the video and up to 5 `hashtags` (without `#`)."
+      properties:
+        beats:
+          items:
+            additionalProperties: false
+            properties:
+              headline:
+                maxLength: 80
+                minLength: 1
+                type: string
+              narration:
+                maxLength: 300
+                minLength: 1
+                type: string
+            required:
+              - headline
+              - narration
+            type: object
+          maxItems: 6
+          minItems: 4
+          type: array
+        caption:
+          maxLength: 200
+          minLength: 1
+          type: string
+        close:
+          additionalProperties: false
+          properties:
+            headline:
+              maxLength: 80
+              minLength: 1
+              type: string
+            narration:
+              maxLength: 240
+              minLength: 1
+              type: string
+          required:
+            - headline
+            - narration
+          type: object
+        hashtags:
+          items:
+            maxLength: 40
+            minLength: 1
+            type: string
+          maxItems: 5
+          type: array
+        hook:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - hook
+        - beats
+        - close
+        - caption
+        - hashtags
+      type: object
+    VideoState:
+      description: "SCHEMA-3.51.0. Where a video is: `SCRIPTING` (the script is being written), `RENDERING` (waiting for, or being made by, the studio; see `claimed`), `READY`, `FAILED`, `CANCELLED` or `EXPIRED` (no longer kept)."
+      enum:
+        - SCRIPTING
+        - RENDERING
+        - READY
+        - FAILED
+        - CANCELLED
+        - EXPIRED
+      type: string
     YoutubeChannelId:
       description: "A YouTube channel id: `UC` and 22 base64url characters."
       maxLength: 24
@@ -26103,6 +26679,11 @@ components:
       in: header
       name: Stripe-Signature
       type: apiKey
+    videoWorkerToken:
+      bearerFormat: Opaque video worker token
+      description: The studio that makes videos. Compared in constant time with the deployment's video worker token; refused with 404 on every video-renders route when the deployment has none.
+      scheme: bearer
+      type: http
 info:
   description: Executable Galascribe MVP HTTP contract.
   title: Galascribe API
@@ -70502,6 +71083,1243 @@ paths:
         - NONE
       x-gala-success-category: protocol
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/video-policy:
+    get:
+      description: "Whether Video is available to this publication (`enabled`), whether the plan includes it (`plan.allowed`: the plan must be `PRO`, sold as Basic, or above), how many videos are left this period (the UTC week starting Monday), whether the platform's optional monthly spend cap still has room, and how many days a finished video is kept (`retentionDays`). `enabled: false` means the feature is off."
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdVideoPolicy
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    budget:
+                      available: true
+                    enabled: true
+                    plan:
+                      allowed: true
+                      requiredTier: PRO
+                    quota:
+                      limit: 2
+                      period: "2026-11-16"
+                      remaining: 1
+                      renewsAt: "2026-11-23T00:00:00Z"
+                      used: 1
+                    retentionDays: 30
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideoPolicyResponse"
+          description: read the Video policy succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read the Video policy
+      tags:
+        - video
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the Video policy
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/videos:
+    get:
+      description: The site's videos, newest first, at most 50. Not paginated.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdVideos
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - claimed: true
+                        contentId: 018f0000-0000-7000-8000-000000000001
+                        createdAt: "2026-11-16T12:00:00.000Z"
+                        id: 018f0000-0000-7000-8000-000000000001
+                        postTitle: Why we price by the week
+                        postUrl: https://example.com/why-we-price-by-the-week
+                        script:
+                          beats:
+                            - headline: Weekly beats monthly
+                              narration: Weekly prices match how writers actually work.
+                            - headline: Pay for what you use
+                              narration: You only pay for the weeks you publish.
+                            - headline: No surprise invoices
+                              narration: Every charge is visible before it happens.
+                            - headline: Cancel in one click
+                              narration: Stop any time with no questions asked.
+                          caption: Why we price by the week.
+                          close:
+                            headline: Read the full post
+                            narration: Read the full post on Example Site.
+                          hashtags:
+                            - pricing
+                            - writing
+                          hook: Why do we charge by the week?
+                        state: RENDERING
+                        updatedAt: "2026-11-16T12:01:00.000Z"
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideosResponse"
+          description: list the site's videos succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: list the site's videos
+      tags:
+        - video
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list the site's videos
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    post:
+      description: "Starts a video of one live post (`contentId`): reserves one unit of the organization's weekly allowance (2 on Basic, 5 on Pro by default), then the script is written and the video is made. The answer is the new video in `SCRIPTING`. The plan must be `PRO` (sold as Basic) or above: `409 PLAN_REQUIRED` below it. `429 QUOTA_EXHAUSTED` with `Retry-After` when no unit is left this period. `409 VIDEO_POST_NOT_LIVE` when the post is not live. `409 VIDEO_ALREADY_RUNNING` when the post already has a video being made. `503 BUDGET_EXHAUSTED` when the platform's optional monthly spend cap is reached; `503 CAPABILITY_UNAVAILABLE` when Video is off. `201`."
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdVideos
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  contentId: 018f0000-0000-7000-8000-000000000001
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    claimed: false
+                    contentId: 018f0000-0000-7000-8000-000000000001
+                    createdAt: "2026-11-16T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    postTitle: Why we price by the week
+                    postUrl: https://example.com/why-we-price-by-the-week
+                    state: SCRIPTING
+                    updatedAt: "2026-11-16T12:00:00.000Z"
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosResponse"
+          description: make a video of a live post succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
+                TRANSFER_PENDING:
+                  summary: TRANSFER_PENDING
+                  value:
+                    code: TRANSFER_PENDING
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_PENDING
+                    type: urn:gala:problem:transfer-pending
+                VIDEO_ALREADY_RUNNING:
+                  summary: VIDEO_ALREADY_RUNNING
+                  value:
+                    code: VIDEO_ALREADY_RUNNING
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: VIDEO_ALREADY_RUNNING
+                    type: urn:gala:problem:video-already-running
+                VIDEO_POST_NOT_LIVE:
+                  summary: VIDEO_POST_NOT_LIVE
+                  value:
+                    code: VIDEO_POST_NOT_LIVE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: VIDEO_POST_NOT_LIVE
+                    type: urn:gala:problem:video-post-not-live
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, PLAN_REQUIRED, TRANSFER_PENDING, VIDEO_ALREADY_RUNNING, VIDEO_POST_NOT_LIVE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - PLAN_REQUIRED
+            - TRANSFER_PENDING
+            - VIDEO_ALREADY_RUNNING
+            - VIDEO_POST_NOT_LIVE
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                QUOTA_EXHAUSTED:
+                  summary: QUOTA_EXHAUSTED
+                  value:
+                    code: QUOTA_EXHAUSTED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: QUOTA_EXHAUSTED
+                    type: urn:gala:problem:quota-exhausted
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: QUOTA_EXHAUSTED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - QUOTA_EXHAUSTED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                BUDGET_EXHAUSTED:
+                  summary: BUDGET_EXHAUSTED
+                  value:
+                    code: BUDGET_EXHAUSTED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: BUDGET_EXHAUSTED
+                    type: urn:gala:problem:budget-exhausted
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: BUDGET_EXHAUSTED, CAPABILITY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - BUDGET_EXHAUSTED
+            - CAPABILITY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: make a video of a live post
+      tags:
+        - video
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Video enabled for this deployment and publication
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: video-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: make a video of a live post
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - BUDGET_EXHAUSTED
+        - CAPABILITY_UNAVAILABLE
+        - COMMAND_REPLAY_CONFLICT
+        - PLAN_REQUIRED
+        - QUOTA_EXHAUSTED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - TRANSFER_PENDING
+        - VALIDATION_FAILED
+        - VIDEO_ALREADY_RUNNING
+        - VIDEO_POST_NOT_LIVE
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/videos/{videoId}:
+    get:
+      description: One video with its state. `script` is present once the script is written and `file` once the video is `READY`; `failure` once `FAILED`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: videoId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    claimed: false
+                    contentId: 018f0000-0000-7000-8000-000000000001
+                    createdAt: "2026-11-16T12:00:00.000Z"
+                    expiresAt: "2026-12-16T12:05:00.000Z"
+                    file:
+                      bytes: 8421377
+                      durationSeconds: 47
+                      height: 1920
+                      mediaType: video/mp4
+                      posterUrl: https://media.example.com/videos/p/v-abc123.jpg
+                      url: https://media.example.com/videos/p/v-abc123.mp4
+                      width: 1080
+                    id: 018f0000-0000-7000-8000-000000000001
+                    postTitle: Why we price by the week
+                    postUrl: https://example.com/why-we-price-by-the-week
+                    readyAt: "2026-11-16T12:05:00.000Z"
+                    script:
+                      beats:
+                        - headline: Weekly beats monthly
+                          narration: Weekly prices match how writers actually work.
+                        - headline: Pay for what you use
+                          narration: You only pay for the weeks you publish.
+                        - headline: No surprise invoices
+                          narration: Every charge is visible before it happens.
+                        - headline: Cancel in one click
+                          narration: Stop any time with no questions asked.
+                      caption: Why we price by the week.
+                      close:
+                        headline: Read the full post
+                        narration: Read the full post on Example Site.
+                      hashtags:
+                        - pricing
+                        - writing
+                      hook: Why do we charge by the week?
+                    state: READY
+                    updatedAt: "2026-11-16T12:05:00.000Z"
+                rendering:
+                  summary: A video being made
+                  value:
+                    claimed: true
+                    contentId: 018f0000-0000-7000-8000-000000000001
+                    createdAt: "2026-11-16T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    postTitle: Why we price by the week
+                    postUrl: https://example.com/why-we-price-by-the-week
+                    script:
+                      beats:
+                        - headline: Weekly beats monthly
+                          narration: Weekly prices match how writers actually work.
+                        - headline: Pay for what you use
+                          narration: You only pay for the weeks you publish.
+                        - headline: No surprise invoices
+                          narration: Every charge is visible before it happens.
+                        - headline: Cancel in one click
+                          narration: Stop any time with no questions asked.
+                      caption: Why we price by the week.
+                      close:
+                        headline: Read the full post
+                        narration: Read the full post on Example Site.
+                      hashtags:
+                        - pricing
+                        - writing
+                      hook: Why do we charge by the week?
+                    state: RENDERING
+                    updatedAt: "2026-11-16T12:01:00.000Z"
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdResponse"
+          description: read a video succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read a video
+      tags:
+        - video
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read a video
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/videos/{videoId}:cancel:
+    post:
+      description: Cancels a video that is `SCRIPTING`, or `RENDERING` and not yet claimed by the studio; the reserved unit is released. `409 VIDEO_STATE_CONFLICT` once the studio has claimed it or the video is no longer being made.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdCancel
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: videoId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    claimed: false
+                    contentId: 018f0000-0000-7000-8000-000000000001
+                    createdAt: "2026-11-16T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    postTitle: Why we price by the week
+                    postUrl: https://example.com/why-we-price-by-the-week
+                    state: CANCELLED
+                    updatedAt: "2026-11-16T12:02:00.000Z"
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdCancelResponse"
+          description: cancel a video succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                TRANSFER_PENDING:
+                  summary: TRANSFER_PENDING
+                  value:
+                    code: TRANSFER_PENDING
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_PENDING
+                    type: urn:gala:problem:transfer-pending
+                VIDEO_STATE_CONFLICT:
+                  summary: VIDEO_STATE_CONFLICT
+                  value:
+                    code: VIDEO_STATE_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: VIDEO_STATE_CONFLICT
+                    type: urn:gala:problem:video-state-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, TRANSFER_PENDING, VIDEO_STATE_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - TRANSFER_PENDING
+            - VIDEO_STATE_CONFLICT
+      security:
+        - browserSession: []
+      summary: cancel a video
+      tags:
+        - video
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.source.write
+      x-gala-concurrency: video-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: cancel a video
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - RESOURCE_NOT_FOUND
+        - TRANSFER_PENDING
+        - VALIDATION_FAILED
+        - VIDEO_STATE_CONFLICT
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}:previewRetirement:
     post:
       description: |
@@ -89773,6 +91591,749 @@ paths:
         - PublicationOperation:ACCEPTED|EXECUTING|RECONCILING
       x-gala-success-category: receipt-exchange
       x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION
+  /v2/workloads/video-renders/{videoId}:complete:
+    post:
+      description: Machine caller only (video worker token; `404` when none is configured). Reports the uploaded file. `objectKey` and `posterKey` must equal the job's `objectPrefix` plus `.mp4` and `.jpg`, else `400 VALIDATION_FAILED`. The video becomes `READY`, its unit is settled and the author is told. `409 VIDEO_STATE_CONFLICT` when the lease was lost or the video was cancelled.
+      operationId: postWorkloadsVideoRendersByVideoIdComplete
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: videoId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  bytes: 8421377
+                  durationSeconds: 47
+                  height: 1920
+                  objectKey: videos/018f0000-0000-7000-8000-000000000001/018f0000-0000-7000-8000-000000000001-k3j9x2.mp4
+                  posterKey: videos/018f0000-0000-7000-8000-000000000001/018f0000-0000-7000-8000-000000000001-k3j9x2.jpg
+                  sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+                  width: 1080
+                  workerId: studio-mac-1
+            schema:
+              $ref: "#/components/schemas/PostWorkloadsVideoRendersByVideoIdCompleteRequest"
+        required: true
+      responses:
+        "204":
+          description: report a video made succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                VIDEO_STATE_CONFLICT:
+                  summary: VIDEO_STATE_CONFLICT
+                  value:
+                    code: VIDEO_STATE_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: VIDEO_STATE_CONFLICT
+                    type: urn:gala:problem:video-state-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VIDEO_STATE_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VIDEO_STATE_CONFLICT
+      security:
+        - videoWorkerToken: []
+      summary: report a video made
+      tags:
+        - workloads
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: video-lease
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: report a video made
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+        - VIDEO_STATE_CONFLICT
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION
+  /v2/workloads/video-renders/{videoId}:fail:
+    post:
+      description: Machine caller only (video worker token; `404` when none is configured). The video becomes `FAILED` with `code`, its unit is released and the author is told. `409 VIDEO_STATE_CONFLICT` when the lease was lost or the video was cancelled.
+      operationId: postWorkloadsVideoRendersByVideoIdFail
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: videoId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  code: RENDER_FAILED
+                  detail: The composition did not render.
+                  workerId: studio-mac-1
+            schema:
+              $ref: "#/components/schemas/PostWorkloadsVideoRendersByVideoIdFailRequest"
+        required: true
+      responses:
+        "204":
+          description: report a video that could not be made succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                VIDEO_STATE_CONFLICT:
+                  summary: VIDEO_STATE_CONFLICT
+                  value:
+                    code: VIDEO_STATE_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: VIDEO_STATE_CONFLICT
+                    type: urn:gala:problem:video-state-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VIDEO_STATE_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VIDEO_STATE_CONFLICT
+      security:
+        - videoWorkerToken: []
+      summary: report a video that could not be made
+      tags:
+        - workloads
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: video-lease
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: report a video that could not be made
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+        - VIDEO_STATE_CONFLICT
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION
+  /v2/workloads/video-renders/{videoId}:heartbeat:
+    post:
+      description: Machine caller only (video worker token; `404` when none is configured). Extends the lease the worker holds on the video. `409 VIDEO_STATE_CONFLICT` when the lease was lost or the video was cancelled.
+      operationId: postWorkloadsVideoRendersByVideoIdHeartbeat
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: videoId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  workerId: studio-mac-1
+            schema:
+              $ref: "#/components/schemas/PostWorkloadsVideoRendersByVideoIdHeartbeatRequest"
+        required: true
+      responses:
+        "204":
+          description: extend the lease on a video being made succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                VIDEO_STATE_CONFLICT:
+                  summary: VIDEO_STATE_CONFLICT
+                  value:
+                    code: VIDEO_STATE_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: VIDEO_STATE_CONFLICT
+                    type: urn:gala:problem:video-state-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VIDEO_STATE_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VIDEO_STATE_CONFLICT
+      security:
+        - videoWorkerToken: []
+      summary: extend the lease on a video being made
+      tags:
+        - workloads
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: video-lease
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: extend the lease on a video being made
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+        - VIDEO_STATE_CONFLICT
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION
+  /v2/workloads/video-renders:claim:
+    post:
+      description: "Machine caller only: `Authorization: Bearer <token>`, compared in constant time with the deployment's video worker token. Without a configured token the route answers `404`. Leases the oldest `RENDERING` video nobody holds to `workerId` for `leaseSeconds` and answers `200` with the job, or `204` when nothing is queued."
+      operationId: postWorkloadsVideoRendersClaim
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  workerId: studio-mac-1
+            schema:
+              $ref: "#/components/schemas/PostWorkloadsVideoRendersClaimRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    leaseSeconds: 900
+                    objectPrefix: videos/018f0000-0000-7000-8000-000000000001/018f0000-0000-7000-8000-000000000001-k3j9x2
+                    post:
+                      title: Why we price by the week
+                      url: https://example.com/why-we-price-by-the-week
+                    script:
+                      beats:
+                        - headline: Weekly beats monthly
+                          narration: Weekly prices match how writers actually work.
+                        - headline: Pay for what you use
+                          narration: You only pay for the weeks you publish.
+                        - headline: No surprise invoices
+                          narration: Every charge is visible before it happens.
+                        - headline: Cancel in one click
+                          narration: Stop any time with no questions asked.
+                      caption: Why we price by the week.
+                      close:
+                        headline: Read the full post
+                        narration: Read the full post on Example Site.
+                      hashtags:
+                        - pricing
+                        - writing
+                      hook: Why do we charge by the week?
+                    site:
+                      host: example.com
+                      title: Example Site
+                    spec:
+                      fps: 30
+                      height: 1920
+                      maxSeconds: 60
+                      width: 1080
+                    videoId: 018f0000-0000-7000-8000-000000000001
+                    voice:
+                      id: af_heart
+                      speed: 0.9
+              schema:
+                $ref: "#/components/schemas/PostWorkloadsVideoRendersClaimResponse"
+          description: claim the next video to make succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "204":
+          description: nothing is queued
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - videoWorkerToken: []
+      summary: claim the next video to make
+      tags:
+        - workloads
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: video-lease
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: claim the next video to make
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: WORKLOAD_BOUND_ORGANIZATION_AND_PUBLICATION
 servers:
   - url: https://api.galascribe.com
 tags:
@@ -89797,6 +92358,7 @@ tags:
   - name: session
   - name: syndication
   - name: today
+  - name: video
   - name: workloads
 x-gala-contract-id: urn:gala:schema:openapi:2.0.0
 x-gala-source-design-revision: a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a

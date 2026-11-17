@@ -8,6 +8,45 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.51.0] - 2026-11-16
+
+Video arrives: a short vertical video made from a live post. Additive;
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves.
+
+### Added
+
+- Author routes under
+  `/v2/organizations/{organizationId}/publications/{publicationId}` (capability
+  `publication.source.write`, tag `video`): `GET /video-policy`, `GET /videos`
+  (newest first, at most 50), `POST /videos` (`{ contentId }`, `201`),
+  `GET /videos/{videoId}` and `POST /videos/{videoId}:cancel`. One unit of the
+  weekly allowance is reserved at create, settled when the video is `READY` and
+  released when it is `CANCELLED` or `FAILED`.
+- Studio routes for the machine caller that makes the videos, in tag
+  `workloads`: `POST /v2/workloads/video-renders:claim` (`200` with a job, `204`
+  when nothing is queued) and
+  `POST /v2/workloads/video-renders/{videoId}:heartbeat`, `:complete` and
+  `:fail` (`204`). They use the new `videoWorkerToken` bearer security scheme; a
+  deployment without a worker token answers `404`.
+- Components `VideoPolicy`, `Video`, `VideoState`, `VideoFailure`,
+  `VideoFailureCode`, `VideoScript`, `VideoFile`, `VideoCreate`, `VideoList`,
+  `VideoRenderJob`, `VideoRenderClaim`, `VideoRenderHeartbeat`,
+  `VideoRenderComplete` and `VideoRenderFail`, with the request and response
+  components every operation needs. `VideoPolicy.plan` and `.quota` have the
+  member shapes of `InterviewPolicy`.
+- Problem codes `VIDEO_POST_NOT_LIVE`, `VIDEO_ALREADY_RUNNING` (both `409`) and
+  `VIDEO_STATE_CONFLICT` (`409`). `PLAN_REQUIRED`, `QUOTA_EXHAUSTED`,
+  `CAPABILITY_UNAVAILABLE` and `BUDGET_EXHAUSTED` are reused as the Interview
+  routes use them.
+- App routes `/sites/{organizationId}/{publicationId}/videos` and
+  `/sites/{organizationId}/{publicationId}/videos/{videoId}` (62 routes).
+- Inbox notification kinds `video-ready` and `video-failed` (category
+  `publishing`) are documented on `NotificationItem`; `kind` stays an open slug.
+  Platform setting keys `video.enabled`, `video.weeklyUnitsPerBasicOrganization`
+  and `video.weeklyUnitsPerProOrganization` need no schema change: setting keys
+  are pattern-validated strings the API defines.
+
 ## [3.50.0] - 2026-11-15
 
 ### Added
@@ -4480,7 +4519,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.50.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.51.0...HEAD
+[3.51.0]: https://github.com/rathnasgala2/schema/compare/v3.50.0...v3.51.0
 [3.50.0]: https://github.com/rathnasgala2/schema/compare/v3.49.0...v3.50.0
 [3.49.0]: https://github.com/rathnasgala2/schema/compare/v3.48.0...v3.49.0
 [3.48.0]: https://github.com/rathnasgala2/schema/compare/v3.47.0...v3.48.0

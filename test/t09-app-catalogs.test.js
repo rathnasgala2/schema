@@ -110,8 +110,9 @@ test('reviewed source ledgers validate without invented entries', async () => {
   // 3.43.0 adds the four Today routes (59 routes).
   // 3.48.0 adds the two operator interview routes (61 routes).
   // 3.49.0 retires the operator Prism console route (60 routes).
+  // 3.51.0 adds the two Video routes (62 routes).
   assert.equal(validateAppComponentSource(componentSourceValue).length, 1);
-  assert.equal(validateAppRouteSource(routeSourceValue).length, 60);
+  assert.equal(validateAppRouteSource(routeSourceValue).length, 62);
   const paths = new Set(
     /** @type {JsonObject[]} */ (
       /** @type {JsonObject} */ (routeSourceValue).routes
@@ -175,7 +176,7 @@ test('reviewed source ledgers validate without invented entries', async () => {
   ]) {
     assert.ok(paths.has(path), path);
   }
-  assert.equal(paths.size, 60);
+  assert.equal(paths.size, 62);
 });
 
 test('generated catalogs match the committed projection', async () => {
@@ -212,7 +213,8 @@ test('generated catalogs match the committed projection', async () => {
   // 3.37.0 (reviewed 2026-11-05): the Settings syndication route (725 to 741).
   // 3.43.0 (reviewed 2026-11-06): the four Today routes (741 to 802).
   // 3.48.0 (reviewed 2026-11-13): the two operator interview routes (802 to 820).
-  assert.equal(authoredMessageCount, 804);
+  // 3.51.0 (reviewed 2026-11-16): the two Video routes (804 to 833).
+  assert.equal(authoredMessageCount, 833);
 });
 
 test('every route references only registered componentIds and contentKeyIds', async () => {
@@ -456,6 +458,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // history, the link preview and the comment like until the App binds them.
   // Since 3.35.0 also the change discard until the App binds it.
   // Since 3.50.0 also the GitHub account-by-name read until the App binds it.
+  // Since 3.51.0 also the four studio routes (machine caller, never the App).
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
     'deletePublicCommentsByCommentIdLike',
@@ -523,6 +526,10 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postSessionReauthentication',
     'postWorkloadsDeploymentReceipts',
     'postWorkloadsGithubReceiptExchanges',
+    'postWorkloadsVideoRendersByVideoIdComplete',
+    'postWorkloadsVideoRendersByVideoIdFail',
+    'postWorkloadsVideoRendersByVideoIdHeartbeat',
+    'postWorkloadsVideoRendersClaim',
     'putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination',
     'putPublicCommentsByCommentIdLike',
     'putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',

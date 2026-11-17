@@ -16849,10 +16849,11 @@ components:
         `excerpt`. `kind` is the specific event (for example `comment-created`,
         `comment-held`, `report-filed`, `contact-message-received`,
         `publish-failed`, `release-live`, `review-requested`, `review-approved`,
-        `audience-summary`, `following-post`) as a lowercase slug; a client
-        treats a `kind` it does not know as its `category`. `publication` is
-        null for a row that belongs to no site (a reply to a comment on a
-        deleted site, for instance).'
+        `audience-summary`, `following-post`, and from SCHEMA-3.51.0
+        `video-ready` and `video-failed`, in the `publishing` category) as a
+        lowercase slug; a client treats a `kind` it does not know as its
+        `category`. `publication` is null for a row that belongs to no site (a
+        reply to a comment on a deleted site, for instance).'
       properties:
         category:
           $ref: '#/components/schemas/NotificationCategory'
@@ -20090,6 +20091,621 @@ components:
       type: object
     # SCHEMA-3.43.0 Today (generated block end)
 
+    VideoState:
+      description:
+        'SCHEMA-3.51.0. Where a video is: `SCRIPTING` (the script is being
+        written), `RENDERING` (waiting for, or being made by, the studio; see
+        `claimed`), `READY`, `FAILED`, `CANCELLED` or `EXPIRED` (no longer
+        kept).'
+      enum:
+        - SCRIPTING
+        - RENDERING
+        - READY
+        - FAILED
+        - CANCELLED
+        - EXPIRED
+      type: string
+    VideoFailureCode:
+      description:
+        'SCHEMA-3.51.0. Why a video could not be made: `SCRIPT_FAILED`,
+        `POST_UNREADABLE`, `RENDER_FAILED`, or `RENDER_UNAVAILABLE` (nobody made
+        it in time).'
+      enum:
+        - SCRIPT_FAILED
+        - POST_UNREADABLE
+        - RENDER_FAILED
+        - RENDER_UNAVAILABLE
+      type: string
+    VideoFailure:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. Why a `FAILED` video failed. Its unit was released.
+      properties:
+        code:
+          $ref: '#/components/schemas/VideoFailureCode'
+      required:
+        - code
+      type: object
+    VideoPolicy:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.51.0. Whether Video is available to this publication and how
+        many videos are left this period (the UTC week starting Monday).
+        `enabled: false` means the feature is off. `plan` and `quota` have the
+        shapes `InterviewPolicy` uses.'
+      properties:
+        budget:
+          additionalProperties: false
+          description:
+            "`available` is false when the platform's optional monthly spend cap
+            is reached."
+          properties:
+            available:
+              type: boolean
+          required:
+            - available
+          type: object
+        enabled:
+          description: False when the platform switch is off.
+          type: boolean
+        plan:
+          additionalProperties: false
+          properties:
+            allowed:
+              type: boolean
+            requiredTier:
+              description:
+                'The lowest API tier that includes Video: `PRO` (sold as Basic).
+                Basic sites get 2 videos a week and Pro sites (`BUSINESS`) 5, as
+                the platform settings say.'
+              enum:
+                - FREE
+                - PRO
+                - BUSINESS
+              type: string
+          required:
+            - allowed
+            - requiredTier
+          type: object
+        quota:
+          additionalProperties: false
+          properties:
+            limit:
+              format: int64
+              minimum: 0
+              type: integer
+            period:
+              description:
+                The UTC week the allowance counts in, as its Monday,
+                `YYYY-MM-DD`
+              pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$
+              type: string
+            remaining:
+              format: int64
+              minimum: 0
+              type: integer
+            renewsAt:
+              $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+              description:
+                The first instant of the next UTC week (Monday 00:00Z), when the
+                allowance comes back
+            used:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - period
+            - renewsAt
+            - limit
+            - used
+            - remaining
+          type: object
+        retentionDays:
+          description: How many days a finished video is kept.
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - enabled
+        - plan
+        - quota
+        - retentionDays
+        - budget
+      type: object
+    VideoScript:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.51.0. The script of a video, written from the live post: a
+        `hook` for the first frame, 4 to 6 `beats` (a short headline and what is
+        said), a `close` that names the site, the `caption` to post with the
+        video and up to 5 `hashtags` (without `#`).'
+      properties:
+        beats:
+          items:
+            additionalProperties: false
+            properties:
+              headline:
+                maxLength: 80
+                minLength: 1
+                type: string
+              narration:
+                maxLength: 300
+                minLength: 1
+                type: string
+            required:
+              - headline
+              - narration
+            type: object
+          maxItems: 6
+          minItems: 4
+          type: array
+        caption:
+          maxLength: 200
+          minLength: 1
+          type: string
+        close:
+          additionalProperties: false
+          properties:
+            headline:
+              maxLength: 80
+              minLength: 1
+              type: string
+            narration:
+              maxLength: 240
+              minLength: 1
+              type: string
+          required:
+            - headline
+            - narration
+          type: object
+        hashtags:
+          items:
+            maxLength: 40
+            minLength: 1
+            type: string
+          maxItems: 5
+          type: array
+        hook:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - hook
+        - beats
+        - close
+        - caption
+        - hashtags
+      type: object
+    VideoFile:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. The finished video and its poster image, publicly
+        readable until `Video.expiresAt`.
+      properties:
+        bytes:
+          format: int64
+          minimum: 1
+          type: integer
+        durationSeconds:
+          minimum: 0
+          type: number
+        height:
+          format: int64
+          minimum: 1
+          type: integer
+        mediaType:
+          const: video/mp4
+          type: string
+        posterUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        url:
+          format: uri
+          maxLength: 2048
+          type: string
+        width:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - url
+        - posterUrl
+        - mediaType
+        - bytes
+        - durationSeconds
+        - width
+        - height
+      type: object
+    Video:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. One video made from a live post. `claimed` is true once
+        the studio holds a `RENDERING` video (it can no longer be cancelled).
+        `script` is present once written, `file`, `readyAt` and `expiresAt` once
+        `READY`, `failure` once `FAILED`.
+      properties:
+        claimed:
+          type: boolean
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        expiresAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        failure:
+          $ref: '#/components/schemas/VideoFailure'
+        file:
+          $ref: '#/components/schemas/VideoFile'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        postTitle:
+          maxLength: 300
+          type: string
+        postUrl:
+          format: uri
+          maxLength: 2048
+          type: string
+        readyAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        script:
+          $ref: '#/components/schemas/VideoScript'
+        state:
+          $ref: '#/components/schemas/VideoState'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - id
+        - contentId
+        - postTitle
+        - postUrl
+        - state
+        - claimed
+        - createdAt
+        - updatedAt
+      type: object
+    VideoCreate:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The live post to make a video of.
+      properties:
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - contentId
+      type: object
+    VideoList:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. A site's videos, newest first, at most 50.
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Video'
+          maxItems: 50
+          type: array
+      required:
+        - items
+      type: object
+    VideoRenderClaim:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio asking for the next video to make.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    VideoRenderHeartbeat:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio extending its lease on a video.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    VideoRenderComplete:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. The studio reporting a finished video. `objectKey` and
+        `posterKey` must equal the job's `objectPrefix` plus `.mp4` and `.jpg`.
+      properties:
+        bytes:
+          format: int64
+          minimum: 1
+          type: integer
+        durationSeconds:
+          exclusiveMinimum: 0
+          type: number
+        height:
+          format: int64
+          minimum: 1
+          type: integer
+        objectKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.mp4$
+          type: string
+        posterKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.jpg$
+          type: string
+        sha256:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        width:
+          format: int64
+          minimum: 1
+          type: integer
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - objectKey
+        - posterKey
+        - bytes
+        - durationSeconds
+        - width
+        - height
+        - sha256
+      type: object
+    VideoRenderFail:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. The studio reporting a video it could not make.
+      properties:
+        code:
+          $ref: '#/components/schemas/VideoFailureCode'
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - code
+        - detail
+      type: object
+    VideoRenderJob:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. One video for the studio to make. The studio uploads
+        `<objectPrefix>.mp4` and `<objectPrefix>.jpg`, then reports them; the
+        public address is the deployment's video base URL plus `/` plus the key.
+      properties:
+        leaseSeconds:
+          format: int64
+          minimum: 1
+          type: integer
+        objectPrefix:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}$
+          type: string
+        post:
+          additionalProperties: false
+          description: The post the video is of.
+          properties:
+            title:
+              maxLength: 300
+              type: string
+            url:
+              format: uri
+              maxLength: 2048
+              type: string
+          required:
+            - title
+            - url
+          type: object
+        script:
+          $ref: '#/components/schemas/VideoScript'
+        site:
+          additionalProperties: false
+          description: The site the post is on.
+          properties:
+            host:
+              maxLength: 253
+              minLength: 1
+              type: string
+            title:
+              maxLength: 300
+              type: string
+          required:
+            - title
+            - host
+          type: object
+        spec:
+          additionalProperties: false
+          description: The output to make.
+          properties:
+            fps:
+              format: int64
+              minimum: 1
+              type: integer
+            height:
+              format: int64
+              minimum: 1
+              type: integer
+            maxSeconds:
+              format: int64
+              minimum: 1
+              type: integer
+            width:
+              format: int64
+              minimum: 1
+              type: integer
+          required:
+            - width
+            - height
+            - fps
+            - maxSeconds
+          type: object
+        videoId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        voice:
+          additionalProperties: false
+          description: The narrator voice.
+          properties:
+            id:
+              maxLength: 64
+              minLength: 1
+              type: string
+            speed:
+              exclusiveMinimum: 0
+              type: number
+          required:
+            - id
+            - speed
+          type: object
+      required:
+        - videoId
+        - leaseSeconds
+        - objectPrefix
+        - site
+        - post
+        - script
+        - voice
+        - spec
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideoPolicyResponse:
+      allOf:
+        - $ref: '#/components/schemas/VideoPolicy'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideosResponse:
+      allOf:
+        - $ref: '#/components/schemas/VideoList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosResponse:
+      allOf:
+        - $ref: '#/components/schemas/Video'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The live post to make a video of.
+      properties:
+        contentId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - contentId
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/Video'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdVideosByVideoIdCancelResponse:
+      allOf:
+        - $ref: '#/components/schemas/Video'
+    PostWorkloadsVideoRendersClaimResponse:
+      allOf:
+        - $ref: '#/components/schemas/VideoRenderJob'
+    PostWorkloadsVideoRendersClaimRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio asking for the next video to make.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    PostWorkloadsVideoRendersByVideoIdHeartbeatRequest:
+      additionalProperties: false
+      description: SCHEMA-3.51.0. The studio extending its lease on a video.
+      properties:
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+      type: object
+    PostWorkloadsVideoRendersByVideoIdCompleteRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. The studio reporting a finished video. `objectKey` and
+        `posterKey` must equal the job's `objectPrefix` plus `.mp4` and `.jpg`.
+      properties:
+        bytes:
+          format: int64
+          minimum: 1
+          type: integer
+        durationSeconds:
+          exclusiveMinimum: 0
+          type: number
+        height:
+          format: int64
+          minimum: 1
+          type: integer
+        objectKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.mp4$
+          type: string
+        posterKey:
+          maxLength: 300
+          pattern: ^videos/[0-9a-f-]{36}/[0-9a-f-]{36}-[A-Za-z0-9_-]{4,64}\.jpg$
+          type: string
+        sha256:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        width:
+          format: int64
+          minimum: 1
+          type: integer
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - objectKey
+        - posterKey
+        - bytes
+        - durationSeconds
+        - width
+        - height
+        - sha256
+      type: object
+    PostWorkloadsVideoRendersByVideoIdFailRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.51.0. The studio reporting a video it could not make.
+      properties:
+        code:
+          $ref: '#/components/schemas/VideoFailureCode'
+        detail:
+          maxLength: 500
+          minLength: 1
+          type: string
+        workerId:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._:-]{1,128}$
+          type: string
+      required:
+        - workerId
+        - code
+        - detail
+      type: object
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)
@@ -20128,3 +20744,11 @@ components:
       in: header
       name: Stripe-Signature
       type: apiKey
+    videoWorkerToken:
+      bearerFormat: Opaque video worker token
+      description:
+        The studio that makes videos. Compared in constant time with the
+        deployment's video worker token; refused with 404 on every video-renders
+        route when the deployment has none.
+      scheme: bearer
+      type: http
