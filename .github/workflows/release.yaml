@@ -291,8 +291,31 @@ jobs:
         run: |
           set -euo pipefail
           url="$(npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" dist.tarball)"
-          curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --retry 3 \
-            --output "${RUNNER_TEMP}/registry.tgz" "${url}"
+          # The registry can list a version before it serves the tarball, so
+          # a 404 right after publish is waited out; any other failure is final.
+          attempts="${TARBALL_WAIT_ATTEMPTS:-30}"
+          pause="${TARBALL_WAIT_SECONDS:-10}"
+          fetched=false
+          for attempt in $(seq 1 "${attempts}"); do
+            status="$(curl --proto '=https' --tlsv1.2 --silent --show-error --location --retry 3 \
+              --output "${RUNNER_TEMP}/registry.tgz" --write-out '%{http_code}' "${url}" || true)"
+            if [ "${status}" = "200" ]; then
+              fetched=true
+              break
+            fi
+            if [ "${status}" != "404" ]; then
+              echo "::error::Fetching the registry tarball for ${PACKAGE_NAME}@${PACKAGE_VERSION} failed with HTTP status ${status}. Check npmjs.com; do not publish it again." >&2
+              exit 1
+            fi
+            echo "Waiting for the registry tarball of ${PACKAGE_NAME}@${PACKAGE_VERSION} (attempt ${attempt} of ${attempts})."
+            if [ "${attempt}" -lt "${attempts}" ]; then
+              sleep "${pause}"
+            fi
+          done
+          if [ "${fetched}" != "true" ]; then
+            echo "::error::The registry tarball for ${PACKAGE_NAME}@${PACKAGE_VERSION} was still not available after ${attempts} attempts ${pause} seconds apart. Check npmjs.com; do not publish it again." >&2
+            exit 1
+          fi
           registry_sha256="$(sha256sum "${RUNNER_TEMP}/registry.tgz" | cut -d ' ' -f 1)"
           {
             echo "### ${PACKAGE_NAME}@${PACKAGE_VERSION} published"
