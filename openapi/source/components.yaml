@@ -13365,15 +13365,16 @@ components:
       $ref: '#/components/schemas/PlatformPlanCapacityRelease'
     AffiliateCode:
       description:
-        "SCHEMA-3.52.0: an affiliate referral code, 3 to 32 lower-case letters,
+        'SCHEMA-3.52.0: an affiliate referral code, 3 to 32 lower-case letters,
         digits and hyphens, starting and ending with a letter or digit. Unique
-        for ever, also after its partner is disabled."
+        for ever, also after its partner is disabled.'
       maxLength: 32
       minLength: 3
       pattern: ^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$
       type: string
     AffiliatePartnerStatus:
-      description: "SCHEMA-3.52.0: only an `ACTIVE` partner attributes new referrals."
+      description:
+        'SCHEMA-3.52.0: only an `ACTIVE` partner attributes new referrals.'
       enum:
         - ACTIVE
         - DISABLED
@@ -13381,8 +13382,8 @@ components:
     AffiliatePartner:
       additionalProperties: false
       description:
-        "SCHEMA-3.52.0: a person or business with a referral code, created by an
-        operator."
+        'SCHEMA-3.52.0: a person or business with a referral code, created by an
+        operator.'
       properties:
         code:
           $ref: '#/components/schemas/AffiliateCode'
@@ -13427,8 +13428,8 @@ components:
     AffiliateReferral:
       additionalProperties: false
       description:
-        "SCHEMA-3.52.0: one organization attributed to one partner. It never
-        changes once written."
+        'SCHEMA-3.52.0: one organization attributed to one partner. It never
+        changes once written.'
       properties:
         organizationId:
           format: uuid
@@ -13457,8 +13458,8 @@ components:
     AffiliateSubscription:
       additionalProperties: false
       description:
-        "SCHEMA-3.52.0: a subscription attributed to a partner. The Stripe ids
-        let the operator open it in Stripe and read the amounts."
+        'SCHEMA-3.52.0: a subscription attributed to a partner. The Stripe ids
+        let the operator open it in Stripe and read the amounts.'
       properties:
         cancelAtPeriodEnd:
           type: boolean
@@ -13511,8 +13512,8 @@ components:
     AffiliatePartnerDetail:
       additionalProperties: false
       description:
-        "SCHEMA-3.52.0: an affiliate partner with the organizations it referred
-        and every subscription attributed to it."
+        'SCHEMA-3.52.0: an affiliate partner with the organizations it referred
+        and every subscription attributed to it.'
       properties:
         code:
           $ref: '#/components/schemas/AffiliateCode'

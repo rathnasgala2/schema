@@ -19,18 +19,18 @@ toolchain pin moves.
 
 - `POST /v2/self/affiliate-referral` (`{ code }`, tag `self`, no capability):
   `204` for every well-formed request from a signed-in caller, whether the code
-  was recorded, already attributed, unknown, disabled or not eligible; `400
-  VALIDATION_FAILED` for a code that does not match
+  was recorded, already attributed, unknown, disabled or not eligible;
+  `400 VALIDATION_FAILED` for a code that does not match
   `^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$`. Uses the `delete` success category, the
   only one that answers `204`.
-- Operator routes (capability `platform.billing.manage`, tag `platform`):
-  `GET` and `POST /v2/platform/affiliate-partners` (newest first, at most 200;
-  `201`), `GET` and `PUT /v2/platform/affiliate-partners/{partnerId}`.
+- Operator routes (capability `platform.billing.manage`, tag `platform`): `GET`
+  and `POST /v2/platform/affiliate-partners` (newest first, at most 200; `201`),
+  `GET` and `PUT /v2/platform/affiliate-partners/{partnerId}`.
 - Components `AffiliateCode`, `AffiliatePartner`, `AffiliatePartnerDetail`,
   `AffiliatePartnerStatus`, `AffiliateReferral`, `AffiliateSubscription` and the
   generated request and response schemas of the five operations.
-- Problem code `AFFILIATE_CODE_TAKEN` (409): the code was used before, also by
-  a disabled partner.
+- Problem code `AFFILIATE_CODE_TAKEN` (409): the code was used before, also by a
+  disabled partner.
 - App routes `/platform/affiliates` and `/platform/affiliates/{partnerId}`.
 
 ## [3.51.0] - 2026-11-16
