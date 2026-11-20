@@ -127,6 +127,8 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       FOLLOWS_DISABLED: { statuses: [409], retryable: false },
       NEWSLETTER_FULL: { statuses: [409], retryable: false },
       NEWSLETTER_UNAVAILABLE: { statuses: [409], retryable: false },
+      // SCHEMA-3.52.0: affiliate partners.
+      AFFILIATE_CODE_TAKEN: { statuses: [409], retryable: false },
       // SCHEMA-3.41.0: operator plan grants.
       PLAN_COLLABORATORS_PRESENT: { statuses: [409], retryable: false },
       PLAN_SUBSCRIBED: { statuses: [409], retryable: false },

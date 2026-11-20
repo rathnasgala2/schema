@@ -13363,6 +13363,264 @@ components:
       type: object
     GetPlatformPlansResponse:
       $ref: '#/components/schemas/PlatformPlanCapacityRelease'
+    AffiliateCode:
+      description:
+        "SCHEMA-3.52.0: an affiliate referral code, 3 to 32 lower-case letters,
+        digits and hyphens, starting and ending with a letter or digit. Unique
+        for ever, also after its partner is disabled."
+      maxLength: 32
+      minLength: 3
+      pattern: ^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$
+      type: string
+    AffiliatePartnerStatus:
+      description: "SCHEMA-3.52.0: only an `ACTIVE` partner attributes new referrals."
+      enum:
+        - ACTIVE
+        - DISABLED
+      type: string
+    AffiliatePartner:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.52.0: a person or business with a referral code, created by an
+        operator."
+      properties:
+        code:
+          $ref: '#/components/schemas/AffiliateCode'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          description:
+            Free text for the operator, for example how to pay this partner.
+          oneOf:
+            - maxLength: 500
+              type: string
+            - type: 'null'
+        payingSubscriptionCount:
+          description:
+            Subscriptions attributed to the partner whose Stripe status is
+            `active`, `trialing` or `past_due`.
+          minimum: 0
+          type: integer
+        referredOrganizationCount:
+          minimum: 0
+          type: integer
+        status:
+          $ref: '#/components/schemas/AffiliatePartnerStatus'
+      required:
+        - id
+        - code
+        - name
+        - note
+        - status
+        - createdAt
+        - referredOrganizationCount
+        - payingSubscriptionCount
+      type: object
+    AffiliateReferral:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.52.0: one organization attributed to one partner. It never
+        changes once written."
+      properties:
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationName:
+          maxLength: 255
+          minLength: 1
+          type: string
+        planTier:
+          $ref: '#/components/schemas/PlatformPlanKey'
+        referredAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        source:
+          enum:
+            - SIGN_UP
+            - CHECKOUT
+          type: string
+      required:
+        - organizationId
+        - organizationName
+        - source
+        - referredAt
+        - planTier
+      type: object
+    AffiliateSubscription:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.52.0: a subscription attributed to a partner. The Stripe ids
+        let the operator open it in Stripe and read the amounts."
+      properties:
+        cancelAtPeriodEnd:
+          type: boolean
+        currentPeriodEnd:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        interval:
+          description: As the billing store holds it.
+          oneOf:
+            - maxLength: 32
+              type: string
+            - type: 'null'
+        organizationId:
+          description: Null when the subscription is not linked yet.
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: 'null'
+        organizationName:
+          oneOf:
+            - maxLength: 255
+              minLength: 1
+              type: string
+            - type: 'null'
+        status:
+          description: Stripe's status string.
+          maxLength: 32
+          minLength: 1
+          type: string
+        stripeCustomerId:
+          maxLength: 255
+          minLength: 1
+          type: string
+        stripeSubscriptionId:
+          maxLength: 255
+          minLength: 1
+          type: string
+      required:
+        - stripeSubscriptionId
+        - stripeCustomerId
+        - status
+        - interval
+        - currentPeriodEnd
+        - cancelAtPeriodEnd
+        - organizationId
+        - organizationName
+      type: object
+    AffiliatePartnerDetail:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.52.0: an affiliate partner with the organizations it referred
+        and every subscription attributed to it."
+      properties:
+        code:
+          $ref: '#/components/schemas/AffiliateCode'
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          oneOf:
+            - maxLength: 500
+              type: string
+            - type: 'null'
+        payingSubscriptionCount:
+          minimum: 0
+          type: integer
+        referrals:
+          description: At most 500, newest first.
+          items:
+            $ref: '#/components/schemas/AffiliateReferral'
+          maxItems: 500
+          type: array
+        referredOrganizationCount:
+          minimum: 0
+          type: integer
+        status:
+          $ref: '#/components/schemas/AffiliatePartnerStatus'
+        subscriptions:
+          description: At most 500, newest first.
+          items:
+            $ref: '#/components/schemas/AffiliateSubscription'
+          maxItems: 500
+          type: array
+      required:
+        - id
+        - code
+        - name
+        - note
+        - status
+        - createdAt
+        - referredOrganizationCount
+        - payingSubscriptionCount
+        - referrals
+        - subscriptions
+      type: object
+    GetPlatformAffiliatePartnersResponse:
+      additionalProperties: false
+      properties:
+        items:
+          description: Newest first, at most 200, no paging.
+          items:
+            $ref: '#/components/schemas/AffiliatePartner'
+          maxItems: 200
+          type: array
+      required:
+        - items
+      type: object
+    PostPlatformAffiliatePartnersRequest:
+      additionalProperties: false
+      properties:
+        code:
+          $ref: '#/components/schemas/AffiliateCode'
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          maxLength: 500
+          type: string
+      required:
+        - code
+        - name
+      type: object
+    PostPlatformAffiliatePartnersResponse:
+      $ref: '#/components/schemas/AffiliatePartner'
+    GetPlatformAffiliatePartnersByPartnerIdResponse:
+      $ref: '#/components/schemas/AffiliatePartnerDetail'
+    PutPlatformAffiliatePartnersByPartnerIdRequest:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          maxLength: 500
+          type: string
+        status:
+          $ref: '#/components/schemas/AffiliatePartnerStatus'
+      required:
+        - name
+        - status
+      type: object
+    PutPlatformAffiliatePartnersByPartnerIdResponse:
+      $ref: '#/components/schemas/AffiliatePartner'
+    PostSelfAffiliateReferralRequest:
+      additionalProperties: false
+      properties:
+        code:
+          $ref: '#/components/schemas/AffiliateCode'
+      required:
+        - code
+      type: object
     PutPlatformPlansByPlanKeyRequest:
       additionalProperties: false
       properties:

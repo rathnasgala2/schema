@@ -585,6 +585,192 @@ components:
         - activationDetectionPlanDigest
         - activationDetectionObservation
       type: object
+    AffiliateCode:
+      description: "SCHEMA-3.52.0: an affiliate referral code, 3 to 32 lower-case letters, digits and hyphens, starting and ending with a letter or digit. Unique for ever, also after its partner is disabled."
+      maxLength: 32
+      minLength: 3
+      pattern: ^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$
+      type: string
+    AffiliatePartner:
+      additionalProperties: false
+      description: "SCHEMA-3.52.0: a person or business with a referral code, created by an operator."
+      properties:
+        code:
+          $ref: "#/components/schemas/AffiliateCode"
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          description: Free text for the operator, for example how to pay this partner.
+          oneOf:
+            - maxLength: 500
+              type: string
+            - type: "null"
+        payingSubscriptionCount:
+          description: Subscriptions attributed to the partner whose Stripe status is `active`, `trialing` or `past_due`.
+          minimum: 0
+          type: integer
+        referredOrganizationCount:
+          minimum: 0
+          type: integer
+        status:
+          $ref: "#/components/schemas/AffiliatePartnerStatus"
+      required:
+        - id
+        - code
+        - name
+        - note
+        - status
+        - createdAt
+        - referredOrganizationCount
+        - payingSubscriptionCount
+      type: object
+    AffiliatePartnerDetail:
+      additionalProperties: false
+      description: "SCHEMA-3.52.0: an affiliate partner with the organizations it referred and every subscription attributed to it."
+      properties:
+        code:
+          $ref: "#/components/schemas/AffiliateCode"
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          oneOf:
+            - maxLength: 500
+              type: string
+            - type: "null"
+        payingSubscriptionCount:
+          minimum: 0
+          type: integer
+        referrals:
+          description: At most 500, newest first.
+          items:
+            $ref: "#/components/schemas/AffiliateReferral"
+          maxItems: 500
+          type: array
+        referredOrganizationCount:
+          minimum: 0
+          type: integer
+        status:
+          $ref: "#/components/schemas/AffiliatePartnerStatus"
+        subscriptions:
+          description: At most 500, newest first.
+          items:
+            $ref: "#/components/schemas/AffiliateSubscription"
+          maxItems: 500
+          type: array
+      required:
+        - id
+        - code
+        - name
+        - note
+        - status
+        - createdAt
+        - referredOrganizationCount
+        - payingSubscriptionCount
+        - referrals
+        - subscriptions
+      type: object
+    AffiliatePartnerStatus:
+      description: "SCHEMA-3.52.0: only an `ACTIVE` partner attributes new referrals."
+      enum:
+        - ACTIVE
+        - DISABLED
+      type: string
+    AffiliateReferral:
+      additionalProperties: false
+      description: "SCHEMA-3.52.0: one organization attributed to one partner. It never changes once written."
+      properties:
+        organizationId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        organizationName:
+          maxLength: 255
+          minLength: 1
+          type: string
+        planTier:
+          $ref: "#/components/schemas/PlatformPlanKey"
+        referredAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        source:
+          enum:
+            - SIGN_UP
+            - CHECKOUT
+          type: string
+      required:
+        - organizationId
+        - organizationName
+        - source
+        - referredAt
+        - planTier
+      type: object
+    AffiliateSubscription:
+      additionalProperties: false
+      description: "SCHEMA-3.52.0: a subscription attributed to a partner. The Stripe ids let the operator open it in Stripe and read the amounts."
+      properties:
+        cancelAtPeriodEnd:
+          type: boolean
+        currentPeriodEnd:
+          oneOf:
+            - $ref: "#/components/schemas/PortableProblemRfc3339"
+            - type: "null"
+        interval:
+          description: As the billing store holds it.
+          oneOf:
+            - maxLength: 32
+              type: string
+            - type: "null"
+        organizationId:
+          description: Null when the subscription is not linked yet.
+          oneOf:
+            - format: uuid
+              pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+              type: string
+            - type: "null"
+        organizationName:
+          oneOf:
+            - maxLength: 255
+              minLength: 1
+              type: string
+            - type: "null"
+        status:
+          description: Stripe's status string.
+          maxLength: 32
+          minLength: 1
+          type: string
+        stripeCustomerId:
+          maxLength: 255
+          minLength: 1
+          type: string
+        stripeSubscriptionId:
+          maxLength: 255
+          minLength: 1
+          type: string
+      required:
+        - stripeSubscriptionId
+        - stripeCustomerId
+        - status
+        - interval
+        - currentPeriodEnd
+        - cancelAtPeriodEnd
+        - organizationId
+        - organizationName
+      type: object
     AppearanceColorMode:
       enum:
         - light
@@ -5000,6 +5186,20 @@ components:
             $ref: "#/components/schemas/PlatformAdapter"
           maxItems: 100
           minItems: 0
+          type: array
+      required:
+        - items
+      type: object
+    GetPlatformAffiliatePartnersByPartnerIdResponse:
+      $ref: "#/components/schemas/AffiliatePartnerDetail"
+    GetPlatformAffiliatePartnersResponse:
+      additionalProperties: false
+      properties:
+        items:
+          description: Newest first, at most 200, no paging.
+          items:
+            $ref: "#/components/schemas/AffiliatePartner"
+          maxItems: 200
           type: array
       required:
         - items
@@ -20506,6 +20706,24 @@ components:
       type: object
     PostPlatformAbuseCasesByCommentIdDecideResponse:
       $ref: "#/components/schemas/PlatformAbuseCaseDetail"
+    PostPlatformAffiliatePartnersRequest:
+      additionalProperties: false
+      properties:
+        code:
+          $ref: "#/components/schemas/AffiliateCode"
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          maxLength: 500
+          type: string
+      required:
+        - code
+        - name
+      type: object
+    PostPlatformAffiliatePartnersResponse:
+      $ref: "#/components/schemas/AffiliatePartner"
     PostPlatformApiKeysByApiKeyIdRevokeResponse:
       $ref: "#/components/schemas/PlatformApiKey"
     PostPlatformApiKeysRequest:
@@ -21173,6 +21391,14 @@ components:
         - tokenType
         - expiresAt
         - reader
+      type: object
+    PostSelfAffiliateReferralRequest:
+      additionalProperties: false
+      properties:
+        code:
+          $ref: "#/components/schemas/AffiliateCode"
+      required:
+        - code
       type: object
     PostSelfClosureCancelResponse:
       additionalProperties: false
@@ -23226,6 +23452,24 @@ components:
       $ref: "#/components/schemas/PublicationTodaySettings"
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdTodaySettingsResponse:
       $ref: "#/components/schemas/PublicationTodaySettings"
+    PutPlatformAffiliatePartnersByPartnerIdRequest:
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 120
+          minLength: 1
+          type: string
+        note:
+          maxLength: 500
+          type: string
+        status:
+          $ref: "#/components/schemas/AffiliatePartnerStatus"
+      required:
+        - name
+        - status
+      type: object
+    PutPlatformAffiliatePartnersByPartnerIdResponse:
+      $ref: "#/components/schemas/AffiliatePartner"
     PutPlatformOrganizationsByOrganizationIdPlanGrantRequest:
       additionalProperties: false
       properties:
@@ -74346,6 +74590,803 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
+  /v2/platform/affiliate-partners:
+    get:
+      description: |
+        Operators only, with recent authentication and a browser session; API keys are refused. Lists affiliate partners, newest first, at most 200, with no paging. Each carries its referred organization count and its paying subscription count (subscriptions attributed to the partner whose Stripe status is `active`, `trialing` or `past_due`).
+      operationId: getPlatformAffiliatePartners
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    items:
+                      - code: launch-friend
+                        createdAt: "2026-11-19T12:00:00.000Z"
+                        id: 018f0000-0000-7000-8000-000000000001
+                        name: Launch Friend
+                        note: Pay by bank transfer, details in the shared sheet.
+                        payingSubscriptionCount: 1
+                        referredOrganizationCount: 2
+                        status: ACTIVE
+              schema:
+                $ref: "#/components/schemas/GetPlatformAffiliatePartnersResponse"
+          description: list affiliate partners succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+      security:
+        - browserSession: []
+      summary: list affiliate partners
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.billing.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list affiliate partners
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    post:
+      description: |
+        Operators only, with recent authentication and a browser session; API keys are refused. Creates one affiliate partner with a referral code. The code matches `^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$` and is unique for ever, also after its partner is disabled: `409 AFFILIATE_CODE_TAKEN` when it was used before. `note` is free text for the operator, for example how to pay the partner. `Idempotency-Key` is the command identity.
+      operationId: postPlatformAffiliatePartners
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  code: launch-friend
+                  name: Launch Friend
+                  note: Pay by bank transfer, details in the shared sheet.
+            schema:
+              $ref: "#/components/schemas/PostPlatformAffiliatePartnersRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    code: launch-friend
+                    createdAt: "2026-11-19T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Launch Friend
+                    note: Pay by bank transfer, details in the shared sheet.
+                    payingSubscriptionCount: 0
+                    referredOrganizationCount: 0
+                    status: ACTIVE
+              schema:
+                $ref: "#/components/schemas/PostPlatformAffiliatePartnersResponse"
+          description: create affiliate partner succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                AFFILIATE_CODE_TAKEN:
+                  summary: AFFILIATE_CODE_TAKEN
+                  value:
+                    code: AFFILIATE_CODE_TAKEN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: AFFILIATE_CODE_TAKEN
+                    type: urn:gala:problem:affiliate-code-taken
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AFFILIATE_CODE_TAKEN, COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AFFILIATE_CODE_TAKEN
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: create affiliate partner
+      tags:
+        - platform
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: RECENT_AUTHENTICATION
+      x-gala-capability-key: platform.billing.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: create affiliate partner
+      x-gala-reachable-problems:
+        - AFFILIATE_CODE_TAKEN
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: NONE
+  /v2/platform/affiliate-partners/{partnerId}:
+    get:
+      description: |
+        Operators only, with recent authentication and a browser session; API keys are refused. Returns one affiliate partner with its referrals (at most 500, newest first) and every subscription attributed to it (at most 500, newest first). A subscription's partner is the partner stored on the subscription row, else the referral of its organization. The Stripe ids let the operator open the subscription in Stripe and read the amounts. `404 RESOURCE_NOT_FOUND` for an unknown partner.
+      operationId: getPlatformAffiliatePartnersByPartnerId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: partnerId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    code: launch-friend
+                    createdAt: "2026-11-19T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Launch Friend
+                    note: Pay by bank transfer, details in the shared sheet.
+                    payingSubscriptionCount: 1
+                    referrals:
+                      - organizationId: 018f0000-0000-7000-8000-000000000002
+                        organizationName: Ada Reader
+                        planTier: PRO
+                        referredAt: "2026-11-19T12:00:00.000Z"
+                        source: CHECKOUT
+                    referredOrganizationCount: 2
+                    status: ACTIVE
+                    subscriptions:
+                      - cancelAtPeriodEnd: false
+                        currentPeriodEnd: "2026-12-19T12:00:00.000Z"
+                        interval: month
+                        organizationId: 018f0000-0000-7000-8000-000000000002
+                        organizationName: Ada Reader
+                        status: active
+                        stripeCustomerId: cus_0123456789
+                        stripeSubscriptionId: sub_0123456789
+              schema:
+                $ref: "#/components/schemas/GetPlatformAffiliatePartnersByPartnerIdResponse"
+          description: get affiliate partner succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: get affiliate partner
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.billing.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: get affiliate partner
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
+    put:
+      description: |
+        Operators only, with recent authentication and a browser session; API keys are refused. Replaces the name, note and status of one affiliate partner; the code cannot change. A `DISABLED` partner no longer attributes new referrals, and its existing referrals stay. `404 RESOURCE_NOT_FOUND` for an unknown partner. `Idempotency-Key` is the command identity.
+      operationId: putPlatformAffiliatePartnersByPartnerId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: partnerId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  name: Launch Friend
+                  note: Pay by bank transfer, details in the shared sheet.
+                  status: DISABLED
+            schema:
+              $ref: "#/components/schemas/PutPlatformAffiliatePartnersByPartnerIdRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    code: launch-friend
+                    createdAt: "2026-11-19T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Launch Friend
+                    note: Pay by bank transfer, details in the shared sheet.
+                    payingSubscriptionCount: 1
+                    referredOrganizationCount: 2
+                    status: DISABLED
+              schema:
+                $ref: "#/components/schemas/PutPlatformAffiliatePartnersByPartnerIdResponse"
+          description: update affiliate partner succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            ETag:
+              $ref: "#/components/headers/ETag"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: update affiliate partner
+      tags:
+        - platform
+      x-gala-action-grant: none
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-assurance-class: RECENT_AUTHENTICATION
+      x-gala-capability-key: platform.billing.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: update affiliate partner
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: update
+      x-gala-tenant-scope: NONE
   /v2/platform/api-keys:
     get:
       description: |
@@ -84315,6 +85356,168 @@ paths:
         - READER_AUTHENTICATION_REQUIRED
         - VALIDATION_FAILED
       x-gala-replay-identity: natural-idempotent-state
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: NONE
+  /v2/self/affiliate-referral:
+    post:
+      description: |
+        Records the caller's stored referral code (`?via=` on a Galascribe link) against the caller's personal organization, source `SIGN_UP`. Answers `204` whenever the request is well formed and the caller is signed in: recorded, already attributed, unknown code, disabled partner and not eligible all answer `204`, and the response never reveals whether a code exists. `400 VALIDATION_FAILED` for a code that does not match `^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$`. Naturally idempotent; a replay with the same `Idempotency-Key` answers `204` again.
+      operationId: postSelfAffiliateReferral
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  code: launch-friend
+            schema:
+              $ref: "#/components/schemas/PostSelfAffiliateReferralRequest"
+        required: true
+      responses:
+        "204":
+          description: record affiliate referral succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+                REAUTH_REQUIRED:
+                  summary: REAUTH_REQUIRED
+                  value:
+                    code: REAUTH_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: REAUTH_REQUIRED
+                    type: urn:gala:problem:reauth-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED, REAUTH_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+            - REAUTH_REQUIRED
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: record affiliate referral
+      tags:
+        - self
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: null
+      x-gala-concurrency: principal-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: record affiliate referral
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - COMMAND_REPLAY_CONFLICT
+        - REAUTH_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
         - NONE
       x-gala-success-category: delete

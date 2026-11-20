@@ -886,6 +886,30 @@
       "apiOperationIds": ["getPlatformConfiguration"]
     },
     {
+      "pathTemplate": "/platform/affiliates",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Platform affiliates; Operators list referral partners with their referred organization and paying subscription counts and create a partner with a referral code (needs platform.billing.manage).",
+      "apiOperationIds": [
+        "getPlatformAffiliatePartners",
+        "postPlatformAffiliatePartners"
+      ]
+    },
+    {
+      "pathTemplate": "/platform/affiliates/{partnerId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Platform affiliate; Operators read one partner's referred organizations and attributed Stripe subscriptions, and rename, annotate or disable the partner (needs platform.billing.manage).",
+      "apiOperationIds": [
+        "getPlatformAffiliatePartnersByPartnerId",
+        "putPlatformAffiliatePartnersByPartnerId"
+      ]
+    },
+    {
       "pathTemplate": "/platform/plans",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",

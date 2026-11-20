@@ -8,6 +8,31 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.52.0] - 2026-11-19
+
+Affiliate attribution: an operator creates partners with a referral code and
+reads who they referred. No commission ledger, no amounts. Additive;
+`schemas/publication.schema.json` is untouched, so no template or publish
+toolchain pin moves.
+
+### Added
+
+- `POST /v2/self/affiliate-referral` (`{ code }`, tag `self`, no capability):
+  `204` for every well-formed request from a signed-in caller, whether the code
+  was recorded, already attributed, unknown, disabled or not eligible; `400
+  VALIDATION_FAILED` for a code that does not match
+  `^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$`. Uses the `delete` success category, the
+  only one that answers `204`.
+- Operator routes (capability `platform.billing.manage`, tag `platform`):
+  `GET` and `POST /v2/platform/affiliate-partners` (newest first, at most 200;
+  `201`), `GET` and `PUT /v2/platform/affiliate-partners/{partnerId}`.
+- Components `AffiliateCode`, `AffiliatePartner`, `AffiliatePartnerDetail`,
+  `AffiliatePartnerStatus`, `AffiliateReferral`, `AffiliateSubscription` and the
+  generated request and response schemas of the five operations.
+- Problem code `AFFILIATE_CODE_TAKEN` (409): the code was used before, also by
+  a disabled partner.
+- App routes `/platform/affiliates` and `/platform/affiliates/{partnerId}`.
+
 ## [3.51.0] - 2026-11-16
 
 Video arrives: a short vertical video made from a live post. Additive;
@@ -4519,7 +4544,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.51.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.52.0...HEAD
+[3.52.0]: https://github.com/rathnasgala2/schema/compare/v3.51.0...v3.52.0
 [3.51.0]: https://github.com/rathnasgala2/schema/compare/v3.50.0...v3.51.0
 [3.50.0]: https://github.com/rathnasgala2/schema/compare/v3.49.0...v3.50.0
 [3.49.0]: https://github.com/rathnasgala2/schema/compare/v3.48.0...v3.49.0
