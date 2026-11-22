@@ -145,6 +145,9 @@ const ROOT_LEDGERS = {
       'hero',
       'socialImageRef',
       'newsletter',
+      // SCHEMA-3.53.0: send to one tag, and the second subject line.
+      'newsletterTag',
+      'newsletterSubjectB',
       'edition',
       // SCHEMA-3.12.0: the optional closed per-document search block.
       'seo',

@@ -8,6 +8,73 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.53.0] - 2026-11-22
+
+The audience program: subscriber tags, email sequences, subject A/B tests, a
+referral program, outbound webhooks, poll votes and the podcast feed setting.
+Additive: no member is removed, renamed or made required in a request, and every
+existing fixture still validates. A site on the Free plan can use tags and
+polls; sequences, A/B tests, referrals and webhooks need the new plan
+entitlement `audienceAutomation` (a write without it is `409 PLAN_REQUIRED`;
+reads still work). No new capability: each owner operation reuses the capability
+of its nearest neighbour.
+
+### Added
+
+- Tags (`publication.audience.read` for the list, `publication.settings.manage`
+  to change, `publication.audience.manage` to tag subscribers): `GET` and
+  `POST /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-tags`,
+  `DELETE .../newsletter-tags/{tagId}`, `POST .../newsletter-subscribers:tag`
+  (`{ subscriberIds (1..500), add, remove }`). The subscriber list takes `tag`
+  and each row carries `tags`; the import request takes `tags`; the public
+  signup request takes `tag`; the issue read carries `tag`.
+- Sequences: `GET` and `POST .../newsletter-sequences`, `GET`, `PUT` and
+  `DELETE .../newsletter-sequences/{sequenceId}` (the `PUT` replaces name,
+  trigger and the whole step list at `version`), `POST ...:activate` and
+  `...:pause`. At most 5 sequences of at most 10 steps; trigger `CONFIRMED` or
+  `TAG_ADDED`; per-sequence people counts and per-step sent, opened, clicked.
+- Plan entitlement `audienceAutomation` on `GET /v2/platform/plans` and
+  `PUT /v2/platform/plans/{planKey}` (the plan response carries it).
+- Subject A/B test: front matter `newsletterSubjectB` (1..200 graphemes) and
+  `abTest` on the issue read (`state` `NONE`, `TESTING`, `DECIDED` or `NOT_RUN`,
+  with `notRunReason`, `winner`, per-variant numbers, `decideAfter`).
+- Referrals: `GET` and `PUT .../newsletter-referral-program` (enabled, at most 5
+  milestones), `GET .../newsletter-referrers` (top 20), public signup `ref`, and
+  `referral` on the by-token subscription view.
+- Webhooks (tag `syndication`): `GET` and `POST .../webhooks` (the create
+  answers the signing secret once), `GET`, `PUT` and
+  `DELETE .../webhooks/{webhookId}`, `POST ...:pause`, `:resume`,
+  `:rotate-secret`, `:test`, `GET .../webhook-deliveries?webhookId=` and
+  `POST .../webhook-deliveries/{deliveryId}:retry`. Events
+  `subscriber.confirmed`, `subscriber.unsubscribed`, `post.published`,
+  `comment.created` (and `ping`).
+- Poll votes:
+  `GET /v2/public/publications/{publicationId}/contents/{contentId}/polls` and
+  `PUT .../polls/{pollId}/vote` (`{ option }`, a reader bearer token).
+- Podcast: `listen.podcast` in `gala/publication.json` and in the normalized
+  `build-input` publication (`enabled`, `category`, `explicit`, `cover`,
+  optional `description` and `ownerEmail`), carried by the Listen settings read
+  and write.
+- Front matter `newsletterTag` (send to one tag) and `newsletterSubjectB`.
+- Problem codes `NEWSLETTER_TAG_EXISTS`, `NEWSLETTER_TAG_LIMIT`,
+  `NEWSLETTER_TAG_NOT_FOUND`, `NEWSLETTER_SEQUENCE_EMPTY`,
+  `NEWSLETTER_SEQUENCE_LIMIT`, `NEWSLETTER_SEQUENCE_NOT_FOUND`,
+  `NEWSLETTER_SEQUENCE_VERSION_CONFLICT`, `WEBHOOK_DELIVERY_NOT_FOUND`,
+  `WEBHOOK_DELIVERY_NOT_RETRYABLE`, `WEBHOOK_LIMIT`, `WEBHOOK_NOT_FOUND` and
+  `WEBHOOK_URL_REJECTED`; the plan refusal reuses `PLAN_REQUIRED`.
+- App routes
+  `/sites/{organizationId}/{publicationId}/audience/sequences/{sequenceId}` and
+  `/sites/{organizationId}/{publicationId}/settings/webhooks`.
+
+### Changed
+
+- `PlatformPlan` carries the new optional response member `audienceAutomation`
+  (a 3.52 server omits it; absent reads as false).
+- The template and publish toolchain pins move:
+  `schemas/publication.schema.json` and `schemas/build-input.schema.json` gain
+  `listen.podcast`, and `schemas/content-frontmatter.schema.json` gains two
+  members.
+
 ## [3.52.0] - 2026-11-19
 
 Affiliate attribution: an operator creates partners with a referral code and
@@ -4544,7 +4611,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.52.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.53.0...HEAD
+[3.53.0]: https://github.com/rathnasgala2/schema/compare/v3.52.0...v3.53.0
 [3.52.0]: https://github.com/rathnasgala2/schema/compare/v3.51.0...v3.52.0
 [3.51.0]: https://github.com/rathnasgala2/schema/compare/v3.50.0...v3.51.0
 [3.50.0]: https://github.com/rathnasgala2/schema/compare/v3.49.0...v3.50.0

@@ -130,7 +130,9 @@ const T03_SCHEMA_HASHES = {
     // becomes $defs/resolvedSharing (the share target `threads`, up to 12
     // targets, optional reddit.community and x.via copied from the platform).
     // Additive.
-    'c5b6ea935bce252193e4e30258abd7cd09dba35cce128f64affde7cafaf6e764',
+    //
+    // 3.53.0 (reviewed 2026-11-22): the normalized publication's listen member admits the optional podcast object (enabled, category, explicit, cover, description, ownerEmail). Additive.
+    '4b632220a627fbd8d35a6ee2528eef661266cb95f15b95003549641bbc7e742c',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -149,7 +151,9 @@ const T03_SCHEMA_HASHES = {
     // 3.25.0 (reviewed 2026-10-29): the optional deleteDate member (new $defs/deleteDate, same format as publishAfterDate). Additive.
     //
     // 3.26.0 (reviewed 2026-10-30): the optional article-only listen member (new $defs/contentListen: audio path ending in .mp3 or .m4a, durationSeconds 1 to 10800, format) and its shape rule. Additive.
-    'ec0408ae9b28ab4c06b162af18b6775d1231daa56acdef03387457bf9c763b97',
+    //
+    // 3.53.0 (reviewed 2026-11-22): the optional newsletterTag and newsletterSubjectB members. Additive.
+    'b9dc39c190aa547d990949d77e8a0ba48feb35770bdb4fd46aaa5b139f8d1f94',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
@@ -210,7 +214,9 @@ const T03_SCHEMA_HASHES = {
     // 3.44.0 (reviewed 2026-11-07): $defs/sharing admits the share target
     // `threads` (12 targets at most) and says an absent member means the
     // platform default share set. Additive.
-    '53ef8fbe85dd14e2a88596e1de0c96480223749c6a1ca95635350558a3b08574',
+    //
+    // 3.53.0 (reviewed 2026-11-22): $defs/listen admits the optional podcast object (shared byte-for-byte with build-input). Additive.
+    '9955656ec2ae3dc7c11c4e50187a41ce7a81c6bd4856a6167a3fc372d3c79e54',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':
