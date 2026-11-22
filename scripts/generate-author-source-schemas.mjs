@@ -538,7 +538,7 @@ const schemas = {
       listing: createListingDefinition({ closedObject }),
       aiRights: createAiRightsDefinition({ ref, closedObject }),
       performance: createPerformanceDefinition({ closedObject }),
-      listen: createListenDefinition({ closedObject }),
+      listen: createListenDefinition({ ref, closedObject, graphemeBound }),
       extensionMap,
     },
   ),
@@ -655,6 +655,11 @@ const schemas = {
         pattern: '^[a-z0-9][a-z0-9-]{0,30}$',
         description:
           'SCHEMA-3.53.0: the slug of a subscriber tag. With `newsletter: eligible`, the announcement email goes only to confirmed subscribers who hold that tag; absent, it goes to every confirmed subscriber. A slug that names no tag when the post is sent skips the send with reason `TAG_UNKNOWN`. The schema fixes the shape; the API resolves the tag.',
+      },
+      newsletterSubjectB: {
+        ...graphemeBound(ref('plainText'), 1, 200),
+        description:
+          'SCHEMA-3.53.0: a second subject line for the announcement email, for a subject A/B test; subject A is the post title. With `newsletter: eligible` on a plan that allows it and at least the platform minimum of recipients, a share of subscribers gets each subject and the one with more unique opens goes to the rest; otherwise everyone gets the title.',
       },
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:c6b4524faba13d7afd91bc18b25597de8824ffe880503d7b1ab5dd3448e4d97f",
+  "openApiDigest": "sha256:1a6c55e84f6b0d532613ce01a0157d51cac17c7851123c21fb05dff95d23aad7",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1727,6 +1727,45 @@
       "sourceFragment": "audience"
     },
     {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgram",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-referral-program",
+      "purpose": "read the newsletter referral program",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgram",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-referral-program",
+      "purpose": "save the newsletter referral program",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferrers",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-referrers",
+      "purpose": "list top newsletter referrers",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
       "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences",
       "method": "GET",
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences",
@@ -2645,6 +2684,149 @@
       "actionGrant": "none",
       "apiKeyScope": null,
       "sourceFragment": "video"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveries",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhook-deliveries",
+      "purpose": "list webhook deliveries",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesByDeliveryIdRetry",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhook-deliveries/{deliveryId}:retry",
+      "purpose": "retry a webhook delivery",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooks",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks",
+      "purpose": "list webhooks",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooks",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks",
+      "purpose": "create a webhook",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookId",
+      "method": "DELETE",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}",
+      "purpose": "remove a webhook",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}",
+      "purpose": "read a webhook",
+      "capabilityKey": "publication.view",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookId",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}",
+      "purpose": "replace a webhook",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdPause",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}:pause",
+      "purpose": "pause a webhook",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdResume",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}:resume",
+      "purpose": "resume a webhook",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdRotateSecret",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}:rotate-secret",
+      "purpose": "rotate a webhook signing secret",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTest",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/webhooks/{webhookId}:test",
+      "purpose": "send a test event to a webhook",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "syndication"
     },
     {
       "operationId": "getOrganizationsByOrganizationIdRoles",
@@ -3596,6 +3778,32 @@
       "sourceFragment": "public-interactions"
     },
     {
+      "operationId": "getPublicPublicationsByPublicationIdContentsByContentIdPolls",
+      "method": "GET",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/polls",
+      "purpose": "read the poll results of one article",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "public-interactions"
+    },
+    {
+      "operationId": "putPublicPublicationsByPublicationIdContentsByContentIdPollsByPollIdVote",
+      "method": "PUT",
+      "path": "/v2/public/publications/{publicationId}/contents/{contentId}/polls/{pollId}/vote",
+      "purpose": "set the signed-in reader's vote in one poll",
+      "capabilityKey": null,
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "public-interactions"
+    },
+    {
       "operationId": "deletePublicPublicationsByPublicationIdContentsByContentIdReactionsByReactionKey",
       "method": "DELETE",
       "path": "/v2/public/publications/{publicationId}/contents/{contentId}/reactions/{reactionKey}",
@@ -4493,5 +4701,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:71270d6d9dfa88066aa16630b92b9f878f8498463ec3785f32e3895cea9523bf"
+  "digest": "sha256:82f0d632af3743487f15b375aa3c41bd9aa6b85afe45432dae006ad674a39c95"
 }

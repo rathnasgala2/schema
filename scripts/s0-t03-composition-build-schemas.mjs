@@ -677,14 +677,54 @@ function listenEpisodeMembers() {
  * publication (one `$defs/listen` body, so the shared-definition gate holds).
  *
  * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
  * @param {Function} language.closedObject closed-object constructor
+ * @param {Function} language.graphemeBound grapheme-bound constructor
  * @returns {Record<string, unknown>} closed listen object schema
  */
-export function createListenDefinition({ closedObject }) {
-  return closedObject({ enabled: { type: 'boolean' } }, ['enabled'], {
-    description:
-      "SCHEMA-3.26.0: the site's Listen setting. `enabled: true` offers the audio version of the posts that have one: the template adds a Listen button to the top bar, a small invitation on each post with audio and a playlist on the home page, and ships its script only while at least one published article carries a `listen` member. An absent `listen` means off. The API, not the schema, limits turning it on to the Pro and Business plans.",
-  });
+export function createListenDefinition({ ref, closedObject, graphemeBound }) {
+  return closedObject(
+    {
+      enabled: { type: 'boolean' },
+      podcast: closedObject(
+        {
+          enabled: { type: 'boolean' },
+          category: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 60,
+            description:
+              "The podcast category, as one of Apple Podcasts' category names, for example `Technology`.",
+          },
+          explicit: { type: 'boolean' },
+          cover: {
+            ...ref('repoRelativePath'),
+            description:
+              'Repository-relative path of the podcast cover image, resolved as an inventoried image like the other site images. Apple Podcasts and Spotify want a square JPEG or PNG between 1400 and 3000 pixels on a side; the template packet records the rule it checks.',
+          },
+          description: graphemeBound(ref('plainText'), 1, 600),
+          ownerEmail: {
+            type: 'string',
+            minLength: 3,
+            maxLength: 320,
+            pattern: '^[^@\\s]+@[^@\\s]+$',
+            description:
+              'The email address the podcast directories contact about the show: one address, not a name list.',
+          },
+        },
+        ['enabled', 'category', 'explicit', 'cover'],
+        {
+          description:
+            'SCHEMA-3.53.0: the podcast feed of the Listen episodes. With `enabled: true` (and `listen.enabled` true and at least one published article with Listen audio) the template emits `/feed/podcast.xml`. `description` and `ownerEmail` are optional.',
+        },
+      ),
+    },
+    ['enabled'],
+    {
+      description:
+        "SCHEMA-3.26.0: the site's Listen setting. `enabled: true` offers the audio version of the posts that have one: the template adds a Listen button to the top bar, a small invitation on each post with audio and a playlist on the home page, and ships its script only while at least one published article carries a `listen` member. An absent `listen` means off. The API, not the schema, limits turning it on to the Pro and Business plans. SCHEMA-3.53.0: the optional `podcast` member configures the podcast feed.",
+    },
+  );
 }
 
 /**

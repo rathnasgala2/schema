@@ -13266,9 +13266,10 @@ components:
         audienceAutomation:
           description:
             'SCHEMA-3.53.0, whether sites on this plan may use email sequences,
-            subject A/B tests, the referral program and outbound webhooks. A
-            write on a plan without it is `409 PLAN_REQUIRED`; reads still work.
-            Defaults: FREE no, PRO and BUSINESS yes.'
+            subject A/B tests, the referral program and outbound webhooks;
+            absent on a 3.52 server, which reads as false. A write on a plan
+            without it is `409 PLAN_REQUIRED`; reads still work. Defaults: FREE
+            no, PRO and BUSINESS yes.'
           type: boolean
         collaboratorLimit:
           description:
@@ -13316,7 +13317,6 @@ components:
         - newsletterSubscriberLimit
         - contactForm
         - listen
-        - audienceAutomation
         - collaboratorLimit
       type: object
     PlatformPlanCapacityRelease:
@@ -16699,6 +16699,39 @@ components:
       required:
         - address
       type: object
+    ListenPodcast:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the podcast feed setting of a site: the `listen.podcast`
+        member of `gala/publication.json`. With `enabled` true (and Listen on,
+        and at least one published article with Listen audio) the site publishes
+        `/feed/podcast.xml`. `cover` is a repository-relative image path.'
+      properties:
+        category:
+          maxLength: 60
+          minLength: 1
+          type: string
+        cover:
+          $ref: ../schemas/publication.schema.json#/$defs/repoRelativePath
+        description:
+          maxLength: 600
+          minLength: 1
+          type: string
+        enabled:
+          type: boolean
+        explicit:
+          type: boolean
+        ownerEmail:
+          format: email
+          maxLength: 320
+          minLength: 3
+          type: string
+      required:
+        - enabled
+        - category
+        - explicit
+        - cover
+      type: object
     ListenSettings:
       additionalProperties: false
       description:
@@ -16719,6 +16752,13 @@ components:
             - type: 'null'
         planAllows:
           type: boolean
+        podcast:
+          description:
+            'SCHEMA-3.53.0: the podcast feed setting, or null when the
+            publication has no `listen.podcast` member. Absent on a 3.52 server.'
+          oneOf:
+            - $ref: '#/components/schemas/ListenPodcast'
+            - type: 'null'
         setUp:
           type: boolean
       required:
@@ -16788,6 +16828,75 @@ components:
         - card
         - full
       type: string
+    NewsletterIssueAbTest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the subject-line test of one issue. `state` is `NONE`
+        (no second subject), `TESTING` (the two test slices are out, the winner
+        not yet decided), `DECIDED` (`winner` is set and the rest were sent with
+        it) or `NOT_RUN` (everyone got subject A; `notRunReason` says why, for
+        example too few recipients or a plan without the entitlement). The
+        winner has more unique opens per delivered message; a tie is A.
+        `decideAfter` is the earliest time the decision is taken.'
+      properties:
+        a:
+          $ref: '#/components/schemas/NewsletterIssueAbVariant'
+        b:
+          $ref: '#/components/schemas/NewsletterIssueAbVariant'
+        decideAfter:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        notRunReason:
+          maxLength: 200
+          minLength: 1
+          type: string
+        state:
+          enum:
+            - NONE
+            - TESTING
+            - DECIDED
+            - NOT_RUN
+          type: string
+        subjectB:
+          maxLength: 200
+          minLength: 1
+          type: string
+        winner:
+          enum:
+            - A
+            - B
+          type: string
+      required:
+        - state
+        - a
+        - b
+      type: object
+    NewsletterIssueAbVariant:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the numbers of one subject variant. `opened` and
+        `clicked` come from the mail provider and are null while not yet known.'
+      properties:
+        clicked:
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        opened:
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        sent:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - sent
+        - opened
+        - clicked
+      type: object
     NewsletterIssue:
       additionalProperties: false
       description:
@@ -16796,6 +16905,11 @@ components:
         time; `sent`, `failed` and `deferred` (held back by a daily ceiling,
         retried later) account for them.'
       properties:
+        abTest:
+          $ref: '#/components/schemas/NewsletterIssueAbTest'
+          description:
+            'SCHEMA-3.53.0: present when the post named a second subject
+            (`newsletterSubjectB`), whether the test ran or not.'
         clicked:
           description:
             'SCHEMA-3.32.0: addresses that clicked a link in the issue, from the
@@ -17091,12 +17205,57 @@ components:
           type: string
         publication:
           $ref: '#/components/schemas/AudiencePublication'
+        referral:
+          $ref: '#/components/schemas/NewsletterSubscriptionReferral'
+          description:
+            'SCHEMA-3.53.0: present only while the site runs the referral
+            program (and its plan allows it) and the subscriber is confirmed.'
         state:
           $ref: '#/components/schemas/NewsletterSubscriptionState'
       required:
         - publication
         - maskedEmail
         - state
+      type: object
+    NewsletterSubscriptionReferral:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.53.0: the reader's own referral link, how many people they
+        referred who confirmed, and the site's milestones with whether each is
+        reached."
+      properties:
+        confirmedCount:
+          format: int64
+          minimum: 0
+          type: integer
+        milestones:
+          items:
+            additionalProperties: false
+            properties:
+              count:
+                format: int64
+                maximum: 1000
+                minimum: 1
+                type: integer
+              reached:
+                type: boolean
+              title:
+                maxLength: 80
+                minLength: 1
+                type: string
+            required:
+              - count
+              - title
+              - reached
+            type: object
+          maxItems: 5
+          type: array
+        url:
+          $ref: ../schemas/publication.schema.json#/$defs/urlHttps
+      required:
+        - url
+        - confirmedCount
+        - milestones
       type: object
     NewsletterSubscriptionState:
       description:
@@ -17415,6 +17574,15 @@ components:
       properties:
         email:
           $ref: '#/components/schemas/AudienceEmail'
+        ref:
+          description:
+            "SCHEMA-3.53.0: optional referral code from a referrer's link
+            (`?ref=<code>`). Counted when the code is a confirmed subscriber's
+            of this site and the new address confirms; anything else, including
+            a person's own address, is silently ignored."
+          maxLength: 64
+          minLength: 1
+          type: string
         tag:
           description:
             'SCHEMA-3.53.0: optional tag slug. Applied when the site has a tag
@@ -17532,6 +17700,13 @@ components:
       properties:
         enabled:
           type: boolean
+        podcast:
+          description:
+            "SCHEMA-3.53.0: the podcast feed setting. Absent keeps the
+            publication's current `listen.podcast`; null removes it."
+          oneOf:
+            - $ref: '#/components/schemas/ListenPodcast'
+            - type: 'null'
       required:
         - enabled
       type: object
@@ -21421,6 +21596,467 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPauseResponse:
       allOf:
         - $ref: '#/components/schemas/NewsletterSequence'
+    NewsletterReferralMilestone:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.53.0: one reward milestone. When a referrer's count of
+        confirmed referrals reaches `referralCount`, one reward email with this
+        `title` and `message` (plain text with links) is queued, once ever per
+        milestone."
+      properties:
+        message:
+          maxLength: 2000
+          minLength: 1
+          type: string
+        referralCount:
+          format: int64
+          maximum: 1000
+          minimum: 1
+          type: integer
+        title:
+          maxLength: 80
+          minLength: 1
+          type: string
+      required:
+        - referralCount
+        - title
+        - message
+      type: object
+    NewsletterReferralProgram:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the referral program of a site. `planAllows` is
+        read-only: false while the plan lacks audience automation. At most 5
+        milestones; `referralCount` is unique within the site.'
+      properties:
+        enabled:
+          type: boolean
+        milestones:
+          items:
+            $ref: '#/components/schemas/NewsletterReferralMilestone'
+          maxItems: 5
+          type: array
+        planAllows:
+          type: boolean
+        totals:
+          additionalProperties: false
+          description:
+            Referred people who confirmed, and the subscribers who referred at
+            least one of them.
+          properties:
+            referredConfirmed:
+              format: int64
+              minimum: 0
+              type: integer
+            referrers:
+              format: int64
+              minimum: 0
+              type: integer
+          required:
+            - referredConfirmed
+            - referrers
+          type: object
+      required:
+        - planAllows
+        - enabled
+        - milestones
+        - totals
+      type: object
+    NewsletterReferrer:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one referrer: a masked address such as `a…d@example.com`
+        (never the full address) and how many people they referred who
+        confirmed.'
+      properties:
+        confirmedCount:
+          format: int64
+          minimum: 1
+          type: integer
+        maskedEmail:
+          maxLength: 320
+          minLength: 1
+          type: string
+      required:
+        - maskedEmail
+        - confirmedCount
+      type: object
+    NewsletterReferrerList:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the top referrers of the site, most referrals first. At
+        most 20.'
+      properties:
+        referrers:
+          items:
+            $ref: '#/components/schemas/NewsletterReferrer'
+          maxItems: 20
+          type: array
+      required:
+        - referrers
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgramResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterReferralProgram'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgramRequest:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. Replace the referral program.
+      properties:
+        enabled:
+          type: boolean
+        milestones:
+          items:
+            $ref: '#/components/schemas/NewsletterReferralMilestone'
+          maxItems: 5
+          type: array
+      required:
+        - enabled
+        - milestones
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgramResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterReferralProgram'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferrersResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterReferrerList'
+    WebhookEvent:
+      description:
+        'SCHEMA-3.53.0: an event a webhook can subscribe to:
+        `subscriber.confirmed`, `subscriber.unsubscribed`, `post.published` or
+        `comment.created`.'
+      enum:
+        - subscriber.confirmed
+        - subscriber.unsubscribed
+        - post.published
+        - comment.created
+      type: string
+    WebhookDeliveryEvent:
+      description:
+        'SCHEMA-3.53.0: the event type of one delivery: a subscribable event or
+        `ping`, the test button.'
+      enum:
+        - subscriber.confirmed
+        - subscriber.unsubscribed
+        - post.published
+        - comment.created
+        - ping
+      type: string
+    WebhookStatus:
+      description:
+        'SCHEMA-3.53.0: `ACTIVE`, `PAUSED` (the owner paused it) or
+        `NEEDS_ATTENTION` (20 consecutive deliveries failed; no new deliveries
+        until the owner resumes it).'
+      enum:
+        - ACTIVE
+        - PAUSED
+        - NEEDS_ATTENTION
+      type: string
+    WebhookDeliveryStatus:
+      description:
+        'SCHEMA-3.53.0: `PENDING` (queued or waiting for a retry), `DELIVERED`
+        (a 2xx answer) or `FAILED` (the last attempt failed).'
+      enum:
+        - PENDING
+        - DELIVERED
+        - FAILED
+      type: string
+    WebhookUrl:
+      description:
+        'SCHEMA-3.53.0: the https address that receives the events. https only,
+        no embedded credentials; every address it resolves to must be a public
+        one (checked when saved and at each delivery); redirects are not
+        followed.'
+      format: uri
+      maxLength: 2048
+      pattern: ^https://(?![^/?#]*@)
+      type: string
+    Webhook:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one outbound webhook of a site. The signing secret is
+        never part of it; it is shown once, when the webhook is created or its
+        secret rotated.'
+      properties:
+        consecutiveFailures:
+          format: int64
+          minimum: 0
+          type: integer
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        events:
+          items:
+            $ref: '#/components/schemas/WebhookEvent'
+          maxItems: 4
+          minItems: 1
+          type: array
+          uniqueItems: true
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        status:
+          $ref: '#/components/schemas/WebhookStatus'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        url:
+          $ref: '#/components/schemas/WebhookUrl'
+      required:
+        - id
+        - url
+        - events
+        - status
+        - consecutiveFailures
+        - createdAt
+        - updatedAt
+      type: object
+    WebhookCreated:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: a webhook with its signing secret, answered once on
+        create and on secret rotation. Each delivery carries `X-Gala-Signature:
+        t=<unix seconds>,v1=<hex HMAC-SHA256(secret, t + "." + body)>`.'
+      properties:
+        signingSecret:
+          maxLength: 200
+          minLength: 16
+          type: string
+        webhook:
+          $ref: '#/components/schemas/Webhook'
+      required:
+        - webhook
+        - signingSecret
+      type: object
+    WebhookList:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: every webhook of the site, oldest first. At most 5.
+        `planAllows` is read-only: false while the plan lacks audience
+        automation.'
+      properties:
+        planAllows:
+          type: boolean
+        webhooks:
+          items:
+            $ref: '#/components/schemas/Webhook'
+          maxItems: 5
+          type: array
+      required:
+        - planAllows
+        - webhooks
+      type: object
+    WebhookDelivery:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one delivery attempt series of one event to one webhook.
+        `responseStatus` is the HTTP status of the last attempt, null before the
+        first answer. The payload is not part of the read.'
+      properties:
+        attemptCount:
+          format: int64
+          minimum: 0
+          type: integer
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        eventId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        eventType:
+          $ref: '#/components/schemas/WebhookDeliveryEvent'
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        nextAttemptAt:
+          oneOf:
+            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+            - type: 'null'
+        responseStatus:
+          format: int64
+          maximum: 599
+          minimum: 100
+          type:
+            - integer
+            - 'null'
+        status:
+          $ref: '#/components/schemas/WebhookDeliveryStatus'
+        webhookId:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+      required:
+        - id
+        - webhookId
+        - eventType
+        - eventId
+        - status
+        - attemptCount
+        - nextAttemptAt
+        - responseStatus
+        - createdAt
+      type: object
+    WebhookDeliveryList:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the latest 50 deliveries, newest first. Deliveries older
+        than 30 days are deleted.'
+      properties:
+        deliveries:
+          items:
+            $ref: '#/components/schemas/WebhookDelivery'
+          maxItems: 50
+          type: array
+      required:
+        - deliveries
+      type: object
+    PublicPollId:
+      description: 'SCHEMA-3.53.0: the `id` of a poll block in a post.'
+      maxLength: 31
+      minLength: 1
+      pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+      type: string
+    PublicPollResult:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: the votes of one poll: the total and the count of each
+        option index (0 to 5). Options without votes may be omitted.'
+      properties:
+        myOption:
+          description:
+            The signed-in reader's vote; absent for a signed-out reader or no
+            vote.
+          format: int64
+          maximum: 5
+          minimum: 0
+          type: integer
+        options:
+          items:
+            additionalProperties: false
+            properties:
+              count:
+                format: int64
+                minimum: 0
+                type: integer
+              index:
+                format: int64
+                maximum: 5
+                minimum: 0
+                type: integer
+            required:
+              - index
+              - count
+            type: object
+          maxItems: 6
+          type: array
+        pollId:
+          $ref: '#/components/schemas/PublicPollId'
+        total:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - pollId
+        - total
+        - options
+      type: object
+    PublicPollList:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.53.0: the polls of one post that have votes. The API does not
+        know a post's poll definitions."
+      properties:
+        polls:
+          items:
+            $ref: '#/components/schemas/PublicPollResult'
+          maxItems: 100
+          type: array
+      required:
+        - polls
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksRequest:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0. Create a webhook: the address and the events it
+        receives.'
+      properties:
+        events:
+          items:
+            $ref: '#/components/schemas/WebhookEvent'
+          maxItems: 4
+          minItems: 1
+          type: array
+          uniqueItems: true
+        url:
+          $ref: '#/components/schemas/WebhookUrl'
+      required:
+        - url
+        - events
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookCreated'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/Webhook'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdRequest:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. Replace a webhook.
+      properties:
+        events:
+          items:
+            $ref: '#/components/schemas/WebhookEvent'
+          maxItems: 4
+          minItems: 1
+          type: array
+          uniqueItems: true
+        url:
+          $ref: '#/components/schemas/WebhookUrl'
+      required:
+        - url
+        - events
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/Webhook'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdPauseResponse:
+      allOf:
+        - $ref: '#/components/schemas/Webhook'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdResumeResponse:
+      allOf:
+        - $ref: '#/components/schemas/Webhook'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdRotateSecretResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookCreated'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTestResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookDelivery'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookDeliveryList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesByDeliveryIdRetryResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookDelivery'
+    GetPublicPublicationsByPublicationIdContentsByContentIdPollsResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicPollList'
+    PutPublicPublicationsByPublicationIdContentsByContentIdPollsByPollIdVoteRequest:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. The option index the reader votes for.
+      properties:
+        option:
+          format: int64
+          maximum: 5
+          minimum: 0
+          type: integer
+      required:
+        - option
+      type: object
+    PutPublicPublicationsByPublicationIdContentsByContentIdPollsByPollIdVoteResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicPollResult'
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)

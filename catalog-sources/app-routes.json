@@ -329,6 +329,43 @@
       ]
     },
     {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/audience/sequences/{sequenceId}",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": false,
+      "screenJob": "Email sequence; Edit one sequence of emails sent after a subscriber confirms or gets a tag (steps with a wait, a subject and a body), activate or pause it, see how many people are in it and how each step did, and download it (needs publication.audience.read to read, publication.settings.manage to change).",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTags",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivate",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPause",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId"
+      ]
+    },
+    {
+      "pathTemplate": "/sites/{organizationId}/{publicationId}/settings/webhooks",
+      "originClass": "APP",
+      "authenticationClass": "SESSION_REQUIRED",
+      "mutation": true,
+      "collection": true,
+      "screenJob": "Webhooks; Send subscriber, post and comment events to another service (Zapier, Make, n8n or your own address), see the signing secret once, send a test event, see recent deliveries and retry a failed one, and pause, resume, re-key or remove a webhook (needs publication.settings.manage to change, publication.view to read).",
+      "apiOperationIds": [
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookId",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveries",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooks",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookId",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesByDeliveryIdRetry",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooks",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdPause",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdResume",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdRotateSecret",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTest",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookId"
+      ]
+    },
+    {
       "pathTemplate": "/sites/{organizationId}/{publicationId}/reviews",
       "originClass": "APP",
       "authenticationClass": "SESSION_REQUIRED",
@@ -417,20 +454,30 @@
       "authenticationClass": "SESSION_REQUIRED",
       "mutation": true,
       "collection": true,
-      "screenJob": "Audience; See who follows this site, who subscribes to its newsletter and what readers wrote to you, and export the lists.",
+      "screenJob": "Audience; See who follows this site, who subscribes to its newsletter and what readers wrote to you, and export the lists, tag subscribers, manage tags, set up the referral program and see its top referrers, and list the email sequences (needs publication.audience.read to read, publication.audience.manage or publication.settings.manage to change).",
       "apiOperationIds": [
         "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId",
         "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersBySubscriberId",
+        "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationId",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactFormSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessages",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdFollowers",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssues",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgram",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferrers",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettings",
         "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribers",
+        "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTags",
         "patchOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesByMessageId",
         "postOrganizationsByOrganizationIdPublicationsByPublicationIdContactMessagesExport",
-        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport"
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersExport",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTag",
+        "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTags",
+        "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgram"
       ]
     },
     {

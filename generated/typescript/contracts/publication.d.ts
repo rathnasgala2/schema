@@ -44,6 +44,14 @@ export type PublicationIsoCountry = string;
 
 export type PublicationListen = Readonly<{
   readonly enabled: boolean;
+  readonly podcast?: Readonly<{
+    readonly category: string;
+    readonly cover: PublicationRepoRelativePath;
+    readonly description?: PublicationPlainText;
+    readonly enabled: boolean;
+    readonly explicit: boolean;
+    readonly ownerEmail?: string;
+  }>;
 }>;
 
 export type PublicationListing = Readonly<{

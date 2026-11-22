@@ -2626,6 +2626,78 @@ function listenNormalizedCases(canonical, withPublication) {
         },
       ],
     ),
+    s2Case(
+      'normalized-publication-listen-podcast-valid',
+      withPublication((publication) => {
+        publication.listen = {
+          enabled: true,
+          podcast: {
+            enabled: true,
+            category: 'Technology',
+            explicit: false,
+            cover: 'assets/podcast/cover.jpg',
+            description: 'Conversations about the posts.',
+            ownerEmail: 'hello@example.com',
+          },
+        };
+      }),
+    ),
+    s2Case(
+      'normalized-publication-listen-podcast-cover-missing-invalid',
+      withPublication((publication) => {
+        publication.listen = {
+          enabled: true,
+          podcast: { enabled: true, category: 'Technology', explicit: false },
+        };
+      }),
+      [
+        {
+          code: 'SCHEMA_REQUIRED_FIELD_MISSING',
+          instancePointer: '/publication/listen/podcast/cover',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-listen-podcast-category-empty-invalid',
+      withPublication((publication) => {
+        publication.listen = {
+          enabled: true,
+          podcast: {
+            enabled: true,
+            category: '',
+            explicit: false,
+            cover: 'assets/podcast/cover.jpg',
+          },
+        };
+      }),
+      [
+        {
+          code: 'SCHEMA_STRING_TOO_SHORT',
+          instancePointer: '/publication/listen/podcast/category',
+        },
+      ],
+    ),
+    s2Case(
+      'normalized-publication-listen-podcast-unknown-member-invalid',
+      withPublication((publication) => {
+        publication.listen = {
+          enabled: true,
+          podcast: {
+            enabled: true,
+            category: 'Technology',
+            explicit: false,
+            cover: 'assets/podcast/cover.jpg',
+            artwork: 'x',
+          },
+        };
+      }),
+      [
+        {
+          code: 'REQUEST_FIELD_UNKNOWN',
+          instancePointer: '/publication/listen/podcast/artwork',
+        },
+      ],
+    ),
     s2Case('normalized-content-listen-valid', withListen(episode)),
     s2Case(
       'normalized-content-listen-m4a-valid',

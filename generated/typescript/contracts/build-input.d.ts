@@ -248,6 +248,14 @@ export type BuildInputIsoCountry = string;
 
 export type BuildInputListen = Readonly<{
   readonly enabled: boolean;
+  readonly podcast?: Readonly<{
+    readonly category: string;
+    readonly cover: BuildInputRepoRelativePath;
+    readonly description?: BuildInputPlainText;
+    readonly enabled: boolean;
+    readonly explicit: boolean;
+    readonly ownerEmail?: string;
+  }>;
 }>;
 
 export type BuildInputListenAudio = Readonly<{
