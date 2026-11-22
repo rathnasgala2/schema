@@ -50,7 +50,8 @@ of its nearest neighbour.
   `comment.created` (and `ping`).
 - Poll votes:
   `GET /v2/public/publications/{publicationId}/contents/{contentId}/polls` and
-  `PUT .../polls/{pollId}/vote` (`{ option }`, a reader bearer token).
+  `PUT .../polls/{pollId}/vote` (`{ option }`, a reader bearer token). The
+  account export file also carries the person's poll votes.
 - Podcast: `listen.podcast` (`enabled`, `category`, `explicit`, `cover`,
   optional `description` and `ownerEmail`) in `gala/publication.json` and in the
   normalized `build-input` publication, carried by the Listen settings read and
