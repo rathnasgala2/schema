@@ -48,6 +48,7 @@ const S2_FAMILIES = [
       'normalized-publication-listen-unknown-member-invalid',
       'normalized-publication-listen-podcast-valid',
       'normalized-publication-listen-podcast-cover-missing-invalid',
+      'normalized-publication-listen-podcast-cover-bare-path-invalid',
       'normalized-publication-listen-podcast-category-empty-invalid',
       'normalized-publication-listen-podcast-unknown-member-invalid',
       'normalized-content-listen-valid',
@@ -316,8 +317,10 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // (`newsletterTag`, `newsletterSubjectB`) and `listen.podcast` regenerated
     // the content-frontmatter, publication and build-input fixtures and the
     // manifest, and added one case file
-    // (content-frontmatter/SCHEMA_STRING_TOO_LONG), making 911.
-    'b7552bbb33c458c999fdcde269bc8dcfe899f86b2cd87b95db58c782d46ba412',
+    // (content-frontmatter/SCHEMA_STRING_TOO_LONG), making 911. The build-input
+    // podcast cover is the resolved file {path, sourceDigest}, so its fixtures
+    // changed again and gained the bare-path invalid case (no file added).
+    '3cc873d050c6276fb754063eb7f6e460d30f1269dbd8ab5dd36c68c3a67f58be',
   );
 });
 

@@ -51,10 +51,15 @@ of its nearest neighbour.
 - Poll votes:
   `GET /v2/public/publications/{publicationId}/contents/{contentId}/polls` and
   `PUT .../polls/{pollId}/vote` (`{ option }`, a reader bearer token).
-- Podcast: `listen.podcast` in `gala/publication.json` and in the normalized
-  `build-input` publication (`enabled`, `category`, `explicit`, `cover`,
-  optional `description` and `ownerEmail`), carried by the Listen settings read
-  and write.
+- Podcast: `listen.podcast` (`enabled`, `category`, `explicit`, `cover`,
+  optional `description` and `ownerEmail`) in `gala/publication.json` and in the
+  normalized `build-input` publication, carried by the Listen settings read and
+  write. The two shapes differ only in `cover`: the author writes a
+  repository-relative path string (`$defs/listen` in the publication schema),
+  and the normalized input carries the resolved file `{ path, sourceDigest }`
+  with a `sha256:` digest (new `$defs/listenNormalized` in the build-input
+  schema, `cover` is `$defs/resolvedFile`). The Listen settings operations keep
+  the path string.
 - Front matter `newsletterTag` (send to one tag) and `newsletterSubjectB`.
 - Problem codes `NEWSLETTER_TAG_EXISTS`, `NEWSLETTER_TAG_LIMIT`,
   `NEWSLETTER_TAG_NOT_FOUND`, `NEWSLETTER_SEQUENCE_EMPTY`,

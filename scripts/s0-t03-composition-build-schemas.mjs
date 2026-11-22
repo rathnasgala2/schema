@@ -672,17 +672,24 @@ function listenEpisodeMembers() {
 }
 
 /**
- * SCHEMA-3.26.0: the publication's Listen switch, shared byte-for-byte by the
- * `publication` author-source root and the normalized `build-input`
- * publication (one `$defs/listen` body, so the shared-definition gate holds).
+ * SCHEMA-3.26.0: the publication's Listen switch. The author-source form
+ * (`$defs/listen` in `publication`) writes the podcast cover as a
+ * repository-relative path; the normalized form (`$defs/listenNormalized` in
+ * `build-input`, a distinct name so the shared-definition gate holds) carries
+ * the cover as a resolved file `{path, sourceDigest}` like every other site
+ * image. The two differ only in `podcast.cover`.
  *
  * @param {object} language schema construction language
  * @param {Function} language.ref local-definition reference constructor
  * @param {Function} language.closedObject closed-object constructor
  * @param {Function} language.graphemeBound grapheme-bound constructor
+ * @param {boolean} [resolvedCover] true for the normalized form
  * @returns {Record<string, unknown>} closed listen object schema
  */
-export function createListenDefinition({ ref, closedObject, graphemeBound }) {
+export function createListenDefinition(
+  { ref, closedObject, graphemeBound },
+  resolvedCover = false,
+) {
   return closedObject(
     {
       enabled: { type: 'boolean' },
@@ -698,9 +705,10 @@ export function createListenDefinition({ ref, closedObject, graphemeBound }) {
           },
           explicit: { type: 'boolean' },
           cover: {
-            ...ref('repoRelativePath'),
-            description:
-              'Repository-relative path of the podcast cover image, resolved as an inventoried image like the other site images. Apple Podcasts and Spotify want a square JPEG or PNG between 1400 and 3000 pixels on a side; the template packet records the rule it checks.',
+            ...ref(resolvedCover ? 'resolvedFile' : 'repoRelativePath'),
+            description: resolvedCover
+              ? 'The resolved podcast cover file: its repository-relative path and source digest, like the other site images. Apple Podcasts and Spotify want a square JPEG or PNG between 1400 and 3000 pixels on a side; the template packet records the rule it checks.'
+              : 'Repository-relative path of the podcast cover image, resolved as an inventoried image like the other site images. Apple Podcasts and Spotify want a square JPEG or PNG between 1400 and 3000 pixels on a side; the template packet records the rule it checks.',
           },
           description: graphemeBound(ref('plainText'), 1, 600),
           ownerEmail: {
@@ -1454,7 +1462,7 @@ export function createCompositionBuildSchemas(language) {
       sharing: ref('resolvedSharing'),
       contactForm: ref('contactFormNormalized'),
       listen: {
-        ...ref('listen'),
+        ...ref('listenNormalized'),
         description:
           'SCHEMA-3.26.0: the toolchain always writes this member, `enabled: false` when the site sets none; a build input without it is read as off, so every 3.25 build input still validates.',
       },
@@ -2711,7 +2719,7 @@ export function createCompositionBuildSchemas(language) {
           language,
           ref('renderableBody'),
         ),
-        listen: createListenDefinition(language),
+        listenNormalized: createListenDefinition(language, true),
         listenAudio: createListenAudioDefinition(language),
         contentListenNormalized:
           createContentListenNormalizedDefinition(language),

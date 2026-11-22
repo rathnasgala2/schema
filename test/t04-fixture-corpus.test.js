@@ -131,8 +131,8 @@ const T03_SCHEMA_HASHES = {
     // targets, optional reddit.community and x.via copied from the platform).
     // Additive.
     //
-    // 3.53.0 (reviewed 2026-11-22): the normalized publication's listen member admits the optional podcast object (enabled, category, explicit, cover, description, ownerEmail). Additive.
-    '4b632220a627fbd8d35a6ee2528eef661266cb95f15b95003549641bbc7e742c',
+    // 3.53.0 (reviewed 2026-11-22): the normalized publication's listen member becomes the new $defs/listenNormalized and admits the optional podcast object (enabled, category, explicit, cover as a resolved file {path, sourceDigest}, description, ownerEmail). Additive.
+    '87406318edd12e25d235c58aa05b8719faed75457a89a9c46747b69c45ff0ce2',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -215,7 +215,7 @@ const T03_SCHEMA_HASHES = {
     // `threads` (12 targets at most) and says an absent member means the
     // platform default share set. Additive.
     //
-    // 3.53.0 (reviewed 2026-11-22): $defs/listen admits the optional podcast object (shared byte-for-byte with build-input). Additive.
+    // 3.53.0 (reviewed 2026-11-22): $defs/listen admits the optional podcast object (cover is a repository-relative path; build-input carries the resolved-file form as $defs/listenNormalized). Additive.
     '9955656ec2ae3dc7c11c4e50187a41ce7a81c6bd4856a6167a3fc372d3c79e54',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',

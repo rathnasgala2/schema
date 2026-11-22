@@ -548,7 +548,7 @@
         "sharing": { "$ref": "#/$defs/resolvedSharing" },
         "contactForm": { "$ref": "#/$defs/contactFormNormalized" },
         "listen": {
-          "$ref": "#/$defs/listen",
+          "$ref": "#/$defs/listenNormalized",
           "description": "SCHEMA-3.26.0: the toolchain always writes this member, `enabled: false` when the site sets none; a build input without it is read as off, so every 3.25 build input still validates."
         },
         "sourcePath": { "$ref": "#/$defs/repoRelativePath" },
@@ -727,7 +727,7 @@
       "additionalProperties": false,
       "description": "SCHEMA-3.22.0: the normalized contact form. `intro` is the rendered body of the optional `gala/theme-pages/contact.md`, absent when the file is absent (the template then shows its default intro). The template renders the `/contact/` page only when `enabled` is true."
     },
-    "listen": {
+    "listenNormalized": {
       "type": "object",
       "required": ["enabled"],
       "properties": {
@@ -745,8 +745,8 @@
             },
             "explicit": { "type": "boolean" },
             "cover": {
-              "$ref": "#/$defs/repoRelativePath",
-              "description": "Repository-relative path of the podcast cover image, resolved as an inventoried image like the other site images. Apple Podcasts and Spotify want a square JPEG or PNG between 1400 and 3000 pixels on a side; the template packet records the rule it checks."
+              "$ref": "#/$defs/resolvedFile",
+              "description": "The resolved podcast cover file: its repository-relative path and source digest, like the other site images. Apple Podcasts and Spotify want a square JPEG or PNG between 1400 and 3000 pixels on a side; the template packet records the rule it checks."
             },
             "description": {
               "$ref": "#/$defs/plainText",

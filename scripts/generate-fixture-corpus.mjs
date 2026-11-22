@@ -2635,7 +2635,10 @@ function listenNormalizedCases(canonical, withPublication) {
             enabled: true,
             category: 'Technology',
             explicit: false,
-            cover: 'assets/podcast/cover.jpg',
+            cover: {
+              path: 'assets/podcast/cover.jpg',
+              sourceDigest: `sha256:${'0'.repeat(63)}2`,
+            },
             description: 'Conversations about the posts.',
             ownerEmail: 'hello@example.com',
           },
@@ -2658,6 +2661,26 @@ function listenNormalizedCases(canonical, withPublication) {
       ],
     ),
     s2Case(
+      'normalized-publication-listen-podcast-cover-bare-path-invalid',
+      withPublication((publication) => {
+        publication.listen = {
+          enabled: true,
+          podcast: {
+            enabled: true,
+            category: 'Technology',
+            explicit: false,
+            cover: 'assets/podcast/cover.jpg',
+          },
+        };
+      }),
+      [
+        {
+          code: 'SCHEMA_TYPE_INVALID',
+          instancePointer: '/publication/listen/podcast/cover',
+        },
+      ],
+    ),
+    s2Case(
       'normalized-publication-listen-podcast-category-empty-invalid',
       withPublication((publication) => {
         publication.listen = {
@@ -2666,7 +2689,10 @@ function listenNormalizedCases(canonical, withPublication) {
             enabled: true,
             category: '',
             explicit: false,
-            cover: 'assets/podcast/cover.jpg',
+            cover: {
+              path: 'assets/podcast/cover.jpg',
+              sourceDigest: `sha256:${'0'.repeat(63)}2`,
+            },
           },
         };
       }),
@@ -2686,7 +2712,10 @@ function listenNormalizedCases(canonical, withPublication) {
             enabled: true,
             category: 'Technology',
             explicit: false,
-            cover: 'assets/podcast/cover.jpg',
+            cover: {
+              path: 'assets/podcast/cover.jpg',
+              sourceDigest: `sha256:${'0'.repeat(63)}2`,
+            },
             artwork: 'x',
           },
         };

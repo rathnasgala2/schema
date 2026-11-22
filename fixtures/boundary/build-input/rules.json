@@ -22,18 +22,6 @@
     "instance": "opt-in"
   },
   {
-    "caseId": "build-input-boundary-01ba4a778e1067ca",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen:additionalProperties",
-      "build-input:#/$defs/listen:required:enabled",
-      "build-input:#/$defs/listen:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen",
-    "keyword": "additionalProperties",
-    "instance": { "enabled": false }
-  },
-  {
     "caseId": "build-input-boundary-02fa045274157fb7",
     "coveredRuleIds": [
       "build-input:#/$defs/localizedAuthor/properties/biography:x-gala-graphemeLength"
@@ -169,21 +157,6 @@
       ],
       "sourcePath": "content/fixture-1.md",
       "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
-    }
-  },
-  {
-    "caseId": "build-input-boundary-09c12f7409d1c141",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/ownerEmail:minLength"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/ownerEmail",
-    "keyword": "minLength",
-    "recipe": {
-      "kind": "schema-string-boundary",
-      "schemaPointer": "#/$defs/listen/properties/podcast/properties/ownerEmail",
-      "length": 3,
-      "direction": "minimum"
     }
   },
   {
@@ -506,26 +479,6 @@
     "instance": "fixture-1"
   },
   {
-    "caseId": "build-input-boundary-1276870dc2c311ca",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast:additionalProperties",
-      "build-input:#/$defs/listen/properties/podcast:required:category",
-      "build-input:#/$defs/listen/properties/podcast:required:cover",
-      "build-input:#/$defs/listen/properties/podcast:required:enabled",
-      "build-input:#/$defs/listen/properties/podcast:required:explicit",
-      "build-input:#/$defs/listen/properties/podcast:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast",
-    "keyword": "additionalProperties",
-    "instance": {
-      "enabled": false,
-      "category": "fixture-1",
-      "explicit": false,
-      "cover": "content/fixture-1.md"
-    }
-  },
-  {
     "caseId": "build-input-boundary-133dfe17f7193cce",
     "coveredRuleIds": [
       "build-input:#/$defs/contentFrontmatterNormalized/allOf/1/then/not:required:edition"
@@ -621,6 +574,16 @@
     }
   },
   {
+    "caseId": "build-input-boundary-196068d1511a6f21",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/enabled:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/enabled",
+    "keyword": "type",
+    "instance": false
+  },
+  {
     "caseId": "build-input-boundary-1991f7496885f910",
     "coveredRuleIds": [
       "build-input:#/$defs/navigationItem/properties/children:minItems"
@@ -644,6 +607,21 @@
     "schemaPointer": "#/$defs/glob",
     "keyword": "format",
     "instance": "**"
+  },
+  {
+    "caseId": "build-input-boundary-19fe284403d41dd3",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/ownerEmail:minLength"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/ownerEmail",
+    "keyword": "minLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/ownerEmail",
+      "length": 3,
+      "direction": "minimum"
+    }
   },
   {
     "caseId": "build-input-boundary-1b52344c23a7950c",
@@ -721,6 +699,16 @@
       "schemaPointer": "#/$defs/contentFrontmatterNormalized/properties/redirects",
       "length": 32
     }
+  },
+  {
+    "caseId": "build-input-boundary-1d696feb9937bf87",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/explicit:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/explicit",
+    "keyword": "type",
+    "instance": false
   },
   {
     "caseId": "build-input-boundary-1d720da6d263c6d0",
@@ -1328,6 +1316,21 @@
     "instance": ["019c0000-0000-7000-8000-000000000001"]
   },
   {
+    "caseId": "build-input-boundary-35883f332b3fd2d9",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/description:x-gala-graphemeLength"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/description",
+    "keyword": "x-gala-graphemeLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/description",
+      "length": 600,
+      "direction": "maximum"
+    }
+  },
+  {
     "caseId": "build-input-boundary-363bc437eecca341",
     "coveredRuleIds": [
       "build-input:#/$defs/authorNormalized/properties/links:minItems"
@@ -1491,16 +1494,6 @@
         "registry": "https://fixture-4.example.com/"
       }
     ]
-  },
-  {
-    "caseId": "build-input-boundary-3bbdbf0eda4ba0f8",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/category:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/category",
-    "keyword": "type",
-    "instance": "fixture-1"
   },
   {
     "caseId": "build-input-boundary-3efbed3b4ca88013",
@@ -2081,21 +2074,6 @@
     "instance": "#000000"
   },
   {
-    "caseId": "build-input-boundary-593b746f4a8ecd60",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/ownerEmail:maxLength"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/ownerEmail",
-    "keyword": "maxLength",
-    "recipe": {
-      "kind": "schema-string-boundary",
-      "schemaPointer": "#/$defs/listen/properties/podcast/properties/ownerEmail",
-      "length": 320,
-      "direction": "maximum"
-    }
-  },
-  {
     "caseId": "build-input-boundary-5b2e58e0b8dc512c",
     "coveredRuleIds": [
       "build-input:#/$defs/analyticsConfig/properties/schemaVersion:const"
@@ -2116,6 +2094,16 @@
     "schemaPointer": "#/$defs/rfc3339",
     "keyword": "format",
     "instance": "2026-09-13T12:00:00.000Z"
+  },
+  {
+    "caseId": "build-input-boundary-5b88d3dc713151e2",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/enabled:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/enabled",
+    "keyword": "type",
+    "instance": false
   },
   {
     "caseId": "build-input-boundary-5bc0e7f32d9bd543",
@@ -2259,6 +2247,17 @@
     "instance": [
       { "url": "https://fixture-1.example.com/", "title": "fixture-1" }
     ]
+  },
+  {
+    "caseId": "build-input-boundary-60433e8b3d4196dd",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/ownerEmail:pattern",
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/ownerEmail:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/ownerEmail",
+    "keyword": "pattern",
+    "instance": "mailto:fixture@example.com"
   },
   {
     "caseId": "build-input-boundary-626f222d5c22b718",
@@ -2945,14 +2944,6 @@
     "instance": "019c0000-0000-7000-8000-000000000001"
   },
   {
-    "caseId": "build-input-boundary-8557321919aee10a",
-    "coveredRuleIds": ["build-input:#/$defs/listen/properties/enabled:type"],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/enabled",
-    "keyword": "type",
-    "instance": false
-  },
-  {
     "caseId": "build-input-boundary-85bcd006aab15d72",
     "coveredRuleIds": [
       "build-input:#/$defs/newsletter/oneOf/1:additionalProperties",
@@ -3147,21 +3138,6 @@
       "schemaPointer": "#/$defs/contentBuildRecord/properties/body",
       "length": 0,
       "direction": "minimum"
-    }
-  },
-  {
-    "caseId": "build-input-boundary-9336932a53ee914e",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/category:maxLength"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/category",
-    "keyword": "maxLength",
-    "recipe": {
-      "kind": "schema-string-boundary",
-      "schemaPointer": "#/$defs/listen/properties/podcast/properties/category",
-      "length": 60,
-      "direction": "maximum"
     }
   },
   {
@@ -3552,21 +3528,6 @@
     "instance": { "mediaType": "audio/mpeg" }
   },
   {
-    "caseId": "build-input-boundary-a44e4e9576e8d430",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/description:x-gala-graphemeLength"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/description",
-    "keyword": "x-gala-graphemeLength",
-    "recipe": {
-      "kind": "schema-string-boundary",
-      "schemaPointer": "#/$defs/listen/properties/podcast/properties/description",
-      "length": 600,
-      "direction": "maximum"
-    }
-  },
-  {
     "caseId": "build-input-boundary-a475c2683f8b3822",
     "coveredRuleIds": [
       "build-input:#/$defs/resolvedSharing/properties/targets:maxItems"
@@ -3923,17 +3884,6 @@
     "instance": { "light": "#000000", "dark": "#000000" }
   },
   {
-    "caseId": "build-input-boundary-b4ca265332a29941",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/ownerEmail:pattern",
-      "build-input:#/$defs/listen/properties/podcast/properties/ownerEmail:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/ownerEmail",
-    "keyword": "pattern",
-    "instance": "mailto:fixture@example.com"
-  },
-  {
     "caseId": "build-input-boundary-b4ce70db923c708d",
     "coveredRuleIds": [
       "build-input:#/$defs/deleteDate:pattern",
@@ -3997,6 +3947,18 @@
       "schemaPointer": "#/$defs/colorMode/properties/allowed",
       "length": 1
     }
+  },
+  {
+    "caseId": "build-input-boundary-b773cb75c8ceadde",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized:additionalProperties",
+      "build-input:#/$defs/listenNormalized:required:enabled",
+      "build-input:#/$defs/listenNormalized:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized",
+    "keyword": "additionalProperties",
+    "instance": { "enabled": false }
   },
   {
     "caseId": "build-input-boundary-ba5073d37e61c16f",
@@ -4149,6 +4111,21 @@
     "instance": { "showMadeWith": false }
   },
   {
+    "caseId": "build-input-boundary-c21af2d82858be58",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/ownerEmail:maxLength"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/ownerEmail",
+    "keyword": "maxLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/ownerEmail",
+      "length": 320,
+      "direction": "maximum"
+    }
+  },
+  {
     "caseId": "build-input-boundary-c461c49bdfbe935a",
     "coveredRuleIds": [
       "build-input:#/$defs/navigationNormalized/properties/items:minItems"
@@ -4227,21 +4204,6 @@
       "language": "en-US",
       "displayName": "fixture-1",
       "biography": "fixture-1"
-    }
-  },
-  {
-    "caseId": "build-input-boundary-c6c77c53d4e89583",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/category:minLength"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/category",
-    "keyword": "minLength",
-    "recipe": {
-      "kind": "schema-string-boundary",
-      "schemaPointer": "#/$defs/listen/properties/podcast/properties/category",
-      "length": 1,
-      "direction": "minimum"
     }
   },
   {
@@ -4575,6 +4537,16 @@
     "instance": { "subject": "fixture-1", "body": "fixture-1" }
   },
   {
+    "caseId": "build-input-boundary-d93727606173262d",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/category:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/category",
+    "keyword": "type",
+    "instance": "fixture-1"
+  },
+  {
     "caseId": "build-input-boundary-dadbcb3741fe2efd",
     "coveredRuleIds": [
       "build-input:#/$defs/interactionsConfig/properties/comments/properties/allowReplies:type"
@@ -4849,16 +4821,6 @@
     }
   },
   {
-    "caseId": "build-input-boundary-e89abd0cc9703812",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/explicit:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/explicit",
-    "keyword": "type",
-    "instance": false
-  },
-  {
     "caseId": "build-input-boundary-e9ad9502cdddf191",
     "coveredRuleIds": [
       "build-input:#/$defs/authorNormalized/properties/localized:type"
@@ -4928,16 +4890,6 @@
     "instance": "#000000"
   },
   {
-    "caseId": "build-input-boundary-edf158c546cef204",
-    "coveredRuleIds": [
-      "build-input:#/$defs/listen/properties/podcast/properties/enabled:type"
-    ],
-    "schemaId": "urn:gala:schema:build-input:2.0.0",
-    "schemaPointer": "#/$defs/listen/properties/podcast/properties/enabled",
-    "keyword": "type",
-    "instance": false
-  },
-  {
     "caseId": "build-input-boundary-ee7585b9a9107522",
     "coveredRuleIds": [
       "build-input:#/$defs/navigationNormalized/properties/items:maxItems"
@@ -4970,6 +4922,21 @@
     "schemaPointer": "#/$defs/interactionsConfig/properties/comments/properties/maxDepth",
     "keyword": "maximum",
     "instance": 4
+  },
+  {
+    "caseId": "build-input-boundary-f0bda523559d785d",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/category:maxLength"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/category",
+    "keyword": "maxLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/category",
+      "length": 60,
+      "direction": "maximum"
+    }
   },
   {
     "caseId": "build-input-boundary-f0f505c92729ddac",
@@ -5016,6 +4983,29 @@
     "schemaPointer": "#/$defs/contentEdition/properties/generation/properties/provider",
     "keyword": "enum",
     "instance": "anthropic"
+  },
+  {
+    "caseId": "build-input-boundary-f57edfea9563fdbf",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast:additionalProperties",
+      "build-input:#/$defs/listenNormalized/properties/podcast:required:category",
+      "build-input:#/$defs/listenNormalized/properties/podcast:required:cover",
+      "build-input:#/$defs/listenNormalized/properties/podcast:required:enabled",
+      "build-input:#/$defs/listenNormalized/properties/podcast:required:explicit",
+      "build-input:#/$defs/listenNormalized/properties/podcast:type"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast",
+    "keyword": "additionalProperties",
+    "instance": {
+      "enabled": false,
+      "category": "fixture-1",
+      "explicit": false,
+      "cover": {
+        "path": "content/fixture-1.md",
+        "sourceDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000001"
+      }
+    }
   },
   {
     "caseId": "build-input-boundary-f6e6c4b9230c2509",
@@ -5175,6 +5165,21 @@
       "kind": "schema-array-boundary",
       "schemaPointer": "#/$defs/publicationNormalized/properties/authorIds",
       "length": 32
+    }
+  },
+  {
+    "caseId": "build-input-boundary-ff8f17ee96221f1b",
+    "coveredRuleIds": [
+      "build-input:#/$defs/listenNormalized/properties/podcast/properties/category:minLength"
+    ],
+    "schemaId": "urn:gala:schema:build-input:2.0.0",
+    "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/category",
+    "keyword": "minLength",
+    "recipe": {
+      "kind": "schema-string-boundary",
+      "schemaPointer": "#/$defs/listenNormalized/properties/podcast/properties/category",
+      "length": 1,
+      "direction": "minimum"
     }
   }
 ]

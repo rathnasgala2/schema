@@ -1239,7 +1239,26 @@ test('SCHEMA-3.26.0 carries Listen into the build input as its own resolved audi
   assert.equal(publicationValid({ enabled: true, extra: 1 }), false);
   const buildSchema = await readJson('schemas/build-input.schema.json');
   const publicationSchema = await readJson('schemas/publication.schema.json');
-  assert.deepEqual(buildSchema.$defs.listen, publicationSchema.$defs.listen);
+  // Identical except `podcast.cover`: the author writes a repository-relative
+  // path, the normalized input carries a resolved file like every site image.
+  /** @type {(listen: any) => any} */
+  const withoutCover = (listen) => {
+    const copy = structuredClone(listen);
+    delete copy.properties.podcast.properties.cover;
+    return copy;
+  };
+  assert.deepEqual(
+    withoutCover(buildSchema.$defs.listenNormalized),
+    withoutCover(publicationSchema.$defs.listen),
+  );
+  assert.equal(
+    buildSchema.$defs.listenNormalized.properties.podcast.properties.cover.$ref,
+    '#/$defs/resolvedFile',
+  );
+  assert.equal(
+    publicationSchema.$defs.listen.properties.podcast.properties.cover.$ref,
+    '#/$defs/repoRelativePath',
+  );
   // The resolved audio of an article.
   const audio = {
     sourcePath: 'assets/listen/episode.mp3',

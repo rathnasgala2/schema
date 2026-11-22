@@ -246,23 +246,23 @@ export type BuildInputInteractionsServiceOrigin = string;
 
 export type BuildInputIsoCountry = string;
 
-export type BuildInputListen = Readonly<{
-  readonly enabled: boolean;
-  readonly podcast?: Readonly<{
-    readonly category: string;
-    readonly cover: BuildInputRepoRelativePath;
-    readonly description?: BuildInputPlainText;
-    readonly enabled: boolean;
-    readonly explicit: boolean;
-    readonly ownerEmail?: string;
-  }>;
-}>;
-
 export type BuildInputListenAudio = Readonly<{
   readonly bytes: number;
   readonly mediaType: 'audio/mpeg' | 'audio/mp4';
   readonly sha256: BuildInputDigest;
   readonly sourcePath: BuildInputRepoRelativePath;
+}>;
+
+export type BuildInputListenNormalized = Readonly<{
+  readonly enabled: boolean;
+  readonly podcast?: Readonly<{
+    readonly category: string;
+    readonly cover: BuildInputResolvedFile;
+    readonly description?: BuildInputPlainText;
+    readonly enabled: boolean;
+    readonly explicit: boolean;
+    readonly ownerEmail?: string;
+  }>;
 }>;
 
 export type BuildInputListing = Readonly<{
@@ -404,7 +404,7 @@ export type BuildInputPublicationNormalized = Readonly<{
     readonly heading: BuildInputPlainText;
   }>;
   readonly id: BuildInputStableId;
-  readonly listen?: BuildInputListen;
+  readonly listen?: BuildInputListenNormalized;
   readonly listing?: BuildInputListing;
   readonly newsletter?: BuildInputNewsletter;
   readonly performance?: BuildInputPerformance;
