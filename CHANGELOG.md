@@ -24,7 +24,9 @@ of its nearest neighbour.
 - Tags (`publication.audience.read` for the list, `publication.settings.manage`
   to change, `publication.audience.manage` to tag subscribers): `GET` and
   `POST /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-tags`,
-  `DELETE .../newsletter-tags/{tagId}`, `POST .../newsletter-subscribers:tag`
+  `PUT .../newsletter-tags/{tagId}` (`{ name, readerSelectable }`, both
+  required; the slug never changes), `DELETE .../newsletter-tags/{tagId}`,
+  `POST .../newsletter-subscribers:tag`
   (`{ subscriberIds (1..500), add, remove }`). The subscriber list takes `tag`
   and each row carries `tags`; the import request takes `tags`; the public
   signup request takes `tag`; the issue read carries `tag`.
@@ -33,11 +35,17 @@ of its nearest neighbour.
   trigger and the whole step list at `version`), `POST ...:activate` and
   `...:pause`. At most 5 sequences of at most 10 steps; trigger `CONFIRMED` or
   `TAG_ADDED`; per-sequence people counts and per-step sent, opened, clicked.
+  `triggerTag` is always present on the read and is a slug or `null`. Create,
+  read, replace, `:activate` and `:pause` answer the `NewsletterSequence`
+  component directly. `:activate` answers `400 VALIDATION_FAILED` with an error
+  at `/triggerTag` when the tag that starts the sequence was deleted.
 - Plan entitlement `audienceAutomation` on `GET /v2/platform/plans` and
   `PUT /v2/platform/plans/{planKey}` (the plan response carries it).
 - Subject A/B test: front matter `newsletterSubjectB` (1..200 graphemes) and
-  `abTest` on the issue read (`state` `NONE`, `TESTING`, `DECIDED` or `NOT_RUN`,
-  with `notRunReason`, `winner`, per-variant numbers, `decideAfter`).
+  `abTest` on the issue read (`state` `NONE`, `TESTING`, `DECIDED`, `NOT_RUN` or
+  `STOPPED`; `notRunReason` is `PLAN` or `LIST_TOO_SMALL` and present only when
+  `NOT_RUN`; `winner`, per-variant numbers that count the two test slices only,
+  `decideAfter`).
 - Referrals: `GET` and `PUT .../newsletter-referral-program` (enabled, at most 5
   milestones), `GET .../newsletter-referrers` (top 20), public signup `ref`, and
   `referral` on the by-token subscription view.
@@ -45,7 +53,10 @@ of its nearest neighbour.
   answers the signing secret once), `GET`, `PUT` and
   `DELETE .../webhooks/{webhookId}`, `POST ...:pause`, `:resume`,
   `:rotate-secret`, `:test`, `GET .../webhook-deliveries?webhookId=` and
-  `POST .../webhook-deliveries/{deliveryId}:retry`. Events
+  `POST .../webhook-deliveries/{deliveryId}:retry`. `:test` and `:retry` answer
+  the `WebhookDelivery` component, whose `responseStatus` and `nextAttemptAt`
+  are always present and may be `null`; `:test` can answer `429 RATE_LIMITED`.
+  The webhooks read answers `200` with `planAllows` on every plan. Events
   `subscriber.confirmed`, `subscriber.unsubscribed`, `post.published`,
   `comment.created` (and `ping`).
 - Poll votes:
@@ -62,6 +73,10 @@ of its nearest neighbour.
   schema, `cover` is `$defs/resolvedFile`). The Listen settings operations keep
   the path string.
 - Front matter `newsletterTag` (send to one tag) and `newsletterSubjectB`.
+- The issue list now includes issues that were not sent: each issue optionally
+  carries `state` (`PENDING`, `SENDING`, `COMPLETE`, `SKIPPED`, `STOPPED`) and,
+  when skipped or stopped, `reason` (a string; known values `NO_SUBSCRIBERS` and
+  `TAG_UNKNOWN`).
 - Problem codes `NEWSLETTER_TAG_EXISTS`, `NEWSLETTER_TAG_LIMIT`,
   `NEWSLETTER_TAG_NOT_FOUND`, `NEWSLETTER_SEQUENCE_EMPTY`,
   `NEWSLETTER_SEQUENCE_LIMIT`, `NEWSLETTER_SEQUENCE_NOT_FOUND`,

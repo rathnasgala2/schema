@@ -16830,14 +16830,32 @@ components:
       type: string
     NewsletterIssueAbTest:
       additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              state:
+                const: NOT_RUN
+            required:
+              - state
+          then:
+            required:
+              - notRunReason
+          else:
+            not:
+              required:
+                - notRunReason
       description:
         'SCHEMA-3.53.0: the subject-line test of one issue. `state` is `NONE`
         (no second subject), `TESTING` (the two test slices are out, the winner
         not yet decided), `DECIDED` (`winner` is set and the rest were sent with
-        it) or `NOT_RUN` (everyone got subject A; `notRunReason` says why, for
-        example too few recipients or a plan without the entitlement). The
-        winner has more unique opens per delivered message; a tie is A.
-        `decideAfter` is the earliest time the decision is taken.'
+        it), `NOT_RUN` (everyone got subject A; `notRunReason` says why) or
+        `STOPPED` (the issue was stopped while the test was running; some people
+        got each subject and the rest got nothing). `notRunReason` is present
+        when `state` is `NOT_RUN` and absent otherwise. The winner has more
+        unique opens per delivered message; a tie is A. `decideAfter` is the
+        earliest time the decision is taken. The per-variant `sent`, `opened`
+        and `clicked` of `a` and `b` count the two test slices only, never the
+        rest of the list that got the winner.'
       properties:
         a:
           $ref: '#/components/schemas/NewsletterIssueAbVariant'
@@ -16846,8 +16864,13 @@ components:
         decideAfter:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         notRunReason:
-          maxLength: 200
-          minLength: 1
+          description:
+            'Why the test did not run: `PLAN` (the plan has no subject A/B
+            entitlement) or `LIST_TOO_SMALL` (fewer recipients than the platform
+            minimum). Present only when `state` is `NOT_RUN`.'
+          enum:
+            - PLAN
+            - LIST_TOO_SMALL
           type: string
         state:
           enum:
@@ -16855,6 +16878,7 @@ components:
             - TESTING
             - DECIDED
             - NOT_RUN
+            - STOPPED
           type: string
         subjectB:
           maxLength: 200
@@ -16873,8 +16897,10 @@ components:
     NewsletterIssueAbVariant:
       additionalProperties: false
       description:
-        'SCHEMA-3.53.0: the numbers of one subject variant. `opened` and
-        `clicked` come from the mail provider and are null while not yet known.'
+        "SCHEMA-3.53.0: the numbers of one subject variant. `sent`, `opened` and
+        `clicked` count the variant's own test slice only, not the rest of the
+        list that got the winner. `opened` and `clicked` come from the mail
+        provider and are null while not yet known."
       properties:
         clicked:
           format: int64
@@ -16903,7 +16929,9 @@ components:
         'SCHEMA-3.23.0: the send log of one post: when it went out and how many
         addresses it reached. `recipients` is the confirmed subscribers at send
         time; `sent`, `failed` and `deferred` (held back by a daily ceiling,
-        retried later) account for them.'
+        retried later) account for them. SCHEMA-3.53.0: the list now also
+        includes issues that were not sent (`state` `SKIPPED`, or `STOPPED`
+        before the end), with their `reason`.'
       properties:
         abTest:
           $ref: '#/components/schemas/NewsletterIssueAbTest'
@@ -16955,6 +16983,18 @@ components:
           type:
             - integer
             - 'null'
+        reason:
+          description:
+            'SCHEMA-3.53.0: why the issue was skipped or stopped; present only
+            when `state` is `SKIPPED` or `STOPPED`. An open string: the known
+            values are `NO_SUBSCRIBERS` (nobody was eligible to receive it) and
+            `TAG_UNKNOWN` (the post names a tag that does not exist); the server
+            may add others (the post is not eligible for email, the newsletter
+            is closed, the platform kill switch is on, the owner has no postal
+            address). A client shows an unknown value as a generic reason.'
+          maxLength: 80
+          minLength: 1
+          type: string
         recipients:
           format: int64
           minimum: 0
@@ -16965,6 +17005,19 @@ components:
           type: integer
         sentAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        state:
+          description:
+            'SCHEMA-3.53.0: where the issue stands: `PENDING` (queued, not yet
+            sending), `SENDING`, `COMPLETE`, `SKIPPED` (nothing was sent; see
+            `reason`) or `STOPPED` (stopped before it finished; see `reason`).
+            Absent on a 3.52 server.'
+          enum:
+            - PENDING
+            - SENDING
+            - COMPLETE
+            - SKIPPED
+            - STOPPED
+          type: string
         tag:
           description:
             'SCHEMA-3.53.0: the tag slug this issue was sent to, or null when it
@@ -21265,6 +21318,24 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse:
       allOf:
         - $ref: '#/components/schemas/NewsletterTag'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagIdRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.53.0. Replace a subscriber tag. Both members are required; the
+        slug never changes.
+      properties:
+        name:
+          maxLength: 40
+          minLength: 1
+          type: string
+        readerSelectable:
+          type: boolean
+      required:
+        - name
+        - readerSelectable
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagIdResponse:
+      $ref: '#/components/schemas/NewsletterTag'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagRequest:
       additionalProperties: false
       description:
@@ -21451,9 +21522,15 @@ components:
         trigger:
           $ref: '#/components/schemas/NewsletterSequenceTrigger'
         triggerTag:
-          oneOf:
-            - $ref: '#/components/schemas/NewsletterTagSlug'
-            - type: 'null'
+          description:
+            The tag slug that starts the sequence, or `null` when the trigger is
+            not `TAG_ADDED`. Always present.
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type:
+            - string
+            - 'null'
         updatedAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
         version:
@@ -21527,20 +21604,17 @@ components:
           description:
             The tag slug that starts the sequence; required when `trigger` is
             `TAG_ADDED`, null or absent otherwise.
-          oneOf:
-            - $ref: '#/components/schemas/NewsletterTagSlug'
-            - type: 'null'
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type:
+            - string
+            - 'null'
       required:
         - name
         - trigger
         - steps
       type: object
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
-      allOf:
-        - $ref: '#/components/schemas/NewsletterSequence'
-    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
-      allOf:
-        - $ref: '#/components/schemas/NewsletterSequence'
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdRequest:
       additionalProperties: false
       allOf:
@@ -21574,9 +21648,12 @@ components:
           description:
             The tag slug that starts the sequence; required when `trigger` is
             `TAG_ADDED`, null or absent otherwise.
-          oneOf:
-            - $ref: '#/components/schemas/NewsletterTagSlug'
-            - type: 'null'
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type:
+            - string
+            - 'null'
         version:
           format: int64
           minimum: 1
@@ -21587,15 +21664,16 @@ components:
         - trigger
         - steps
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
+      $ref: '#/components/schemas/NewsletterSequence'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
+      $ref: '#/components/schemas/NewsletterSequence'
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
-      allOf:
-        - $ref: '#/components/schemas/NewsletterSequence'
+      $ref: '#/components/schemas/NewsletterSequence'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivateResponse:
-      allOf:
-        - $ref: '#/components/schemas/NewsletterSequence'
+      $ref: '#/components/schemas/NewsletterSequence'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPauseResponse:
-      allOf:
-        - $ref: '#/components/schemas/NewsletterSequence'
+      $ref: '#/components/schemas/NewsletterSequence'
     NewsletterReferralMilestone:
       additionalProperties: false
       description:
@@ -21868,10 +21946,18 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         nextAttemptAt:
-          oneOf:
-            - $ref: ../schemas/problem.schema.json#/$defs/rfc3339
-            - type: 'null'
+          description:
+            When the next attempt is due, or `null` when none is scheduled.
+            Always present.
+          format: date-time
+          pattern: ^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$
+          type:
+            - string
+            - 'null'
         responseStatus:
+          description:
+            HTTP status of the last attempt, or `null` before the first answer.
+            Always present.
           format: int64
           maximum: 599
           minimum: 100
@@ -22030,15 +22116,13 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdRotateSecretResponse:
       allOf:
         - $ref: '#/components/schemas/WebhookCreated'
-    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTestResponse:
-      allOf:
-        - $ref: '#/components/schemas/WebhookDelivery'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesResponse:
       allOf:
         - $ref: '#/components/schemas/WebhookDeliveryList'
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesByDeliveryIdRetryResponse:
-      allOf:
-        - $ref: '#/components/schemas/WebhookDelivery'
+      $ref: '#/components/schemas/WebhookDelivery'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTestResponse:
+      $ref: '#/components/schemas/WebhookDelivery'
     GetPublicPublicationsByPublicationIdContentsByContentIdPollsResponse:
       allOf:
         - $ref: '#/components/schemas/PublicPollList'

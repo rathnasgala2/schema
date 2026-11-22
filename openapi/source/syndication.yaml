@@ -3624,9 +3624,7 @@ paths:
                     status: PENDING
                     webhookId: 018f0000-0000-7000-8000-000000000001
               schema:
-                $ref:
-                  "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPubl\
-                  icationIdWebhookDeliveriesByDeliveryIdRetryResponse"
+                $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesByDeliveryIdRetryResponse'
           description: retry a webhook delivery accepted
           headers:
             Cache-Control:
@@ -3892,8 +3890,7 @@ paths:
         SCHEMA-3.53.0. The outbound webhooks of this publication, oldest first.
         The signing secret is never part of the answer. Needs
         `publication.view`. A site on a plan without audience automation (Free)
-        gets `409 PLAN_REQUIRED` on this call; reads still work, with
-        `planAllows` false.
+        still gets `200`, with `planAllows` false.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooks
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -5912,9 +5909,7 @@ paths:
                     status: PENDING
                     webhookId: 018f0000-0000-7000-8000-000000000001
               schema:
-                $ref:
-                  "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPubl\
-                  icationIdWebhooksByWebhookIdTestResponse"
+                $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTestResponse'
           description: send a test event to a webhook accepted
           headers:
             Cache-Control:

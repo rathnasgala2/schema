@@ -4582,8 +4582,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/NewsletterReferrerList"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
-      allOf:
-        - $ref: "#/components/schemas/NewsletterSequence"
+      $ref: "#/components/schemas/NewsletterSequence"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
       allOf:
         - $ref: "#/components/schemas/NewsletterSequenceList"
@@ -8986,7 +8985,7 @@ components:
       type: string
     NewsletterIssue:
       additionalProperties: false
-      description: "SCHEMA-3.23.0: the send log of one post: when it went out and how many addresses it reached. `recipients` is the confirmed subscribers at send time; `sent`, `failed` and `deferred` (held back by a daily ceiling, retried later) account for them."
+      description: "SCHEMA-3.23.0: the send log of one post: when it went out and how many addresses it reached. `recipients` is the confirmed subscribers at send time; `sent`, `failed` and `deferred` (held back by a daily ceiling, retried later) account for them. SCHEMA-3.53.0: the list now also includes issues that were not sent (`state` `SKIPPED`, or `STOPPED` before the end), with their `reason`."
       properties:
         abTest:
           $ref: "#/components/schemas/NewsletterIssueAbTest"
@@ -9028,6 +9027,11 @@ components:
           type:
             - integer
             - "null"
+        reason:
+          description: "SCHEMA-3.53.0: why the issue was skipped or stopped; present only when `state` is `SKIPPED` or `STOPPED`. An open string: the known values are `NO_SUBSCRIBERS` (nobody was eligible to receive it) and `TAG_UNKNOWN` (the post names a tag that does not exist); the server may add others (the post is not eligible for email, the newsletter is closed, the platform kill switch is on, the owner has no postal address). A client shows an unknown value as a generic reason."
+          maxLength: 80
+          minLength: 1
+          type: string
         recipients:
           format: int64
           minimum: 0
@@ -9038,6 +9042,15 @@ components:
           type: integer
         sentAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
+        state:
+          description: "SCHEMA-3.53.0: where the issue stands: `PENDING` (queued, not yet sending), `SENDING`, `COMPLETE`, `SKIPPED` (nothing was sent; see `reason`) or `STOPPED` (stopped before it finished; see `reason`). Absent on a 3.52 server."
+          enum:
+            - PENDING
+            - SENDING
+            - COMPLETE
+            - SKIPPED
+            - STOPPED
+          type: string
         tag:
           description: "SCHEMA-3.53.0: the tag slug this issue was sent to, or null when it went to every confirmed subscriber. Absent on a 3.52 server."
           oneOf:
@@ -9059,7 +9072,23 @@ components:
       type: object
     NewsletterIssueAbTest:
       additionalProperties: false
-      description: "SCHEMA-3.53.0: the subject-line test of one issue. `state` is `NONE` (no second subject), `TESTING` (the two test slices are out, the winner not yet decided), `DECIDED` (`winner` is set and the rest were sent with it) or `NOT_RUN` (everyone got subject A; `notRunReason` says why, for example too few recipients or a plan without the entitlement). The winner has more unique opens per delivered message; a tie is A. `decideAfter` is the earliest time the decision is taken."
+      allOf:
+        - else:
+            not:
+              required:
+                - notRunReason
+          if:
+            properties:
+              state:
+                pattern: ^NOT_RUN$
+                type: string
+                x-gala-const: NOT_RUN
+            required:
+              - state
+          then:
+            required:
+              - notRunReason
+      description: "SCHEMA-3.53.0: the subject-line test of one issue. `state` is `NONE` (no second subject), `TESTING` (the two test slices are out, the winner not yet decided), `DECIDED` (`winner` is set and the rest were sent with it), `NOT_RUN` (everyone got subject A; `notRunReason` says why) or `STOPPED` (the issue was stopped while the test was running; some people got each subject and the rest got nothing). `notRunReason` is present when `state` is `NOT_RUN` and absent otherwise. The winner has more unique opens per delivered message; a tie is A. `decideAfter` is the earliest time the decision is taken. The per-variant `sent`, `opened` and `clicked` of `a` and `b` count the two test slices only, never the rest of the list that got the winner."
       properties:
         a:
           $ref: "#/components/schemas/NewsletterIssueAbVariant"
@@ -9068,8 +9097,10 @@ components:
         decideAfter:
           $ref: "#/components/schemas/PortableProblemRfc3339"
         notRunReason:
-          maxLength: 200
-          minLength: 1
+          description: "Why the test did not run: `PLAN` (the plan has no subject A/B entitlement) or `LIST_TOO_SMALL` (fewer recipients than the platform minimum). Present only when `state` is `NOT_RUN`."
+          enum:
+            - PLAN
+            - LIST_TOO_SMALL
           type: string
         state:
           enum:
@@ -9077,6 +9108,7 @@ components:
             - TESTING
             - DECIDED
             - NOT_RUN
+            - STOPPED
           type: string
         subjectB:
           maxLength: 200
@@ -9094,7 +9126,7 @@ components:
       type: object
     NewsletterIssueAbVariant:
       additionalProperties: false
-      description: "SCHEMA-3.53.0: the numbers of one subject variant. `opened` and `clicked` come from the mail provider and are null while not yet known."
+      description: "SCHEMA-3.53.0: the numbers of one subject variant. `sent`, `opened` and `clicked` count the variant's own test slice only, not the rest of the list that got the winner. `opened` and `clicked` come from the mail provider and are null while not yet known."
       properties:
         clicked:
           format: int64
@@ -9235,9 +9267,13 @@ components:
         trigger:
           $ref: "#/components/schemas/NewsletterSequenceTrigger"
         triggerTag:
-          oneOf:
-            - $ref: "#/components/schemas/NewsletterTagSlug"
-            - type: "null"
+          description: The tag slug that starts the sequence, or `null` when the trigger is not `TAG_ADDED`. Always present.
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type:
+            - string
+            - "null"
         updatedAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
         version:
@@ -20319,11 +20355,9 @@ components:
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideResponse:
       $ref: "#/components/schemas/ModerationQueueItem"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivateResponse:
-      allOf:
-        - $ref: "#/components/schemas/NewsletterSequence"
+      $ref: "#/components/schemas/NewsletterSequence"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPauseResponse:
-      allOf:
-        - $ref: "#/components/schemas/NewsletterSequence"
+      $ref: "#/components/schemas/NewsletterSequence"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesRequest:
       additionalProperties: false
       allOf:
@@ -20356,17 +20390,19 @@ components:
           $ref: "#/components/schemas/NewsletterSequenceTrigger"
         triggerTag:
           description: The tag slug that starts the sequence; required when `trigger` is `TAG_ADDED`, null or absent otherwise.
-          oneOf:
-            - $ref: "#/components/schemas/NewsletterTagSlug"
-            - type: "null"
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type:
+            - string
+            - "null"
       required:
         - name
         - trigger
         - steps
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
-      allOf:
-        - $ref: "#/components/schemas/NewsletterSequence"
+      $ref: "#/components/schemas/NewsletterSequence"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImportRequest:
       additionalProperties: false
       description: "SCHEMA-3.32.0: the addresses to invite, already parsed from the owner's file. `attestation` must be true: the owner states that every address agreed to hear from them. Each new address becomes a `pending` subscriber and is sent the confirmation email; nobody is subscribed without confirming."
@@ -21196,8 +21232,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/Video"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhookDeliveriesByDeliveryIdRetryResponse:
-      allOf:
-        - $ref: "#/components/schemas/WebhookDelivery"
+      $ref: "#/components/schemas/WebhookDelivery"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdPauseResponse:
       allOf:
         - $ref: "#/components/schemas/Webhook"
@@ -21208,8 +21243,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/WebhookCreated"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksByWebhookIdTestResponse:
-      allOf:
-        - $ref: "#/components/schemas/WebhookDelivery"
+      $ref: "#/components/schemas/WebhookDelivery"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooksRequest:
       additionalProperties: false
       description: "SCHEMA-3.53.0. Create a webhook: the address and the events it receives."
@@ -24138,9 +24172,12 @@ components:
           $ref: "#/components/schemas/NewsletterSequenceTrigger"
         triggerTag:
           description: The tag slug that starts the sequence; required when `trigger` is `TAG_ADDED`, null or absent otherwise.
-          oneOf:
-            - $ref: "#/components/schemas/NewsletterTagSlug"
-            - type: "null"
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type:
+            - string
+            - "null"
         version:
           format: int64
           minimum: 1
@@ -24152,8 +24189,7 @@ components:
         - steps
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
-      allOf:
-        - $ref: "#/components/schemas/NewsletterSequence"
+      $ref: "#/components/schemas/NewsletterSequence"
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsRequest:
       additionalProperties: false
       allOf:
@@ -24220,6 +24256,22 @@ components:
       required:
         - change
       type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagIdRequest:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. Replace a subscriber tag. Both members are required; the slug never changes.
+      properties:
+        name:
+          maxLength: 40
+          minLength: 1
+          type: string
+        readerSelectable:
+          type: boolean
+      required:
+        - name
+        - readerSelectable
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagIdResponse:
+      $ref: "#/components/schemas/NewsletterTag"
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsRequest:
       additionalProperties: false
       properties:
@@ -27799,10 +27851,16 @@ components:
           pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
           type: string
         nextAttemptAt:
-          oneOf:
-            - $ref: "#/components/schemas/PortableProblemRfc3339"
-            - type: "null"
+          description: |-
+            When the next attempt is due, or `null` when none is scheduled. Always present.
+
+            Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56).
+          format: date-time
+          type:
+            - string
+            - "null"
         responseStatus:
+          description: HTTP status of the last attempt, or `null` before the first answer. Always present.
           format: int64
           maximum: 599
           minimum: 100
@@ -58447,7 +58505,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-issues:
     get:
-      description: Needs `publication.audience.read`. One row per post that was emailed, newest first, one keyset page at a time.
+      description: Needs `publication.audience.read`. One row per post that was emailed, newest first, one keyset page at a time. SCHEMA-3.53.0. The list now also includes issues that were not sent (skipped or stopped), told apart by `state` and `reason`.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssues
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -60395,7 +60453,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}:activate:
     post:
-      description: "SCHEMA-3.53.0. Turns a `DRAFT` or `PAUSED` sequence `ACTIVE`: from now on subscribers who meet the trigger are enrolled (people already confirmed or tagged are not back-filled) and due steps are queued. Activating an active sequence changes nothing. `409 NEWSLETTER_SEQUENCE_EMPTY` when it has no step. Needs `publication.settings.manage`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on a write; reads still work, with `planAllows` false, so the App can show the upgrade nudge."
+      description: "SCHEMA-3.53.0. Turns a `DRAFT` or `PAUSED` sequence `ACTIVE`: from now on subscribers who meet the trigger are enrolled (people already confirmed or tagged are not back-filled) and due steps are queued. Activating an active sequence changes nothing. `409 NEWSLETTER_SEQUENCE_EMPTY` when it has no step; `400 VALIDATION_FAILED` with an error pointing at `/triggerTag` when the sequence starts on a tag (`TAG_ADDED`) and that tag has since been deleted. Needs `publication.settings.manage`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on a write; reads still work, with `planAllows` false, so the App can show the upgrade nudge."
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivate
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -60470,8 +60528,10 @@ paths:
                   value:
                     code: VALIDATION_FAILED
                     correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
+                    detail: The tag that starts this sequence no longer exists. See the operation contract.
+                    errors:
+                      - code: VALIDATION_FAILED
+                        pointer: /triggerTag
                     retryable: false
                     schemaId: urn:gala:schema:problem:2.0.0
                     schemaVersion: 2.0.0
@@ -62758,6 +62818,291 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: delete
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    put:
+      description: SCHEMA-3.53.0. Replaces the name and the `readerSelectable` flag of a tag; both are required. The slug never changes, so a sequence triggered by the tag and every subscriber holding it are unaffected. `404 NEWSLETTER_TAG_NOT_FOUND` when the tag does not exist. Needs `publication.settings.manage`.
+      operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: tagId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  name: Course buyers
+                  readerSelectable: true
+            schema:
+              $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagIdRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    confirmedCount: 12
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Course buyers
+                    readerSelectable: true
+                    slug: course-buyers
+              schema:
+                $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagIdResponse"
+          description: replace a newsletter tag succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_TAG_NOT_FOUND:
+                  summary: NEWSLETTER_TAG_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_TAG_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_TAG_NOT_FOUND
+                    type: urn:gala:problem:newsletter-tag-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_TAG_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_TAG_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                NEWSLETTER_TAG_EXISTS:
+                  summary: NEWSLETTER_TAG_EXISTS
+                  value:
+                    code: NEWSLETTER_TAG_EXISTS
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_TAG_EXISTS
+                    type: urn:gala:problem:newsletter-tag-exists
+                NEWSLETTER_TAG_LIMIT:
+                  summary: NEWSLETTER_TAG_LIMIT
+                  value:
+                    code: NEWSLETTER_TAG_LIMIT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_TAG_LIMIT
+                    type: urn:gala:problem:newsletter-tag-limit
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, NEWSLETTER_TAG_EXISTS, NEWSLETTER_TAG_LIMIT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - NEWSLETTER_TAG_EXISTS
+            - NEWSLETTER_TAG_LIMIT
+      security:
+        - browserSession: []
+      summary: replace a newsletter tag
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: replace a newsletter tag
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_TAG_EXISTS
+        - NEWSLETTER_TAG_LIMIT
+        - NEWSLETTER_TAG_NOT_FOUND
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/overview:
     get:
@@ -77353,7 +77698,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/webhooks:
     get:
-      description: SCHEMA-3.53.0. The outbound webhooks of this publication, oldest first. The signing secret is never part of the answer. Needs `publication.view`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on this call; reads still work, with `planAllows` false.
+      description: SCHEMA-3.53.0. The outbound webhooks of this publication, oldest first. The signing secret is never part of the answer. Needs `publication.view`. A site on a plan without audience automation (Free) still gets `200`, with `planAllows` false.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdWebhooks
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
