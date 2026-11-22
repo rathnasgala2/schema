@@ -20,6 +20,23 @@ Runtime modules under `src/` must not import repository tooling from `codegen/`,
 `scripts/`, or `test/`; `.dependency-cruiser.cjs` enforces the boundary and
 rejects circular dependencies.
 
+## Journey documents
+
+One document per user journey, end to end (App, API, workers, the person's
+repository, the template and the published site), lives in the App repository at
+`../app/docs/journeys/`, indexed by goal and by route in
+`../app/docs/journeys/README.md`.
+
+- Before changing a contract (an operation, a failure code, a capability, a
+  state or status value, a site-policy default), read the journeys that name it
+  and each one's "Connections to other journeys".
+- A contract change that alters what a person sees or what happens to their site
+  updates the journey document in the App repository as part of the same piece
+  of work. The App's tests cannot see this repository, so nothing fails if the
+  document is left stale.
+- A defect found while reading goes under that document's "Known open gaps"; a
+  gap fixed here is removed from the list.
+
 ## What never goes here
 
 Do not add controller implementations, domain aggregates, React UI, publication
