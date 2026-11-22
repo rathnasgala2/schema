@@ -4598,6 +4598,9 @@ components:
         - items
         - nextCursor
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterTagList"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewResponse:
       $ref: "#/components/schemas/PublicationOverview"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse:
@@ -8974,6 +8977,11 @@ components:
           type: integer
         sentAt:
           $ref: "#/components/schemas/PortableProblemRfc3339"
+        tag:
+          description: "SCHEMA-3.53.0: the tag slug this issue was sent to, or null when it went to every confirmed subscriber. Absent on a 3.52 server."
+          oneOf:
+            - $ref: "#/components/schemas/NewsletterTagSlug"
+            - type: "null"
         title:
           maxLength: 200
           minLength: 1
@@ -9099,6 +9107,12 @@ components:
           type: string
         state:
           $ref: "#/components/schemas/NewsletterSubscriberState"
+        tags:
+          description: "SCHEMA-3.53.0: the slugs of the tags this subscriber holds, in slug order. Absent on a 3.52 server."
+          items:
+            $ref: "#/components/schemas/NewsletterTagSlug"
+          maxItems: 50
+          type: array
       required:
         - id
         - email
@@ -9136,6 +9150,54 @@ components:
       enum:
         - subscribed
         - unsubscribed
+      type: string
+    NewsletterTag:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: one subscriber tag of a site. `confirmedCount` is the confirmed subscribers that hold it. `readerSelectable` tags can be applied by a reader who signs up through a link that carries `?tag=<slug>`."
+      properties:
+        confirmedCount:
+          format: int64
+          minimum: 0
+          type: integer
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 40
+          minLength: 1
+          type: string
+        readerSelectable:
+          type: boolean
+        slug:
+          $ref: "#/components/schemas/NewsletterTagSlug"
+      required:
+        - id
+        - slug
+        - name
+        - readerSelectable
+        - confirmedCount
+        - createdAt
+      type: object
+    NewsletterTagList:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: every tag of the site, oldest first. At most 50 (platform setting `audience.newsletter.tagsPerSite`)."
+      properties:
+        tags:
+          items:
+            $ref: "#/components/schemas/NewsletterTag"
+          maxItems: 50
+          type: array
+      required:
+        - tags
+      type: object
+    NewsletterTagSlug:
+      description: "SCHEMA-3.53.0: a tag slug, lower-case letters, digits and hyphens, starting with a letter or digit, at most 31 characters."
+      maxLength: 31
+      minLength: 1
+      pattern: ^[a-z0-9][a-z0-9-]{0,30}$
       type: string
     NewsletterWelcome:
       additionalProperties: false
@@ -19816,6 +19878,13 @@ components:
               - false
           type: boolean
           x-gala-const: true
+        tags:
+          description: "SCHEMA-3.53.0: optional tag slugs applied to every address of this import, including addresses that were already known. A slug that names no tag of the site is `400 VALIDATION_FAILED`."
+          items:
+            $ref: "#/components/schemas/NewsletterTagSlug"
+          maxItems: 10
+          type: array
+          uniqueItems: true
       required:
         - addresses
         - attestation
@@ -19846,6 +19915,64 @@ components:
         - invalid
         - overCapacity
       type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagRequest:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. Tag changes for a batch of subscribers. `add` and `remove` default to none.
+      properties:
+        add:
+          items:
+            $ref: "#/components/schemas/NewsletterTagSlug"
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        remove:
+          items:
+            $ref: "#/components/schemas/NewsletterTagSlug"
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        subscriberIds:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 500
+          minItems: 1
+          type: array
+          uniqueItems: true
+      required:
+        - subscriberIds
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagResponse:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. The number of subscribers whose tags changed.
+      properties:
+        updated:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - updated
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsRequest:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. Create a subscriber tag. `readerSelectable` is false when absent.
+      properties:
+        name:
+          maxLength: 40
+          minLength: 1
+          type: string
+        readerSelectable:
+          type: boolean
+        slug:
+          $ref: "#/components/schemas/NewsletterTagSlug"
+      required:
+        - slug
+        - name
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterTag"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdOverviewRefreshResponse:
       $ref: "#/components/schemas/PublicationOverview"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdPreviewRetirementResponse:
@@ -21238,6 +21365,11 @@ components:
       properties:
         email:
           $ref: "#/components/schemas/AudienceEmail"
+        tag:
+          description: "SCHEMA-3.53.0: optional tag slug. Applied when the site has a tag with this slug and it is reader-selectable; anything else is silently ignored, so the form cannot be used to probe tags."
+          maxLength: 64
+          minLength: 1
+          type: string
         trap:
           maxLength: 200
           type: string
@@ -57975,7 +58107,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:
     get:
-      description: Needs `publication.audience.read`. `counts` covers every subscriber of the site whatever the `state` filter; `items` are the rows of the filtered state (all states when absent), newest first, one keyset page at a time.
+      description: "Needs `publication.audience.read`. `counts` covers every subscriber of the site whatever the `state` filter; `items` are the rows of the filtered state (all states when absent), newest first, one keyset page at a time. SCHEMA-3.53.0: `tag` keeps only the subscribers that hold that tag (`counts` is unchanged); each row carries its `tags`."
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribers
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -58002,6 +58134,12 @@ paths:
           required: false
           schema:
             $ref: "#/components/schemas/NewsletterSubscriberState"
+        - example: course-buyers
+          in: query
+          name: tag
+          required: false
+          schema:
+            $ref: "#/components/schemas/NewsletterTagSlug"
       responses:
         "200":
           content:
@@ -58299,7 +58437,7 @@ paths:
   /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:import:
     post:
       description: |
-        Needs `publication.audience.manage`. The body is the addresses the owner's file held, already parsed by the App (at most 5000 per call), with `attestation: true`: the owner states that every address agreed to hear from them. Each address that is new becomes a `pending` subscriber and is sent the same confirmation email a reader who signs up receives; nobody is subscribed until they confirm. An address that is already known (`pending`, `confirmed`, `unsubscribed` or `suppressed`) is skipped and counted in `skippedKnown`, so repeating a call is harmless. `invalid` counts entries that are not usable addresses and `overCapacity` those left out because the organization's subscriber allowance was reached. A call without `attestation: true` is `400 VALIDATION_FAILED`. `409 NEWSLETTER_UNAVAILABLE` when the site takes no subscribers (it is not in Galascribe newsletter mode).
+        Needs `publication.audience.manage`. The body is the addresses the owner's file held, already parsed by the App (at most 5000 per call), with `attestation: true`: the owner states that every address agreed to hear from them. Each address that is new becomes a `pending` subscriber and is sent the same confirmation email a reader who signs up receives; nobody is subscribed until they confirm. An address that is already known (`pending`, `confirmed`, `unsubscribed` or `suppressed`) is skipped and counted in `skippedKnown`, so repeating a call is harmless. `invalid` counts entries that are not usable addresses and `overCapacity` those left out because the organization's subscriber allowance was reached. A call without `attestation: true` is `400 VALIDATION_FAILED`. `409 NEWSLETTER_UNAVAILABLE` when the site takes no subscribers (it is not in Galascribe newsletter mode). SCHEMA-3.53.0 optional `tags` (slugs of existing tags) are applied to every address of the call, new or already known; an unknown slug is `400 VALIDATION_FAILED`.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImport
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -58481,6 +58619,910 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: async
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-subscribers:tag:
+    post:
+      description: SCHEMA-3.53.0. Adds the tags in `add` and removes the tags in `remove` for each listed subscriber (1 to 500 ids; ids that are not subscribers of this site are ignored). Answers how many subscribers changed. `404 NEWSLETTER_TAG_NOT_FOUND` when a slug names no tag of the site. Needs `publication.audience.manage`.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTag
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  add:
+                    - course-buyers
+                  remove: []
+                  subscriberIds:
+                    - 018f0000-0000-7000-8000-000000000001
+                    - 018f0000-0000-7000-8000-000000000002
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    updated: 2
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagResponse"
+          description: add or remove tags on newsletter subscribers succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_TAG_NOT_FOUND:
+                  summary: NEWSLETTER_TAG_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_TAG_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_TAG_NOT_FOUND
+                    type: urn:gala:problem:newsletter-tag-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_TAG_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_TAG_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: add or remove tags on newsletter subscribers
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: add or remove tags on newsletter subscribers
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_TAG_NOT_FOUND
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-tags:
+    get:
+      description: SCHEMA-3.53.0. The subscriber tags of this site, oldest first, each with its confirmed-subscriber count. Free plan and up. Needs `publication.audience.read`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTags
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    tags:
+                      - confirmedCount: 12
+                        createdAt: "2026-11-22T12:00:00.000Z"
+                        id: 018f0000-0000-7000-8000-000000000001
+                        name: Course buyers
+                        readerSelectable: true
+                        slug: course-buyers
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse"
+          description: list newsletter tags succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: list newsletter tags
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list newsletter tags
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    post:
+      description: SCHEMA-3.53.0. Creates a tag. `slug` is unique within the site; `409 NEWSLETTER_TAG_EXISTS` when it is taken, `409 NEWSLETTER_TAG_LIMIT` at 50 tags. `readerSelectable` (default false) lets a reader apply the tag by signing up through a link that carries `?tag=<slug>`. Needs `publication.settings.manage`.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTags
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  name: Course buyers
+                  readerSelectable: true
+                  slug: course-buyers
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    confirmedCount: 12
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Course buyers
+                    readerSelectable: true
+                    slug: course-buyers
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse"
+          description: create a newsletter tag succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                NEWSLETTER_TAG_EXISTS:
+                  summary: NEWSLETTER_TAG_EXISTS
+                  value:
+                    code: NEWSLETTER_TAG_EXISTS
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_TAG_EXISTS
+                    type: urn:gala:problem:newsletter-tag-exists
+                NEWSLETTER_TAG_LIMIT:
+                  summary: NEWSLETTER_TAG_LIMIT
+                  value:
+                    code: NEWSLETTER_TAG_LIMIT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_TAG_LIMIT
+                    type: urn:gala:problem:newsletter-tag-limit
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, NEWSLETTER_TAG_EXISTS, NEWSLETTER_TAG_LIMIT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - NEWSLETTER_TAG_EXISTS
+            - NEWSLETTER_TAG_LIMIT
+      security:
+        - browserSession: []
+      summary: create a newsletter tag
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: create a newsletter tag
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_TAG_EXISTS
+        - NEWSLETTER_TAG_LIMIT
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-tags/{tagId}:
+    delete:
+      description: SCHEMA-3.53.0. Deletes the tag and removes it from every subscriber who held it. A sequence triggered by the tag stays but can no longer fire. `404 NEWSLETTER_TAG_NOT_FOUND` when it is already gone. Needs `publication.settings.manage`.
+      operationId: deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsByTagId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: tagId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "204":
+          description: delete a newsletter tag succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_TAG_NOT_FOUND:
+                  summary: NEWSLETTER_TAG_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_TAG_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_TAG_NOT_FOUND
+                    type: urn:gala:problem:newsletter-tag-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_TAG_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_TAG_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: delete a newsletter tag
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: delete a newsletter tag
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_TAG_NOT_FOUND
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/overview:
     get:

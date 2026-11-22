@@ -176,7 +176,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 910);
+  assert.equal(files.length, 911);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -307,7 +307,13 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // maximum) and the normalized sharing member becomes $defs/resolvedSharing,
     // which regenerated the build-input and publication fixtures and the
     // manifest. No file added or removed.
-    'b53189a187e8d9fd6e8404532691f395344ee6a8cbfd961c33d5f9c4e7369b4c',
+    //
+    // 3.53.0 (reviewed 2026-11-22): the audience program's front-matter members
+    // (`newsletterTag`, `newsletterSubjectB`) and `listen.podcast` regenerated
+    // the content-frontmatter, publication and build-input fixtures and the
+    // manifest, and added one case file
+    // (content-frontmatter/SCHEMA_STRING_TOO_LONG), making 911.
+    '070b0be149fc80b520006c6cd95c88e355a7f616aa976f1735bba0efe4b36039',
   );
 });
 

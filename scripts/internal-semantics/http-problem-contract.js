@@ -170,5 +170,21 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       SYNDICATION_POST_NOT_LIVE: { statuses: [409], retryable: false },
       // SCHEMA-3.41.0: Connect X through OAuth 2.0.
       SYNDICATION_X_NOT_CONFIGURED: { statuses: [503], retryable: false },
+      // SCHEMA-3.53.0: subscriber tags, sequences, referrals and webhooks.
+      NEWSLETTER_TAG_EXISTS: { statuses: [409], retryable: false },
+      NEWSLETTER_TAG_LIMIT: { statuses: [409], retryable: false },
+      NEWSLETTER_TAG_NOT_FOUND: { statuses: [404], retryable: false },
+      NEWSLETTER_SEQUENCE_EMPTY: { statuses: [409], retryable: false },
+      NEWSLETTER_SEQUENCE_LIMIT: { statuses: [409], retryable: false },
+      NEWSLETTER_SEQUENCE_NOT_FOUND: { statuses: [404], retryable: false },
+      NEWSLETTER_SEQUENCE_VERSION_CONFLICT: {
+        statuses: [409],
+        retryable: false,
+      },
+      WEBHOOK_DELIVERY_NOT_FOUND: { statuses: [404], retryable: false },
+      WEBHOOK_DELIVERY_NOT_RETRYABLE: { statuses: [409], retryable: false },
+      WEBHOOK_LIMIT: { statuses: [409], retryable: false },
+      WEBHOOK_NOT_FOUND: { statuses: [404], retryable: false },
+      WEBHOOK_URL_REJECTED: { statuses: [422], retryable: false },
     })
   );

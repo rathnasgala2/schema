@@ -92,6 +92,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly language: ContentFrontmatterBcp47;
   readonly listen?: ContentFrontmatterContentListen;
   readonly newsletter?: 'ineligible' | 'eligible';
+  readonly newsletterTag?: string;
   readonly publishAfter?: ContentFrontmatterPublishAfterDate;
   readonly publishedAt?: ContentFrontmatterRfc3339;
   readonly redirects: ReadonlyArray<ContentFrontmatterCanonicalRoute>;

@@ -3847,6 +3847,16 @@ components:
           type: array
         attestation:
           const: true
+        tags:
+          description:
+            'SCHEMA-3.53.0: optional tag slugs applied to every address of this
+            import, including addresses that were already known. A slug that
+            names no tag of the site is `400 VALIDATION_FAILED`.'
+          items:
+            $ref: '#/components/schemas/NewsletterTagSlug'
+          maxItems: 10
+          type: array
+          uniqueItems: true
       required:
         - addresses
         - attestation
@@ -16829,6 +16839,13 @@ components:
           type: integer
         sentAt:
           $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        tag:
+          description:
+            'SCHEMA-3.53.0: the tag slug this issue was sent to, or null when it
+            went to every confirmed subscriber. Absent on a 3.52 server.'
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterTagSlug'
+            - type: 'null'
         title:
           maxLength: 200
           minLength: 1
@@ -17021,6 +17038,14 @@ components:
           type: string
         state:
           $ref: '#/components/schemas/NewsletterSubscriberState'
+        tags:
+          description:
+            'SCHEMA-3.53.0: the slugs of the tags this subscriber holds, in slug
+            order. Absent on a 3.52 server.'
+          items:
+            $ref: '#/components/schemas/NewsletterTagSlug'
+          maxItems: 50
+          type: array
       required:
         - id
         - email
@@ -17378,6 +17403,14 @@ components:
       properties:
         email:
           $ref: '#/components/schemas/AudienceEmail'
+        tag:
+          description:
+            'SCHEMA-3.53.0: optional tag slug. Applied when the site has a tag
+            with this slug and it is reader-selectable; anything else is
+            silently ignored, so the form cannot be used to probe tags.'
+          maxLength: 64
+          minLength: 1
+          type: string
         trap:
           maxLength: 200
           type: string
@@ -20964,6 +20997,127 @@ components:
         - workerId
         - code
         - detail
+      type: object
+    NewsletterTagSlug:
+      description:
+        'SCHEMA-3.53.0: a tag slug, lower-case letters, digits and hyphens,
+        starting with a letter or digit, at most 31 characters.'
+      maxLength: 31
+      minLength: 1
+      pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+      type: string
+    NewsletterTag:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one subscriber tag of a site. `confirmedCount` is the
+        confirmed subscribers that hold it. `readerSelectable` tags can be
+        applied by a reader who signs up through a link that carries
+        `?tag=<slug>`.'
+      properties:
+        confirmedCount:
+          format: int64
+          minimum: 0
+          type: integer
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 40
+          minLength: 1
+          type: string
+        readerSelectable:
+          type: boolean
+        slug:
+          $ref: '#/components/schemas/NewsletterTagSlug'
+      required:
+        - id
+        - slug
+        - name
+        - readerSelectable
+        - confirmedCount
+        - createdAt
+      type: object
+    NewsletterTagList:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: every tag of the site, oldest first. At most 50
+        (platform setting `audience.newsletter.tagsPerSite`).'
+      properties:
+        tags:
+          items:
+            $ref: '#/components/schemas/NewsletterTag'
+          maxItems: 50
+          type: array
+      required:
+        - tags
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterTagList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.53.0. Create a subscriber tag. `readerSelectable` is false when
+        absent.
+      properties:
+        name:
+          maxLength: 40
+          minLength: 1
+          type: string
+        readerSelectable:
+          type: boolean
+        slug:
+          $ref: '#/components/schemas/NewsletterTagSlug'
+      required:
+        - slug
+        - name
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterTagsResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterTag'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagRequest:
+      additionalProperties: false
+      description:
+        SCHEMA-3.53.0. Tag changes for a batch of subscribers. `add` and
+        `remove` default to none.
+      properties:
+        add:
+          items:
+            $ref: '#/components/schemas/NewsletterTagSlug'
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        remove:
+          items:
+            $ref: '#/components/schemas/NewsletterTagSlug'
+          maxItems: 20
+          type: array
+          uniqueItems: true
+        subscriberIds:
+          items:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+          maxItems: 500
+          minItems: 1
+          type: array
+          uniqueItems: true
+      required:
+        - subscriberIds
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersTagResponse:
+      additionalProperties: false
+      description: SCHEMA-3.53.0. The number of subscribers whose tags changed.
+      properties:
+        updated:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - updated
       type: object
   securitySchemes:
     adminApiKey:

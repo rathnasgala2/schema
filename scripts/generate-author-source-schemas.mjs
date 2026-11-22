@@ -648,6 +648,14 @@ const schemas = {
       socialImageRef: ref('repoRelativePath'),
       redirects: arrayOf(ref('canonicalRoute'), 0, 32, true),
       newsletter: { enum: ['ineligible', 'eligible'] },
+      newsletterTag: {
+        type: 'string',
+        minLength: 1,
+        maxLength: 31,
+        pattern: '^[a-z0-9][a-z0-9-]{0,30}$',
+        description:
+          'SCHEMA-3.53.0: the slug of a subscriber tag. With `newsletter: eligible`, the announcement email goes only to confirmed subscribers who hold that tag; absent, it goes to every confirmed subscriber. A slug that names no tag when the post is sent skips the send with reason `TAG_UNKNOWN`. The schema fixes the shape; the API resolves the tag.',
+      },
       edition: ref('contentEdition'),
       seo: ref('contentSeo'),
       publishAfter: ref('publishAfterDate'),
