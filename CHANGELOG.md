@@ -75,8 +75,10 @@ of its nearest neighbour.
 - Front matter `newsletterTag` (send to one tag) and `newsletterSubjectB`.
 - The issue list now includes issues that were not sent: each issue optionally
   carries `state` (`PENDING`, `SENDING`, `COMPLETE`, `SKIPPED`, `STOPPED`) and,
-  when skipped or stopped, `reason` (a string; known values `NO_SUBSCRIBERS` and
-  `TAG_UNKNOWN`).
+  when skipped or stopped, `reason` (an open string; the eleven values stored
+  today are documented on the member, and a consumer treats an unknown value as
+  "not sent, reason not listed"). `PENDING` issues are not listed; a skipped
+  issue's `sentAt` is the time it was skipped and its counts are zero.
 - Problem codes `NEWSLETTER_TAG_EXISTS`, `NEWSLETTER_TAG_LIMIT`,
   `NEWSLETTER_TAG_NOT_FOUND`, `NEWSLETTER_SEQUENCE_EMPTY`,
   `NEWSLETTER_SEQUENCE_LIMIT`, `NEWSLETTER_SEQUENCE_NOT_FOUND`,

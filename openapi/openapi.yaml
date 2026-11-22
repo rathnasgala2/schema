@@ -9028,7 +9028,7 @@ components:
             - integer
             - "null"
         reason:
-          description: "SCHEMA-3.53.0: why the issue was skipped or stopped; present only when `state` is `SKIPPED` or `STOPPED`. An open string: the known values are `NO_SUBSCRIBERS` (nobody was eligible to receive it) and `TAG_UNKNOWN` (the post names a tag that does not exist); the server may add others (the post is not eligible for email, the newsletter is closed, the platform kill switch is on, the owner has no postal address). A client shows an unknown value as a generic reason."
+          description: "SCHEMA-3.53.0: why the issue was skipped or stopped; present only when `state` is `SKIPPED` or `STOPPED`. An open string, so the server may add values later. The values stored today are, for both skipped and stopped issues: `NOT_CONFIGURED` (the server key that derives the unsubscribe links is not configured), `NEWSLETTER_CLOSED` (the author closed the site's Galascribe newsletter, or the site never opened one), `KILL_SWITCH` (the platform kill switch `audience.newsletter.enabled` is off), `NO_POSTAL_ADDRESS` (the site owner has no postal address, which every email footer must carry) and `TAG_UNKNOWN` (the post names a newsletter tag the site does not have: when announced for a skipped issue, or because the tag was deleted while the issue was sending for a stopped one). For skipped issues only: `POST_NOT_ELIGIBLE` (the post says it is not for the newsletter), `NO_SUBSCRIBERS` (when the post was announced the site or the post's tag had no confirmed subscriber), `MODE_NOT_GALASCRIBE` (at preparation the live generation does not use the Galascribe newsletter), `SITE_NOT_LIVE` (at preparation the site has no verified live generation), `ANNOUNCEMENT_MISSING` (at preparation the announcement the issue belongs to can no longer be read) and `PREPARE_EXPIRED` (the issue could not be prepared within a day of being announced, for example because GitHub was unreachable, so it was dropped). A consumer must treat an unknown value as \"not sent, reason not listed\"."
           maxLength: 80
           minLength: 1
           type: string
@@ -58505,7 +58505,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-issues:
     get:
-      description: Needs `publication.audience.read`. One row per post that was emailed, newest first, one keyset page at a time. SCHEMA-3.53.0. The list now also includes issues that were not sent (skipped or stopped), told apart by `state` and `reason`.
+      description: Needs `publication.audience.read`. One row per post that was emailed, newest first, one keyset page at a time. SCHEMA-3.53.0. The list now also includes issues that were not sent (skipped or stopped), told apart by `state` and `reason`. Issues that are still `PENDING` are not listed. A skipped issue's `sentAt` is the time it was skipped and its counts are zero.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssues
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -63037,35 +63037,9 @@ paths:
                     status: 409
                     title: COMMAND_REPLAY_CONFLICT
                     type: urn:gala:problem:command-replay-conflict
-                NEWSLETTER_TAG_EXISTS:
-                  summary: NEWSLETTER_TAG_EXISTS
-                  value:
-                    code: NEWSLETTER_TAG_EXISTS
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: NEWSLETTER_TAG_EXISTS
-                    type: urn:gala:problem:newsletter-tag-exists
-                NEWSLETTER_TAG_LIMIT:
-                  summary: NEWSLETTER_TAG_LIMIT
-                  value:
-                    code: NEWSLETTER_TAG_LIMIT
-                    correlationId: 018f0000-0000-7000-8000-000000000001
-                    detail: See the operation contract.
-                    errors: []
-                    retryable: false
-                    schemaId: urn:gala:schema:problem:2.0.0
-                    schemaVersion: 2.0.0
-                    status: 409
-                    title: NEWSLETTER_TAG_LIMIT
-                    type: urn:gala:problem:newsletter-tag-limit
               schema:
                 $ref: "#/components/schemas/Problem"
-          description: COMMAND_REPLAY_CONFLICT, NEWSLETTER_TAG_EXISTS, NEWSLETTER_TAG_LIMIT
+          description: COMMAND_REPLAY_CONFLICT
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
@@ -63073,8 +63047,6 @@ paths:
               $ref: "#/components/headers/XCorrelationId"
           x-gala-problem-codes:
             - COMMAND_REPLAY_CONFLICT
-            - NEWSLETTER_TAG_EXISTS
-            - NEWSLETTER_TAG_LIMIT
       security:
         - browserSession: []
       summary: replace a newsletter tag
@@ -63093,8 +63065,6 @@ paths:
         - AUTHENTICATION_REQUIRED
         - AUTHORIZATION_DENIED
         - COMMAND_REPLAY_CONFLICT
-        - NEWSLETTER_TAG_EXISTS
-        - NEWSLETTER_TAG_LIMIT
         - NEWSLETTER_TAG_NOT_FOUND
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND

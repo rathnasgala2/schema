@@ -16986,12 +16986,28 @@ components:
         reason:
           description:
             'SCHEMA-3.53.0: why the issue was skipped or stopped; present only
-            when `state` is `SKIPPED` or `STOPPED`. An open string: the known
-            values are `NO_SUBSCRIBERS` (nobody was eligible to receive it) and
-            `TAG_UNKNOWN` (the post names a tag that does not exist); the server
-            may add others (the post is not eligible for email, the newsletter
-            is closed, the platform kill switch is on, the owner has no postal
-            address). A client shows an unknown value as a generic reason.'
+            when `state` is `SKIPPED` or `STOPPED`. An open string, so the
+            server may add values later. The values stored today are, for both
+            skipped and stopped issues: `NOT_CONFIGURED` (the server key that
+            derives the unsubscribe links is not configured),
+            `NEWSLETTER_CLOSED` (the author closed the site''s Galascribe
+            newsletter, or the site never opened one), `KILL_SWITCH` (the
+            platform kill switch `audience.newsletter.enabled` is off),
+            `NO_POSTAL_ADDRESS` (the site owner has no postal address, which
+            every email footer must carry) and `TAG_UNKNOWN` (the post names a
+            newsletter tag the site does not have: when announced for a skipped
+            issue, or because the tag was deleted while the issue was sending
+            for a stopped one). For skipped issues only: `POST_NOT_ELIGIBLE`
+            (the post says it is not for the newsletter), `NO_SUBSCRIBERS` (when
+            the post was announced the site or the post''s tag had no confirmed
+            subscriber), `MODE_NOT_GALASCRIBE` (at preparation the live
+            generation does not use the Galascribe newsletter), `SITE_NOT_LIVE`
+            (at preparation the site has no verified live generation),
+            `ANNOUNCEMENT_MISSING` (at preparation the announcement the issue
+            belongs to can no longer be read) and `PREPARE_EXPIRED` (the issue
+            could not be prepared within a day of being announced, for example
+            because GitHub was unreachable, so it was dropped). A consumer must
+            treat an unknown value as "not sent, reason not listed".'
           maxLength: 80
           minLength: 1
           type: string
