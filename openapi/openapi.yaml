@@ -4575,6 +4575,12 @@ components:
         - items
         - nextCursor
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterSequence"
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterSequenceList"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsResponse:
       $ref: "#/components/schemas/NewsletterSettings"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersResponse:
@@ -9003,6 +9009,171 @@ components:
         - link
         - galascribe
       type: string
+    NewsletterSequence:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: one email sequence of a site: its trigger, state, step list and numbers. This read is also the export: the App writes it out as a JSON download. `version` changes on every edit and is sent back with a replacement."
+      properties:
+        createdAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        people:
+          $ref: "#/components/schemas/NewsletterSequencePeople"
+        state:
+          $ref: "#/components/schemas/NewsletterSequenceState"
+        steps:
+          items:
+            $ref: "#/components/schemas/NewsletterSequenceStep"
+          maxItems: 10
+          type: array
+        trigger:
+          $ref: "#/components/schemas/NewsletterSequenceTrigger"
+        triggerTag:
+          oneOf:
+            - $ref: "#/components/schemas/NewsletterTagSlug"
+            - type: "null"
+        updatedAt:
+          $ref: "#/components/schemas/PortableProblemRfc3339"
+        version:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - id
+        - name
+        - trigger
+        - triggerTag
+        - state
+        - version
+        - people
+        - steps
+        - createdAt
+        - updatedAt
+      type: object
+    NewsletterSequenceList:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: every sequence of the site, oldest first. At most 5 (platform setting `audience.newsletter.sequencesPerSite`). `planAllows` is read-only: false while the plan lacks audience automation."
+      properties:
+        planAllows:
+          type: boolean
+        sequences:
+          items:
+            $ref: "#/components/schemas/NewsletterSequence"
+          maxItems: 5
+          type: array
+      required:
+        - planAllows
+        - sequences
+      type: object
+    NewsletterSequencePeople:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: how many subscribers are in each enrollment state of the sequence."
+      properties:
+        active:
+          format: int64
+          minimum: 0
+          type: integer
+        done:
+          format: int64
+          minimum: 0
+          type: integer
+        stopped:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - active
+        - done
+        - stopped
+      type: object
+    NewsletterSequenceState:
+      description: "SCHEMA-3.53.0: `DRAFT` (never activated), `ACTIVE` (enrolling and sending) or `PAUSED` (enrolling nobody, sending nothing)."
+      enum:
+        - DRAFT
+        - ACTIVE
+        - PAUSED
+      type: string
+    NewsletterSequenceStep:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: one step with its numbers. `opened` and `clicked` are from the mail provider and null while not yet known."
+      properties:
+        body:
+          maxLength: 20000
+          minLength: 1
+          type: string
+        clicked:
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - "null"
+        delayDays:
+          format: int64
+          maximum: 365
+          minimum: 0
+          type: integer
+        opened:
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - "null"
+        position:
+          format: int64
+          maximum: 10
+          minimum: 1
+          type: integer
+        sent:
+          format: int64
+          minimum: 0
+          type: integer
+        subject:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - position
+        - delayDays
+        - subject
+        - body
+        - sent
+        - opened
+        - clicked
+      type: object
+    NewsletterSequenceStepInput:
+      additionalProperties: false
+      description: "SCHEMA-3.53.0: one step as the author writes it. `delayDays` (0 to 365) counts from the previous step, or from the trigger for the first step. `body` is Markdown, 1 to 20000 characters, rendered to email HTML the way the welcome email body is."
+      properties:
+        body:
+          maxLength: 20000
+          minLength: 1
+          type: string
+        delayDays:
+          format: int64
+          maximum: 365
+          minimum: 0
+          type: integer
+        subject:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - delayDays
+        - subject
+        - body
+      type: object
+    NewsletterSequenceTrigger:
+      description: "SCHEMA-3.53.0: what enrolls a subscriber: `CONFIRMED` (the address confirms) or `TAG_ADDED` (a tag is added to a confirmed subscriber)."
+      enum:
+        - CONFIRMED
+        - TAG_ADDED
+      type: string
     NewsletterSettings:
       additionalProperties: false
       description: "SCHEMA-3.23.0: the newsletter configuration of a site at the linked repository's main branch head, as `gala/publication.json` carries it, plus read-only status. `url` is set in `link` mode only; `emailContent` and `replyToOwner` in `galascribe` mode only; `title` and `text` in both modes; every one is null otherwise. `ownerPostalAddressSet` says whether the site owner has saved a postal address (`GET /v2/self/postal-address`); the Galascribe newsletter cannot be turned on without one. `paused` is true while sends are stopped for the site: the platform newsletter kill switch is on, or the owner has no postal address. `capacity` is the organization's subscriber allowance. `openChange` names an existing not-yet-published change of this publication that touches the file, or is null. `setUp` matches `GET .../repository/setup` `state`. SCHEMA-3.32.0: `welcome` and `afterSignupUrl` (`galascribe` mode only; null when unset or in another mode) are optional members, so a 3.31 reader ignores them."
@@ -11074,6 +11245,9 @@ components:
     PlatformPlan:
       additionalProperties: false
       properties:
+        audienceAutomation:
+          description: "SCHEMA-3.53.0, whether sites on this plan may use email sequences, subject A/B tests, the referral program and outbound webhooks. A write on a plan without it is `409 PLAN_REQUIRED`; reads still work. Defaults: FREE no, PRO and BUSINESS yes."
+          type: boolean
         collaboratorLimit:
           description: "SCHEMA-3.30.0, the collaborators (active members other than owners plus pending invitations) one organization on this plan may have; a further invitation is `409 PLAN_REQUIRED`. 0 means no limit. Defaults: FREE 1, PRO and BUSINESS no limit."
           format: int64
@@ -11102,6 +11276,7 @@ components:
         - newsletterSubscriberLimit
         - contactForm
         - listen
+        - audienceAutomation
         - collaboratorLimit
       type: object
     PlatformPlanCapacityRelease:
@@ -12141,6 +12316,12 @@ components:
           enum:
             - ineligible
             - eligible
+        newsletterTag:
+          description: "SCHEMA-3.53.0: the slug of a subscriber tag. With `newsletter: eligible`, the announcement email goes only to confirmed subscribers who hold that tag; absent, it goes to every confirmed subscriber. A slug that names no tag when the post is sent skips the send with reason `TAG_UNKNOWN`. The schema fixes the shape; the API resolves the tag."
+          maxLength: 31
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9-]{0,30}$
+          type: string
         publishAfter:
           $ref: "#/components/schemas/PortableContentFrontmatterPublishAfterDate"
         publishedAt:
@@ -19859,6 +20040,55 @@ components:
       type: object
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdModerationCommentsByCommentIdDecideResponse:
       $ref: "#/components/schemas/ModerationQueueItem"
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivateResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterSequence"
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPauseResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterSequence"
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              trigger:
+                pattern: ^TAG_ADDED$
+                type: string
+                x-gala-const: TAG_ADDED
+            required:
+              - trigger
+          then:
+            properties:
+              triggerTag:
+                $ref: "#/components/schemas/NewsletterTagSlug"
+            required:
+              - triggerTag
+      description: "SCHEMA-3.53.0. Create a sequence: name, trigger and the whole step list."
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        steps:
+          items:
+            $ref: "#/components/schemas/NewsletterSequenceStepInput"
+          maxItems: 10
+          type: array
+        trigger:
+          $ref: "#/components/schemas/NewsletterSequenceTrigger"
+        triggerTag:
+          description: The tag slug that starts the sequence; required when `trigger` is `TAG_ADDED`, null or absent otherwise.
+          oneOf:
+            - $ref: "#/components/schemas/NewsletterTagSlug"
+            - type: "null"
+      required:
+        - name
+        - trigger
+        - steps
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterSequence"
     PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSubscribersImportRequest:
       additionalProperties: false
       description: "SCHEMA-3.32.0: the addresses to invite, already parsed from the owner's file. `attestation` must be true: the owner states that every address agreed to hear from them. Each new address becomes a `pending` subscriber and is sent the confirmation email; nobody is subscribed without confirming."
@@ -23477,6 +23707,54 @@ components:
       required:
         - change
       type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              trigger:
+                pattern: ^TAG_ADDED$
+                type: string
+                x-gala-const: TAG_ADDED
+            required:
+              - trigger
+          then:
+            properties:
+              triggerTag:
+                $ref: "#/components/schemas/NewsletterTagSlug"
+            required:
+              - triggerTag
+      description: SCHEMA-3.53.0. Replace a sequence at the version the caller read.
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        steps:
+          items:
+            $ref: "#/components/schemas/NewsletterSequenceStepInput"
+          maxItems: 10
+          type: array
+        trigger:
+          $ref: "#/components/schemas/NewsletterSequenceTrigger"
+        triggerTag:
+          description: The tag slug that starts the sequence; required when `trigger` is `TAG_ADDED`, null or absent otherwise.
+          oneOf:
+            - $ref: "#/components/schemas/NewsletterTagSlug"
+            - type: "null"
+        version:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - version
+        - name
+        - trigger
+        - steps
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterSequence"
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSettingsRequest:
       additionalProperties: false
       allOf:
@@ -23628,6 +23906,9 @@ components:
     PutPlatformPlansByPlanKeyRequest:
       additionalProperties: false
       properties:
+        audienceAutomation:
+          description: SCHEMA-3.53.0, optional; absent keeps the plan's current value.
+          type: boolean
         collaboratorLimit:
           description: SCHEMA-3.30.0, optional; absent keeps the plan's current value. 0 means no limit.
           format: int64
@@ -57674,6 +57955,1759 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences:
+    get:
+      description: SCHEMA-3.53.0. The email sequences of this site, oldest first, each with its steps and numbers (people active, done and stopped; per step sent, opened and clicked). Needs `publication.audience.read`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on a write; reads still work, with `planAllows` false, so the App can show the upgrade nudge.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    planAllows: true
+                    sequences:
+                      - createdAt: "2026-11-22T12:00:00.000Z"
+                        id: 018f0000-0000-7000-8000-000000000001
+                        name: Welcome series
+                        people:
+                          active: 4
+                          done: 6
+                          stopped: 2
+                        state: ACTIVE
+                        steps:
+                          - body: Welcome, and thank you for joining.
+                            clicked: 3
+                            delayDays: 0
+                            opened: 9
+                            position: 1
+                            sent: 12
+                            subject: Welcome
+                        trigger: CONFIRMED
+                        triggerTag: null
+                        updatedAt: "2026-11-22T12:00:00.000Z"
+                        version: 3
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse"
+          description: list newsletter sequences succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: list newsletter sequences
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list newsletter sequences
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    post:
+      description: SCHEMA-3.53.0. Creates a sequence in state `DRAFT`. At most 5 per site (`409 NEWSLETTER_SEQUENCE_LIMIT`); `404 NEWSLETTER_TAG_NOT_FOUND` when `triggerTag` names no tag. Needs `publication.settings.manage`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on a write; reads still work, with `planAllows` false, so the App can show the upgrade nudge.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  name: Welcome series
+                  steps:
+                    - body: Welcome, and thank you for joining.
+                      delayDays: 0
+                      subject: Welcome
+                  trigger: CONFIRMED
+                  triggerTag: null
+            schema:
+              $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Welcome series
+                    people:
+                      active: 4
+                      done: 6
+                      stopped: 2
+                    state: DRAFT
+                    steps:
+                      - body: Welcome, and thank you for joining.
+                        clicked: 3
+                        delayDays: 0
+                        opened: 9
+                        position: 1
+                        sent: 12
+                        subject: Welcome
+                    trigger: CONFIRMED
+                    triggerTag: null
+                    updatedAt: "2026-11-22T12:00:00.000Z"
+                    version: 1
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse"
+          description: create a newsletter sequence succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Location:
+              $ref: "#/components/headers/Location"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_TAG_NOT_FOUND:
+                  summary: NEWSLETTER_TAG_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_TAG_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_TAG_NOT_FOUND
+                    type: urn:gala:problem:newsletter-tag-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_TAG_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_TAG_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                NEWSLETTER_SEQUENCE_LIMIT:
+                  summary: NEWSLETTER_SEQUENCE_LIMIT
+                  value:
+                    code: NEWSLETTER_SEQUENCE_LIMIT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_SEQUENCE_LIMIT
+                    type: urn:gala:problem:newsletter-sequence-limit
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, NEWSLETTER_SEQUENCE_LIMIT, PLAN_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - NEWSLETTER_SEQUENCE_LIMIT
+            - PLAN_REQUIRED
+      security:
+        - browserSession: []
+      summary: create a newsletter sequence
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: create a newsletter sequence
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_SEQUENCE_LIMIT
+        - NEWSLETTER_TAG_NOT_FOUND
+        - PLAN_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: create
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}:
+    delete:
+      description: SCHEMA-3.53.0. Deletes the sequence and stops everyone enrolled in it. Allowed on any plan, so a site that left the plan can clean up. Needs `publication.settings.manage`.
+      operationId: deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: sequenceId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "204":
+          description: delete a newsletter sequence succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_SEQUENCE_NOT_FOUND:
+                  summary: NEWSLETTER_SEQUENCE_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    type: urn:gala:problem:newsletter-sequence-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_SEQUENCE_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_SEQUENCE_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: delete a newsletter sequence
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: delete a newsletter sequence
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_SEQUENCE_NOT_FOUND
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: delete
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    get:
+      description: SCHEMA-3.53.0. One sequence with its steps and numbers. The answer is also the export of the sequence. `404 NEWSLETTER_SEQUENCE_NOT_FOUND` when it is gone. Needs `publication.audience.read`.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: sequenceId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Welcome series
+                    people:
+                      active: 4
+                      done: 6
+                      stopped: 2
+                    state: ACTIVE
+                    steps:
+                      - body: Welcome, and thank you for joining.
+                        clicked: 3
+                        delayDays: 0
+                        opened: 9
+                        position: 1
+                        sent: 12
+                        subject: Welcome
+                    trigger: CONFIRMED
+                    triggerTag: null
+                    updatedAt: "2026-11-22T12:00:00.000Z"
+                    version: 3
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse"
+          description: read a newsletter sequence succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_SEQUENCE_NOT_FOUND:
+                  summary: NEWSLETTER_SEQUENCE_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    type: urn:gala:problem:newsletter-sequence-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_SEQUENCE_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_SEQUENCE_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read a newsletter sequence
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.audience.read
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read a newsletter sequence
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - NEWSLETTER_SEQUENCE_NOT_FOUND
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    put:
+      description: SCHEMA-3.53.0. Replaces the name, trigger and the whole step list at the `version` the caller read; `409 NEWSLETTER_SEQUENCE_VERSION_CONFLICT` when the sequence changed since. On an `ACTIVE` sequence the new steps apply to steps not yet queued. Needs `publication.settings.manage`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on a write; reads still work, with `planAllows` false, so the App can show the upgrade nudge.
+      operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: sequenceId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  name: Welcome series
+                  steps:
+                    - body: Welcome, and thank you for joining.
+                      delayDays: 0
+                      subject: Welcome
+                  trigger: CONFIRMED
+                  triggerTag: null
+                  version: 3
+            schema:
+              $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Welcome series
+                    people:
+                      active: 4
+                      done: 6
+                      stopped: 2
+                    state: ACTIVE
+                    steps:
+                      - body: Welcome, and thank you for joining.
+                        clicked: 3
+                        delayDays: 0
+                        opened: 9
+                        position: 1
+                        sent: 12
+                        subject: Welcome
+                    trigger: CONFIRMED
+                    triggerTag: null
+                    updatedAt: "2026-11-22T12:00:00.000Z"
+                    version: 4
+              schema:
+                $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse"
+          description: replace a newsletter sequence succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_SEQUENCE_NOT_FOUND:
+                  summary: NEWSLETTER_SEQUENCE_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    type: urn:gala:problem:newsletter-sequence-not-found
+                NEWSLETTER_TAG_NOT_FOUND:
+                  summary: NEWSLETTER_TAG_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_TAG_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_TAG_NOT_FOUND
+                    type: urn:gala:problem:newsletter-tag-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_SEQUENCE_NOT_FOUND, NEWSLETTER_TAG_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_SEQUENCE_NOT_FOUND
+            - NEWSLETTER_TAG_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                NEWSLETTER_SEQUENCE_VERSION_CONFLICT:
+                  summary: NEWSLETTER_SEQUENCE_VERSION_CONFLICT
+                  value:
+                    code: NEWSLETTER_SEQUENCE_VERSION_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_SEQUENCE_VERSION_CONFLICT
+                    type: urn:gala:problem:newsletter-sequence-version-conflict
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, NEWSLETTER_SEQUENCE_VERSION_CONFLICT, PLAN_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - NEWSLETTER_SEQUENCE_VERSION_CONFLICT
+            - PLAN_REQUIRED
+      security:
+        - browserSession: []
+      summary: replace a newsletter sequence
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: sequence-version
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: replace a newsletter sequence
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_SEQUENCE_NOT_FOUND
+        - NEWSLETTER_SEQUENCE_VERSION_CONFLICT
+        - NEWSLETTER_TAG_NOT_FOUND
+        - PLAN_REQUIRED
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: update
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}:activate:
+    post:
+      description: "SCHEMA-3.53.0. Turns a `DRAFT` or `PAUSED` sequence `ACTIVE`: from now on subscribers who meet the trigger are enrolled (people already confirmed or tagged are not back-filled) and due steps are queued. Activating an active sequence changes nothing. `409 NEWSLETTER_SEQUENCE_EMPTY` when it has no step. Needs `publication.settings.manage`. A site on a plan without audience automation (Free) gets `409 PLAN_REQUIRED` on a write; reads still work, with `planAllows` false, so the App can show the upgrade nudge."
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivate
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: sequenceId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Welcome series
+                    people:
+                      active: 4
+                      done: 6
+                      stopped: 2
+                    state: ACTIVE
+                    steps:
+                      - body: Welcome, and thank you for joining.
+                        clicked: 3
+                        delayDays: 0
+                        opened: 9
+                        position: 1
+                        sent: 12
+                        subject: Welcome
+                    trigger: CONFIRMED
+                    triggerTag: null
+                    updatedAt: "2026-11-22T12:00:00.000Z"
+                    version: 3
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivateResponse"
+          description: activate a newsletter sequence succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_SEQUENCE_NOT_FOUND:
+                  summary: NEWSLETTER_SEQUENCE_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    type: urn:gala:problem:newsletter-sequence-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_SEQUENCE_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_SEQUENCE_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                NEWSLETTER_SEQUENCE_EMPTY:
+                  summary: NEWSLETTER_SEQUENCE_EMPTY
+                  value:
+                    code: NEWSLETTER_SEQUENCE_EMPTY
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: NEWSLETTER_SEQUENCE_EMPTY
+                    type: urn:gala:problem:newsletter-sequence-empty
+                PLAN_REQUIRED:
+                  summary: PLAN_REQUIRED
+                  value:
+                    code: PLAN_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: PLAN_REQUIRED
+                    type: urn:gala:problem:plan-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, NEWSLETTER_SEQUENCE_EMPTY, PLAN_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - NEWSLETTER_SEQUENCE_EMPTY
+            - PLAN_REQUIRED
+      security:
+        - browserSession: []
+      summary: activate a newsletter sequence
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: activate a newsletter sequence
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_SEQUENCE_EMPTY
+        - NEWSLETTER_SEQUENCE_NOT_FOUND
+        - PLAN_REQUIRED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}:pause:
+    post:
+      description: SCHEMA-3.53.0. Stops enrolling and queuing. Resuming with `:activate` continues each person from where they were; a step overdue by the pause goes out on resume. Pausing a paused sequence changes nothing. Allowed on any plan. Needs `publication.settings.manage`.
+      operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPause
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: sequenceId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    createdAt: "2026-11-22T12:00:00.000Z"
+                    id: 018f0000-0000-7000-8000-000000000001
+                    name: Welcome series
+                    people:
+                      active: 4
+                      done: 6
+                      stopped: 2
+                    state: PAUSED
+                    steps:
+                      - body: Welcome, and thank you for joining.
+                        clicked: 3
+                        delayDays: 0
+                        opened: 9
+                        position: 1
+                        sent: 12
+                        subject: Welcome
+                    trigger: CONFIRMED
+                    triggerTag: null
+                    updatedAt: "2026-11-22T12:00:00.000Z"
+                    version: 3
+              schema:
+                $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPauseResponse"
+          description: pause a newsletter sequence succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                NEWSLETTER_SEQUENCE_NOT_FOUND:
+                  summary: NEWSLETTER_SEQUENCE_NOT_FOUND
+                  value:
+                    code: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: NEWSLETTER_SEQUENCE_NOT_FOUND
+                    type: urn:gala:problem:newsletter-sequence-not-found
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: NEWSLETTER_SEQUENCE_NOT_FOUND, RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - NEWSLETTER_SEQUENCE_NOT_FOUND
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: pause a newsletter sequence
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: pause a newsletter sequence
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - NEWSLETTER_SEQUENCE_NOT_FOUND
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/newsletter-settings:
     get:
       description: Reads the `newsletter` member of `gala/publication.json` at the linked repository's current main branch head. A publication with no `newsletter` member reads `mode` `off`. The status members (`ownerPostalAddressSet`, `capacity`, `paused`) are the API's own and are never written to the repository. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches the file, or is null.
@@ -79452,19 +81486,22 @@ paths:
                   value:
                     effectiveAt: "2026-10-10T00:00:04.000Z"
                     items:
-                      - collaboratorLimit: 1
+                      - audienceAutomation: false
+                        collaboratorLimit: 1
                         contactForm: false
                         listen: false
                         newsletterSubscriberLimit: 50
                         planKey: FREE
                         publicationLimit: 1
-                      - collaboratorLimit: 0
+                      - audienceAutomation: true
+                        collaboratorLimit: 0
                         contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 500
                         planKey: PRO
                         publicationLimit: 10
-                      - collaboratorLimit: 0
+                      - audienceAutomation: true
+                        collaboratorLimit: 0
                         contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 2000
@@ -79515,8 +81552,8 @@ paths:
         Operators only, with recent authentication. Atomically replaces the
         complete publication-capacity release, changing the named plan's limits
         while retaining the other two, at the release version in `If-Match`.
-        `newsletterSubscriberLimit`, `contactForm`, `listen` and
-        `collaboratorLimit` are optional: absent keeps the plan's current value. The invariant FREE <= PRO <=
+        `newsletterSubscriberLimit`, `contactForm`, `listen`,
+        `audienceAutomation` and `collaboratorLimit` are optional: absent keeps the plan's current value. The invariant FREE <= PRO <=
         BUSINESS is enforced on `publicationLimit` only. `reason` is a
         non-sensitive operator reason code recorded in the audit event.
       operationId: putPlatformPlansByPlanKey
@@ -79553,19 +81590,22 @@ paths:
                   value:
                     effectiveAt: "2026-10-10T12:00:00.000Z"
                     items:
-                      - collaboratorLimit: 1
+                      - audienceAutomation: false
+                        collaboratorLimit: 1
                         contactForm: false
                         listen: false
                         newsletterSubscriberLimit: 50
                         planKey: FREE
                         publicationLimit: 1
-                      - collaboratorLimit: 0
+                      - audienceAutomation: true
+                        collaboratorLimit: 0
                         contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 500
                         planKey: PRO
                         publicationLimit: 12
-                      - collaboratorLimit: 0
+                      - audienceAutomation: true
+                        collaboratorLimit: 0
                         contactForm: true
                         listen: true
                         newsletterSubscriberLimit: 2000

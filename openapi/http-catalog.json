@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:4a5924617cd0974b238a7f48e27e49a7a307348987bc4d61a6a8ef3bab53b00e",
+  "openApiDigest": "sha256:c6b4524faba13d7afd91bc18b25597de8824ffe880503d7b1ab5dd3448e4d97f",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -1719,6 +1719,97 @@
       "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-issues",
       "purpose": "list a site's newsletter send log",
       "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences",
+      "purpose": "list newsletter sequences",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequences",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences",
+      "purpose": "create a newsletter sequence",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "deleteOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId",
+      "method": "DELETE",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}",
+      "purpose": "delete a newsletter sequence",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "getOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId",
+      "method": "GET",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}",
+      "purpose": "read a newsletter sequence",
+      "capabilityKey": "publication.audience.read",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "putOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceId",
+      "method": "PUT",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}",
+      "purpose": "replace a newsletter sequence",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivate",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}:activate",
+      "purpose": "activate a newsletter sequence",
+      "capabilityKey": "publication.settings.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "audience"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPause",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publications/{publicationId}/newsletter-sequences/{sequenceId}:pause",
+      "purpose": "pause a newsletter sequence",
+      "capabilityKey": "publication.settings.manage",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
       "assuranceClass": "SESSION",
@@ -4402,5 +4493,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:426ed807eed42eeca612fdc53e8acb663dd9b554801c6fcf75dae55a3c5f3412"
+  "digest": "sha256:71270d6d9dfa88066aa16630b92b9f878f8498463ec3785f32e3895cea9523bf"
 }

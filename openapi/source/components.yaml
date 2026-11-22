@@ -13263,6 +13263,13 @@ components:
     PlatformPlan:
       additionalProperties: false
       properties:
+        audienceAutomation:
+          description:
+            'SCHEMA-3.53.0, whether sites on this plan may use email sequences,
+            subject A/B tests, the referral program and outbound webhooks. A
+            write on a plan without it is `409 PLAN_REQUIRED`; reads still work.
+            Defaults: FREE no, PRO and BUSINESS yes.'
+          type: boolean
         collaboratorLimit:
           description:
             'SCHEMA-3.30.0, the collaborators (active members other than owners
@@ -13309,6 +13316,7 @@ components:
         - newsletterSubscriberLimit
         - contactForm
         - listen
+        - audienceAutomation
         - collaboratorLimit
       type: object
     PlatformPlanCapacityRelease:
@@ -13635,6 +13643,10 @@ components:
     PutPlatformPlansByPlanKeyRequest:
       additionalProperties: false
       properties:
+        audienceAutomation:
+          description:
+            "SCHEMA-3.53.0, optional; absent keeps the plan's current value."
+          type: boolean
         collaboratorLimit:
           description:
             "SCHEMA-3.30.0, optional; absent keeps the plan's current value. 0
@@ -21119,6 +21131,296 @@ components:
       required:
         - updated
       type: object
+    NewsletterSequenceTrigger:
+      description:
+        'SCHEMA-3.53.0: what enrolls a subscriber: `CONFIRMED` (the address
+        confirms) or `TAG_ADDED` (a tag is added to a confirmed subscriber).'
+      enum:
+        - CONFIRMED
+        - TAG_ADDED
+      type: string
+    NewsletterSequenceState:
+      description:
+        'SCHEMA-3.53.0: `DRAFT` (never activated), `ACTIVE` (enrolling and
+        sending) or `PAUSED` (enrolling nobody, sending nothing).'
+      enum:
+        - DRAFT
+        - ACTIVE
+        - PAUSED
+      type: string
+    NewsletterSequenceStepInput:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one step as the author writes it. `delayDays` (0 to 365)
+        counts from the previous step, or from the trigger for the first step.
+        `body` is Markdown, 1 to 20000 characters, rendered to email HTML the
+        way the welcome email body is.'
+      properties:
+        body:
+          maxLength: 20000
+          minLength: 1
+          type: string
+        delayDays:
+          format: int64
+          maximum: 365
+          minimum: 0
+          type: integer
+        subject:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - delayDays
+        - subject
+        - body
+      type: object
+    NewsletterSequenceStep:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one step with its numbers. `opened` and `clicked` are
+        from the mail provider and null while not yet known.'
+      properties:
+        body:
+          maxLength: 20000
+          minLength: 1
+          type: string
+        clicked:
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        delayDays:
+          format: int64
+          maximum: 365
+          minimum: 0
+          type: integer
+        opened:
+          format: int64
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        position:
+          format: int64
+          maximum: 10
+          minimum: 1
+          type: integer
+        sent:
+          format: int64
+          minimum: 0
+          type: integer
+        subject:
+          maxLength: 200
+          minLength: 1
+          type: string
+      required:
+        - position
+        - delayDays
+        - subject
+        - body
+        - sent
+        - opened
+        - clicked
+      type: object
+    NewsletterSequencePeople:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: how many subscribers are in each enrollment state of the
+        sequence.'
+      properties:
+        active:
+          format: int64
+          minimum: 0
+          type: integer
+        done:
+          format: int64
+          minimum: 0
+          type: integer
+        stopped:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - active
+        - done
+        - stopped
+      type: object
+    NewsletterSequence:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: one email sequence of a site: its trigger, state, step
+        list and numbers. This read is also the export: the App writes it out as
+        a JSON download. `version` changes on every edit and is sent back with a
+        replacement.'
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        id:
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          type: string
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        people:
+          $ref: '#/components/schemas/NewsletterSequencePeople'
+        state:
+          $ref: '#/components/schemas/NewsletterSequenceState'
+        steps:
+          items:
+            $ref: '#/components/schemas/NewsletterSequenceStep'
+          maxItems: 10
+          type: array
+        trigger:
+          $ref: '#/components/schemas/NewsletterSequenceTrigger'
+        triggerTag:
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterTagSlug'
+            - type: 'null'
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        version:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - id
+        - name
+        - trigger
+        - triggerTag
+        - state
+        - version
+        - people
+        - steps
+        - createdAt
+        - updatedAt
+      type: object
+    NewsletterSequenceList:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.53.0: every sequence of the site, oldest first. At most 5
+        (platform setting `audience.newsletter.sequencesPerSite`). `planAllows`
+        is read-only: false while the plan lacks audience automation.'
+      properties:
+        planAllows:
+          type: boolean
+        sequences:
+          items:
+            $ref: '#/components/schemas/NewsletterSequence'
+          maxItems: 5
+          type: array
+      required:
+        - planAllows
+        - sequences
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterSequenceList'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              trigger:
+                const: TAG_ADDED
+            required:
+              - trigger
+          then:
+            properties:
+              triggerTag:
+                $ref: '#/components/schemas/NewsletterTagSlug'
+            required:
+              - triggerTag
+      description:
+        'SCHEMA-3.53.0. Create a sequence: name, trigger and the whole step
+        list.'
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        steps:
+          items:
+            $ref: '#/components/schemas/NewsletterSequenceStepInput'
+          maxItems: 10
+          type: array
+        trigger:
+          $ref: '#/components/schemas/NewsletterSequenceTrigger'
+        triggerTag:
+          description:
+            The tag slug that starts the sequence; required when `trigger` is
+            `TAG_ADDED`, null or absent otherwise.
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterTagSlug'
+            - type: 'null'
+      required:
+        - name
+        - trigger
+        - steps
+      type: object
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterSequence'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterSequence'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdRequest:
+      additionalProperties: false
+      allOf:
+        - if:
+            properties:
+              trigger:
+                const: TAG_ADDED
+            required:
+              - trigger
+          then:
+            properties:
+              triggerTag:
+                $ref: '#/components/schemas/NewsletterTagSlug'
+            required:
+              - triggerTag
+      description:
+        SCHEMA-3.53.0. Replace a sequence at the version the caller read.
+      properties:
+        name:
+          maxLength: 80
+          minLength: 1
+          type: string
+        steps:
+          items:
+            $ref: '#/components/schemas/NewsletterSequenceStepInput'
+          maxItems: 10
+          type: array
+        trigger:
+          $ref: '#/components/schemas/NewsletterSequenceTrigger'
+        triggerTag:
+          description:
+            The tag slug that starts the sequence; required when `trigger` is
+            `TAG_ADDED`, null or absent otherwise.
+          oneOf:
+            - $ref: '#/components/schemas/NewsletterTagSlug'
+            - type: 'null'
+        version:
+          format: int64
+          minimum: 1
+          type: integer
+      required:
+        - version
+        - name
+        - trigger
+        - steps
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterSequence'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdActivateResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterSequence'
+    PostOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterSequencesBySequenceIdPauseResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewsletterSequence'
   securitySchemes:
     adminApiKey:
       bearerFormat: Admin API key (gk_<prefix>_<secret>)
