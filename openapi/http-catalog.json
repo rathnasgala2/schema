@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "sourceDesignRevision": "a53052955ceb6c1aa10c886289dc832eedfe6de0a00004df07d353ac19c4403a",
-  "openApiDigest": "sha256:cc60b1f68809eb0c7ede075a9bbdd1e68317e59cea9c55fb00d89220ae8e82b8",
+  "openApiDigest": "sha256:185f37da82601a6ae4654734df4f7da34844fdce4654e8dd26de692feaf14e36",
   "operations": [
     {
       "operationId": "getInternalHealth",
@@ -699,6 +699,19 @@
       "method": "POST",
       "path": "/v2/organizations/{organizationId}/publication-imports/{importId}:convert",
       "purpose": "convert an inspected v1 repository into a new publication",
+      "capabilityKey": "organization.publications.create",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "organizations"
+    },
+    {
+      "operationId": "postOrganizationsByOrganizationIdPublicationImportsByImportIdRetry",
+      "method": "POST",
+      "path": "/v2/organizations/{organizationId}/publication-imports/{importId}:retry",
+      "purpose": "run a failed import conversion again",
       "capabilityKey": "organization.publications.create",
       "conditionalCapabilityKeys": [],
       "activationGate": "MVP",
@@ -3102,6 +3115,19 @@
       "sourceFragment": "platform"
     },
     {
+      "operationId": "getPlatformBillingUnlinkedSubscriptions",
+      "method": "GET",
+      "path": "/v2/platform/billing/unlinked-subscriptions",
+      "purpose": "list paid subscriptions linked to no organization",
+      "capabilityKey": "platform.billing.manage",
+      "conditionalCapabilityKeys": [],
+      "activationGate": "MVP",
+      "assuranceClass": "SESSION",
+      "actionGrant": "none",
+      "apiKeyScope": null,
+      "sourceFragment": "platform"
+    },
+    {
       "operationId": "getPlatformCaches",
       "method": "GET",
       "path": "/v2/platform/caches",
@@ -4714,5 +4740,5 @@
       "sourceFragment": "workloads"
     }
   ],
-  "digest": "sha256:b3f2fda50ff7e6c3f105176c8eec24f1eb709f27fa137f171b9e59ecff435150"
+  "digest": "sha256:586bb9c32f0949a3c3ee554a9bbfbfc319bfad1fd3a3e1b9735f27cc6b9fffb8"
 }

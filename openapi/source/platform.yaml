@@ -717,6 +717,78 @@ paths:
         - NONE
       x-gala-success-category: query
       x-gala-tenant-scope: NONE
+  /v2/platform/billing/unlinked-subscriptions:
+    get:
+      description: >
+        Operators only, with recent authentication. Paid subscriptions at the
+        payment provider that are linked to no organization, newest first, one
+        keyset page at a time: a subscriber who paid and whose plan was never
+        applied. Each row carries the provider's subscription id, its status,
+        the plan it was bought for, when it was created and last updated, and
+        why it could not be linked when that is known (`NO_MATCH`, `AMBIGUOUS`
+        or `UNKNOWN`). No payer email or other personal data is returned; the
+        operator links the subscription from the provider's dashboard.
+      operationId: getPlatformBillingUnlinkedSubscriptions
+      parameters:
+        - $ref: '#/components/parameters/XCorrelationId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    hasMore: false
+                    items:
+                      - createdAt: 2026-11-20T09:15:00.000Z
+                        plan: PRO
+                        reason: NO_MATCH
+                        status: active
+                        subscriptionId: sub_1QxExample0001
+                        updatedAt: 2026-11-20T09:15:00.000Z
+                    nextCursor: null
+              schema:
+                $ref: '#/components/schemas/GetPlatformBillingUnlinkedSubscriptionsResponse'
+          description:
+            list paid subscriptions linked to no organization succeeded
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+            X-Correlation-Id:
+              $ref: '#/components/headers/XCorrelationId'
+        '400':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/PlatformAuthenticationRequired'
+        '403':
+          $ref: '#/components/responses/AuthorizationDenied'
+      security:
+        - browserSession: []
+      summary: list paid subscriptions linked to no organization
+      tags:
+        - platform
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: platform.billing.manage
+      x-gala-concurrency: none
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: list paid subscriptions linked to no organization
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - REAUTH_REQUIRED
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: NONE
   /v2/platform/organizations/{organizationId}/plan-grant:
     delete:
       description: |

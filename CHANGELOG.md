@@ -8,6 +8,37 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.54.0] - 2026-11-22
+
+Three contract additions, no existing operation, field, code or enum value
+changes meaning.
+
+### Added
+
+- Problem code `TRANSFER_UNAVAILABLE` (409, not retryable) on
+  `POST /v2/organizations/{organizationId}/publications/{publicationId}/transfers:preview`,
+  `POST .../publications/{publicationId}/transfers` and
+  `POST /v2/organizations/{organizationId}/publication-transfers/{transferId}:accept`:
+  moving a site is not available on this installation; nothing was changed.
+- `POST /v2/organizations/{organizationId}/publication-imports/{importId}:retry`
+  (`postOrganizationsByOrganizationIdPublicationImportsByImportIdRetry`): runs
+  the conversion again for an import whose `:convert` failed and left it
+  `FAILED` after the publication was created and bound. No request body; same
+  capability (`organization.publications.create`), headers and problems as
+  `:convert`; answers `202` with the import view
+  (`PostOrganizationsByOrganizationIdPublicationImportsByImportIdRetryResponse`).
+  `409 IMPORT_NOT_READY` when the import is not a failed conversion that can be
+  run again.
+- `GET /v2/platform/billing/unlinked-subscriptions`
+  (`getPlatformBillingUnlinkedSubscriptions`, `platform.billing.manage`):
+  operators list paid subscriptions linked to no organization, keyset-paged
+  (`GetPlatformBillingUnlinkedSubscriptionsResponse` of
+  `PlatformUnlinkedSubscription`: `subscriptionId`, `status`, `plan`,
+  `createdAt`, `updatedAt` and optional `reason`
+  `PlatformUnlinkedSubscriptionReason` `NO_MATCH`, `AMBIGUOUS` or `UNKNOWN`). No
+  payer email or other personal data. No new App route: the row is shown on an
+  existing page.
+
 ## [3.53.0] - 2026-11-22
 
 The audience program: subscriber tags, email sequences, subject A/B tests, a
@@ -4634,7 +4665,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.53.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.54.0...HEAD
+[3.54.0]: https://github.com/rathnasgala2/schema/compare/v3.53.0...v3.54.0
 [3.53.0]: https://github.com/rathnasgala2/schema/compare/v3.52.0...v3.53.0
 [3.52.0]: https://github.com/rathnasgala2/schema/compare/v3.51.0...v3.52.0
 [3.51.0]: https://github.com/rathnasgala2/schema/compare/v3.50.0...v3.51.0

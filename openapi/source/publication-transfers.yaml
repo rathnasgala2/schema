@@ -240,6 +240,8 @@ paths:
         the publication lists under this organization with the same address and
         history. `409 CONSEQUENCE_DIGEST_MISMATCH` when `consequenceDigest` is
         not the transfer's; `409 TRANSFER_NOT_PENDING` once settled or expired.
+        `409 TRANSFER_UNAVAILABLE` when moving a site is not available on this
+        installation; nothing was changed.
       operationId: postOrganizationsByOrganizationIdPublicationTransfersByTransferIdAccept
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -531,11 +533,24 @@ paths:
                     status: 409
                     title: TRANSFER_NOT_PENDING
                     type: urn:gala:problem:transfer-not-pending
+                TRANSFER_UNAVAILABLE:
+                  summary: TRANSFER_UNAVAILABLE
+                  value:
+                    code: TRANSFER_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_UNAVAILABLE
+                    type: urn:gala:problem:transfer-unavailable
               schema:
                 $ref: '#/components/schemas/Problem'
           description:
             COMMAND_REPLAY_CONFLICT, CONSEQUENCE_DIGEST_MISMATCH,
-            TRANSFER_CHECK_FAILED, TRANSFER_NOT_PENDING
+            TRANSFER_CHECK_FAILED, TRANSFER_NOT_PENDING, TRANSFER_UNAVAILABLE
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -546,6 +561,7 @@ paths:
             - CONSEQUENCE_DIGEST_MISMATCH
             - TRANSFER_CHECK_FAILED
             - TRANSFER_NOT_PENDING
+            - TRANSFER_UNAVAILABLE
       security:
         - browserSession: []
       summary: accept a publication moving into this organization
@@ -570,6 +586,7 @@ paths:
         - RESOURCE_NOT_FOUND
         - TRANSFER_CHECK_FAILED
         - TRANSFER_NOT_PENDING
+        - TRANSFER_UNAVAILABLE
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
@@ -880,8 +897,10 @@ paths:
         CONSEQUENCE_DIGEST_MISMATCH` when the preview changed or expired; `409
         TRANSFER_CHECK_FAILED` when a check now fails (`errors[]` carry one
         entry per failed check, `pointer` `/checks/<code>`); `409
-        TRANSFER_PENDING` when one is already pending. The destination accepts
-        or declines under its own organization.
+        TRANSFER_PENDING` when one is already pending; `409 TRANSFER_UNAVAILABLE`
+        when moving a site is not available on this installation (nothing was
+        changed). The destination accepts or declines under its own
+        organization.
       operationId: postOrganizationsByOrganizationIdPublicationsByPublicationIdTransfers
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'
@@ -1174,11 +1193,24 @@ paths:
                     status: 409
                     title: TRANSFER_PENDING
                     type: urn:gala:problem:transfer-pending
+                TRANSFER_UNAVAILABLE:
+                  summary: TRANSFER_UNAVAILABLE
+                  value:
+                    code: TRANSFER_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_UNAVAILABLE
+                    type: urn:gala:problem:transfer-unavailable
               schema:
                 $ref: '#/components/schemas/Problem'
           description:
             COMMAND_REPLAY_CONFLICT, CONSEQUENCE_DIGEST_MISMATCH,
-            TRANSFER_CHECK_FAILED, TRANSFER_PENDING
+            TRANSFER_CHECK_FAILED, TRANSFER_PENDING, TRANSFER_UNAVAILABLE
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -1189,6 +1221,7 @@ paths:
             - CONSEQUENCE_DIGEST_MISMATCH
             - TRANSFER_CHECK_FAILED
             - TRANSFER_PENDING
+            - TRANSFER_UNAVAILABLE
       security:
         - browserSession: []
       summary: start moving a publication to another organization
@@ -1213,6 +1246,7 @@ paths:
         - RESOURCE_NOT_FOUND
         - TRANSFER_CHECK_FAILED
         - TRANSFER_PENDING
+        - TRANSFER_UNAVAILABLE
         - VALIDATION_FAILED
       x-gala-replay-identity: idempotency-key
       x-gala-state-guards:
@@ -1759,7 +1793,9 @@ paths:
         the move, persisted for `POST .../transfers` to quote back. Failed
         checks are data here, not problems. `404 DESTINATION_NOT_FOUND` for an
         organization the caller cannot see (non-enumerating); `409
-        TRANSFER_PENDING` when a transfer is already pending. Consequence codes:
+        TRANSFER_PENDING` when a transfer is already pending; `409
+        TRANSFER_UNAVAILABLE` when moving a site is not available on this
+        installation (nothing was changed). Consequence codes:
         `site-moves`, `history-moves`, `interactions-move`, `repository-stays`,
         `domain-detaches` (only when a custom domain is bound),
         `your-access-depends-on-destination`.
@@ -1999,9 +2035,22 @@ paths:
                     status: 409
                     title: TRANSFER_PENDING
                     type: urn:gala:problem:transfer-pending
+                TRANSFER_UNAVAILABLE:
+                  summary: TRANSFER_UNAVAILABLE
+                  value:
+                    code: TRANSFER_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_UNAVAILABLE
+                    type: urn:gala:problem:transfer-unavailable
               schema:
                 $ref: '#/components/schemas/Problem'
-          description: TRANSFER_PENDING
+          description: TRANSFER_PENDING, TRANSFER_UNAVAILABLE
           headers:
             Cache-Control:
               $ref: '#/components/headers/CacheControlNoStore'
@@ -2009,6 +2058,7 @@ paths:
               $ref: '#/components/headers/XCorrelationId'
           x-gala-problem-codes:
             - TRANSFER_PENDING
+            - TRANSFER_UNAVAILABLE
       security:
         - browserSession: []
       summary: preview moving a publication to another organization
@@ -2030,6 +2080,7 @@ paths:
         - REQUEST_FIELD_UNKNOWN
         - RESOURCE_NOT_FOUND
         - TRANSFER_PENDING
+        - TRANSFER_UNAVAILABLE
         - VALIDATION_FAILED
       x-gala-replay-identity: consequence-preview
       x-gala-state-guards:

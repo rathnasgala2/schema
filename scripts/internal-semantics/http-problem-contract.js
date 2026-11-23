@@ -91,6 +91,8 @@ export const HTTP_PROBLEM_EXAMPLE_RULES =
       TRANSFER_EXISTS: { statuses: [409], retryable: false },
       TRANSFER_NOT_PENDING: { statuses: [409], retryable: false },
       TRANSFER_PENDING: { statuses: [409], retryable: false },
+      // SCHEMA-3.54.0: moving a site is not available on this installation.
+      TRANSFER_UNAVAILABLE: { statuses: [409], retryable: false },
       // SCHEMA-3.5.0: connecting a domain's DNS provider.
       DNS_CONNECTION_EXPIRED: { statuses: [410], retryable: false },
       DNS_CONNECTION_NOT_APPLICABLE: { statuses: [409], retryable: false },

@@ -466,6 +466,8 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // Since 3.52.0 also the affiliate referral post until the App binds it.
   // Since 3.53.0 also the two public poll operations (called by the published
   // site's script, never the App); the subscriber import is now bound to Audience.
+  // Since 3.54.0 also the failed-import retry and the unlinked subscriptions
+  // read until the App binds them.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
     'deletePublicCommentsByCommentIdLike',
@@ -489,6 +491,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId',
     'getPlatformAssistanceRequests',
+    'getPlatformBillingUnlinkedSubscriptions',
     'getPlatformDemoSitesByPublicationId',
     'getPlatformDemoSitesPreflight',
     'getPlatformOauthClients',
@@ -505,6 +508,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postCallbacksBrevo',
     'postCallbacksGithubApp',
     'postCallbacksStripe',
+    'postOrganizationsByOrganizationIdPublicationImportsByImportIdRetry',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdAssistanceRequests',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdConfigurationChangesPlan',
     'postOrganizationsByOrganizationIdPublicationsByPublicationIdContentLinkPreview',

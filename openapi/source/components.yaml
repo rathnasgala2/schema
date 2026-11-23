@@ -10837,6 +10837,9 @@ components:
     PostOrganizationsByOrganizationIdPublicationImportsByImportIdConvertResponse:
       allOf:
         - $ref: '#/components/schemas/PublicationImport'
+    PostOrganizationsByOrganizationIdPublicationImportsByImportIdRetryResponse:
+      allOf:
+        - $ref: '#/components/schemas/PublicationImport'
     PostOrganizationsByOrganizationIdPublicationImportsByImportIdCancelRequest:
       additionalProperties: false
       properties:
@@ -12706,6 +12709,87 @@ components:
         - organizations
         - contactEmailOnFile
         - contactEmail
+      type: object
+    PlatformUnlinkedSubscriptionReason:
+      description:
+        'SCHEMA-3.54.0: why a paid subscription is linked to no organization:
+        `NO_MATCH` (nothing it carries names one), `AMBIGUOUS` (it names more
+        than one) or `UNKNOWN`.'
+      enum:
+        - NO_MATCH
+        - AMBIGUOUS
+        - UNKNOWN
+      type: string
+    PlatformUnlinkedSubscription:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.54.0: a paid subscription at the payment provider that is
+        linked to no organization. No payer email or other personal data.'
+      properties:
+        createdAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+        plan:
+          $ref: '#/components/schemas/PlatformPlanKey'
+        reason:
+          $ref: '#/components/schemas/PlatformUnlinkedSubscriptionReason'
+        status:
+          description: The provider's subscription status, for example `active`.
+          maxLength: 80
+          minLength: 1
+          type: string
+        subscriptionId:
+          description: The payment provider's subscription id.
+          maxLength: 255
+          minLength: 1
+          type: string
+        updatedAt:
+          $ref: ../schemas/problem.schema.json#/$defs/rfc3339
+      required:
+        - subscriptionId
+        - status
+        - plan
+        - createdAt
+        - updatedAt
+      type: object
+    GetPlatformBillingUnlinkedSubscriptionsResponse:
+      additionalProperties: false
+      allOf:
+        - else:
+            properties:
+              nextCursor:
+                type: 'null'
+          if:
+            properties:
+              hasMore:
+                const: true
+            required:
+              - hasMore
+          then:
+            properties:
+              nextCursor:
+                type: string
+            required:
+              - nextCursor
+      properties:
+        hasMore:
+          type: boolean
+        items:
+          items:
+            $ref: '#/components/schemas/PlatformUnlinkedSubscription'
+          maxItems: 100
+          type: array
+        nextCursor:
+          description:
+            Opaque cursor for the next page. Present and non-null exactly when
+            `hasMore` is true; absent or null when `hasMore` is false.
+          maxLength: 2048
+          minLength: 1
+          type:
+            - string
+            - 'null'
+      required:
+        - items
+        - hasMore
       type: object
     GetPlatformUsersResponse:
       additionalProperties: false

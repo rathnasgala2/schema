@@ -798,7 +798,8 @@ test('every collection rejects a cursor that contradicts hasMore', async () => {
   // SCHEMA-3.34.0 adds the Interview list; SCHEMA-3.43.0 the saved Today
   // posts.
   // SCHEMA-3.48.0 adds the operator interview list (29); 3.49.0 removes the two Prism lists (27).
-  assert.equal(collections.length, 27);
+  // SCHEMA-3.54.0 adds the unlinked paid subscriptions list (28).
+  assert.equal(collections.length, 28);
   for (const [name, schema] of collections) {
     assert.deepEqual(
       [...schema.properties.nextCursor.type].sort(),
