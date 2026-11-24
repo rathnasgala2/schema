@@ -159,6 +159,9 @@ const ROOT_LEDGERS = {
       'deleteDate',
       // SCHEMA-3.26.0: the audio version of an article.
       'listen',
+      // SCHEMA-3.55.0: the article summary and question-and-answer list.
+      'summary',
+      'faq',
     ],
   },
 };

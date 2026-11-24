@@ -132,7 +132,9 @@ const T03_SCHEMA_HASHES = {
     // Additive.
     //
     // 3.53.0 (reviewed 2026-11-22): the normalized publication's listen member becomes the new $defs/listenNormalized and admits the optional podcast object (enabled, category, explicit, cover as a resolved file {path, sourceDigest}, description, ownerEmail). Additive.
-    '87406318edd12e25d235c58aa05b8719faed75457a89a9c46747b69c45ff0ce2',
+    //
+    // 3.55.0 (reviewed 2026-11-23): the optional article-only summary and faq members (new $defs/contentFaq). Additive.
+    '586896fb0aeb8417ac74ff8b3294a8683e3fe3aa24ebe087d51cc022c32425fb',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -153,7 +155,9 @@ const T03_SCHEMA_HASHES = {
     // 3.26.0 (reviewed 2026-10-30): the optional article-only listen member (new $defs/contentListen: audio path ending in .mp3 or .m4a, durationSeconds 1 to 10800, format) and its shape rule. Additive.
     //
     // 3.53.0 (reviewed 2026-11-22): the optional newsletterTag and newsletterSubjectB members. Additive.
-    'b9dc39c190aa547d990949d77e8a0ba48feb35770bdb4fd46aaa5b139f8d1f94',
+    //
+    // 3.55.0 (reviewed 2026-11-23): the optional article-only summary and faq members (new $defs/contentFaq). Additive.
+    '825b9f323659c5225158be0332d9f4effb5abf0e5db9bdbd306493f495ab839e',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound

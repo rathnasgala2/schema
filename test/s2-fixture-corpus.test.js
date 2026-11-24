@@ -62,6 +62,30 @@ const S2_FAMILIES = [
       'normalized-content-listen-duration-over-three-hours-invalid',
       'normalized-content-listen-duration-zero-invalid',
       'normalized-content-listen-format-unknown-invalid',
+      'normalized-content-summary-valid',
+      'normalized-content-faq-two-items-valid',
+      'normalized-content-summary-and-faq-valid',
+      'normalized-content-summary-empty-invalid',
+      'normalized-content-summary-over-500-invalid',
+      'normalized-content-faq-empty-invalid',
+      'normalized-content-faq-21-items-invalid',
+      'normalized-content-faq-item-answer-missing-invalid',
+      'normalized-content-faq-item-unknown-member-invalid',
+      'normalized-content-faq-answer-over-1000-invalid',
+      'normalized-content-summary-on-page-invalid',
+      'normalized-content-faq-on-page-invalid',
+      'frontmatter-summary-valid',
+      'frontmatter-faq-two-items-valid',
+      'frontmatter-summary-and-faq-valid',
+      'frontmatter-summary-empty-invalid',
+      'frontmatter-summary-over-500-invalid',
+      'frontmatter-faq-empty-invalid',
+      'frontmatter-faq-21-items-invalid',
+      'frontmatter-faq-item-answer-missing-invalid',
+      'frontmatter-faq-item-unknown-member-invalid',
+      'frontmatter-faq-answer-over-1000-invalid',
+      'frontmatter-summary-on-page-invalid',
+      'frontmatter-faq-on-page-invalid',
     ],
   },
   {
@@ -320,7 +344,12 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // (content-frontmatter/SCHEMA_STRING_TOO_LONG), making 911. The build-input
     // podcast cover is the resolved file {path, sourceDigest}, so its fixtures
     // changed again and gained the bare-path invalid case (no file added).
-    '3cc873d050c6276fb754063eb7f6e460d30f1269dbd8ab5dd36c68c3a67f58be',
+    //
+    // 3.55.0 (reviewed 2026-11-23): the optional article-only `summary` and
+    // `faq` members regenerated the content-frontmatter and build-input valid,
+    // boundary, unknown-field and invalid fixtures and the manifest. No file
+    // added or removed (911).
+    'e1677b0e054f92cd15e05d5229c23843d25ff7b1c1438a3adacbd6029663053c',
   );
 });
 

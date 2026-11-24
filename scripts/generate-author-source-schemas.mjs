@@ -14,6 +14,7 @@ import {
   createCompositionBuildSchemas,
   createContentEditionDefinition,
   createContactFormDefinition,
+  createContentFaqDefinition,
   createContentListenDefinition,
   createContentSeoDefinition,
   createListenDefinition,
@@ -24,6 +25,9 @@ import {
   createSharingDefinition,
   editionKindRule,
   listenRule,
+  SUMMARY_DESCRIPTION,
+  summaryRule,
+  faqRule,
   TRANSLATION_OF_DESCRIPTION,
   translationOfRule,
 } from './s0-t03-composition-build-schemas.mjs';
@@ -670,6 +674,11 @@ const schemas = {
         description: TRANSLATION_OF_DESCRIPTION,
       },
       listen: ref('contentListen'),
+      summary: {
+        ...graphemeBound(ref('plainText'), 1, 500),
+        description: SUMMARY_DESCRIPTION,
+      },
+      faq: ref('contentFaq'),
       extensions: ref('extensionMap'),
     },
     [
@@ -695,6 +704,12 @@ const schemas = {
       },
       deleteDate: createDeleteDateDefinition(),
       contentListen: createContentListenDefinition({ ref, closedObject }),
+      contentFaq: createContentFaqDefinition({
+        ref,
+        arrayOf,
+        closedObject,
+        graphemeBound,
+      }),
       contentEdition: createContentEditionDefinition({ ref, closedObject }),
       contentSeo: createContentSeoDefinition({
         ref,
@@ -727,6 +742,8 @@ const schemas = {
         editionKindRule(),
         translationOfRule(),
         listenRule(),
+        summaryRule(),
+        faqRule(),
       ],
       $comment:
         'The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks.',

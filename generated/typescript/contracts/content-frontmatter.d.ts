@@ -17,6 +17,13 @@ export type ContentFrontmatterContentEdition = Readonly<{
   readonly sourceDigest: ContentFrontmatterDigest;
 }>;
 
+export type ContentFrontmatterContentFaq = ReadonlyArray<
+  Readonly<{
+    readonly answer: ContentFrontmatterPlainText;
+    readonly question: ContentFrontmatterPlainText;
+  }>
+>;
+
 export type ContentFrontmatterContentListen = Readonly<{
   readonly audio: ContentFrontmatterRepoRelativePath;
   readonly durationSeconds: number;
@@ -86,6 +93,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly description?: ContentFrontmatterPlainText;
   readonly edition?: ContentFrontmatterContentEdition;
   readonly extensions: ContentFrontmatterExtensionMap;
+  readonly faq?: ContentFrontmatterContentFaq;
   readonly hero?: ContentFrontmatterMediaRef;
   readonly id: ContentFrontmatterStableId;
   readonly kind: 'article' | 'page' | 'edition';
@@ -106,6 +114,7 @@ export type ContentFrontmatterDocument = Readonly<{
   readonly slug: ContentFrontmatterSlug;
   readonly socialImageRef?: ContentFrontmatterRepoRelativePath;
   readonly status: 'draft' | 'published' | 'unlisted' | 'archived';
+  readonly summary?: ContentFrontmatterPlainText;
   readonly tags: ReadonlyArray<ContentFrontmatterPlainLabel>;
   readonly title: ContentFrontmatterPlainText;
   readonly translationOf?: ContentFrontmatterSlug;

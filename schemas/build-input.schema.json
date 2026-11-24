@@ -708,6 +708,27 @@
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
       "description": "SCHEMA-3.25.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe removes this article from the published site: it leaves every listing, feed, sitemap and search index and its route renders a removed-post notice. Same format as `publishAfter`; it must be later than `publishAfter` and `date` when both exist. The API enforces that rule; the schema only fixes the shape."
     },
+    "contentFaq": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question", "answer"],
+        "properties": {
+          "question": {
+            "$ref": "#/$defs/plainText",
+            "x-gala-graphemeLength": { "minimum": 1, "maximum": 200 }
+          },
+          "answer": {
+            "$ref": "#/$defs/plainText",
+            "x-gala-graphemeLength": { "minimum": 1, "maximum": 1000 }
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "SCHEMA-3.55.0: the questions and answers of this article, 1 to 20 items, each a closed `{ question, answer }` object with both members required. `question` is plain text of 1 to 200 graphemes; `answer` is plain text of 1 to 1000 graphemes and may contain line feeds. `faq` is allowed only when `kind` is `article`."
+    },
     "contactFormNormalized": {
       "type": "object",
       "required": ["enabled", "fields"],
@@ -1173,7 +1194,13 @@
           "$ref": "#/$defs/slug",
           "description": "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`."
         },
-        "listen": { "$ref": "#/$defs/contentListenNormalized" }
+        "listen": { "$ref": "#/$defs/contentListenNormalized" },
+        "summary": {
+          "$ref": "#/$defs/plainText",
+          "x-gala-graphemeLength": { "minimum": 1, "maximum": 500 },
+          "description": "SCHEMA-3.55.0: a short plain-text summary of the article, 1 to 500 graphemes, shown in a box above the body. `summary` is allowed only when `kind` is `article`. It does not replace `description`."
+        },
+        "faq": { "$ref": "#/$defs/contentFaq" }
       },
       "additionalProperties": false,
       "dependentRequired": { "seriesOrder": ["series"] },
@@ -1196,6 +1223,20 @@
         },
         {
           "if": { "required": ["listen"] },
+          "then": {
+            "properties": { "kind": { "const": "article" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "if": { "required": ["summary"] },
+          "then": {
+            "properties": { "kind": { "const": "article" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "if": { "required": ["faq"] },
           "then": {
             "properties": { "kind": { "const": "article" } },
             "required": ["kind"]

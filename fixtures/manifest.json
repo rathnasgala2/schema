@@ -52,8 +52,8 @@
     {
       "contract": "build-input",
       "schemaId": "urn:gala:schema:build-input:2.0.0",
-      "schemaSha256": "87406318edd12e25d235c58aa05b8719faed75457a89a9c46747b69c45ff0ce2",
-      "ruleCount": 732,
+      "schemaSha256": "586896fb0aeb8417ac74ff8b3294a8683e3fe3aa24ebe087d51cc022c32425fb",
+      "ruleCount": 748,
       "validExample": "examples/valid/build-input/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-input/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/build-input/root.json"
@@ -70,8 +70,8 @@
     {
       "contract": "content-frontmatter",
       "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
-      "schemaSha256": "b9dc39c190aa547d990949d77e8a0ba48feb35770bdb4fd46aaa5b139f8d1f94",
-      "ruleCount": 177,
+      "schemaSha256": "825b9f323659c5225158be0332d9f4effb5abf0e5db9bdbd306493f495ab839e",
+      "ruleCount": 193,
       "validExample": "examples/valid/content-frontmatter/canonical.json",
       "boundaryFixture": "fixtures/boundary/content-frontmatter/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/content-frontmatter/root.json"
@@ -51561,6 +51561,213 @@
     },
     {
       "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq:maxItems",
+      "schemaPointer": "#/$defs/contentFaq",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-a18c3626ee673373"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-04902324eaa784d9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "build-input-invalid-1df0349c512cf098",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq:minItems",
+      "schemaPointer": "#/$defs/contentFaq",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-a18c3626ee673373"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-c8b4e90ae19f63dd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_ARRAY_TOO_SHORT/cases.json",
+        "caseId": "build-input-invalid-d426bdcf8fdb24a0",
+        "expectedCode": "SCHEMA_ARRAY_TOO_SHORT"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq:type",
+      "schemaPointer": "#/$defs/contentFaq",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-a18c3626ee673373"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-251dc6a0e8410069"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-56352cd008c63a0e",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq/items:additionalProperties",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-c453e1bd010eb193",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq/items:required:answer",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-b28244f33caf537f",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq/items:required:question",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-5b58cc496c964513",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq/items:type",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-6c4b8297128688d4",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq/items/properties/answer:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentFaq/items/properties/answer",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2fa01856475bb131"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-4e66e597f2823757"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-df4159b3171148b0",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFaq/items/properties/question:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentFaq/items/properties/question",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-c059b87465e31693"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-04d7a569b790d05d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-076d66b511504e27",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "build-input",
       "ruleId": "build-input:#/$defs/contentFrontmatterNormalized:additionalProperties",
       "schemaPointer": "#/$defs/contentFrontmatterNormalized",
       "keyword": "additionalProperties",
@@ -52182,6 +52389,144 @@
     },
     {
       "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/3/if:required:summary",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/3/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-ddb5b61aa778ec83"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-cba5a744e7586aa4"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-fde3677e58c656b3",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/3/then:required:kind",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/3/then",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-aea6e8f4f4d391c1"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-75e0e571da2234bd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-0a5c8fc6993f3ac8",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/3/then/properties/kind:const",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/3/then/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-064f7e6d0c9ad99d"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-debd7034f8b08e23"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-86f165b935696f37",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/4/if:required:faq",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/4/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0c921283fe37494f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-4e7a32af8151d9f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-c43f7d1700383ffc",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/4/then:required:kind",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/4/then",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-8b078848cb6caf2c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-86025f6a3d5183dd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-cc4076421aa31b67",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/4/then/properties/kind:const",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/4/then/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-c89fba12d8b5c53c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-461eee89f2a80bb7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-34402a826c04c35b",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
       "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/properties/authorIds:maxItems",
       "schemaPointer": "#/$defs/contentFrontmatterNormalized/properties/authorIds",
       "keyword": "maxItems",
@@ -52469,6 +52814,29 @@
         "file": "fixtures/invalid/build-input/SCHEMA_ENUM_INVALID/cases.json",
         "caseId": "build-input-invalid-2caa1e257695a239",
         "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/properties/summary:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/properties/summary",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-be5f118d60c4948f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-0370062ace567162"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-fdd0f3f8db0c7a4b",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/build-input/rules.json",
@@ -73613,6 +73981,213 @@
     },
     {
       "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq:maxItems",
+      "schemaPointer": "#/$defs/contentFaq",
+      "keyword": "maxItems",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-a18c3626ee673373"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-04902324eaa784d9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_ARRAY_TOO_LONG/cases.json",
+        "caseId": "content-frontmatter-invalid-881d08059b7e881f",
+        "expectedCode": "SCHEMA_ARRAY_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq:minItems",
+      "schemaPointer": "#/$defs/contentFaq",
+      "keyword": "minItems",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-a18c3626ee673373"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-c8b4e90ae19f63dd"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_ARRAY_TOO_SHORT/cases.json",
+        "caseId": "content-frontmatter-invalid-3b61b3fa73cbeabc",
+        "expectedCode": "SCHEMA_ARRAY_TOO_SHORT"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq:type",
+      "schemaPointer": "#/$defs/contentFaq",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-a18c3626ee673373"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-251dc6a0e8410069"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-533c8ced5ed28610",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq/items:additionalProperties",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "content-frontmatter-invalid-78624c2f2fbd2766",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq/items:required:answer",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-3fee271714fa463b",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq/items:required:question",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-cd81fa562c518a3e",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq/items:type",
+      "schemaPointer": "#/$defs/contentFaq/items",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-984c1e42fff85858"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8b6bd14512657e2c"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-084ce3803ef0bbd9",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq/items/properties/answer:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentFaq/items/properties/answer",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-2fa01856475bb131"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-4e66e597f2823757"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-ae7e3e372c5cfbec",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentFaq/items/properties/question:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/contentFaq/items/properties/question",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-c059b87465e31693"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-04d7a569b790d05d"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-d990a934d3a15aeb",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-984c1e42fff85858"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
       "ruleId": "content-frontmatter:#/$defs/contentListen:additionalProperties",
       "schemaPointer": "#/$defs/contentListen",
       "keyword": "additionalProperties",
@@ -76149,6 +76724,144 @@
     },
     {
       "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/4/if:required:summary",
+      "schemaPointer": "#/allOf/4/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-fd3d7037f810877e"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-34253d6225ae193f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-6ad7ddff6acad794",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/4/then:required:kind",
+      "schemaPointer": "#/allOf/4/then",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-5c1624e1febb1a58"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-b6de42a423228be6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-c46129047def423a",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/4/then/properties/kind:const",
+      "schemaPointer": "#/allOf/4/then/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-6de4e5972b56a74e"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-66c7cd929d86f714"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-c871d5294d4dab50",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/5/if:required:faq",
+      "schemaPointer": "#/allOf/5/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-7a51e623ca75174f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-4a4f37f98756d113"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-a04544127bc551f6",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/5/then:required:kind",
+      "schemaPointer": "#/allOf/5/then",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-947b54b6d45c2cdf"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-3929583ddfa0aab2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-514dccfce3cf6276",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/5/then/properties/kind:const",
+      "schemaPointer": "#/allOf/5/then/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-ac9b1a30837e6e51"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-3bfc5042c3c337ac"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-58e2ccc34d01d8b8",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
       "ruleId": "content-frontmatter:#/properties/authors:maxItems",
       "schemaPointer": "#/properties/authors",
       "keyword": "maxItems",
@@ -76620,6 +77333,29 @@
         "file": "fixtures/invalid/content-frontmatter/SCHEMA_ENUM_INVALID/cases.json",
         "caseId": "content-frontmatter-invalid-c54fc918801ec4bb",
         "expectedCode": "SCHEMA_ENUM_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/properties/summary:x-gala-graphemeLength",
+      "schemaPointer": "#/properties/summary",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9354f99e3237435f"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-5bdab581ff362a57"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-ff88dcdd264ce79e",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
       },
       "unknownField": {
         "file": "fixtures/unknown-field/content-frontmatter/rules.json",

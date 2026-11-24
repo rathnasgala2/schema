@@ -12514,6 +12514,28 @@ components:
         - generation
         - approvedAt
       type: object
+    PortableContentFrontmatterContentFaq:
+      description: "SCHEMA-3.55.0: the questions and answers of this article, 1 to 20 items, each a closed `{ question, answer }` object with both members required. `question` is plain text of 1 to 200 graphemes; `answer` is plain text of 1 to 1000 graphemes and may contain line feeds. `faq` is allowed only when `kind` is `article`."
+      items:
+        additionalProperties: false
+        properties:
+          answer:
+            $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+            x-gala-graphemeLength:
+              maximum: 1000
+              minimum: 1
+          question:
+            $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+            x-gala-graphemeLength:
+              maximum: 200
+              minimum: 1
+        required:
+          - question
+          - answer
+        type: object
+      maxItems: 20
+      minItems: 1
+      type: array
     PortableContentFrontmatterContentListen:
       additionalProperties: false
       description: "SCHEMA-3.26.0: the audio version of this article. All three members are required. `listen` is allowed only when `kind` is `article`. It has an effect only while the publication has `listen.enabled` true."
@@ -12629,6 +12651,28 @@ components:
                 x-gala-const: article
             required:
               - kind
+        - if:
+            required:
+              - summary
+          then:
+            properties:
+              kind:
+                pattern: ^article$
+                type: string
+                x-gala-const: article
+            required:
+              - kind
+        - if:
+            required:
+              - faq
+          then:
+            properties:
+              kind:
+                pattern: ^article$
+                type: string
+                x-gala-const: article
+            required:
+              - kind
       dependentRequired:
         seriesOrder:
           - series
@@ -12652,6 +12696,8 @@ components:
           $ref: "#/components/schemas/PortableContentFrontmatterContentEdition"
         extensions:
           $ref: "#/components/schemas/PortableContentFrontmatterExtensionMap"
+        faq:
+          $ref: "#/components/schemas/PortableContentFrontmatterContentFaq"
         hero:
           $ref: "#/components/schemas/PortableContentFrontmatterMediaRef"
         id:
@@ -12720,6 +12766,12 @@ components:
             - published
             - unlisted
             - archived
+        summary:
+          $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+          description: "SCHEMA-3.55.0: a short plain-text summary of the article, 1 to 500 graphemes, shown in a box above the body. `summary` is allowed only when `kind` is `article`. It does not replace `description`."
+          x-gala-graphemeLength:
+            maximum: 500
+            minimum: 1
         tags:
           items:
             $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"

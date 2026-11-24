@@ -162,12 +162,20 @@ export type BuildInputContentEdition = Readonly<{
   readonly sourceDigest: BuildInputDigest;
 }>;
 
+export type BuildInputContentFaq = ReadonlyArray<
+  Readonly<{
+    readonly answer: BuildInputPlainText;
+    readonly question: BuildInputPlainText;
+  }>
+>;
+
 export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly createdAt: BuildInputRfc3339;
   readonly deleteDate?: BuildInputDeleteDate;
   readonly description?: BuildInputPlainText;
   readonly edition?: BuildInputContentEdition;
+  readonly faq?: BuildInputContentFaq;
   readonly hero?: BuildInputResolvedMedia;
   readonly id: BuildInputStableId;
   readonly kind: 'article' | 'page' | 'edition';
@@ -182,6 +190,7 @@ export type BuildInputContentFrontmatterNormalized = Readonly<{
   readonly slug: BuildInputSlug;
   readonly socialImage?: BuildInputResolvedFile;
   readonly status: 'published' | 'unlisted';
+  readonly summary?: BuildInputPlainText;
   readonly tags: ReadonlyArray<BuildInputPlainLabel>;
   readonly title: BuildInputPlainText;
   readonly translationOf?: BuildInputSlug;

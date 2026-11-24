@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.55.0] - 2026-11-23
+
+Two optional article front-matter fields. Additive: every 3.54.0 document still
+validates and nothing existing changes meaning.
+
+### Added
+
+- `content-frontmatter` and the `build-input` content record: `summary` (plain
+  text, 1 to 500 graphemes) and `faq` (1 to 20 items, each a closed
+  `{ question, answer }` object with both members required; `question` is plain
+  text of 1 to 200 graphemes, `answer` plain text of 1 to 1000 graphemes and may
+  contain line feeds). Both are allowed only when `kind` is `article`, the same
+  shape rule as `listen`. New definition `$defs/contentFaq` in both schemas.
+
 ## [3.54.0] - 2026-11-22
 
 Three contract additions, no existing operation, field, code or enum value
@@ -4665,7 +4679,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.54.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.55.0...HEAD
+[3.55.0]: https://github.com/rathnasgala2/schema/compare/v3.54.0...v3.55.0
 [3.54.0]: https://github.com/rathnasgala2/schema/compare/v3.53.0...v3.54.0
 [3.53.0]: https://github.com/rathnasgala2/schema/compare/v3.52.0...v3.53.0
 [3.52.0]: https://github.com/rathnasgala2/schema/compare/v3.51.0...v3.52.0

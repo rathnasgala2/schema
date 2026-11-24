@@ -841,6 +841,74 @@ export function listenRule() {
   };
 }
 
+/** SCHEMA-3.55.0: the post summary description shared by every frontmatter schema. */
+export const SUMMARY_DESCRIPTION =
+  'SCHEMA-3.55.0: a short plain-text summary of the article, 1 to 500 graphemes, shown in a box above the body. `summary` is allowed only when `kind` is `article`. It does not replace `description`.';
+
+/**
+ * SCHEMA-3.55.0: the article's question-and-answer list. Shared by the
+ * `content-frontmatter` root and the normalized `build-input` content record.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.arrayOf bounded array constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @param {Function} language.graphemeBound grapheme-bound constructor
+ * @returns {Record<string, unknown>} bounded array of closed question objects
+ */
+export function createContentFaqDefinition({
+  ref,
+  arrayOf,
+  closedObject,
+  graphemeBound,
+}) {
+  return {
+    ...arrayOf(
+      closedObject(
+        {
+          question: graphemeBound(ref('plainText'), 1, 200),
+          answer: graphemeBound(ref('plainText'), 1, 1000),
+        },
+        ['question', 'answer'],
+      ),
+      1,
+      20,
+    ),
+    description:
+      'SCHEMA-3.55.0: the questions and answers of this article, 1 to 20 items, each a closed `{ question, answer }` object with both members required. `question` is plain text of 1 to 200 graphemes; `answer` is plain text of 1 to 1000 graphemes and may contain line feeds. `faq` is allowed only when `kind` is `article`.',
+  };
+}
+
+/**
+ * Create the `summary` shape rule: the member is allowed only on an article.
+ *
+ * @returns {Record<string, unknown>} one `allOf` member
+ */
+export function summaryRule() {
+  return {
+    if: { required: ['summary'] },
+    then: {
+      properties: { kind: { const: 'article' } },
+      required: ['kind'],
+    },
+  };
+}
+
+/**
+ * Create the `faq` shape rule: the member is allowed only on an article.
+ *
+ * @returns {Record<string, unknown>} one `allOf` member
+ */
+export function faqRule() {
+  return {
+    if: { required: ['faq'] },
+    then: {
+      properties: { kind: { const: 'article' } },
+      required: ['kind'],
+    },
+  };
+}
+
 /** SCHEMA-3.21.0 `translationOf` description shared by every frontmatter schema. */
 export const TRANSLATION_OF_DESCRIPTION =
   "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`.";
@@ -1588,6 +1656,11 @@ export function createCompositionBuildSchemas(language) {
         description: TRANSLATION_OF_DESCRIPTION,
       },
       listen: ref('contentListenNormalized'),
+      summary: {
+        ...graphemeBound(ref('plainText'), 1, 500),
+        description: SUMMARY_DESCRIPTION,
+      },
+      faq: ref('contentFaq'),
     },
     [
       'id',
@@ -1604,7 +1677,13 @@ export function createCompositionBuildSchemas(language) {
     ],
     {
       dependentRequired: { seriesOrder: ['series'] },
-      allOf: [editionKindRule(), translationOfRule(), listenRule()],
+      allOf: [
+        editionKindRule(),
+        translationOfRule(),
+        listenRule(),
+        summaryRule(),
+        faqRule(),
+      ],
       $comment:
         'Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically.',
     },
@@ -2715,6 +2794,7 @@ export function createCompositionBuildSchemas(language) {
         aiRights: createAiRightsDefinition(language),
         performance: createPerformanceDefinition(language),
         deleteDate: createDeleteDateDefinition(),
+        contentFaq: createContentFaqDefinition(language),
         contactFormNormalized: createContactFormDefinition(
           language,
           ref('renderableBody'),

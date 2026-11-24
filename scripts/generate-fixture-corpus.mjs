@@ -2543,6 +2543,155 @@ function firstS2Record(value, code) {
 }
 
 /**
+ * SCHEMA-3.55.0: the cases of the optional article-only `summary` and `faq`,
+ * on the normalized build-input front matter and on the author-source
+ * `content-frontmatter` document. Diagnostic pointers are the member paths.
+ *
+ * @param {(contract: string) => Record<string, unknown>} canonical cloned canonical document by contract
+ * @returns {Array<Record<string, unknown>>} fixture cases
+ */
+function summaryFaqCases(canonical) {
+  const item = { question: 'Is this a question?', answer: 'Yes, it is.' };
+  const items = (/** @type {number} */ count) =>
+    Array.from({ length: count }, () => ({ ...item }));
+  /** @type {Array<Record<string, unknown>>} */
+  const cases = [];
+  for (const [prefix, base] of [
+    ['normalized-content', '/content/0/frontmatter'],
+    ['frontmatter', ''],
+  ]) {
+    /**
+     * The canonical document with one change to its front matter.
+     *
+     * @type {(change: (front: Record<string, unknown>) => void) => Record<string, unknown>}
+     */
+    const withFront = (change) => {
+      if (prefix === 'frontmatter') {
+        const document = canonical('content-frontmatter');
+        change(document);
+        return document;
+      }
+      const input = canonical('build-input');
+      change(
+        requireS2Record(
+          firstS2Record(input.content, 'S2_BUILD_CONTENT_ABSENT').frontmatter,
+          'S2_BUILD_FRONTMATTER_ABSENT',
+        ),
+      );
+      return input;
+    };
+    const invalid = (
+      /** @type {string} */ name,
+      /** @type {(front: Record<string, unknown>) => void} */ change,
+      /** @type {string} */ code,
+      /** @type {string} */ pointer,
+    ) =>
+      s2Case(`${prefix}-${name}-invalid`, withFront(change), [
+        { code, instancePointer: `${base}${pointer}` },
+      ]);
+    cases.push(
+      s2Case(
+        `${prefix}-summary-valid`,
+        withFront((front) => {
+          front.summary = 'A short summary of the article.';
+        }),
+      ),
+      s2Case(
+        `${prefix}-faq-two-items-valid`,
+        withFront((front) => {
+          front.faq = items(2);
+        }),
+      ),
+      s2Case(
+        `${prefix}-summary-and-faq-valid`,
+        withFront((front) => {
+          front.summary = 'A short summary of the article.';
+          front.faq = [
+            item,
+            { question: 'Second?', answer: 'Line one.\nLine two.' },
+          ];
+        }),
+      ),
+      invalid(
+        'summary-empty',
+        (front) => {
+          front.summary = '';
+        },
+        'GRAPHEME_LENGTH_INVALID',
+        '/summary',
+      ),
+      invalid(
+        'summary-over-500',
+        (front) => {
+          front.summary = 'a'.repeat(501);
+        },
+        'GRAPHEME_LENGTH_INVALID',
+        '/summary',
+      ),
+      invalid(
+        'faq-empty',
+        (front) => {
+          front.faq = [];
+        },
+        'SCHEMA_ARRAY_TOO_SHORT',
+        '/faq',
+      ),
+      invalid(
+        'faq-21-items',
+        (front) => {
+          front.faq = items(21);
+        },
+        'SCHEMA_ARRAY_TOO_LONG',
+        '/faq',
+      ),
+      invalid(
+        'faq-item-answer-missing',
+        (front) => {
+          front.faq = [{ question: 'Is this a question?' }];
+        },
+        'SCHEMA_REQUIRED_FIELD_MISSING',
+        '/faq/0/answer',
+      ),
+      invalid(
+        'faq-item-unknown-member',
+        (front) => {
+          front.faq = [{ ...item, extra: 'x' }];
+        },
+        'REQUEST_FIELD_UNKNOWN',
+        '/faq/0/extra',
+      ),
+      invalid(
+        'faq-answer-over-1000',
+        (front) => {
+          front.faq = [{ ...item, answer: 'a'.repeat(1001) }];
+        },
+        'GRAPHEME_LENGTH_INVALID',
+        '/faq/0/answer',
+      ),
+      invalid(
+        'summary-on-page',
+        (front) => {
+          front.kind = 'page';
+          front.summary = 'A short summary of the article.';
+        },
+        'SCHEMA_CONSTANT_INVALID',
+        '/kind',
+      ),
+      invalid(
+        'faq-on-page',
+        (front) => {
+          front.kind = 'page';
+          front.faq = items(1);
+        },
+        'SCHEMA_CONSTANT_INVALID',
+        '/kind',
+      ),
+    );
+  }
+  return cases;
+}
+
+/**
  * SCHEMA-3.26.0: the normalized-input cases of Listen, the publication switch
  * and the resolved audio of an article.
  *
@@ -3133,6 +3282,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
       ],
     ),
     ...listenNormalizedCases(canonical, withPublication),
+    ...summaryFaqCases(canonical),
   ]);
 
   const unicodePath = canonical('repository');
