@@ -138,7 +138,7 @@ const T03_SCHEMA_HASHES = {
     // 3.56.0 (reviewed 2026-11-26): the normalized publication's optional postAction (new $defs/postAction, $defs/postActionUrl) and the content record's optional article-only action (new $defs/contentAction), and the interactions config's follows.publicCount. Additive.
     //
     // 3.56.1 (reviewed 2026-11-26): the post action union is flattened into named definitions (postActionFollow, postActionNewsletter, postActionLink, postActionNone). No instance changes.
-    '0f01868ad091d22367a0fe093fb9023bb16a4ccea7ef07a5358400064e3099a0',
+    '79cd9fe35267a989194d0cb41750b0e5088c36cf7df56ef16e729ce15c24f2fa',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -165,7 +165,7 @@ const T03_SCHEMA_HASHES = {
     // 3.56.0 (reviewed 2026-11-26): the optional article-only action member (new $defs/postAction, $defs/postActionUrl, $defs/contentAction). Additive.
     //
     // 3.56.1 (reviewed 2026-11-26): the post action union is flattened into named definitions (postActionFollow, postActionNewsletter, postActionLink, postActionNone). No instance changes.
-    'd31423440b00cf649a98665b9169bf7a455df5b8210e6fcfbb3e6610dcef9f7b',
+    '4c1c400a3132094cf7872a75354ed9a9d5f79cd15a9ab0cba821a0c5ea54ddd0',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
@@ -232,7 +232,7 @@ const T03_SCHEMA_HASHES = {
     // 3.56.0 (reviewed 2026-11-26): the optional postAction member (new $defs/postAction, $defs/postActionUrl). Additive.
     //
     // 3.56.1 (reviewed 2026-11-26): the post action union is flattened into named definitions (postActionFollow, postActionNewsletter, postActionLink, postActionNone). No instance changes.
-    '101d6fe7c0852565c1a138b47a795dfd55486f5342961001c14f413f9037912f',
+    '30c6360cd735787a00443cdc24fd172d9c750893717674daec808e1beea45f6a',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

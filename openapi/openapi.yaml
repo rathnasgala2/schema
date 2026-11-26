@@ -19213,7 +19213,7 @@ components:
         - body
       type: object
     PortablePublicationPostAction:
-      description: "SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block. SCHEMA-3.56.1: the union is flat, one `oneOf` of the three named definitions `postActionFollow`, `postActionNewsletter` and `postActionLink`."
+      description: "SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter panel, which works with any newsletter on the site, in Galascribe mode or link mode) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block. SCHEMA-3.56.1: the union is flat, one `oneOf` of the three named definitions `postActionFollow`, `postActionNewsletter` and `postActionLink`."
       oneOf:
         - $ref: "#/components/schemas/PortablePublicationPostActionFollow"
         - $ref: "#/components/schemas/PortablePublicationPostActionNewsletter"
@@ -19428,7 +19428,7 @@ components:
       type: string
     PostActionSettings:
       additionalProperties: false
-      description: "SCHEMA-3.56.0: the end-of-post action of a site at the linked repository's main branch head: the `postAction` member of `gala/publication.json`, absent when the publication has none (no block is shown after posts). `followsEnabled` is true when `gala/modules/interactions.json` has `follows.enabled` true; `newsletterEnabled` is true when the site's newsletter is in Galascribe mode. Both are read-only: a `follow` or `newsletter` action does nothing while its feature is off. `openChange` names an existing not-yet-published change of this publication that touches the file, or is null. `setUp` matches `GET .../repository/setup` `state`."
+      description: "SCHEMA-3.56.0: the end-of-post action of a site at the linked repository's main branch head: the `postAction` member of `gala/publication.json`, absent when the publication has none (no block is shown after posts). `followsEnabled` is true when `gala/modules/interactions.json` has `follows.enabled` true; `newsletterEnabled` is true when `gala/publication.json` has a `newsletter` member, in either mode (Galascribe or link). Both are read-only: a `follow` or `newsletter` action does nothing while its feature is off. `openChange` names an existing not-yet-published change of this publication that touches the file, or is null. `setUp` matches `GET .../repository/setup` `state`."
       properties:
         followsEnabled:
           type: boolean
@@ -64697,7 +64697,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/post-action-settings:
     get:
-      description: Reads (SCHEMA-3.56.0) the `postAction` member of `gala/publication.json` at the linked repository's current main branch head. A publication with no `postAction` member reads `postAction` absent, which means no block is shown after posts. `followsEnabled` and `newsletterEnabled` are the API's own reading of the site (the Follow button is on in `gala/modules/interactions.json`; the newsletter is in Galascribe mode) and are never written to the repository.
+      description: Reads (SCHEMA-3.56.0) the `postAction` member of `gala/publication.json` at the linked repository's current main branch head. A publication with no `postAction` member reads `postAction` absent, which means no block is shown after posts. `followsEnabled` and `newsletterEnabled` are the API's own reading of the site (the Follow button is on in `gala/modules/interactions.json`; `gala/publication.json` has a `newsletter` member, in either mode) and are never written to the repository.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettings
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"

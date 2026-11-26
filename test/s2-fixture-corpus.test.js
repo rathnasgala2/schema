@@ -431,7 +431,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // and added content-frontmatter/SCHEMA_UNION_INVALID (912 files).
     //
     // 3.56.1 (reviewed 2026-11-26): the flattened post action union regenerated the schema-rule fixtures and the manifest; no file added or removed (912).
-    '8ed2f672a7bd9b00dd42b7992e9b79d64c5524b3f35849dbae8d3b8f5d9e26ea',
+    '1cd425cb6bc1b1b9cea6bbe17a66c569fc17ad97cca04740aeacacd158ae700e',
   );
 });
 
