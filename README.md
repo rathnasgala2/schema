@@ -1,5 +1,14 @@
 # `@rathnasgala2/schemas`
 
+**Part of [Galascribe](https://galascribe.com)**, blog publishing software and a
+Markdown publishing platform for a site you own: you write in an editor, every
+post is a Markdown file in your own GitHub repository, and the site is published
+to GitHub Pages on your own domain, with scheduled posts, RSS feeds, six
+built-in themes and search. This repository is the JSON Schemas and API contract
+that Galascribe's tools share.
+[What Galascribe does](https://app.galascribe.com/features) ·
+[Markdown publishing platform](https://app.galascribe.com/markdown-publishing-platform)
+
 The Galascribe schema package is the sole authority for portable JSON Schemas,
 the OpenAPI contract, generated validators, and generated consumer types. It
 does not contain API business behavior, UI code, publication rendering, or
