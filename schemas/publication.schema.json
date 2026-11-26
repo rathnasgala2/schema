@@ -361,8 +361,8 @@
     "postActionUrl": {
       "type": "string",
       "maxLength": 2048,
-      "pattern": "^(?:https://(?![^/?#]*@)|/(?!/))",
-      "description": "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters."
+      "pattern": "^(?:https://(?![^/?#]*@)|/(?!/))[^\\s\\u0000-\\u001f\\u007f]*$",
+      "description": "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused), with no whitespace or control character anywhere. At most 2048 characters."
     },
     "postAction": {
       "description": "SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block.",
@@ -373,7 +373,7 @@
           "properties": {
             "kind": { "const": "follow" },
             "heading": {
-              "$ref": "#/$defs/plainText",
+              "$ref": "#/$defs/plainLabel",
               "x-gala-graphemeLength": { "minimum": 1, "maximum": 80 }
             },
             "text": {
@@ -389,7 +389,7 @@
           "properties": {
             "kind": { "const": "newsletter" },
             "heading": {
-              "$ref": "#/$defs/plainText",
+              "$ref": "#/$defs/plainLabel",
               "x-gala-graphemeLength": { "minimum": 1, "maximum": 80 }
             },
             "text": {
@@ -405,7 +405,7 @@
           "properties": {
             "kind": { "const": "link" },
             "heading": {
-              "$ref": "#/$defs/plainText",
+              "$ref": "#/$defs/plainLabel",
               "x-gala-graphemeLength": { "minimum": 1, "maximum": 80 }
             },
             "text": {
@@ -413,7 +413,7 @@
               "x-gala-graphemeLength": { "minimum": 1, "maximum": 280 }
             },
             "label": {
-              "$ref": "#/$defs/plainText",
+              "$ref": "#/$defs/plainLabel",
               "x-gala-graphemeLength": { "minimum": 1, "maximum": 40 }
             },
             "url": { "$ref": "#/$defs/postActionUrl" }

@@ -99,6 +99,9 @@ const S2_FAMILIES = [
       'normalized-publication-post-action-link-url-missing-invalid',
       'normalized-publication-post-action-link-url-too-long-invalid',
       'normalized-publication-post-action-link-url-double-slash-invalid',
+      'normalized-publication-post-action-link-url-space-invalid',
+      'normalized-publication-post-action-link-url-tab-invalid',
+      'normalized-publication-post-action-link-label-line-break-invalid',
       'normalized-publication-post-action-link-url-http-invalid',
       'normalized-publication-post-action-follow-unknown-member-invalid',
       'normalized-publication-post-action-none-invalid',
@@ -113,6 +116,9 @@ const S2_FAMILIES = [
       'publication-post-action-link-url-missing-invalid',
       'publication-post-action-link-url-too-long-invalid',
       'publication-post-action-link-url-double-slash-invalid',
+      'publication-post-action-link-url-space-invalid',
+      'publication-post-action-link-url-tab-invalid',
+      'publication-post-action-link-label-line-break-invalid',
       'publication-post-action-link-url-http-invalid',
       'publication-post-action-follow-unknown-member-invalid',
       'publication-post-action-none-invalid',
@@ -127,6 +133,9 @@ const S2_FAMILIES = [
       'normalized-content-action-link-url-missing-invalid',
       'normalized-content-action-link-url-too-long-invalid',
       'normalized-content-action-link-url-double-slash-invalid',
+      'normalized-content-action-link-url-space-invalid',
+      'normalized-content-action-link-url-tab-invalid',
+      'normalized-content-action-link-label-line-break-invalid',
       'normalized-content-action-link-url-http-invalid',
       'normalized-content-action-follow-unknown-member-invalid',
       'normalized-content-action-none-valid',
@@ -143,6 +152,9 @@ const S2_FAMILIES = [
       'frontmatter-action-link-url-missing-invalid',
       'frontmatter-action-link-url-too-long-invalid',
       'frontmatter-action-link-url-double-slash-invalid',
+      'frontmatter-action-link-url-space-invalid',
+      'frontmatter-action-link-url-tab-invalid',
+      'frontmatter-action-link-label-line-break-invalid',
       'frontmatter-action-link-url-http-invalid',
       'frontmatter-action-follow-unknown-member-invalid',
       'frontmatter-action-none-valid',
@@ -417,7 +429,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // content-frontmatter, build-input, publication and interactions-config
     // valid, boundary, unknown-field and invalid fixtures and the manifest,
     // and added content-frontmatter/SCHEMA_UNION_INVALID (912 files).
-    '4284428d15bb4ea896e5bc82ef5efa7997b254754d222423b13207906195cb04',
+    '386df239f7a9e2478aac50c5520a0780e5b683f6a83997d64c1f5045b370bd19',
   );
 });
 

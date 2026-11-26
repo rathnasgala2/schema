@@ -921,9 +921,9 @@ export function createPostActionUrlDefinition() {
   return {
     type: 'string',
     maxLength: 2048,
-    pattern: '^(?:https://(?![^/?#]*@)|/(?!/))',
+    pattern: '^(?:https://(?![^/?#]*@)|/(?!/))[^\\s\\u0000-\\u001f\\u007f]*$',
     description:
-      'SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters.',
+      'SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused), with no whitespace or control character anywhere. At most 2048 characters.',
   };
 }
 
@@ -944,7 +944,7 @@ export function createPostActionDefinition({
   closedObject,
   graphemeBound,
 }) {
-  const heading = graphemeBound(ref('plainText'), 1, 80);
+  const heading = graphemeBound(ref('plainLabel'), 1, 80);
   const text = graphemeBound(ref('plainText'), 1, 280);
   return {
     description:
@@ -957,7 +957,7 @@ export function createPostActionDefinition({
           kind: { const: 'link' },
           heading,
           text,
-          label: graphemeBound(ref('plainText'), 1, 40),
+          label: graphemeBound(ref('plainLabel'), 1, 40),
           url: ref('postActionUrl'),
         },
         ['kind', 'label', 'url'],

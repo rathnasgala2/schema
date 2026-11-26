@@ -12903,7 +12903,7 @@ components:
         - additionalProperties: false
           properties:
             heading:
-              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
               x-gala-graphemeLength:
                 maximum: 80
                 minimum: 1
@@ -12922,7 +12922,7 @@ components:
         - additionalProperties: false
           properties:
             heading:
-              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
               x-gala-graphemeLength:
                 maximum: 80
                 minimum: 1
@@ -12941,7 +12941,7 @@ components:
         - additionalProperties: false
           properties:
             heading:
-              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
               x-gala-graphemeLength:
                 maximum: 80
                 minimum: 1
@@ -12950,7 +12950,7 @@ components:
               type: string
               x-gala-const: link
             label:
-              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainLabel"
               x-gala-graphemeLength:
                 maximum: 40
                 minimum: 1
@@ -12967,9 +12967,9 @@ components:
             - url
           type: object
     PortableContentFrontmatterPostActionUrl:
-      description: "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters."
+      description: "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused), with no whitespace or control character anywhere. At most 2048 characters."
       maxLength: 2048
-      pattern: ^(?:https://(?![^/?#]*@)|/(?!/))
+      pattern: ^(?:https://(?![^/?#]*@)|/(?!/))[^\s\u0000-\u001f\u007f]*$
       type: string
     PortableContentFrontmatterPublishAfterDate:
       description: "SCHEMA-3.19.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe publishes this draft. Meaningful only while `status` is `draft`; Galascribe removes it when the post is published. The API enforces both rules; the schema only fixes the shape."
@@ -19214,7 +19214,7 @@ components:
         - additionalProperties: false
           properties:
             heading:
-              $ref: "#/components/schemas/PortablePublicationPlainText"
+              $ref: "#/components/schemas/PortablePublicationPlainLabel"
               x-gala-graphemeLength:
                 maximum: 80
                 minimum: 1
@@ -19233,7 +19233,7 @@ components:
         - additionalProperties: false
           properties:
             heading:
-              $ref: "#/components/schemas/PortablePublicationPlainText"
+              $ref: "#/components/schemas/PortablePublicationPlainLabel"
               x-gala-graphemeLength:
                 maximum: 80
                 minimum: 1
@@ -19252,7 +19252,7 @@ components:
         - additionalProperties: false
           properties:
             heading:
-              $ref: "#/components/schemas/PortablePublicationPlainText"
+              $ref: "#/components/schemas/PortablePublicationPlainLabel"
               x-gala-graphemeLength:
                 maximum: 80
                 minimum: 1
@@ -19261,7 +19261,7 @@ components:
               type: string
               x-gala-const: link
             label:
-              $ref: "#/components/schemas/PortablePublicationPlainText"
+              $ref: "#/components/schemas/PortablePublicationPlainLabel"
               x-gala-graphemeLength:
                 maximum: 40
                 minimum: 1
@@ -19278,9 +19278,9 @@ components:
             - url
           type: object
     PortablePublicationPostActionUrl:
-      description: "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters."
+      description: "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused), with no whitespace or control character anywhere. At most 2048 characters."
       maxLength: 2048
-      pattern: ^(?:https://(?![^/?#]*@)|/(?!/))
+      pattern: ^(?:https://(?![^/?#]*@)|/(?!/))[^\s\u0000-\u001f\u007f]*$
       type: string
     PortablePublicationPublicationPolicies:
       additionalProperties: false

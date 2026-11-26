@@ -2825,6 +2825,21 @@ function postActionCases(canonical) {
         'SCHEMA_UNION_INVALID',
       ),
       invalid(
+        'link-url-space',
+        { ...link, url: 'https://example.com/a b' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'link-url-tab',
+        { ...link, url: '/contact/\tx' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'link-label-line-break',
+        { ...link, label: 'Book\na call' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
         'link-url-http',
         { ...link, url: 'http://example.com/call' },
         'SCHEMA_UNION_INVALID',

@@ -103,19 +103,19 @@ export type PublicationPolicyPage = Readonly<{
 
 export type PublicationPostAction =
   | Readonly<{
-      readonly heading?: PublicationPlainText;
+      readonly heading?: PublicationPlainLabel;
       readonly kind: 'follow';
       readonly text?: PublicationPlainText;
     }>
   | Readonly<{
-      readonly heading?: PublicationPlainText;
+      readonly heading?: PublicationPlainLabel;
       readonly kind: 'link';
-      readonly label: PublicationPlainText;
+      readonly label: PublicationPlainLabel;
       readonly text?: PublicationPlainText;
       readonly url: PublicationPostActionUrl;
     }>
   | Readonly<{
-      readonly heading?: PublicationPlainText;
+      readonly heading?: PublicationPlainLabel;
       readonly kind: 'newsletter';
       readonly text?: PublicationPlainText;
     }>;

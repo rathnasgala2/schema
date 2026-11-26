@@ -17,12 +17,13 @@ The end-of-post action and an opt-in public follower count. Additive: every
 
 - `publication` and the `build-input` publication record: optional `postAction`,
   the one action shown after each post. A union on `kind`: `follow` and
-  `newsletter` (each with optional `heading`, plain text of 1 to 80 graphemes,
-  and `text`, 1 to 280 graphemes) and `link` (the same two members plus a
-  required `label`, 1 to 40 graphemes, and a required `url`). Every object is
-  closed. New definitions `$defs/postAction` and `$defs/postActionUrl` (an
-  absolute `https://` URL without credentials, or a site path starting with a
-  single `/`, at most 2048 characters). An absent member means no block.
+  `newsletter` (each with optional `heading`, a single-line label of 1 to 80
+  graphemes, and `text`, plain text of 1 to 280 graphemes) and `link` (the same
+  two members plus a required `label`, 1 to 40 graphemes, and a required `url`).
+  Every object is closed. New definitions `$defs/postAction` and
+  `$defs/postActionUrl` (an absolute `https://` URL without credentials, or a
+  site path starting with a single `/`, with no whitespace or control character,
+  at most 2048 characters). An absent member means no block.
 - `content-frontmatter` and the `build-input` content record: optional `action`,
   a post's own override: any `postAction` shape, or `{ "kind": "none" }` to show
   no block on that post. Allowed only when `kind` is `article`, the same shape

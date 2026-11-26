@@ -76,19 +76,19 @@ export type ContentFrontmatterPlainText = string;
 
 export type ContentFrontmatterPostAction =
   | Readonly<{
-      readonly heading?: ContentFrontmatterPlainText;
+      readonly heading?: ContentFrontmatterPlainLabel;
       readonly kind: 'follow';
       readonly text?: ContentFrontmatterPlainText;
     }>
   | Readonly<{
-      readonly heading?: ContentFrontmatterPlainText;
+      readonly heading?: ContentFrontmatterPlainLabel;
       readonly kind: 'link';
-      readonly label: ContentFrontmatterPlainText;
+      readonly label: ContentFrontmatterPlainLabel;
       readonly text?: ContentFrontmatterPlainText;
       readonly url: ContentFrontmatterPostActionUrl;
     }>
   | Readonly<{
-      readonly heading?: ContentFrontmatterPlainText;
+      readonly heading?: ContentFrontmatterPlainLabel;
       readonly kind: 'newsletter';
       readonly text?: ContentFrontmatterPlainText;
     }>;

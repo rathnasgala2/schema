@@ -404,19 +404,19 @@ export type BuildInputPolicyPageNormalized = Readonly<{
 
 export type BuildInputPostAction =
   | Readonly<{
-      readonly heading?: BuildInputPlainText;
+      readonly heading?: BuildInputPlainLabel;
       readonly kind: 'follow';
       readonly text?: BuildInputPlainText;
     }>
   | Readonly<{
-      readonly heading?: BuildInputPlainText;
+      readonly heading?: BuildInputPlainLabel;
       readonly kind: 'link';
-      readonly label: BuildInputPlainText;
+      readonly label: BuildInputPlainLabel;
       readonly text?: BuildInputPlainText;
       readonly url: BuildInputPostActionUrl;
     }>
   | Readonly<{
-      readonly heading?: BuildInputPlainText;
+      readonly heading?: BuildInputPlainLabel;
       readonly kind: 'newsletter';
       readonly text?: BuildInputPlainText;
     }>;
