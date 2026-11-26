@@ -8,6 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.56.1] - 2026-11-26
+
+A patch for client generators. `$defs/contentAction` was a `oneOf` whose branch
+was another `oneOf` (`$defs/postAction`), which the typescript-fetch generator
+cannot emit. The union is now flat: new definitions `postActionFollow`,
+`postActionNewsletter`, `postActionLink` and `postActionNone`; `postAction` is a
+`oneOf` of the first three and `contentAction` a `oneOf` of all four. No
+instance changes: the same documents validate and the same diagnostics are
+reported.
+
 ## [3.56.0] - 2026-11-26
 
 The end-of-post action and an opt-in public follower count. Additive: every
@@ -4715,7 +4725,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.56.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.56.1...HEAD
+[3.56.1]: https://github.com/rathnasgala2/schema/compare/v3.56.0...v3.56.1
 [3.56.0]: https://github.com/rathnasgala2/schema/compare/v3.55.0...v3.56.0
 [3.55.0]: https://github.com/rathnasgala2/schema/compare/v3.54.0...v3.55.0
 [3.54.0]: https://github.com/rathnasgala2/schema/compare/v3.53.0...v3.54.0

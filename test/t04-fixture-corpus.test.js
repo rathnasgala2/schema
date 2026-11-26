@@ -136,7 +136,9 @@ const T03_SCHEMA_HASHES = {
     // 3.55.0 (reviewed 2026-11-23): the optional article-only summary and faq members (new $defs/contentFaq). Additive.
     //
     // 3.56.0 (reviewed 2026-11-26): the normalized publication's optional postAction (new $defs/postAction, $defs/postActionUrl) and the content record's optional article-only action (new $defs/contentAction), and the interactions config's follows.publicCount. Additive.
-    '005c3679916904dbec88bc9d147e858003e6dc5eb3e462e20b6b5fb0cf622649',
+    //
+    // 3.56.1 (reviewed 2026-11-26): the post action union is flattened into named definitions (postActionFollow, postActionNewsletter, postActionLink, postActionNone). No instance changes.
+    '0f01868ad091d22367a0fe093fb9023bb16a4ccea7ef07a5358400064e3099a0',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -161,7 +163,9 @@ const T03_SCHEMA_HASHES = {
     // 3.55.0 (reviewed 2026-11-23): the optional article-only summary and faq members (new $defs/contentFaq). Additive.
     //
     // 3.56.0 (reviewed 2026-11-26): the optional article-only action member (new $defs/postAction, $defs/postActionUrl, $defs/contentAction). Additive.
-    'c74548df5e57d958a80200561c1edf1e78d8c09284876ca45e2aea6517b59b29',
+    //
+    // 3.56.1 (reviewed 2026-11-26): the post action union is flattened into named definitions (postActionFollow, postActionNewsletter, postActionLink, postActionNone). No instance changes.
+    'd31423440b00cf649a98665b9169bf7a455df5b8210e6fcfbb3e6610dcef9f7b',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
@@ -226,7 +230,9 @@ const T03_SCHEMA_HASHES = {
     // 3.53.0 (reviewed 2026-11-22): $defs/listen admits the optional podcast object (cover is a repository-relative path; build-input carries the resolved-file form as $defs/listenNormalized). Additive.
     //
     // 3.56.0 (reviewed 2026-11-26): the optional postAction member (new $defs/postAction, $defs/postActionUrl). Additive.
-    'c53eec353d43640de99f6454f0f7d0715705f1e85ec335a0b0afde4d7bb8023a',
+    //
+    // 3.56.1 (reviewed 2026-11-26): the post action union is flattened into named definitions (postActionFollow, postActionNewsletter, postActionLink, postActionNone). No instance changes.
+    '101d6fe7c0852565c1a138b47a795dfd55486f5342961001c14f413f9037912f',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

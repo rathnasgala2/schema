@@ -118,10 +118,10 @@ export type BuildInputContactFormNormalized = Readonly<{
 }>;
 
 export type BuildInputContentAction =
-  | BuildInputPostAction
-  | Readonly<{
-      readonly kind: 'none';
-    }>;
+  | BuildInputPostActionFollow
+  | BuildInputPostActionLink
+  | BuildInputPostActionNewsletter
+  | BuildInputPostActionNone;
 
 export type BuildInputContentBuildMediaFile = Readonly<{
   readonly byteLength: number;
@@ -403,23 +403,33 @@ export type BuildInputPolicyPageNormalized = Readonly<{
 }>;
 
 export type BuildInputPostAction =
-  | Readonly<{
-      readonly heading?: BuildInputPlainLabel;
-      readonly kind: 'follow';
-      readonly text?: BuildInputPlainText;
-    }>
-  | Readonly<{
-      readonly heading?: BuildInputPlainLabel;
-      readonly kind: 'link';
-      readonly label: BuildInputPlainLabel;
-      readonly text?: BuildInputPlainText;
-      readonly url: BuildInputPostActionUrl;
-    }>
-  | Readonly<{
-      readonly heading?: BuildInputPlainLabel;
-      readonly kind: 'newsletter';
-      readonly text?: BuildInputPlainText;
-    }>;
+  | BuildInputPostActionFollow
+  | BuildInputPostActionLink
+  | BuildInputPostActionNewsletter;
+
+export type BuildInputPostActionFollow = Readonly<{
+  readonly heading?: BuildInputPlainLabel;
+  readonly kind: 'follow';
+  readonly text?: BuildInputPlainText;
+}>;
+
+export type BuildInputPostActionLink = Readonly<{
+  readonly heading?: BuildInputPlainLabel;
+  readonly kind: 'link';
+  readonly label: BuildInputPlainLabel;
+  readonly text?: BuildInputPlainText;
+  readonly url: BuildInputPostActionUrl;
+}>;
+
+export type BuildInputPostActionNewsletter = Readonly<{
+  readonly heading?: BuildInputPlainLabel;
+  readonly kind: 'newsletter';
+  readonly text?: BuildInputPlainText;
+}>;
+
+export type BuildInputPostActionNone = Readonly<{
+  readonly kind: 'none';
+}>;
 
 export type BuildInputPostActionUrl = string;
 

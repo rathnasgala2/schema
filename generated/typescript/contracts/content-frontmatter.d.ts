@@ -6,10 +6,10 @@ export type ContentFrontmatterBcp47 = string;
 export type ContentFrontmatterCanonicalRoute = string;
 
 export type ContentFrontmatterContentAction =
-  | ContentFrontmatterPostAction
-  | Readonly<{
-      readonly kind: 'none';
-    }>;
+  | ContentFrontmatterPostActionFollow
+  | ContentFrontmatterPostActionLink
+  | ContentFrontmatterPostActionNewsletter
+  | ContentFrontmatterPostActionNone;
 
 export type ContentFrontmatterContentEdition = Readonly<{
   readonly approvedAt: ContentFrontmatterRfc3339;
@@ -75,23 +75,33 @@ export type ContentFrontmatterPlainLabel = string;
 export type ContentFrontmatterPlainText = string;
 
 export type ContentFrontmatterPostAction =
-  | Readonly<{
-      readonly heading?: ContentFrontmatterPlainLabel;
-      readonly kind: 'follow';
-      readonly text?: ContentFrontmatterPlainText;
-    }>
-  | Readonly<{
-      readonly heading?: ContentFrontmatterPlainLabel;
-      readonly kind: 'link';
-      readonly label: ContentFrontmatterPlainLabel;
-      readonly text?: ContentFrontmatterPlainText;
-      readonly url: ContentFrontmatterPostActionUrl;
-    }>
-  | Readonly<{
-      readonly heading?: ContentFrontmatterPlainLabel;
-      readonly kind: 'newsletter';
-      readonly text?: ContentFrontmatterPlainText;
-    }>;
+  | ContentFrontmatterPostActionFollow
+  | ContentFrontmatterPostActionLink
+  | ContentFrontmatterPostActionNewsletter;
+
+export type ContentFrontmatterPostActionFollow = Readonly<{
+  readonly heading?: ContentFrontmatterPlainLabel;
+  readonly kind: 'follow';
+  readonly text?: ContentFrontmatterPlainText;
+}>;
+
+export type ContentFrontmatterPostActionLink = Readonly<{
+  readonly heading?: ContentFrontmatterPlainLabel;
+  readonly kind: 'link';
+  readonly label: ContentFrontmatterPlainLabel;
+  readonly text?: ContentFrontmatterPlainText;
+  readonly url: ContentFrontmatterPostActionUrl;
+}>;
+
+export type ContentFrontmatterPostActionNewsletter = Readonly<{
+  readonly heading?: ContentFrontmatterPlainLabel;
+  readonly kind: 'newsletter';
+  readonly text?: ContentFrontmatterPlainText;
+}>;
+
+export type ContentFrontmatterPostActionNone = Readonly<{
+  readonly kind: 'none';
+}>;
 
 export type ContentFrontmatterPostActionUrl = string;
 

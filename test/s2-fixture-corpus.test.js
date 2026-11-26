@@ -429,7 +429,9 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // content-frontmatter, build-input, publication and interactions-config
     // valid, boundary, unknown-field and invalid fixtures and the manifest,
     // and added content-frontmatter/SCHEMA_UNION_INVALID (912 files).
-    '386df239f7a9e2478aac50c5520a0780e5b683f6a83997d64c1f5045b370bd19',
+    //
+    // 3.56.1 (reviewed 2026-11-26): the flattened post action union regenerated the schema-rule fixtures and the manifest; no file added or removed (912).
+    '8ed2f672a7bd9b00dd42b7992e9b79d64c5524b3f35849dbae8d3b8f5d9e26ea',
   );
 });
 

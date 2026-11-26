@@ -937,9 +937,9 @@ export function createPostActionUrlDefinition() {
  * @param {Function} language.ref local-definition reference constructor
  * @param {Function} language.closedObject closed-object constructor
  * @param {Function} language.graphemeBound grapheme-bound constructor
- * @returns {Record<string, unknown>} post action union schema
+ * @returns {Record<string, unknown>} the `postActionFollow`, `postActionNewsletter`, `postActionLink` and `postAction` definitions
  */
-export function createPostActionDefinition({
+export function createPostActionDefinitions({
   ref,
   closedObject,
   graphemeBound,
@@ -947,42 +947,60 @@ export function createPostActionDefinition({
   const heading = graphemeBound(ref('plainLabel'), 1, 80);
   const text = graphemeBound(ref('plainText'), 1, 280);
   return {
-    description:
-      'SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block.',
-    oneOf: [
-      closedObject({ kind: { const: 'follow' }, heading, text }, ['kind']),
-      closedObject({ kind: { const: 'newsletter' }, heading, text }, ['kind']),
-      closedObject(
-        {
-          kind: { const: 'link' },
-          heading,
-          text,
-          label: graphemeBound(ref('plainLabel'), 1, 40),
-          url: ref('postActionUrl'),
-        },
-        ['kind', 'label', 'url'],
-      ),
-    ],
+    postActionFollow: closedObject(
+      { kind: { const: 'follow' }, heading, text },
+      ['kind'],
+    ),
+    postActionNewsletter: closedObject(
+      { kind: { const: 'newsletter' }, heading, text },
+      ['kind'],
+    ),
+    postActionLink: closedObject(
+      {
+        kind: { const: 'link' },
+        heading,
+        text,
+        label: graphemeBound(ref('plainLabel'), 1, 40),
+        url: ref('postActionUrl'),
+      },
+      ['kind', 'label', 'url'],
+    ),
+    postAction: {
+      description:
+        'SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block. SCHEMA-3.56.1: the union is flat, one `oneOf` of the three named definitions `postActionFollow`, `postActionNewsletter` and `postActionLink`.',
+      oneOf: [
+        ref('postActionFollow'),
+        ref('postActionNewsletter'),
+        ref('postActionLink'),
+      ],
+    },
   };
 }
 
 /**
  * SCHEMA-3.56.0: a post's own `action`: the site's action shape, or
- * `{ kind: "none" }` to hide the block on this post.
+ * `{ kind: "none" }` to hide the block on this post. SCHEMA-3.56.1: one flat
+ * `oneOf` of the four named definitions, so client generators see no union
+ * inside a union.
  *
  * @param {object} language schema construction language
  * @param {Function} language.ref local-definition reference constructor
  * @param {Function} language.closedObject closed-object constructor
- * @returns {Record<string, unknown>} front-matter action schema
+ * @returns {Record<string, unknown>} the `postActionNone` and `contentAction` definitions
  */
-export function createContentActionDefinition({ ref, closedObject }) {
+export function createContentActionDefinitions({ ref, closedObject }) {
   return {
-    description:
-      'SCHEMA-3.56.0: the action shown after this article, overriding the site\'s `postAction`: any `postAction` shape, or `{ "kind": "none" }` to show no block on this article. Absent means the site\'s `postAction`. `action` is allowed only when `kind` is `article`.',
-    oneOf: [
-      ref('postAction'),
-      closedObject({ kind: { const: 'none' } }, ['kind']),
-    ],
+    postActionNone: closedObject({ kind: { const: 'none' } }, ['kind']),
+    contentAction: {
+      description:
+        'SCHEMA-3.56.0: the action shown after this article, overriding the site\'s `postAction`: any `postAction` shape, or `{ "kind": "none" }` to show no block on this article. Absent means the site\'s `postAction`. `action` is allowed only when `kind` is `article`.',
+      oneOf: [
+        ref('postActionFollow'),
+        ref('postActionNewsletter'),
+        ref('postActionLink'),
+        ref('postActionNone'),
+      ],
+    },
   };
 }
 
@@ -2891,8 +2909,8 @@ export function createCompositionBuildSchemas(language) {
         deleteDate: createDeleteDateDefinition(),
         contentFaq: createContentFaqDefinition(language),
         postActionUrl: createPostActionUrlDefinition(),
-        postAction: createPostActionDefinition(language),
-        contentAction: createContentActionDefinition(language),
+        ...createPostActionDefinitions(language),
+        ...createContentActionDefinitions(language),
         contactFormNormalized: createContactFormDefinition(
           language,
           ref('renderableBody'),

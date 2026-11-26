@@ -102,23 +102,29 @@ export type PublicationPolicyPage = Readonly<{
 }>;
 
 export type PublicationPostAction =
-  | Readonly<{
-      readonly heading?: PublicationPlainLabel;
-      readonly kind: 'follow';
-      readonly text?: PublicationPlainText;
-    }>
-  | Readonly<{
-      readonly heading?: PublicationPlainLabel;
-      readonly kind: 'link';
-      readonly label: PublicationPlainLabel;
-      readonly text?: PublicationPlainText;
-      readonly url: PublicationPostActionUrl;
-    }>
-  | Readonly<{
-      readonly heading?: PublicationPlainLabel;
-      readonly kind: 'newsletter';
-      readonly text?: PublicationPlainText;
-    }>;
+  | PublicationPostActionFollow
+  | PublicationPostActionLink
+  | PublicationPostActionNewsletter;
+
+export type PublicationPostActionFollow = Readonly<{
+  readonly heading?: PublicationPlainLabel;
+  readonly kind: 'follow';
+  readonly text?: PublicationPlainText;
+}>;
+
+export type PublicationPostActionLink = Readonly<{
+  readonly heading?: PublicationPlainLabel;
+  readonly kind: 'link';
+  readonly label: PublicationPlainLabel;
+  readonly text?: PublicationPlainText;
+  readonly url: PublicationPostActionUrl;
+}>;
+
+export type PublicationPostActionNewsletter = Readonly<{
+  readonly heading?: PublicationPlainLabel;
+  readonly kind: 'newsletter';
+  readonly text?: PublicationPlainText;
+}>;
 
 export type PublicationPostActionUrl = string;
 
