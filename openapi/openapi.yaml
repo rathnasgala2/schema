@@ -3122,13 +3122,15 @@ components:
       type: object
     FollowState:
       additionalProperties: false
-      description: "SCHEMA-3.27.0: whether the reader follows the author. `followers` is the number of readers following this author on this site; it is present only when the bearer token is for this publication and its principal holds `publication.audience.read` on it (the site's team, the same people who may open the Audience page), and absent for every other caller, including callers with no token."
+      description: "SCHEMA-3.27.0: whether the reader follows the author. `followers` is the number of readers following this author on this site; it is present only when the bearer token is for this publication and its principal holds `publication.audience.read` on it (the site's team, the same people who may open the Audience page), and absent for every other caller, including callers with no token. SCHEMA-3.56.0: `publicFollowers` is the DEC-036 lower-bound bucket of the author's followers (exact for 0 to 9, then 10+, 20+, 50+ and so on). It is present for every caller, signed in or not, exactly when the live generation's `gala/modules/interactions.json` has `follows.enabled` and `follows.publicCount` both true, and absent otherwise; the exact `followers` is unchanged and stays team-only."
       properties:
         followers:
           minimum: 0
           type: integer
         following:
           type: boolean
+        publicFollowers:
+          $ref: "#/components/schemas/PublicCount"
       required:
         - following
       type: object
@@ -4638,6 +4640,8 @@ components:
         - openChange
         - setUp
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsResponse:
+      $ref: "#/components/schemas/PostActionSettings"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryBindingsCurrentResponse:
       additionalProperties: false
       properties:
@@ -12477,6 +12481,19 @@ components:
       minLength: 1
       pattern: ^/(?!/)(?!.*//)(?!.*[?#]).*$
       type: string
+    PortableContentFrontmatterContentAction:
+      description: "SCHEMA-3.56.0: the action shown after this article, overriding the site's `postAction`: any `postAction` shape, or `{ \"kind\": \"none\" }` to show no block on this article. Absent means the site's `postAction`. `action` is allowed only when `kind` is `article`."
+      oneOf:
+        - $ref: "#/components/schemas/PortableContentFrontmatterPostAction"
+        - additionalProperties: false
+          properties:
+            kind:
+              pattern: ^none$
+              type: string
+              x-gala-const: none
+          required:
+            - kind
+          type: object
     PortableContentFrontmatterContentEdition:
       additionalProperties: false
       description: Prism edition of the article whose slug is `of`. `sourceDigest` is the digest of that article body the edition was generated from; an edition whose `sourceDigest` differs from the current article body digest is stale and is not rendered.
@@ -12673,10 +12690,23 @@ components:
                 x-gala-const: article
             required:
               - kind
+        - if:
+            required:
+              - action
+          then:
+            properties:
+              kind:
+                pattern: ^article$
+                type: string
+                x-gala-const: article
+            required:
+              - kind
       dependentRequired:
         seriesOrder:
           - series
       properties:
+        action:
+          $ref: "#/components/schemas/PortableContentFrontmatterContentAction"
         authors:
           items:
             $ref: "#/components/schemas/PortableContentFrontmatterStableId"
@@ -12866,6 +12896,80 @@ components:
     PortableContentFrontmatterPlainText:
       description: NFC Unicode text without disallowed C0/C1 controls or bidi override/isolate controls.
       format: gala-plain-text
+      type: string
+    PortableContentFrontmatterPostAction:
+      description: "SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block."
+      oneOf:
+        - additionalProperties: false
+          properties:
+            heading:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 80
+                minimum: 1
+            kind:
+              pattern: ^follow$
+              type: string
+              x-gala-const: follow
+            text:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 280
+                minimum: 1
+          required:
+            - kind
+          type: object
+        - additionalProperties: false
+          properties:
+            heading:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 80
+                minimum: 1
+            kind:
+              pattern: ^newsletter$
+              type: string
+              x-gala-const: newsletter
+            text:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 280
+                minimum: 1
+          required:
+            - kind
+          type: object
+        - additionalProperties: false
+          properties:
+            heading:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 80
+                minimum: 1
+            kind:
+              pattern: ^link$
+              type: string
+              x-gala-const: link
+            label:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 40
+                minimum: 1
+            text:
+              $ref: "#/components/schemas/PortableContentFrontmatterPlainText"
+              x-gala-graphemeLength:
+                maximum: 280
+                minimum: 1
+            url:
+              $ref: "#/components/schemas/PortableContentFrontmatterPostActionUrl"
+          required:
+            - kind
+            - label
+            - url
+          type: object
+    PortableContentFrontmatterPostActionUrl:
+      description: "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters."
+      maxLength: 2048
+      pattern: ^(?:https://(?![^/?#]*@)|/(?!/))
       type: string
     PortableContentFrontmatterPublishAfterDate:
       description: "SCHEMA-3.19.0: the calendar date (`YYYY-MM-DD`, day precision, read in the publication's staggered-release timezone) on or after which Galascribe publishes this draft. Meaningful only while `status` is `draft`; Galascribe removes it when the post is published. The API enforces both rules; the schema only fixes the shape."
@@ -18255,6 +18359,10 @@ components:
           properties:
             enabled:
               type: boolean
+            publicCount:
+              default: false
+              description: "SCHEMA-3.56.0: when true, with `enabled` true, the site shows how many readers follow an author to everyone, as a lower-bound bucket (exact for 0 to 9, then 10+, 20+, 50+ and so on; a bucket of 0 shows nothing). An absent member means false, so every 3.55 configuration still validates."
+              type: boolean
           required:
             - enabled
           type: object
@@ -18842,6 +18950,8 @@ components:
           $ref: "#/components/schemas/PortablePublicationPerformance"
         policies:
           $ref: "#/components/schemas/PortablePublicationPublicationPolicies"
+        postAction:
+          $ref: "#/components/schemas/PortablePublicationPostAction"
         profile:
           $ref: "#/components/schemas/PortablePublicationPublicationProfile"
         recommendations:
@@ -19098,6 +19208,80 @@ components:
         - title
         - body
       type: object
+    PortablePublicationPostAction:
+      description: "SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block."
+      oneOf:
+        - additionalProperties: false
+          properties:
+            heading:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 80
+                minimum: 1
+            kind:
+              pattern: ^follow$
+              type: string
+              x-gala-const: follow
+            text:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 280
+                minimum: 1
+          required:
+            - kind
+          type: object
+        - additionalProperties: false
+          properties:
+            heading:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 80
+                minimum: 1
+            kind:
+              pattern: ^newsletter$
+              type: string
+              x-gala-const: newsletter
+            text:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 280
+                minimum: 1
+          required:
+            - kind
+          type: object
+        - additionalProperties: false
+          properties:
+            heading:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 80
+                minimum: 1
+            kind:
+              pattern: ^link$
+              type: string
+              x-gala-const: link
+            label:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 40
+                minimum: 1
+            text:
+              $ref: "#/components/schemas/PortablePublicationPlainText"
+              x-gala-graphemeLength:
+                maximum: 280
+                minimum: 1
+            url:
+              $ref: "#/components/schemas/PortablePublicationPostActionUrl"
+          required:
+            - kind
+            - label
+            - url
+          type: object
+    PortablePublicationPostActionUrl:
+      description: "SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters."
+      maxLength: 2048
+      pattern: ^(?:https://(?![^/?#]*@)|/(?!/))
+      type: string
     PortablePublicationPublicationPolicies:
       additionalProperties: false
       properties:
@@ -19232,6 +19416,28 @@ components:
       format: uri
       pattern: ^https://(?![^/?#]*@)
       type: string
+    PostActionSettings:
+      additionalProperties: false
+      description: "SCHEMA-3.56.0: the end-of-post action of a site at the linked repository's main branch head: the `postAction` member of `gala/publication.json`, absent when the publication has none (no block is shown after posts). `followsEnabled` is true when `gala/modules/interactions.json` has `follows.enabled` true; `newsletterEnabled` is true when the site's newsletter is in Galascribe mode. Both are read-only: a `follow` or `newsletter` action does nothing while its feature is off. `openChange` names an existing not-yet-published change of this publication that touches the file, or is null. `setUp` matches `GET .../repository/setup` `state`."
+      properties:
+        followsEnabled:
+          type: boolean
+        newsletterEnabled:
+          type: boolean
+        openChange:
+          oneOf:
+            - $ref: "#/components/schemas/PublicationAppearanceOpenChange"
+            - type: "null"
+        postAction:
+          $ref: "#/components/schemas/PortablePublicationPostAction"
+        setUp:
+          type: boolean
+      required:
+        - followsEnabled
+        - newsletterEnabled
+        - openChange
+        - setUp
+      type: object
     PostAuthenticationGithubTransactionsRequest:
       additionalProperties: false
       properties:
@@ -24417,6 +24623,25 @@ components:
         - privacy
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdPolicySettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: "#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse"
+      required:
+        - change
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsRequest:
+      additionalProperties: false
+      properties:
+        postAction:
+          description: "SCHEMA-3.56.0: the end-of-post action to write as the `postAction` member of `gala/publication.json`; null removes the member."
+          oneOf:
+            - $ref: "#/components/schemas/PortablePublicationPostAction"
+            - type: "null"
+      required:
+        - postAction
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsResponse:
       additionalProperties: false
       properties:
         change:
@@ -54125,7 +54350,7 @@ paths:
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/interaction-settings:
     get:
-      description: Reads `gala/modules/interactions.json` at the linked repository's current main branch head. `settings` is null when the file is absent, which means reader interactions are off. `settings.follows.enabled` (SCHEMA-3.23.0) is the Follow button switch; absent means off. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches the file, or is null.
+      description: Reads `gala/modules/interactions.json` at the linked repository's current main branch head. `settings` is null when the file is absent, which means reader interactions are off. `settings.follows.enabled` (SCHEMA-3.23.0) is the Follow button switch; absent means off. `settings.follows.publicCount` (SCHEMA-3.56.0) is an optional boolean. With `enabled` true, the site shows the author's follower count to everyone as a lower-bound bucket; absent means false. `setUp` matches `GET .../repository/setup`'s `state`; `openChange` names an existing not-yet-published change of this publication that touches the file, or is null.
       operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -54347,7 +54572,7 @@ paths:
       x-gala-success-category: query
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
     put:
-      description: The server writes `gala/modules/interactions.json` as a repository change, the way a theme selection writes `gala/appearance.json`. Publishing the change uses the normal publish flow. `change` has the shape the theme-selection write returns. `settings.follows.enabled` (SCHEMA-3.23.0) turns the Follow button on; absent means off.
+      description: The server writes `gala/modules/interactions.json` as a repository change, the way a theme selection writes `gala/appearance.json`. Publishing the change uses the normal publish flow. `change` has the shape the theme-selection write returns. `settings.follows.enabled` (SCHEMA-3.23.0) turns the Follow button on; absent means off. `settings.follows.publicCount` (SCHEMA-3.56.0) is an optional boolean. With `enabled` true, it shows the follower count to everyone as a lower-bound bucket; absent means false.
       operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettings
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"
@@ -64441,6 +64666,408 @@ paths:
       x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
       x-gala-nullability: required-and-nullable-are-explicit
       x-gala-purpose: save this publication's Terms and Privacy text as a repository change
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - COMMAND_REPLAY_CONFLICT
+        - INVALID_SOURCE_STATE
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - TRANSFER_PENDING
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - Publication:ACTIVE
+        - RepositoryBinding:ACTIVE
+        - RepositoryChange:REQUESTED -> PLANNED
+      x-gala-success-category: protocol
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/post-action-settings:
+    get:
+      description: Reads (SCHEMA-3.56.0) the `postAction` member of `gala/publication.json` at the linked repository's current main branch head. A publication with no `postAction` member reads `postAction` absent, which means no block is shown after posts. `followsEnabled` and `newsletterEnabled` are the API's own reading of the site (the Follow button is on in `gala/modules/interactions.json`; the newsletter is in Galascribe mode) and are never written to the repository.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettings
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    followsEnabled: true
+                    newsletterEnabled: false
+                    openChange: null
+                    setUp: true
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsResponse"
+          description: read this publication's post-action settings at the main branch head succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          $ref: "#/components/responses/AuthorizationDenied"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "429":
+          content:
+            application/problem+json:
+              examples:
+                RATE_LIMITED:
+                  summary: RATE_LIMITED
+                  value:
+                    code: RATE_LIMITED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 429
+                    title: RATE_LIMITED
+                    type: urn:gala:problem:rate-limited
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RATE_LIMITED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            Retry-After:
+              $ref: "#/components/headers/RetryAfter"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RATE_LIMITED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+                DEPENDENCY_UNAVAILABLE:
+                  summary: DEPENDENCY_UNAVAILABLE
+                  value:
+                    code: DEPENDENCY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: true
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: DEPENDENCY_UNAVAILABLE
+                    type: urn:gala:problem:dependency-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE, DEPENDENCY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: read this publication's post-action settings at the main branch head
+      tags:
+        - interaction-settings
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read this publication's post-action settings at the main branch head
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - CAPABILITY_UNAVAILABLE
+        - DEPENDENCY_UNAVAILABLE
+        - RATE_LIMITED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    put:
+      description: The server writes (SCHEMA-3.56.0) the `postAction` member of `gala/publication.json` as one repository change, the way `listen-settings` writes the `listen` member. Publishing the change uses the normal publish flow. `change` has the shape the theme-selection write returns. A `postAction` of null removes the member. Every plan may save it. A save that changes nothing is `422 VALIDATION_FAILED`.
+      operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettings
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  postAction:
+                    kind: follow
+            schema:
+              $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    change:
+                      changeId: 018f0000-0000-7000-8000-000000000001
+                      diffDigest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+                      expectedHead: sha1:0000000000000000000000000000000000000000
+                      state: REQUESTED
+                      version: 0
+              schema:
+                $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsResponse"
+          description: save this publication's post-action settings as a repository change succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          $ref: "#/components/responses/RequestInvalid"
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          $ref: "#/components/responses/AuthorizationDenied"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+                INVALID_SOURCE_STATE:
+                  summary: INVALID_SOURCE_STATE
+                  value:
+                    code: INVALID_SOURCE_STATE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: INVALID_SOURCE_STATE
+                    type: urn:gala:problem:invalid-source-state
+                TRANSFER_PENDING:
+                  summary: TRANSFER_PENDING
+                  value:
+                    code: TRANSFER_PENDING
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: TRANSFER_PENDING
+                    type: urn:gala:problem:transfer-pending
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT, INVALID_SOURCE_STATE, TRANSFER_PENDING
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+            - INVALID_SOURCE_STATE
+            - TRANSFER_PENDING
+        "422":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 422
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "503":
+          content:
+            application/problem+json:
+              examples:
+                CAPABILITY_UNAVAILABLE:
+                  summary: CAPABILITY_UNAVAILABLE
+                  value:
+                    code: CAPABILITY_UNAVAILABLE
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 503
+                    title: CAPABILITY_UNAVAILABLE
+                    type: urn:gala:problem:capability-unavailable
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: CAPABILITY_UNAVAILABLE
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - CAPABILITY_UNAVAILABLE
+      security:
+        - browserSession: []
+      summary: save this publication's post-action settings as a repository change
+      tags:
+        - interaction-settings
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - Active repository binding and configured GitHub App identity capability
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: expected-git-head-and-binding-epoch
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: save this publication's post-action settings as a repository change
       x-gala-reachable-problems:
         - AUTHENTICATION_REQUIRED
         - AUTHORIZATION_DENIED
@@ -90714,7 +91341,7 @@ paths:
       x-gala-success-category: protocol
       x-gala-tenant-scope: NONE
     get:
-      description: Public read with an optional reader bearer token. With a token, `following` says whether that reader follows the author; without one it is false. The site's Follow button decides whether to show itself from the `follows.enabled` setting it was built with, not from this read. On a site-team token (this publication's token whose principal holds `publication.audience.read`) the response also carries `followers`, the number of readers following the author; it is absent for every other caller, including callers with no token.
+      description: "Public read with an optional reader bearer token. With a token, `following` says whether that reader follows the author; without one it is false. The site's Follow button decides whether to show itself from the `follows.enabled` setting it was built with, not from this read. On a site-team token (this publication's token whose principal holds `publication.audience.read`) the response also carries `followers`, the number of readers following the author; it is absent for every other caller, including callers with no token. SCHEMA-3.56.0: when the live generation's `gala/modules/interactions.json` has `follows.enabled` and `follows.publicCount` both true, every caller, signed in or not, also gets `publicFollowers`, the DEC-036 lower-bound bucket of the author's followers (a bucket of 0 is still present; the site shows nothing for it). An anonymous answer that carries `publicFollowers` is `Cache-Control: public, max-age=<interactions.publicCounts.freshnessSeconds>`; every other answer keeps `Cache-Control: no-store` and `Vary: Authorization`."
       operationId: getPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
       parameters:
         - $ref: "#/components/parameters/XCorrelationId"

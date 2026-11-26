@@ -16516,13 +16516,21 @@ components:
         only when the bearer token is for this publication and its principal
         holds `publication.audience.read` on it (the site's team, the same
         people who may open the Audience page), and absent for every other
-        caller, including callers with no token."
+        caller, including callers with no token. SCHEMA-3.56.0:
+        `publicFollowers` is the DEC-036 lower-bound bucket of the author's
+        followers (exact for 0 to 9, then 10+, 20+, 50+ and so on). It is
+        present for every caller, signed in or not, exactly when the live
+        generation's `gala/modules/interactions.json` has `follows.enabled` and
+        `follows.publicCount` both true, and absent otherwise; the exact
+        `followers` is unchanged and stays team-only."
       properties:
         followers:
           minimum: 0
           type: integer
         following:
           type: boolean
+        publicFollowers:
+          $ref: '#/components/schemas/PublicCount'
       required:
         - following
       type: object
@@ -16649,6 +16657,8 @@ components:
       $ref: '#/components/schemas/PublicationOverview'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse:
       $ref: '#/components/schemas/ListenSettings'
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsResponse:
+      $ref: '#/components/schemas/PostActionSettings'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterIssuesResponse:
       additionalProperties: false
       properties:
@@ -16848,6 +16858,38 @@ components:
       required:
         - enabled
         - planAllows
+        - openChange
+        - setUp
+      type: object
+    PostActionSettings:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.56.0: the end-of-post action of a site at the linked
+        repository's main branch head: the `postAction` member of
+        `gala/publication.json`, absent when the publication has none (no block
+        is shown after posts). `followsEnabled` is true when
+        `gala/modules/interactions.json` has `follows.enabled` true;
+        `newsletterEnabled` is true when the site's newsletter is in Galascribe
+        mode. Both are read-only: a `follow` or `newsletter` action does nothing
+        while its feature is off. `openChange` names an existing
+        not-yet-published change of this publication that touches the file, or
+        is null. `setUp` matches `GET .../repository/setup` `state`."
+      properties:
+        followsEnabled:
+          type: boolean
+        newsletterEnabled:
+          type: boolean
+        openChange:
+          oneOf:
+            - $ref: '#/components/schemas/PublicationAppearanceOpenChange'
+            - type: 'null'
+        postAction:
+          $ref: ../schemas/publication.schema.json#/$defs/postAction
+        setUp:
+          type: boolean
+      required:
+        - followsEnabled
+        - newsletterEnabled
         - openChange
         - setUp
       type: object
@@ -17864,6 +17906,27 @@ components:
         - enabled
       type: object
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdListenSettingsResponse:
+      additionalProperties: false
+      properties:
+        change:
+          $ref: '#/components/schemas/PostOrganizationsByOrganizationIdPublicationsByPublicationIdContentChangesPlanResponse'
+      required:
+        - change
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsRequest:
+      additionalProperties: false
+      properties:
+        postAction:
+          description:
+            'SCHEMA-3.56.0: the end-of-post action to write as the `postAction`
+            member of `gala/publication.json`; null removes the member.'
+          oneOf:
+            - $ref: ../schemas/publication.schema.json#/$defs/postAction
+            - type: 'null'
+      required:
+        - postAction
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettingsResponse:
       additionalProperties: false
       properties:
         change:

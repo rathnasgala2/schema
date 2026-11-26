@@ -29,6 +29,9 @@ const CLOSED_STRING_BOUNDARY_EXCLUSIONS = new Set([
   '#/$defs/managedFailureCode:minLength',
   '#/$defs/observedRedirectLocation:minLength',
   '#/$defs/packageExact:minLength',
+  // SCHEMA-3.56.0: a union of an https URL and a site path; the 2048-character
+  // limit is exercised by the hand-written post-action URL cases.
+  '#/$defs/postActionUrl:maxLength',
   '#/$defs/packageRange:minLength',
   '#/$defs/semverRange:minLength',
   '#/$defs/spdxExpression:minLength',
@@ -2692,6 +2695,176 @@ function summaryFaqCases(canonical) {
 }
 
 /**
+ * SCHEMA-3.56.0: the cases of the end-of-post action. `postAction` is checked
+ * on the normalized build-input publication and on the author-source
+ * `publication` document; `action` (the post's own override, which also admits
+ * `{ kind: "none" }`) on the normalized build-input front matter and on the
+ * author-source `content-frontmatter` document.
+ *
+ * @param {(contract: string) => Record<string, unknown>} canonical cloned canonical document by contract
+ * @returns {Array<Record<string, unknown>>} fixture cases
+ */
+function postActionCases(canonical) {
+  const link = {
+    kind: 'link',
+    label: 'Book a call',
+    url: 'https://example.com/call',
+  };
+  /** @type {Array<Record<string, unknown>>} */
+  const cases = [];
+  /**
+   * @type {Array<[string, string, string, (change: (holder: Record<string, unknown>) => void) => Record<string, unknown>]>}
+   */
+  const variants = [
+    [
+      'normalized-publication',
+      '/publication',
+      'postAction',
+      (/** @type {(holder: Record<string, unknown>) => void} */ change) => {
+        const input = canonical('build-input');
+        change(
+          requireS2Record(input.publication, 'S2_BUILD_PUBLICATION_ABSENT'),
+        );
+        return input;
+      },
+    ],
+    [
+      'publication',
+      '',
+      'postAction',
+      (/** @type {(holder: Record<string, unknown>) => void} */ change) => {
+        const document = canonical('publication');
+        change(document);
+        return document;
+      },
+    ],
+    [
+      'normalized-content',
+      '/content/0/frontmatter',
+      'action',
+      (/** @type {(holder: Record<string, unknown>) => void} */ change) => {
+        const input = canonical('build-input');
+        change(
+          requireS2Record(
+            firstS2Record(input.content, 'S2_BUILD_CONTENT_ABSENT').frontmatter,
+            'S2_BUILD_FRONTMATTER_ABSENT',
+          ),
+        );
+        return input;
+      },
+    ],
+    [
+      'frontmatter',
+      '',
+      'action',
+      (/** @type {(holder: Record<string, unknown>) => void} */ change) => {
+        const document = canonical('content-frontmatter');
+        change(document);
+        return document;
+      },
+    ],
+  ];
+  for (const [prefix, base, member, build] of variants) {
+    const isAction = member === 'action';
+    const name = `${prefix}-${isAction ? 'action' : 'post-action'}`;
+    const valid = (/** @type {string} */ label, /** @type {unknown} */ value) =>
+      s2Case(
+        `${name}-${label}-valid`,
+        build((holder) => {
+          holder[member] = value;
+        }),
+      );
+    const invalid = (
+      /** @type {string} */ label,
+      /** @type {unknown} */ value,
+      /** @type {string} */ code,
+      /** @type {string} */ pointer = '',
+      /** @type {(holder: Record<string, unknown>) => void} */ extra = () => {},
+    ) =>
+      s2Case(
+        `${name}-${label}-invalid`,
+        build((holder) => {
+          holder[member] = value;
+          extra(holder);
+        }),
+        [{ code, instancePointer: `${base}/${member}${pointer}` }],
+      );
+    cases.push(
+      valid('follow', { kind: 'follow' }),
+      valid('follow-with-text', {
+        kind: 'follow',
+        heading: 'Enjoyed this?',
+        text: 'Follow to get the next one.',
+      }),
+      valid('newsletter', { kind: 'newsletter', heading: 'Stay in touch' }),
+      valid('link', link),
+      valid('link-site-path', { ...link, url: '/contact/' }),
+      valid('link-url-at-limit', {
+        ...link,
+        url: `https://example.com/${'a'.repeat(2048 - 20)}`,
+      }),
+      invalid('kind-unknown', { kind: 'button' }, 'SCHEMA_UNION_INVALID'),
+      invalid(
+        'link-label-missing',
+        { kind: 'link', url: 'https://example.com/call' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'link-url-missing',
+        { kind: 'link', label: 'Book a call' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'link-url-too-long',
+        { ...link, url: `https://example.com/${'a'.repeat(2040)}` },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'link-url-double-slash',
+        { ...link, url: '//example.com/call' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'link-url-http',
+        { ...link, url: 'http://example.com/call' },
+        'SCHEMA_UNION_INVALID',
+      ),
+      invalid(
+        'follow-unknown-member',
+        { kind: 'follow', label: 'Follow' },
+        'SCHEMA_UNION_INVALID',
+      ),
+    );
+    if (isAction) {
+      cases.push(
+        valid('none', { kind: 'none' }),
+        invalid(
+          'none-with-text',
+          { kind: 'none', text: 'Hidden' },
+          'SCHEMA_UNION_INVALID',
+        ),
+        s2Case(
+          `${name}-on-page-invalid`,
+          build((holder) => {
+            holder[member] = { kind: 'follow' };
+            holder.kind = 'page';
+          }),
+          [
+            {
+              code: 'SCHEMA_CONSTANT_INVALID',
+              instancePointer: `${base}/kind`,
+            },
+          ],
+        ),
+      );
+    } else {
+      cases.push(invalid('none', { kind: 'none' }, 'SCHEMA_UNION_INVALID'));
+    }
+  }
+  return cases;
+}
+
+/**
  * SCHEMA-3.26.0: the normalized-input cases of Listen, the publication switch
  * and the resolved audio of an article.
  *
@@ -3129,6 +3302,20 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
         },
       ],
     ),
+    s2Case(
+      'build-input-valid-follows-public-count',
+      followsModule({ enabled: true, publicCount: true }),
+    ),
+    s2Case(
+      'build-input-rejects-follows-public-count-not-boolean',
+      followsModule({ enabled: true, publicCount: 'yes' }),
+      [
+        {
+          code: 'SCHEMA_TYPE_INVALID',
+          instancePointer: '/modules/interactions/config/follows/publicCount',
+        },
+      ],
+    ),
     s2Case('build-input-rejects-follows-without-enabled', followsModule({}), [
       {
         code: 'SCHEMA_REQUIRED_FIELD_MISSING',
@@ -3283,6 +3470,7 @@ function addS2Corpus(outputs, schemas, canonicalDocuments) {
     ),
     ...listenNormalizedCases(canonical, withPublication),
     ...summaryFaqCases(canonical),
+    ...postActionCases(canonical),
   ]);
 
   const unicodePath = canonical('repository');

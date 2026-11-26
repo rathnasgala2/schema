@@ -24,6 +24,8 @@ const S2_FAMILIES = [
       'build-input-valid-policies',
       'build-input-valid-follows-module',
       'build-input-rejects-follows-unknown-member',
+      'build-input-valid-follows-public-count',
+      'build-input-rejects-follows-public-count-not-boolean',
       'build-input-rejects-follows-without-enabled',
       'build-input-rejects-follows-enabled-not-boolean',
       'build-input-rejects-nonempty-placements',
@@ -86,6 +88,66 @@ const S2_FAMILIES = [
       'frontmatter-faq-answer-over-1000-invalid',
       'frontmatter-summary-on-page-invalid',
       'frontmatter-faq-on-page-invalid',
+      'normalized-publication-post-action-follow-valid',
+      'normalized-publication-post-action-follow-with-text-valid',
+      'normalized-publication-post-action-newsletter-valid',
+      'normalized-publication-post-action-link-valid',
+      'normalized-publication-post-action-link-site-path-valid',
+      'normalized-publication-post-action-link-url-at-limit-valid',
+      'normalized-publication-post-action-kind-unknown-invalid',
+      'normalized-publication-post-action-link-label-missing-invalid',
+      'normalized-publication-post-action-link-url-missing-invalid',
+      'normalized-publication-post-action-link-url-too-long-invalid',
+      'normalized-publication-post-action-link-url-double-slash-invalid',
+      'normalized-publication-post-action-link-url-http-invalid',
+      'normalized-publication-post-action-follow-unknown-member-invalid',
+      'normalized-publication-post-action-none-invalid',
+      'publication-post-action-follow-valid',
+      'publication-post-action-follow-with-text-valid',
+      'publication-post-action-newsletter-valid',
+      'publication-post-action-link-valid',
+      'publication-post-action-link-site-path-valid',
+      'publication-post-action-link-url-at-limit-valid',
+      'publication-post-action-kind-unknown-invalid',
+      'publication-post-action-link-label-missing-invalid',
+      'publication-post-action-link-url-missing-invalid',
+      'publication-post-action-link-url-too-long-invalid',
+      'publication-post-action-link-url-double-slash-invalid',
+      'publication-post-action-link-url-http-invalid',
+      'publication-post-action-follow-unknown-member-invalid',
+      'publication-post-action-none-invalid',
+      'normalized-content-action-follow-valid',
+      'normalized-content-action-follow-with-text-valid',
+      'normalized-content-action-newsletter-valid',
+      'normalized-content-action-link-valid',
+      'normalized-content-action-link-site-path-valid',
+      'normalized-content-action-link-url-at-limit-valid',
+      'normalized-content-action-kind-unknown-invalid',
+      'normalized-content-action-link-label-missing-invalid',
+      'normalized-content-action-link-url-missing-invalid',
+      'normalized-content-action-link-url-too-long-invalid',
+      'normalized-content-action-link-url-double-slash-invalid',
+      'normalized-content-action-link-url-http-invalid',
+      'normalized-content-action-follow-unknown-member-invalid',
+      'normalized-content-action-none-valid',
+      'normalized-content-action-none-with-text-invalid',
+      'normalized-content-action-on-page-invalid',
+      'frontmatter-action-follow-valid',
+      'frontmatter-action-follow-with-text-valid',
+      'frontmatter-action-newsletter-valid',
+      'frontmatter-action-link-valid',
+      'frontmatter-action-link-site-path-valid',
+      'frontmatter-action-link-url-at-limit-valid',
+      'frontmatter-action-kind-unknown-invalid',
+      'frontmatter-action-link-label-missing-invalid',
+      'frontmatter-action-link-url-missing-invalid',
+      'frontmatter-action-link-url-too-long-invalid',
+      'frontmatter-action-link-url-double-slash-invalid',
+      'frontmatter-action-link-url-http-invalid',
+      'frontmatter-action-follow-unknown-member-invalid',
+      'frontmatter-action-none-valid',
+      'frontmatter-action-none-with-text-invalid',
+      'frontmatter-action-on-page-invalid',
     ],
   },
   {
@@ -205,7 +267,7 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     aggregate.update(await readFile(file));
     aggregate.update(Buffer.from([0]));
   }
-  assert.equal(files.length, 911);
+  assert.equal(files.length, 912);
   assert.equal(
     // 2026-09-25 code-discipline review, SCH-C3: thirteen $defs shared by
     // name across roots had diverged under the same name with nothing
@@ -349,7 +411,13 @@ test('legacy generated fixtures remain byte-exact outside the S2 subtree', async
     // `faq` members regenerated the content-frontmatter and build-input valid,
     // boundary, unknown-field and invalid fixtures and the manifest. No file
     // added or removed (911).
-    'e1677b0e054f92cd15e05d5229c23843d25ff7b1c1438a3adacbd6029663053c',
+    //
+    // 3.56.0 (reviewed 2026-11-26): the optional `postAction` and article-only
+    // `action` members and `follows.publicCount` regenerated the
+    // content-frontmatter, build-input, publication and interactions-config
+    // valid, boundary, unknown-field and invalid fixtures and the manifest,
+    // and added content-frontmatter/SCHEMA_UNION_INVALID (912 files).
+    '4284428d15bb4ea896e5bc82ef5efa7997b254754d222423b13207906195cb04',
   );
 });
 

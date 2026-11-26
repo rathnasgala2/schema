@@ -114,10 +114,22 @@ export function interactionsConfigParts(language) {
         { reactions: { type: 'boolean' }, comments: { type: 'boolean' } },
         ['reactions', 'comments'],
       ),
-      follows: closedObject({ enabled: { type: 'boolean' } }, ['enabled'], {
-        description:
-          'SCHEMA-3.22.0: reader follows. `enabled: true` shows the Follow control, with which a signed-in reader follows an author of the site; an absent `follows` member means off. The user template seeds it on for new sites.',
-      }),
+      follows: closedObject(
+        {
+          enabled: { type: 'boolean' },
+          publicCount: {
+            type: 'boolean',
+            default: false,
+            description:
+              'SCHEMA-3.56.0: when true, with `enabled` true, the site shows how many readers follow an author to everyone, as a lower-bound bucket (exact for 0 to 9, then 10+, 20+, 50+ and so on; a bucket of 0 shows nothing). An absent member means false, so every 3.55 configuration still validates.',
+          },
+        },
+        ['enabled'],
+        {
+          description:
+            'SCHEMA-3.22.0: reader follows. `enabled: true` shows the Follow control, with which a signed-in reader follows an author of the site; an absent `follows` member means off. The user template seeds it on for new sites.',
+        },
+      ),
     },
     required: ['reactions', 'comments', 'publicCounts'],
     definitions: { reactionKey, reactionVisual, reactionDefinition },

@@ -134,7 +134,9 @@ const T03_SCHEMA_HASHES = {
     // 3.53.0 (reviewed 2026-11-22): the normalized publication's listen member becomes the new $defs/listenNormalized and admits the optional podcast object (enabled, category, explicit, cover as a resolved file {path, sourceDigest}, description, ownerEmail). Additive.
     //
     // 3.55.0 (reviewed 2026-11-23): the optional article-only summary and faq members (new $defs/contentFaq). Additive.
-    '586896fb0aeb8417ac74ff8b3294a8683e3fe3aa24ebe087d51cc022c32425fb',
+    //
+    // 3.56.0 (reviewed 2026-11-26): the normalized publication's optional postAction (new $defs/postAction, $defs/postActionUrl) and the content record's optional article-only action (new $defs/contentAction), and the interactions config's follows.publicCount. Additive.
+    '611b74c0ddc2fd16d2db24fa14688f87f589f24dacd4d44ec0df83456a443ee2',
   'content-frontmatter':
     // SCHEMA-3.3.0: kind admits edition, with the closed edition block
     // required exactly when kind is edition (new $defs/contentEdition).
@@ -157,7 +159,9 @@ const T03_SCHEMA_HASHES = {
     // 3.53.0 (reviewed 2026-11-22): the optional newsletterTag and newsletterSubjectB members. Additive.
     //
     // 3.55.0 (reviewed 2026-11-23): the optional article-only summary and faq members (new $defs/contentFaq). Additive.
-    '825b9f323659c5225158be0332d9f4effb5abf0e5db9bdbd306493f495ab839e',
+    //
+    // 3.56.0 (reviewed 2026-11-26): the optional article-only action member (new $defs/postAction, $defs/postActionUrl, $defs/contentAction). Additive.
+    '3b36b8cf17a7fbfc5ed823ee55a7845c3c189344ff168cbf85b3fcd0b94c3aaf',
   'deployment-intent':
     // 2026-09-25 code-discipline review, SCH-C3: int64/nonNegativeInt64
     // description reconciled and positiveInt64 gained a real upper bound
@@ -220,7 +224,9 @@ const T03_SCHEMA_HASHES = {
     // platform default share set. Additive.
     //
     // 3.53.0 (reviewed 2026-11-22): $defs/listen admits the optional podcast object (cover is a repository-relative path; build-input carries the resolved-file form as $defs/listenNormalized). Additive.
-    '9955656ec2ae3dc7c11c4e50187a41ce7a81c6bd4856a6167a3fc372d3c79e54',
+    //
+    // 3.56.0 (reviewed 2026-11-26): the optional postAction member (new $defs/postAction, $defs/postActionUrl). Additive.
+    '44f762098450ce697e3f53003da1888e43a03c28b1a37ddffb176a3133b7a96e',
   repository:
     'f641eac15252642b225e0ee58bea4f83d4cf7d706929dfff9148dfdaa0788486',
   'template-composition':

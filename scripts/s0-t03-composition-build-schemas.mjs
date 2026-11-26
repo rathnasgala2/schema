@@ -909,6 +909,98 @@ export function faqRule() {
   };
 }
 
+/**
+ * SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL
+ * (no credentials) or a path on the site that starts with a single `/`. At
+ * most 2048 characters either way. One pattern carries both rules, so every
+ * consumer validates the same string.
+ *
+ * @returns {Record<string, unknown>} URL-or-site-path schema
+ */
+export function createPostActionUrlDefinition() {
+  return {
+    type: 'string',
+    maxLength: 2048,
+    pattern: '^(?:https://(?![^/?#]*@)|/(?!/))',
+    description:
+      'SCHEMA-3.56.0: where a `link` post action points: an absolute `https://` URL without embedded credentials, or a site path that starts with a single `/` (a leading `//` is refused). At most 2048 characters.',
+  };
+}
+
+/**
+ * SCHEMA-3.56.0: the end-of-post action, a union on `kind`. Shared by the
+ * `publication` root (`postAction`), the `content-frontmatter` root (`action`)
+ * and the normalized `build-input` publication and content record, so the
+ * shared-definition gate holds.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @param {Function} language.graphemeBound grapheme-bound constructor
+ * @returns {Record<string, unknown>} post action union schema
+ */
+export function createPostActionDefinition({
+  ref,
+  closedObject,
+  graphemeBound,
+}) {
+  const heading = graphemeBound(ref('plainText'), 1, 80);
+  const text = graphemeBound(ref('plainText'), 1, 280);
+  return {
+    description:
+      'SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter sign-up, which needs a Galascribe-mode newsletter on the site) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block.',
+    oneOf: [
+      closedObject({ kind: { const: 'follow' }, heading, text }, ['kind']),
+      closedObject({ kind: { const: 'newsletter' }, heading, text }, ['kind']),
+      closedObject(
+        {
+          kind: { const: 'link' },
+          heading,
+          text,
+          label: graphemeBound(ref('plainText'), 1, 40),
+          url: ref('postActionUrl'),
+        },
+        ['kind', 'label', 'url'],
+      ),
+    ],
+  };
+}
+
+/**
+ * SCHEMA-3.56.0: a post's own `action`: the site's action shape, or
+ * `{ kind: "none" }` to hide the block on this post.
+ *
+ * @param {object} language schema construction language
+ * @param {Function} language.ref local-definition reference constructor
+ * @param {Function} language.closedObject closed-object constructor
+ * @returns {Record<string, unknown>} front-matter action schema
+ */
+export function createContentActionDefinition({ ref, closedObject }) {
+  return {
+    description:
+      'SCHEMA-3.56.0: the action shown after this article, overriding the site\'s `postAction`: any `postAction` shape, or `{ "kind": "none" }` to show no block on this article. Absent means the site\'s `postAction`. `action` is allowed only when `kind` is `article`.',
+    oneOf: [
+      ref('postAction'),
+      closedObject({ kind: { const: 'none' } }, ['kind']),
+    ],
+  };
+}
+
+/**
+ * Create the `action` shape rule: the member is allowed only on an article.
+ *
+ * @returns {Record<string, unknown>} one `allOf` member
+ */
+export function actionRule() {
+  return {
+    if: { required: ['action'] },
+    then: {
+      properties: { kind: { const: 'article' } },
+      required: ['kind'],
+    },
+  };
+}
+
 /** SCHEMA-3.21.0 `translationOf` description shared by every frontmatter schema. */
 export const TRANSLATION_OF_DESCRIPTION =
   "SCHEMA-3.21.0: the slug of the article this document translates. The group is that article (the primary, in the publication's default language) plus every document naming it. The target must exist in the same content root, be `kind: article`, carry a different `language`, and must not itself carry `translationOf`; at most one document per language per group. A translation's default route is `/<language lowercased>/<primary slug>/` unless `route` is set. The API enforces the cross-document rules; the schema only fixes the shape: `translationOf` is allowed only when `kind` is `article` and never together with `edition`.";
@@ -1527,6 +1619,7 @@ export function createCompositionBuildSchemas(language) {
       aiRights: ref('aiRights'),
       performance: ref('performance'),
       newsletter: ref('newsletter'),
+      postAction: ref('postAction'),
       sharing: ref('resolvedSharing'),
       contactForm: ref('contactFormNormalized'),
       listen: {
@@ -1661,6 +1754,7 @@ export function createCompositionBuildSchemas(language) {
         description: SUMMARY_DESCRIPTION,
       },
       faq: ref('contentFaq'),
+      action: ref('contentAction'),
     },
     [
       'id',
@@ -1683,6 +1777,7 @@ export function createCompositionBuildSchemas(language) {
         listenRule(),
         summaryRule(),
         faqRule(),
+        actionRule(),
       ],
       $comment:
         'Timestamp ordering, canonical set ordering, route derivation, and route/redirect collision rules are enforced semantically.',
@@ -2795,6 +2890,9 @@ export function createCompositionBuildSchemas(language) {
         performance: createPerformanceDefinition(language),
         deleteDate: createDeleteDateDefinition(),
         contentFaq: createContentFaqDefinition(language),
+        postActionUrl: createPostActionUrlDefinition(),
+        postAction: createPostActionDefinition(language),
+        contentAction: createContentActionDefinition(language),
         contactFormNormalized: createContactFormDefinition(
           language,
           ref('renderableBody'),

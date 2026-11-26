@@ -2299,14 +2299,22 @@ paths:
       x-gala-tenant-scope: NONE
     get:
       description:
-        Public read with an optional reader bearer token. With a token,
+        "Public read with an optional reader bearer token. With a token,
         `following` says whether that reader follows the author; without one it
         is false. The site's Follow button decides whether to show itself from
         the `follows.enabled` setting it was built with, not from this read. On
         a site-team token (this publication's token whose principal holds
         `publication.audience.read`) the response also carries `followers`, the
         number of readers following the author; it is absent for every other
-        caller, including callers with no token.
+        caller, including callers with no token. SCHEMA-3.56.0: when the live
+        generation's `gala/modules/interactions.json` has `follows.enabled` and
+        `follows.publicCount` both true, every caller, signed in or not, also
+        gets `publicFollowers`, the DEC-036 lower-bound bucket of the author's
+        followers (a bucket of 0 is still present; the site shows nothing for
+        it). An anonymous answer that carries `publicFollowers` is
+        `Cache-Control: public,
+        max-age=<interactions.publicCounts.freshnessSeconds>`; every other
+        answer keeps `Cache-Control: no-store` and `Vary: Authorization`."
       operationId: getPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow
       parameters:
         - $ref: '#/components/parameters/XCorrelationId'

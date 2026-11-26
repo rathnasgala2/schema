@@ -14,7 +14,11 @@ import {
   createCompositionBuildSchemas,
   createContentEditionDefinition,
   createContactFormDefinition,
+  createContentActionDefinition,
   createContentFaqDefinition,
+  createPostActionDefinition,
+  createPostActionUrlDefinition,
+  actionRule,
   createContentListenDefinition,
   createContentSeoDefinition,
   createListenDefinition,
@@ -504,6 +508,7 @@ const schemas = {
       policies: ref('publicationPolicies'),
       footerCard: ref('footerCard'),
       newsletter: ref('newsletter'),
+      postAction: ref('postAction'),
       sharing: ref('sharing'),
       contactForm: ref('contactForm'),
       crawlers: ref('crawlers'),
@@ -532,6 +537,12 @@ const schemas = {
       publicationPolicies,
       footerCard,
       newsletter: createNewsletterDefinition({
+        ref,
+        closedObject,
+        graphemeBound,
+      }),
+      postActionUrl: createPostActionUrlDefinition(),
+      postAction: createPostActionDefinition({
         ref,
         closedObject,
         graphemeBound,
@@ -679,6 +690,7 @@ const schemas = {
         description: SUMMARY_DESCRIPTION,
       },
       faq: ref('contentFaq'),
+      action: ref('contentAction'),
       extensions: ref('extensionMap'),
     },
     [
@@ -710,6 +722,13 @@ const schemas = {
         closedObject,
         graphemeBound,
       }),
+      postActionUrl: createPostActionUrlDefinition(),
+      postAction: createPostActionDefinition({
+        ref,
+        closedObject,
+        graphemeBound,
+      }),
+      contentAction: createContentActionDefinition({ ref, closedObject }),
       contentEdition: createContentEditionDefinition({ ref, closedObject }),
       contentSeo: createContentSeoDefinition({
         ref,
@@ -744,6 +763,7 @@ const schemas = {
         listenRule(),
         summaryRule(),
         faqRule(),
+        actionRule(),
       ],
       $comment:
         'The content validator enforces canonical set ordering, timestamp ordering, root-kind agreement, and route/redirect collision checks.',

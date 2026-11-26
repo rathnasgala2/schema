@@ -52,8 +52,8 @@
     {
       "contract": "build-input",
       "schemaId": "urn:gala:schema:build-input:2.0.0",
-      "schemaSha256": "586896fb0aeb8417ac74ff8b3294a8683e3fe3aa24ebe087d51cc022c32425fb",
-      "ruleCount": 748,
+      "schemaSha256": "611b74c0ddc2fd16d2db24fa14688f87f589f24dacd4d44ec0df83456a443ee2",
+      "ruleCount": 782,
       "validExample": "examples/valid/build-input/canonical.json",
       "boundaryFixture": "fixtures/boundary/build-input/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/build-input/root.json"
@@ -70,8 +70,8 @@
     {
       "contract": "content-frontmatter",
       "schemaId": "urn:gala:schema:content-frontmatter:2.0.0",
-      "schemaSha256": "825b9f323659c5225158be0332d9f4effb5abf0e5db9bdbd306493f495ab839e",
-      "ruleCount": 193,
+      "schemaSha256": "3b36b8cf17a7fbfc5ed823ee55a7845c3c189344ff168cbf85b3fcd0b94c3aaf",
+      "ruleCount": 226,
       "validExample": "examples/valid/content-frontmatter/canonical.json",
       "boundaryFixture": "fixtures/boundary/content-frontmatter/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/content-frontmatter/root.json"
@@ -115,8 +115,8 @@
     {
       "contract": "interactions-config",
       "schemaId": "urn:gala:schema:interactions-config:2.0.0",
-      "schemaSha256": "7c0e77ee96f003259787ed372341abfa0dcd45e2c2d849202879d657ae61aaec",
-      "ruleCount": 128,
+      "schemaSha256": "3cd46973ac21ccf6db0324c59cb614586b552dd064d17ebbee021f2639c29734",
+      "ruleCount": 129,
       "validExample": "examples/valid/interactions-config/canonical.json",
       "boundaryFixture": "fixtures/boundary/interactions-config/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/interactions-config/root.json"
@@ -169,8 +169,8 @@
     {
       "contract": "publication",
       "schemaId": "urn:gala:schema:publication:2.0.0",
-      "schemaSha256": "9955656ec2ae3dc7c11c4e50187a41ce7a81c6bd4856a6167a3fc372d3c79e54",
-      "ruleCount": 233,
+      "schemaSha256": "44f762098450ce697e3f53003da1888e43a03c28b1a37ddffb176a3133b7a96e",
+      "ruleCount": 258,
       "validExample": "examples/valid/publication/canonical.json",
       "boundaryFixture": "fixtures/boundary/publication/root.json",
       "unknownFieldFixture": "fixtures/unknown-field/publication/root.json"
@@ -50281,6 +50281,121 @@
     },
     {
       "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentAction:oneOf",
+      "schemaPointer": "#/$defs/contentAction",
+      "keyword": "oneOf",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-1d88efaefbad46d4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6c0c664982cbbb82"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_UNION_INVALID/cases.json",
+        "caseId": "build-input-invalid-1ecf04240d28889d",
+        "expectedCode": "SCHEMA_UNION_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentAction/oneOf/1:additionalProperties",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-23d8c1fd520a7a1a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-85fd3e25ed459ad7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-d42b61429bc3a121",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentAction/oneOf/1:required:kind",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-23d8c1fd520a7a1a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-85fd3e25ed459ad7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-928042013ead4af8",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentAction/oneOf/1:type",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-23d8c1fd520a7a1a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-85fd3e25ed459ad7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-9fcc689b763ff292",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentAction/oneOf/1/properties/kind:const",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-afba58a520ab3f92"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-dc7c07c9287ce2c1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-7b0eb9de75b9dd1a",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "build-input",
       "ruleId": "build-input:#/$defs/contentBuildMediaFile:additionalProperties",
       "schemaPointer": "#/$defs/contentBuildMediaFile",
       "keyword": "additionalProperties",
@@ -52527,6 +52642,75 @@
     },
     {
       "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/5/if:required:action",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/5/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9af2d1ad9d022e5c"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-24161f68fd2f13b3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-bc2917818f2e79f2",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/5/then:required:kind",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/5/then",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2252c2fef368f388"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-bfc00c53b2b4de8a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-f516df21037cbd5e",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/allOf/5/then/properties/kind:const",
+      "schemaPointer": "#/$defs/contentFrontmatterNormalized/allOf/5/then/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-87255ab90bfe8029"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-e64a7d9bbafc26c5"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-aa8d2217164ed7e7",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fc3cc67b44d0a9c0"
+      }
+    },
+    {
+      "contract": "build-input",
       "ruleId": "build-input:#/$defs/contentFrontmatterNormalized/properties/authorIds:maxItems",
       "schemaPointer": "#/$defs/contentFrontmatterNormalized/properties/authorIds",
       "keyword": "maxItems",
@@ -54323,6 +54507,29 @@
       "invalid": {
         "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
         "caseId": "build-input-invalid-97552aeb3e611a05",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-fef1c1ff053fc217"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/interactionsConfig/properties/follows/properties/publicCount:type",
+      "schemaPointer": "#/$defs/interactionsConfig/properties/follows/properties/publicCount",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-57761ad55182070b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-143cc3c8fddeaf76"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-6173cda223389943",
         "expectedCode": "SCHEMA_TYPE_INVALID"
       },
       "unknownField": {
@@ -59061,6 +59268,581 @@
       "unknownField": {
         "file": "fixtures/unknown-field/build-input/rules.json",
         "caseId": "build-input-unknown-2e379eb7871bd65b"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction:oneOf",
+      "schemaPointer": "#/$defs/postAction",
+      "keyword": "oneOf",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f92021a8a23d5517"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-ac35b8521f261eca"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_UNION_INVALID/cases.json",
+        "caseId": "build-input-invalid-32b6aba7d23550d5",
+        "expectedCode": "SCHEMA_UNION_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/0:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-c9ea5341cca641cb",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/0:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-2d62146023ad8f82",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/0:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-41fa780f0443cc53",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/0/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0c4e7539181a5063"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-f5891a44118e62c6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-35f048738983dac2",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/0/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-4f584289c087c0fb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-b58f7d0d1929b916"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-911392d5a47c1295",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/0/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-fb4681211b7e4e42"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6be4533cf16ddb3b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-a5fd5fc038d92335",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/1:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-0593a25a3c0a9e92",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/1:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-4ab891440c4f45f0",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/1:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-46614de9dce7fc7e",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/1/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-cc85627056ecc2eb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6ff34b47e9a292c2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-73e43f0c70d6a335",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/1/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-be7b1e93064f0bdd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-6bd620f732a6d26a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-6de9639e723f5964",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/1/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7c32660363a7b6f7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-61445e7f56795e9a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-e01e978f2a353705",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "build-input-invalid-bd8ffaf1357ee01c",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-4e627912a6a0329b",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2:required:label",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-39269e17b692f44f",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2:required:url",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "build-input-invalid-4483b339517a6ff1",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-107c6e54aa8f66c7",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-7105bbed759c5b43"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-d55cd533844f0e8a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-59174c882af7ea7e",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-0bf7734ad1252f07"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-166df9766ab59870"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "build-input-invalid-aa2806ee39814415",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2/properties/label:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/label",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-f0b974b008ad60a2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-cada459c339123a3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-47267f5916da4e7e",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postAction/oneOf/2/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-2a46e649ca8c176b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-c1b3f89247942112"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "build-input-invalid-d59cb125852a4127",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postActionUrl:maxLength",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-f001532b452d2060"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "build-input-invalid-0880c67c791e7795",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postActionUrl:pattern",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8f2a5356984991f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "build-input-invalid-09a0f661eb06afa4",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "build-input",
+      "ruleId": "build-input:#/$defs/postActionUrl:type",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/build-input/rules.json",
+        "caseId": "build-input-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/build-input/rules.json",
+        "caseId": "build-input-boundary-8f2a5356984991f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/build-input/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "build-input-invalid-c1cc5cab4bc9319f",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/build-input/rules.json",
+        "caseId": "build-input-unknown-334359b90efed75d"
       }
     },
     {
@@ -73659,6 +74441,121 @@
     },
     {
       "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentAction:oneOf",
+      "schemaPointer": "#/$defs/contentAction",
+      "keyword": "oneOf",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-1d88efaefbad46d4"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-6c0c664982cbbb82"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_UNION_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-7ca58ea884bb31cc",
+        "expectedCode": "SCHEMA_UNION_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentAction/oneOf/1:additionalProperties",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-23d8c1fd520a7a1a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-85fd3e25ed459ad7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "content-frontmatter-invalid-c65fc56643763d12",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentAction/oneOf/1:required:kind",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-23d8c1fd520a7a1a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-85fd3e25ed459ad7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-63a1bda05b2eba3f",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentAction/oneOf/1:type",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-23d8c1fd520a7a1a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-85fd3e25ed459ad7"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-a7caccd793e007eb",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/contentAction/oneOf/1/properties/kind:const",
+      "schemaPointer": "#/$defs/contentAction/oneOf/1/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-afba58a520ab3f92"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-dc7c07c9287ce2c1"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-f4fea9f392fb6236",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-23d8c1fd520a7a1a"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
       "ruleId": "content-frontmatter:#/$defs/contentEdition:additionalProperties",
       "schemaPointer": "#/$defs/contentEdition",
       "keyword": "additionalProperties",
@@ -75602,6 +76499,581 @@
     },
     {
       "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction:oneOf",
+      "schemaPointer": "#/$defs/postAction",
+      "keyword": "oneOf",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-f92021a8a23d5517"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-ac35b8521f261eca"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_UNION_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-2f029f9375cd40a5",
+        "expectedCode": "SCHEMA_UNION_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/0:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "content-frontmatter-invalid-9d06fc73422cf553",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/0:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-cc2642390550ea44",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/0:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-3d47448c6af71745",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/0/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-0c4e7539181a5063"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-f5891a44118e62c6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-dfa9e0356d581e05",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/0/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-4f584289c087c0fb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-b58f7d0d1929b916"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-d89e93fd1ffac319",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/0/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-fb4681211b7e4e42"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-6be4533cf16ddb3b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-b4556a69fc897c18",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/1:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "content-frontmatter-invalid-c5c7db63e73b07c5",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/1:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-808f5dcb83baf6d1",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/1:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-9df25ec8334819a5",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/1/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-cc85627056ecc2eb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-6ff34b47e9a292c2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-f624a302a65a9fa0",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/1/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-be7b1e93064f0bdd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-6bd620f732a6d26a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-032450afbf553dad",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/1/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-7c32660363a7b6f7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-61445e7f56795e9a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-0635cf924609a839",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "content-frontmatter-invalid-12d29d68326661f1",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-b0e15685f212fdf6",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2:required:label",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-a88e40b8fad7c707",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2:required:url",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-5aae144a0e08e719",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-e55e792995e1b805",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-7105bbed759c5b43"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-d55cd533844f0e8a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-92b1e35e1b5293dc",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-0bf7734ad1252f07"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-166df9766ab59870"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-a9316706a6f9ecda",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2/properties/label:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/label",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-f0b974b008ad60a2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-cada459c339123a3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-62b208826f4d890f",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postAction/oneOf/2/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-2a46e649ca8c176b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-c1b3f89247942112"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-60de856def5be0db",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postActionUrl:maxLength",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-f001532b452d2060"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "content-frontmatter-invalid-3bcb231ac497a045",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postActionUrl:pattern",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8f2a5356984991f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-ecc339c0f615484b",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/$defs/postActionUrl:type",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-8f2a5356984991f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-049845dc03ae7b20",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
       "ruleId": "content-frontmatter:#/$defs/publishAfterDate:pattern",
       "schemaPointer": "#/$defs/publishAfterDate",
       "keyword": "pattern",
@@ -76853,6 +78325,75 @@
       "invalid": {
         "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
         "caseId": "content-frontmatter-invalid-58e2ccc34d01d8b8",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/6/if:required:action",
+      "schemaPointer": "#/allOf/6/if",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-e2f04cfb455c34e5"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-7b56ddd49951b83e"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-54e7d03a71c216f2",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/6/then:required:kind",
+      "schemaPointer": "#/allOf/6/then",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-d6f0bd1362504907"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-08e2cea0d16a8b34"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "content-frontmatter-invalid-45911573a2cacf46",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "content-frontmatter",
+      "ruleId": "content-frontmatter:#/allOf/6/then/properties/kind:const",
+      "schemaPointer": "#/allOf/6/then/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-valid-5427d230fd29a77a"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/content-frontmatter/rules.json",
+        "caseId": "content-frontmatter-boundary-b25407127e786780"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/content-frontmatter/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "content-frontmatter-invalid-ccaf32c30a9d24a0",
         "expectedCode": "SCHEMA_CONSTANT_INVALID"
       },
       "unknownField": {
@@ -186305,6 +187846,29 @@
     },
     {
       "contract": "interactions-config",
+      "ruleId": "interactions-config:#/properties/follows/properties/publicCount:type",
+      "schemaPointer": "#/properties/follows/properties/publicCount",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/interactions-config/rules.json",
+        "caseId": "interactions-config-valid-e2c16516254272ca"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/interactions-config/rules.json",
+        "caseId": "interactions-config-boundary-1412677ecec4513f"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/interactions-config/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "interactions-config-invalid-2f0502c4ce813d01",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/interactions-config/rules.json",
+        "caseId": "interactions-config-unknown-19f0e285bb649c78"
+      }
+    },
+    {
+      "contract": "interactions-config",
       "ruleId": "interactions-config:#/properties/publicCounts:additionalProperties",
       "schemaPointer": "#/properties/publicCounts",
       "keyword": "additionalProperties",
@@ -203044,6 +204608,581 @@
       "unknownField": {
         "file": "fixtures/unknown-field/publication/rules.json",
         "caseId": "publication-unknown-052d04286d010084"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction:oneOf",
+      "schemaPointer": "#/$defs/postAction",
+      "keyword": "oneOf",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-f92021a8a23d5517"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-ac35b8521f261eca"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_UNION_INVALID/cases.json",
+        "caseId": "publication-invalid-8def1d12ed89384d",
+        "expectedCode": "SCHEMA_UNION_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/0:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "publication-invalid-8cf81f3967f4d522",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/0:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "publication-invalid-7c1c559771c3eff5",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/0:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/0",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-acd5698ca96404a8"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-25c922f95b94b152"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "publication-invalid-e5fe7f75b242ca9c",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/0/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-0c4e7539181a5063"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-f5891a44118e62c6"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-a254b9bd54b680e0",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/0/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-4f584289c087c0fb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-b58f7d0d1929b916"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "publication-invalid-3a297d1ae4214fd4",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/0/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/0/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-fb4681211b7e4e42"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-6be4533cf16ddb3b"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-ffb1e4f71b89d4b8",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-acd5698ca96404a8"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/1:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "publication-invalid-f0d9846e2e63d1b8",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/1:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "publication-invalid-3fb19d05712509c7",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/1:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/1",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-2fcb544c625d7b71"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-8bb693af6a20edd9"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "publication-invalid-4c9713927c777f1e",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/1/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-cc85627056ecc2eb"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-6ff34b47e9a292c2"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-ddc977da839fbd63",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/1/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-be7b1e93064f0bdd"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-6bd620f732a6d26a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "publication-invalid-ff000eb7f2d58176",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/1/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/1/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-7c32660363a7b6f7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-61445e7f56795e9a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-33fe4d42d84e117a",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-2fcb544c625d7b71"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2:additionalProperties",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "additionalProperties",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/REQUEST_FIELD_UNKNOWN/cases.json",
+        "caseId": "publication-invalid-21d21f93460b32e5",
+        "expectedCode": "REQUEST_FIELD_UNKNOWN"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2:required:kind",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "publication-invalid-77fd802f9ed19d58",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2:required:label",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "publication-invalid-cf7ab22fd7e5dc13",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2:required:url",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "required",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_REQUIRED_FIELD_MISSING/cases.json",
+        "caseId": "publication-invalid-6a8cb71bf8c04fa0",
+        "expectedCode": "SCHEMA_REQUIRED_FIELD_MISSING"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2:type",
+      "schemaPointer": "#/$defs/postAction/oneOf/2",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-9e35280b21d99950"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-7c5171c6cbf46610"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "publication-invalid-c9ca9bbfa1231655",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2/properties/heading:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/heading",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-7105bbed759c5b43"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-d55cd533844f0e8a"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-46a0ed9609e4936c",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2/properties/kind:const",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/kind",
+      "keyword": "const",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-0bf7734ad1252f07"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-166df9766ab59870"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_CONSTANT_INVALID/cases.json",
+        "caseId": "publication-invalid-a396861793dfea02",
+        "expectedCode": "SCHEMA_CONSTANT_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2/properties/label:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/label",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-f0b974b008ad60a2"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-cada459c339123a3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-cc5bdda0b3008d70",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postAction/oneOf/2/properties/text:x-gala-graphemeLength",
+      "schemaPointer": "#/$defs/postAction/oneOf/2/properties/text",
+      "keyword": "x-gala-graphemeLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-2a46e649ca8c176b"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-c1b3f89247942112"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/GRAPHEME_LENGTH_INVALID/cases.json",
+        "caseId": "publication-invalid-d66ab45a7ae14663",
+        "expectedCode": "GRAPHEME_LENGTH_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-9e35280b21d99950"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postActionUrl:maxLength",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "maxLength",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-f001532b452d2060"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_STRING_TOO_LONG/cases.json",
+        "caseId": "publication-invalid-f8bb37f5fa2054b5",
+        "expectedCode": "SCHEMA_STRING_TOO_LONG"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postActionUrl:pattern",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "pattern",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-8f2a5356984991f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_PATTERN_INVALID/cases.json",
+        "caseId": "publication-invalid-3c569b26ac914f3d",
+        "expectedCode": "SCHEMA_PATTERN_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-334359b90efed75d"
+      }
+    },
+    {
+      "contract": "publication",
+      "ruleId": "publication:#/$defs/postActionUrl:type",
+      "schemaPointer": "#/$defs/postActionUrl",
+      "keyword": "type",
+      "valid": {
+        "file": "examples/valid/publication/rules.json",
+        "caseId": "publication-valid-1f05656c4951cce7"
+      },
+      "boundary": {
+        "file": "fixtures/boundary/publication/rules.json",
+        "caseId": "publication-boundary-8f2a5356984991f3"
+      },
+      "invalid": {
+        "file": "fixtures/invalid/publication/SCHEMA_TYPE_INVALID/cases.json",
+        "caseId": "publication-invalid-509903337c86e9f7",
+        "expectedCode": "SCHEMA_TYPE_INVALID"
+      },
+      "unknownField": {
+        "file": "fixtures/unknown-field/publication/rules.json",
+        "caseId": "publication-unknown-334359b90efed75d"
       }
     },
     {

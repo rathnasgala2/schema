@@ -117,6 +117,12 @@ export type BuildInputContactFormNormalized = Readonly<{
   readonly intro?: BuildInputRenderableBody;
 }>;
 
+export type BuildInputContentAction =
+  | BuildInputPostAction
+  | Readonly<{
+      readonly kind: 'none';
+    }>;
+
 export type BuildInputContentBuildMediaFile = Readonly<{
   readonly byteLength: number;
   readonly mediaType:
@@ -170,6 +176,7 @@ export type BuildInputContentFaq = ReadonlyArray<
 >;
 
 export type BuildInputContentFrontmatterNormalized = Readonly<{
+  readonly action?: BuildInputContentAction;
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
   readonly createdAt: BuildInputRfc3339;
   readonly deleteDate?: BuildInputDeleteDate;
@@ -238,6 +245,7 @@ export type BuildInputInteractionsConfig = Readonly<{
   }>;
   readonly follows?: Readonly<{
     readonly enabled: boolean;
+    readonly publicCount?: boolean;
   }>;
   readonly publicCounts: Readonly<{
     readonly comments: boolean;
@@ -394,6 +402,27 @@ export type BuildInputPolicyPageNormalized = Readonly<{
   readonly title: BuildInputPlainText;
 }>;
 
+export type BuildInputPostAction =
+  | Readonly<{
+      readonly heading?: BuildInputPlainText;
+      readonly kind: 'follow';
+      readonly text?: BuildInputPlainText;
+    }>
+  | Readonly<{
+      readonly heading?: BuildInputPlainText;
+      readonly kind: 'link';
+      readonly label: BuildInputPlainText;
+      readonly text?: BuildInputPlainText;
+      readonly url: BuildInputPostActionUrl;
+    }>
+  | Readonly<{
+      readonly heading?: BuildInputPlainText;
+      readonly kind: 'newsletter';
+      readonly text?: BuildInputPlainText;
+    }>;
+
+export type BuildInputPostActionUrl = string;
+
 export type BuildInputPublicationNormalized = Readonly<{
   readonly aiRights?: BuildInputAiRights;
   readonly authorIds: ReadonlyArray<BuildInputStableId>;
@@ -417,6 +446,7 @@ export type BuildInputPublicationNormalized = Readonly<{
   readonly listing?: BuildInputListing;
   readonly newsletter?: BuildInputNewsletter;
   readonly performance?: BuildInputPerformance;
+  readonly postAction?: BuildInputPostAction;
   readonly profile?: Readonly<{
     readonly body: BuildInputRenderableBody;
     readonly route: BuildInputCanonicalRoute;

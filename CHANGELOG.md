@@ -8,6 +8,41 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.56.0] - 2026-11-26
+
+The end-of-post action and an opt-in public follower count. Additive: every
+3.55.0 document still validates and nothing existing changes meaning.
+
+### Added
+
+- `publication` and the `build-input` publication record: optional `postAction`,
+  the one action shown after each post. A union on `kind`: `follow` and
+  `newsletter` (each with optional `heading`, plain text of 1 to 80 graphemes,
+  and `text`, 1 to 280 graphemes) and `link` (the same two members plus a
+  required `label`, 1 to 40 graphemes, and a required `url`). Every object is
+  closed. New definitions `$defs/postAction` and `$defs/postActionUrl` (an
+  absolute `https://` URL without credentials, or a site path starting with a
+  single `/`, at most 2048 characters). An absent member means no block.
+- `content-frontmatter` and the `build-input` content record: optional `action`,
+  a post's own override: any `postAction` shape, or `{ "kind": "none" }` to show
+  no block on that post. Allowed only when `kind` is `article`, the same shape
+  rule as `summary`. New definition `$defs/contentAction`. Absent means the
+  site's `postAction`.
+- `interactions-config` (and `build-input.modules.interactions.config`):
+  optional `follows.publicCount` boolean, meaningful with `follows.enabled`
+  true. Absent means false.
+- HTTP: `FollowState.publicFollowers` (`PublicCount`, the DEC-036 lower-bound
+  bucket of the author's followers), present for every caller when the live
+  generation's interactions file has `follows.enabled` and `follows.publicCount`
+  true; an anonymous answer carrying it is
+  `Cache-Control: public, max-age=<interactions.publicCounts.freshnessSeconds>`.
+  `followers` (exact) stays team-only. `GET` and `PUT`
+  `/v2/organizations/{organizationId}/publications/{publicationId}/post-action-settings`
+  (`PostActionSettings`: `postAction?`, `followsEnabled`, `newsletterEnabled`,
+  `openChange`, `setUp`; the request is `{ postAction: PostAction | null }`,
+  `null` removes the member). The interaction-settings reads and writes carry
+  `follows.publicCount` through the shared interactions-config schema.
+
 ## [3.55.0] - 2026-11-23
 
 Two optional article front-matter fields. Additive: every 3.54.0 document still
@@ -4679,7 +4714,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.55.0...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.56.0...HEAD
+[3.56.0]: https://github.com/rathnasgala2/schema/compare/v3.55.0...v3.56.0
 [3.55.0]: https://github.com/rathnasgala2/schema/compare/v3.54.0...v3.55.0
 [3.54.0]: https://github.com/rathnasgala2/schema/compare/v3.53.0...v3.54.0
 [3.53.0]: https://github.com/rathnasgala2/schema/compare/v3.52.0...v3.53.0

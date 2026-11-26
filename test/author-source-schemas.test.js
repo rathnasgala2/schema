@@ -79,6 +79,8 @@ const ROOT_LEDGERS = {
       'performance',
       // SCHEMA-3.26.0: the Listen switch.
       'listen',
+      // SCHEMA-3.56.0: the end-of-post action.
+      'postAction',
     ],
   },
   author: {
@@ -162,6 +164,8 @@ const ROOT_LEDGERS = {
       // SCHEMA-3.55.0: the article summary and question-and-answer list.
       'summary',
       'faq',
+      // SCHEMA-3.56.0: the post's own end-of-post action.
+      'action',
     ],
   },
 };

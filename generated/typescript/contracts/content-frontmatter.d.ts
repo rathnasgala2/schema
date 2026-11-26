@@ -5,6 +5,12 @@ export type ContentFrontmatterBcp47 = string;
 
 export type ContentFrontmatterCanonicalRoute = string;
 
+export type ContentFrontmatterContentAction =
+  | ContentFrontmatterPostAction
+  | Readonly<{
+      readonly kind: 'none';
+    }>;
+
 export type ContentFrontmatterContentEdition = Readonly<{
   readonly approvedAt: ContentFrontmatterRfc3339;
   readonly generation: Readonly<{
@@ -68,6 +74,27 @@ export type ContentFrontmatterPlainLabel = string;
 
 export type ContentFrontmatterPlainText = string;
 
+export type ContentFrontmatterPostAction =
+  | Readonly<{
+      readonly heading?: ContentFrontmatterPlainText;
+      readonly kind: 'follow';
+      readonly text?: ContentFrontmatterPlainText;
+    }>
+  | Readonly<{
+      readonly heading?: ContentFrontmatterPlainText;
+      readonly kind: 'link';
+      readonly label: ContentFrontmatterPlainText;
+      readonly text?: ContentFrontmatterPlainText;
+      readonly url: ContentFrontmatterPostActionUrl;
+    }>
+  | Readonly<{
+      readonly heading?: ContentFrontmatterPlainText;
+      readonly kind: 'newsletter';
+      readonly text?: ContentFrontmatterPlainText;
+    }>;
+
+export type ContentFrontmatterPostActionUrl = string;
+
 export type ContentFrontmatterPublishAfterDate = string;
 
 export type ContentFrontmatterRepoRelativePath = string;
@@ -87,6 +114,7 @@ export type ContentFrontmatterUrlHttps = string;
 export type ContentFrontmatterUrn = string;
 
 export type ContentFrontmatterDocument = Readonly<{
+  readonly action?: ContentFrontmatterContentAction;
   readonly authors: ReadonlyArray<ContentFrontmatterStableId>;
   readonly createdAt: ContentFrontmatterRfc3339;
   readonly deleteDate?: ContentFrontmatterDeleteDate;

@@ -101,6 +101,27 @@ export type PublicationPolicyPage = Readonly<{
   readonly title: PublicationPlainText;
 }>;
 
+export type PublicationPostAction =
+  | Readonly<{
+      readonly heading?: PublicationPlainText;
+      readonly kind: 'follow';
+      readonly text?: PublicationPlainText;
+    }>
+  | Readonly<{
+      readonly heading?: PublicationPlainText;
+      readonly kind: 'link';
+      readonly label: PublicationPlainText;
+      readonly text?: PublicationPlainText;
+      readonly url: PublicationPostActionUrl;
+    }>
+  | Readonly<{
+      readonly heading?: PublicationPlainText;
+      readonly kind: 'newsletter';
+      readonly text?: PublicationPlainText;
+    }>;
+
+export type PublicationPostActionUrl = string;
+
 export type PublicationPublicationPolicies = Readonly<{
   readonly privacy: PublicationPolicyPage;
   readonly terms: PublicationPolicyPage;
@@ -185,6 +206,7 @@ export type PublicationDocument = Readonly<{
   readonly newsletter?: PublicationNewsletter;
   readonly performance?: PublicationPerformance;
   readonly policies?: PublicationPublicationPolicies;
+  readonly postAction?: PublicationPostAction;
   readonly profile?: PublicationPublicationProfile;
   readonly recommendations?: ReadonlyArray<PublicationRecommendation>;
   readonly schemaId: 'urn:gala:schema:publication:2.0.0';

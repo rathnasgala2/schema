@@ -468,6 +468,8 @@ test('every operation a screen of the current UI calls is bound to a route, and 
   // site's script, never the App); the subscriber import is now bound to Audience.
   // Since 3.54.0 also the failed-import retry and the unlinked subscriptions
   // read until the App binds them.
+  // Since 3.56.0 also the post-action settings read and write until the App
+  // binds them to the site settings.
   assert.deepEqual(unbound, [
     'deletePublicCommentsByCommentId',
     'deletePublicCommentsByCommentIdLike',
@@ -487,6 +489,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainRegistrationsByRegistrationId',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdDomainsByDomainId',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdOverview',
+    'getOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettings',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdRepositoryChanges',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdSiteHostingCheck',
     'getOrganizationsByOrganizationIdPublicationsByPublicationIdTransfersByTransferId',
@@ -543,6 +546,7 @@ test('every operation a screen of the current UI calls is bound to a route, and 
     'postWorkloadsVideoRendersByVideoIdHeartbeat',
     'postWorkloadsVideoRendersClaim',
     'putOrganizationsByOrganizationIdPublicationsByPublicationIdDestination',
+    'putOrganizationsByOrganizationIdPublicationsByPublicationIdPostActionSettings',
     'putPublicCommentsByCommentIdLike',
     'putPublicPublicationsByPublicationIdAuthorsByAuthorIdFollow',
     'putPublicPublicationsByPublicationIdContentsByContentIdPollsByPollIdVote',
