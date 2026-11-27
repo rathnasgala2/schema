@@ -6875,11 +6875,13 @@ components:
       description: "SCHEMA-3.57.0: the most recent submission attempt for the site. `at` is when it was made, `urlCount` how many pages were in it (0 when nothing was sent) and `retryAt` when Galascribe will try again, present only for an outcome that is retried."
       properties:
         at:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
           format: date-time
           type: string
         outcome:
           $ref: "#/components/schemas/IndexnowOutcome"
         retryAt:
+          description: "Canonical Gala instant: the UTC millisecond subset of RFC 3339, exactly `YYYY-MM-DDThh:mm:ss.sssZ`. Stated here rather than as a `pattern` because a generated `OffsetDateTime` cannot carry one (LOCAL-56)."
           format: date-time
           type: string
         urlCount:
