@@ -12483,6 +12483,13 @@ components:
       type: string
     PortableContentFrontmatterContentAction:
       description: "SCHEMA-3.56.0: the action shown after this article, overriding the site's `postAction`: any `postAction` shape, or `{ \"kind\": \"none\" }` to show no block on this article. Absent means the site's `postAction`. `action` is allowed only when `kind` is `article`."
+      discriminator:
+        mapping:
+          follow: "#/components/schemas/PortableContentFrontmatterPostActionFollow"
+          link: "#/components/schemas/PortableContentFrontmatterPostActionLink"
+          newsletter: "#/components/schemas/PortableContentFrontmatterPostActionNewsletter"
+          none: "#/components/schemas/PortableContentFrontmatterPostActionNone"
+        propertyName: kind
       oneOf:
         - $ref: "#/components/schemas/PortableContentFrontmatterPostActionFollow"
         - $ref: "#/components/schemas/PortableContentFrontmatterPostActionNewsletter"
@@ -19214,6 +19221,12 @@ components:
       type: object
     PortablePublicationPostAction:
       description: "SCHEMA-3.56.0: the one action shown after a post: `follow` (the Follow button), `newsletter` (the newsletter panel, which works with any newsletter on the site, in Galascribe mode or link mode) or `link` (a button to `url`). `heading` and `text` are optional plain text; `label` and `url` are required for `link`. An absent member means no block. SCHEMA-3.56.1: the union is flat, one `oneOf` of the three named definitions `postActionFollow`, `postActionNewsletter` and `postActionLink`."
+      discriminator:
+        mapping:
+          follow: "#/components/schemas/PortablePublicationPostActionFollow"
+          link: "#/components/schemas/PortablePublicationPostActionLink"
+          newsletter: "#/components/schemas/PortablePublicationPostActionNewsletter"
+        propertyName: kind
       oneOf:
         - $ref: "#/components/schemas/PortablePublicationPostActionFollow"
         - $ref: "#/components/schemas/PortablePublicationPostActionNewsletter"
@@ -24645,6 +24658,12 @@ components:
       properties:
         postAction:
           description: "SCHEMA-3.56.0: the end-of-post action to write as the `postAction` member of `gala/publication.json`; null removes the member."
+          discriminator:
+            mapping:
+              follow: "#/components/schemas/PortablePublicationPostActionFollow"
+              link: "#/components/schemas/PortablePublicationPostActionLink"
+              newsletter: "#/components/schemas/PortablePublicationPostActionNewsletter"
+            propertyName: kind
           oneOf:
             - $ref: "#/components/schemas/PortablePublicationPostActionFollow"
             - $ref: "#/components/schemas/PortablePublicationPostActionNewsletter"

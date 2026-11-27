@@ -8,6 +8,19 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.56.2] - 2026-11-26
+
+A patch for client generators. The three post-action unions in the OpenAPI
+document (`PortablePublicationPostAction`,
+`PortableContentFrontmatterContentAction` and the `postAction` member of the
+post-action settings write, which also allows null) now carry an OpenAPI
+`discriminator` on `kind` with an explicit mapping (`follow`, `newsletter`,
+`link`, and `none` for the front matter). Generated clients then pick the member
+by `kind`; before, they took the first member that has a `kind` and dropped
+`label` and `url` of a `link`. The keyword is added to the OpenAPI bundle only;
+the JSON Schema files are unchanged, so no instance changes: the same documents
+validate and the same diagnostics are reported.
+
 ## [3.56.1] - 2026-11-26
 
 A patch for client generators. `$defs/contentAction` was a `oneOf` whose branch
@@ -4725,7 +4738,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.56.1...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.56.2...HEAD
+[3.56.2]: https://github.com/rathnasgala2/schema/compare/v3.56.1...v3.56.2
 [3.56.1]: https://github.com/rathnasgala2/schema/compare/v3.56.0...v3.56.1
 [3.56.0]: https://github.com/rathnasgala2/schema/compare/v3.55.0...v3.56.0
 [3.55.0]: https://github.com/rathnasgala2/schema/compare/v3.54.0...v3.55.0

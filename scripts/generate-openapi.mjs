@@ -1283,7 +1283,59 @@ async function bundleExternalSchemaReferences(openApiDocument) {
     ...document.components.schemas,
     ...externalComponents,
   };
+  addPostActionDiscriminators(document);
   return document;
+}
+
+/**
+ * SCHEMA-3.56.2: give every post-action union an OpenAPI `discriminator` on
+ * `kind` with an explicit mapping, so client generators dispatch by `kind`
+ * instead of taking the first member that has one. The keyword is added to the
+ * OpenAPI bundle only: the JSON Schema roots stay strict-validator clean and
+ * validate exactly as before. A union is any `oneOf` whose `$ref` members
+ * include the named `PostAction{Follow,Newsletter,Link,None}` components; a
+ * `null` member (the settings write) is left in the `oneOf` unmapped.
+ *
+ * @param {JsonObject} document bundled OpenAPI document
+ * @returns {void}
+ */
+function addPostActionDiscriminators(document) {
+  const schemas = /** @type {Record<string, JsonObject>} */ (
+    document.components.schemas
+  );
+  const arm =
+    /^#\/components\/schemas\/(.*PostAction(?:Follow|Newsletter|Link|None))$/u;
+  /**
+   * @param {unknown} node schema fragment
+   * @returns {void}
+   */
+  function visit(node) {
+    if (node === null || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    const schema = /** @type {JsonObject} */ (node);
+    if (Array.isArray(schema.oneOf)) {
+      /** @type {Record<string, string>} */
+      const mapping = {};
+      for (const member of schema.oneOf) {
+        const match = arm.exec(String(member?.$ref ?? ''));
+        if (match === null) continue;
+        const armName = String(match[1]);
+        const kind = schemas[armName]?.properties?.kind?.['x-gala-const'];
+        if (typeof kind !== 'string') {
+          throw new Error(`Post action arm ${armName} has no constant kind`);
+        }
+        mapping[kind] = member.$ref;
+      }
+      if (Object.keys(mapping).length > 0) {
+        schema.discriminator = { mapping, propertyName: 'kind' };
+      }
+    }
+    Object.values(schema).forEach(visit);
+  }
+  visit(schemas);
 }
 
 /**
