@@ -21960,6 +21960,86 @@ components:
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferralProgramResponse:
       allOf:
         - $ref: '#/components/schemas/NewsletterReferralProgram'
+    IndexnowOutcome:
+      description:
+        "SCHEMA-3.57.0: what happened to the last submission to search engines.
+        SUBMITTED: the engines accepted the list of new and changed pages.
+        NOTHING_CHANGED: the sitemap had no new or changed pages, so nothing was
+        sent. KEY_NOT_VISIBLE: the site's key file did not answer yet (a freshly
+        published site can take about ten minutes to show it); retried
+        automatically. RATE_LIMITED: the engines asked Galascribe to slow down;
+        retried at `retryAt`. REFUSED: the engines rejected the submission; not
+        retried until the site is next published. UNREACHABLE: the engines could
+        not be reached or had an error; retried automatically."
+      enum:
+        - SUBMITTED
+        - NOTHING_CHANGED
+        - KEY_NOT_VISIBLE
+        - RATE_LIMITED
+        - REFUSED
+        - UNREACHABLE
+      type: string
+    IndexnowLastSubmission:
+      additionalProperties: false
+      description:
+        'SCHEMA-3.57.0: the most recent submission attempt for the site. `at` is
+        when it was made, `urlCount` how many pages were in it (0 when nothing
+        was sent) and `retryAt` when Galascribe will try again, present only for
+        an outcome that is retried.'
+      properties:
+        at:
+          format: date-time
+          type: string
+        outcome:
+          $ref: '#/components/schemas/IndexnowOutcome'
+        retryAt:
+          format: date-time
+          type: string
+        urlCount:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - at
+        - urlCount
+        - outcome
+      type: object
+    IndexnowSettings:
+      additionalProperties: false
+      description:
+        "SCHEMA-3.57.0: whether Galascribe tells search engines through IndexNow
+        when the site's pages are new or changed. `keyLocation` is the public
+        address of the site's key file and is null until the site has a public
+        address. `last` is absent until a first submission has been attempted.
+        Google is not part of IndexNow; it reads the sitemap."
+      properties:
+        enabled:
+          type: boolean
+        keyLocation:
+          type:
+            - string
+            - 'null'
+        last:
+          $ref: '#/components/schemas/IndexnowLastSubmission'
+      required:
+        - enabled
+        - keyLocation
+      type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsResponse:
+      allOf:
+        - $ref: '#/components/schemas/IndexnowSettings'
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsRequest:
+      additionalProperties: false
+      description: SCHEMA-3.57.0. Turn the search engine updates on or off.
+      properties:
+        enabled:
+          type: boolean
+      required:
+        - enabled
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsResponse:
+      allOf:
+        - $ref: '#/components/schemas/IndexnowSettings'
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdNewsletterReferrersResponse:
       allOf:
         - $ref: '#/components/schemas/NewsletterReferrerList'

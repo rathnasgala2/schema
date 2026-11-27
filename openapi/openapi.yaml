@@ -4416,6 +4416,9 @@ components:
         - items
         - hasMore
       type: object
+    GetOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsResponse:
+      allOf:
+        - $ref: "#/components/schemas/IndexnowSettings"
     GetOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionAggregatesResponse:
       additionalProperties: false
       properties:
@@ -6866,6 +6869,53 @@ components:
         - expiresAt
         - consequences
         - consequenceDigest
+      type: object
+    IndexnowLastSubmission:
+      additionalProperties: false
+      description: "SCHEMA-3.57.0: the most recent submission attempt for the site. `at` is when it was made, `urlCount` how many pages were in it (0 when nothing was sent) and `retryAt` when Galascribe will try again, present only for an outcome that is retried."
+      properties:
+        at:
+          format: date-time
+          type: string
+        outcome:
+          $ref: "#/components/schemas/IndexnowOutcome"
+        retryAt:
+          format: date-time
+          type: string
+        urlCount:
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+        - at
+        - urlCount
+        - outcome
+      type: object
+    IndexnowOutcome:
+      description: "SCHEMA-3.57.0: what happened to the last submission to search engines. SUBMITTED: the engines accepted the list of new and changed pages. NOTHING_CHANGED: the sitemap had no new or changed pages, so nothing was sent. KEY_NOT_VISIBLE: the site's key file did not answer yet (a freshly published site can take about ten minutes to show it); retried automatically. RATE_LIMITED: the engines asked Galascribe to slow down; retried at `retryAt`. REFUSED: the engines rejected the submission; not retried until the site is next published. UNREACHABLE: the engines could not be reached or had an error; retried automatically."
+      enum:
+        - SUBMITTED
+        - NOTHING_CHANGED
+        - KEY_NOT_VISIBLE
+        - RATE_LIMITED
+        - REFUSED
+        - UNREACHABLE
+      type: string
+    IndexnowSettings:
+      additionalProperties: false
+      description: "SCHEMA-3.57.0: whether Galascribe tells search engines through IndexNow when the site's pages are new or changed. `keyLocation` is the public address of the site's key file and is null until the site has a public address. `last` is absent until a first submission has been attempted. Google is not part of IndexNow; it reads the sitemap."
+      properties:
+        enabled:
+          type: boolean
+        keyLocation:
+          type:
+            - string
+            - "null"
+        last:
+          $ref: "#/components/schemas/IndexnowLastSubmission"
+      required:
+        - enabled
+        - keyLocation
       type: object
     Interview:
       additionalProperties: false
@@ -24421,6 +24471,18 @@ components:
         - version
         - state
       type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsRequest:
+      additionalProperties: false
+      description: SCHEMA-3.57.0. Turn the search engine updates on or off.
+      properties:
+        enabled:
+          type: boolean
+      required:
+        - enabled
+      type: object
+    PutOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsResponse:
+      allOf:
+        - $ref: "#/components/schemas/IndexnowSettings"
     PutOrganizationsByOrganizationIdPublicationsByPublicationIdInteractionSettingsRequest:
       additionalProperties: false
       properties:
@@ -54222,6 +54284,413 @@ paths:
       x-gala-state-guards:
         - NONE
       x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+  /v2/organizations/{organizationId}/publications/{publicationId}/indexnow-settings:
+    get:
+      description: SCHEMA-3.57.0. Whether Galascribe tells search engines (Bing, Yandex, Naver, Seznam, Yep and others that share IndexNow) when this site's pages are new or changed, and what happened the last time it did. Google is not part of IndexNow and reads the sitemap instead. `keyLocation` is the address of the site's key file, or null until the site has a public address. `last` is absent until a first submission has been attempted. Needs `publication.view`. Available on every plan.
+      operationId: getOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettings
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    enabled: true
+                    keyLocation: https://example.com/018f0000-0000-7000-8000-000000000001.txt
+                    last:
+                      at: "2026-11-27T10:00:00Z"
+                      outcome: SUBMITTED
+                      urlCount: 12
+              schema:
+                $ref: "#/components/schemas/GetOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsResponse"
+          description: read the search engine update settings succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+      security:
+        - browserSession: []
+      summary: read the search engine update settings
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.view
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: read the search engine update settings
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: safe-query
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: query
+      x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
+    put:
+      description: SCHEMA-3.57.0. Turns the search engine updates on or off. The setting is held by Galascribe, not in the site's repository, and takes effect at once; turning it off only stops submissions, the key file stays on the site. Needs `publication.settings.manage`. Available on every plan.
+      operationId: putOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettings
+      parameters:
+        - $ref: "#/components/parameters/XCorrelationId"
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: organizationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - example: 018f0000-0000-7000-8000-000000000001
+          in: path
+          name: publicationId
+          required: true
+          schema:
+            format: uuid
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/XCsrfToken"
+      requestBody:
+        content:
+          application/json:
+            examples:
+              nominal:
+                summary: Nominal valid request
+                value:
+                  enabled: true
+            schema:
+              $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                nominal:
+                  summary: Nominal successful response
+                  value:
+                    enabled: true
+                    keyLocation: https://example.com/018f0000-0000-7000-8000-000000000001.txt
+                    last:
+                      at: "2026-11-27T10:00:00Z"
+                      outcome: SUBMITTED
+                      urlCount: 12
+              schema:
+                $ref: "#/components/schemas/PutOrganizationsByOrganizationIdPublicationsByPublicationIdIndexnowSettingsResponse"
+          description: save the search engine update settings succeeded
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+        "400":
+          content:
+            application/problem+json:
+              examples:
+                REQUEST_FIELD_UNKNOWN:
+                  summary: REQUEST_FIELD_UNKNOWN
+                  value:
+                    code: REQUEST_FIELD_UNKNOWN
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: REQUEST_FIELD_UNKNOWN
+                    type: urn:gala:problem:request-field-unknown
+                VALIDATION_FAILED:
+                  summary: VALIDATION_FAILED
+                  value:
+                    code: VALIDATION_FAILED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 400
+                    title: VALIDATION_FAILED
+                    type: urn:gala:problem:validation-failed
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: REQUEST_FIELD_UNKNOWN, VALIDATION_FAILED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - REQUEST_FIELD_UNKNOWN
+            - VALIDATION_FAILED
+        "401":
+          content:
+            application/problem+json:
+              examples:
+                AUTHENTICATION_REQUIRED:
+                  summary: AUTHENTICATION_REQUIRED
+                  value:
+                    code: AUTHENTICATION_REQUIRED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 401
+                    title: AUTHENTICATION_REQUIRED
+                    type: urn:gala:problem:authentication-required
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHENTICATION_REQUIRED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHENTICATION_REQUIRED
+        "403":
+          content:
+            application/problem+json:
+              examples:
+                AUTHORIZATION_DENIED:
+                  summary: AUTHORIZATION_DENIED
+                  value:
+                    code: AUTHORIZATION_DENIED
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 403
+                    title: AUTHORIZATION_DENIED
+                    type: urn:gala:problem:authorization-denied
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: AUTHORIZATION_DENIED
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - AUTHORIZATION_DENIED
+        "404":
+          content:
+            application/problem+json:
+              examples:
+                RESOURCE_NOT_FOUND:
+                  summary: RESOURCE_NOT_FOUND
+                  value:
+                    code: RESOURCE_NOT_FOUND
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 404
+                    title: RESOURCE_NOT_FOUND
+                    type: urn:gala:problem:resource-not-found
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: RESOURCE_NOT_FOUND
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - RESOURCE_NOT_FOUND
+        "409":
+          content:
+            application/problem+json:
+              examples:
+                COMMAND_REPLAY_CONFLICT:
+                  summary: COMMAND_REPLAY_CONFLICT
+                  value:
+                    code: COMMAND_REPLAY_CONFLICT
+                    correlationId: 018f0000-0000-7000-8000-000000000001
+                    detail: See the operation contract.
+                    errors: []
+                    retryable: false
+                    schemaId: urn:gala:schema:problem:2.0.0
+                    schemaVersion: 2.0.0
+                    status: 409
+                    title: COMMAND_REPLAY_CONFLICT
+                    type: urn:gala:problem:command-replay-conflict
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: COMMAND_REPLAY_CONFLICT
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+            X-Correlation-Id:
+              $ref: "#/components/headers/XCorrelationId"
+          x-gala-problem-codes:
+            - COMMAND_REPLAY_CONFLICT
+      security:
+        - browserSession: []
+      summary: save the search engine update settings
+      tags:
+        - audience
+      x-gala-activation-gate: MVP
+      x-gala-activation-guards:
+        - NONE
+      x-gala-capability-key: publication.settings.manage
+      x-gala-concurrency: authorization-and-publication-epochs
+      x-gala-conditional-capabilities: []
+      x-gala-example-profile: NOMINAL_SUCCESS_AND_EACH_REACHABLE_PROBLEM
+      x-gala-nullability: required-and-nullable-are-explicit
+      x-gala-purpose: save the search engine update settings
+      x-gala-reachable-problems:
+        - AUTHENTICATION_REQUIRED
+        - AUTHORIZATION_DENIED
+        - COMMAND_REPLAY_CONFLICT
+        - REQUEST_FIELD_UNKNOWN
+        - RESOURCE_NOT_FOUND
+        - VALIDATION_FAILED
+      x-gala-replay-identity: idempotency-key
+      x-gala-state-guards:
+        - NONE
+      x-gala-success-category: protocol
       x-gala-tenant-scope: ORGANIZATION_AND_PUBLICATION_PATH
   /v2/organizations/{organizationId}/publications/{publicationId}/interaction-aggregates:
     get:

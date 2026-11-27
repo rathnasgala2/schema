@@ -8,6 +8,21 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [3.57.0] - 2026-11-27
+
+IndexNow settings for a site. Two operations on
+`/v2/organizations/{organizationId}/publications/{publicationId}/indexnow-settings`:
+`GET` (capability `publication.view`) and `PUT` (capability
+`publication.settings.manage`, Idempotency-Key and CSRF token, request
+`{enabled}`), both answering `IndexnowSettings`: `enabled`, `keyLocation` (the
+public address of the site's key file, null until the site has a public address)
+and `last` (absent until a first submission: `at`, `urlCount`, `outcome`, and
+`retryAt` for an outcome that is retried). `outcome` is `SUBMITTED`,
+`NOTHING_CHANGED`, `KEY_NOT_VISIBLE`, `RATE_LIMITED`, `REFUSED` or
+`UNREACHABLE`. The setting is held by Galascribe, not in the repository, saves
+at once, and is available on every plan (no `PLAN_REQUIRED`). No JSON Schema
+file changes and no union is introduced.
+
 ## [3.56.2] - 2026-11-26
 
 A patch for client generators. The three post-action unions in the OpenAPI
@@ -4738,7 +4753,8 @@ with independently verifiable dates.
   `types/internal/http-problem-contract.d.ts` declaration, and a stale
   `openapi.yaml` digest in `docs/catalogs/schema-inventory.json`.
 
-[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.56.2...HEAD
+[Unreleased]: https://github.com/rathnasgala2/schema/compare/v3.57.0...HEAD
+[3.57.0]: https://github.com/rathnasgala2/schema/compare/v3.56.2...v3.57.0
 [3.56.2]: https://github.com/rathnasgala2/schema/compare/v3.56.1...v3.56.2
 [3.56.1]: https://github.com/rathnasgala2/schema/compare/v3.56.0...v3.56.1
 [3.56.0]: https://github.com/rathnasgala2/schema/compare/v3.55.0...v3.56.0
